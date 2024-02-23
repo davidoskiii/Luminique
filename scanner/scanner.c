@@ -212,6 +212,12 @@ Token scanToken() {
     case '>':
       return makeToken(
           match('=') ? TOKEN_GREATER_EQUAL : TOKEN_GREATER);
+
+    case '&':
+      return makeToken(match('&') ? TOKEN_AND : TOKEN_ERROR);
+    case '|':
+      return makeToken(match('|') ? TOKEN_OR : TOKEN_ERROR);
+
     case '"': return string();
   }
 
