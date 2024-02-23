@@ -2,7 +2,7 @@
 #include <math.h>
 
 #include "../common.h"
-#include "./compiler/compiler.h"
+#include "../compiler/compiler.h"
 #include "../debug/debug.h"
 #include "vm.h"
 
