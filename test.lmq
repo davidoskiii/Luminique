@@ -64,8 +64,9 @@ switch (i) {
 
 print(i);
 
-fun add(n1, n2) {
-  print(n1 + n2);
+fun fib(n) {
+  if (n < 2) return n;
+  return fib(n - 2) + fib(n - 1);
 }
 
-add(5, 6);
+print(fib(35));
