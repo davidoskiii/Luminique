@@ -228,9 +228,17 @@ Token scanToken() {
           match('=') ? TOKEN_GREATER_EQUAL : TOKEN_GREATER);
 
     case '&':
-      return makeToken(match('&') ? TOKEN_AND : TOKEN_ERROR);
+      if (match('&')) {
+        return makeToken(TOKEN_AND);
+      } else {
+        return errorToken("Expected '&'");
+      }
     case '|':
-      return makeToken(match('|') ? TOKEN_OR : TOKEN_ERROR);
+      if (match('|')) {
+        return makeToken(TOKEN_OR);
+      } else {
+        return errorToken("Expected '|'");
+      }
 
     case '"': return string();
   }

@@ -20,3 +20,16 @@ if (message == "Hello, python!") {
 } else {
   print("No hi?");
 }
+
+if ((5 == 5) && (2 == 2)) {
+  print("and: true");
+} else {
+  print("and: flase");
+}
+
+if ((5 == 5) || (2 == 5)) {
+  print("or: true");
+} else {
+  print("or: flase");
+}
+
