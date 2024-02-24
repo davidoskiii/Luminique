@@ -136,11 +136,11 @@ static uint8_t makeConstant(Value value) {
 static void endCompiler() {
   emitReturn();
 
-#ifdef DEBUG_PRINT_CODE
-  if (!parser.hadError) {
-    disassembleChunk(currentChunk(), "code");
-  }
-#endif
+// #ifdef DEBUG_PRINT_CODE
+//  if (!parser.hadError) {
+//    disassembleChunk(currentChunk(), "code");
+//  }
+// #endif
 }
 
 static void expression();
