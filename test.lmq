@@ -1,8 +1,14 @@
-let message = "Hello, world!";
+let message = "Hello, luminique!";
+
+{
+  let message = "Hello, world!";
+
+  print(message + " | 1");
+}
 
 // This is a comment
 
 /* And this is a multiline
    comment */
 
-print(message);
+print(message + " | 2");
