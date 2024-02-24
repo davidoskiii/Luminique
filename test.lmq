@@ -33,3 +33,12 @@ if ((5 == 5) || (2 == 5)) {
   print("or: flase");
 }
 
+let i = 0;
+let number = 0;
+
+while (i < 10) {
+  i = i + 1;
+  number = number + i;
+}
+
+print(number);
