@@ -1,0 +1,35 @@
+function calculate(n1, n2, operation) {
+  switch (operation) {
+    case "*": {
+      return n1 * n2;
+    }
+    case "/": {
+      return n1 / n2;
+    }
+    case "+": {
+      return n1 + n2;
+    }
+    case "-": {
+      return n1 - n2;
+    }
+    default: {
+      return "'" + operation + "' is not a valid operation";
+    }
+  }
+}
+
+let flag = true;
+
+print("Calculator");
+
+while (flag) {
+  let n1 = scanf("Tell me the first number (q to exit): ");
+  let n2 = scanf("Tell me the second number (q to exit): ");
+  let op = scanf("Tell me the operation (q to exit): ");
+
+  if ((n1 or n2 or op) == "q") {
+    flag = false;
+  }
+
+  print(calculate(num(n1), num(n2), op));
+}

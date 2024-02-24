@@ -3,19 +3,17 @@
 #include <math.h>
 #include <string.h>
 #include <time.h>
+#include <stdlib.h>
 
 #include "../common.h"
 #include "../compiler/compiler.h"
 #include "../debug/debug.h"
 #include "../object/object.h"
 #include "../memory/memory.h"
+#include "../native/native.c"
 #include "vm.h"
 
 VM vm;
-
-static Value clockNative(int argCount, Value* args) {
-  return NUMBER_VAL((double)clock() / CLOCKS_PER_SEC);
-}
 
 static void resetStack() {
   vm.stackTop = vm.stack;
@@ -61,6 +59,17 @@ void initVM() {
   initTable(&vm.strings);
 
   defineNative("clock", clockNative);
+  defineNative("printf", printNative);
+  defineNative("randint", randomNative);
+  defineNative("currentTime", currentTimeNative);
+  defineNative("sqrt", sqrtNative);
+  defineNative("abs", absNative);
+  defineNative("ceil", ceilNative);
+  defineNative("fabs", fabsNative);
+  defineNative("factorial", factorialNative);
+  defineNative("fmod", fmodNative);
+  defineNative("scanf", inputNative);
+  defineNative("num", numNative);
 }
 
 void freeVM() {
@@ -109,10 +118,13 @@ static bool callValue(Value callee, int argCount) {
         return call(AS_FUNCTION(callee), argCount);
       case OBJ_NATIVE: {
         NativeFn native = AS_NATIVE(callee);
-        Value result = native(argCount, vm.stackTop - argCount);
-        vm.stackTop -= argCount + 1;
-        push(result);
-        return true;
+        if (native(argCount, vm.stackTop - argCount)) {
+          vm.stackTop -= argCount;
+          return true;
+        } else {
+          runtimeError(AS_STRING(vm.stackTop[-argCount - 1])->chars);
+          return false;
+        }
       }
       default:
         break; // Non-callable object type.
