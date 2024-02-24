@@ -468,6 +468,20 @@ static void parsePrecedence(Precedence precedence) {
 
 static void expression() {
   parsePrecedence(PREC_ASSIGNMENT);
+
+  if (match(TOKEN_QUESTION)) {
+    int elseJump = emitJump(OP_JUMP_IF_FALSE);
+    emitByte(OP_POP);
+    expression();
+    consume(TOKEN_COLON, "Expect ':' after true branch");
+    int endJump = emitJump(OP_JUMP);
+
+    patchJump(elseJump);
+    emitByte(OP_POP);
+    expression();
+
+    patchJump(endJump);
+  }
 }
 
 static void block() {

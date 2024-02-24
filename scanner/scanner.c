@@ -229,6 +229,7 @@ Token scanToken() {
     case '%': return makeToken(TOKEN_MODULO);
     case '^': return makeToken(TOKEN_POWER);
     case ':': return makeToken(TOKEN_COLON);
+    case '?': return makeToken(TOKEN_QUESTION);
 
     case '!':
       return makeToken(
