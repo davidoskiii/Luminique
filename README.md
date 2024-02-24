@@ -2,13 +2,13 @@
 
 
 [ ] classes \
-[ ] functions \
-[ ] built-in-library \
+[x] functions \
+[x] built-in-library \
 [x] operations \
 [ ] unary prefix and postfix increment/decrement operators \
-[ ] loops \
+[x] loops \
 [ ] loops controls (continue, break) \
-[ ] multiline comments (/* this is a comment */) \
+[x] multiline comments (/* this is a comment */) \
 [ ] lambdas \
-[ ] ternaries \
+[x] ternaries \
 [ ] lists? 
