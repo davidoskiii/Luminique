@@ -2,6 +2,7 @@
 #define cluminique_vm_h
 
 #include "../chunk/chunk.h"
+#include "../table/table.h"
 #include "../value/value.h"
 
 #define STACK_MAX 256
@@ -11,6 +12,7 @@ typedef struct {
   uint8_t* ip;
   Value stack[STACK_MAX];
   Value* stackTop;
+  Table strings;
   Obj* objects;
 } VM;
 
