@@ -12,3 +12,11 @@ let message = "Hello, luminique!";
    comment */
 
 print(message + " | 2");
+
+if (message == "Hello, python!") {
+  print("Not my language");
+} else if (message == "Hello, luminique!") {
+  print("There it is");
+} else {
+  print("No hi?");
+}
