@@ -43,6 +43,23 @@ while (i < 10) {
 
 print(number);
 
-for (let j = 0; j < 5; j = j + 1) {
-  print(j);
+for (let j = 0; j <= 5; j = j + 1) {
+  i = i + 1;
 }
+
+switch (i) {
+  case 1:
+    print("one");
+  case 2:
+    print("two");
+  case 3:
+    print("three");
+  case 10:
+    print("ten");
+  case 16:
+    print("sixteen");
+  default:
+    print("default");
+}
+
+print(i);
