@@ -1,0 +1,8 @@
+let message = "Hello, world!";
+
+// This is a comment
+
+/* And this is a multiline
+   comment */
+
+print(message);

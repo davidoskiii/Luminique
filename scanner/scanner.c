@@ -86,8 +86,21 @@ static void skipWhitespace() {
         break;
       case '/':
         if (peekNext() == '/') {
-          // A comment goes until the end of the line.
+          // Single-line comment: skip until the end of the line.
           while (peek() != '\n' && !isAtEnd()) advance();
+        } else if (peekNext() == '*') {
+          // Multi-line comment: skip until the closing token '*/'.
+          advance();
+          advance();
+          while (!(peek() == '*' && peekNext() == '/') && !isAtEnd()) {
+            if (peek() == '\n') {
+              scanner.line++;
+            }
+            advance();
+          }
+
+          advance();
+          advance();
         } else {
           return;
         }
@@ -97,6 +110,7 @@ static void skipWhitespace() {
     }
   }
 }
+
 
 static TokenType checkKeyword(int start, int length,
     const char* rest, TokenType type) {
