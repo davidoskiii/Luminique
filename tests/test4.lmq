@@ -1,6 +1,8 @@
-class Pair {}
+class Scone {
+  function topping(first, second) {
+    print("scone with " + first + " and " + second);
+  }
+}
 
-let pair = Pair();
-pair.first = 1;
-pair.second = 2;
-print(pair.first + pair.second); // 3.
+let scone = Scone();
+scone.topping("berries", "cream");
