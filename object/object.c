@@ -26,6 +26,12 @@ static Obj* allocateObject(size_t size, ObjType type) {
   return object;
 }
 
+ObjClass* newClass(ObjString* name) {
+  ObjClass* klass = ALLOCATE_OBJ(ObjClass, OBJ_CLASS);
+  klass->name = name; 
+  return klass;
+}
+
 ObjClosure* newClosure(ObjFunction* function) {
   ObjUpvalue** upvalues = ALLOCATE(ObjUpvalue*, function->upvalueCount);
   for (int i = 0; i < function->upvalueCount; i++) {
@@ -46,6 +52,13 @@ ObjFunction* newFunction() {
   function->name = NULL;
   initChunk(&function->chunk);
   return function;
+}
+
+ObjInstance* newInstance(ObjClass* klass) {
+  ObjInstance* instance = ALLOCATE_OBJ(ObjInstance, OBJ_INSTANCE);
+  instance->klass = klass;
+  initTable(&instance->fields);
+  return instance;
 }
 
 ObjNative* newNative(NativeFn function) {
@@ -91,49 +104,35 @@ ObjString* takeString(char* chars, int length) {
 char* createFormattedString(const char* format, ...) {
   va_list args;
   va_start(args, format);
-  // Determine the length of the formatted string
   size_t len = vsnprintf(NULL, 0, format, args);
   va_end(args);
-
-  // Allocate memory for the formatted string
   char* result = ALLOCATE(char, len + 1);
 
   va_start(args, format);
-  // Create the formatted string
   vsnprintf(result, len + 1, format, args);
   va_end(args);
 
   return result;
 }
 
-// Updated copyString function to take a formatted string
 ObjString* copyFormattedString(const char* format, ...) {
   va_list args;
   va_start(args, format);
-  // Determine the length of the formatted string
   size_t len = vsnprintf(NULL, 0, format, args);
   va_end(args);
 
-  // Allocate memory for the formatted string
   char* heapChars = ALLOCATE(char, len + 1);
 
   va_start(args, format);
-  // Create the formatted string
   vsnprintf(heapChars, len + 1, format, args);
   va_end(args);
-
-  // Calculate the hash of the formatted string
   uint32_t hash = hashString(heapChars, len);
-
-  // Check if the string is already interned
   ObjString* interned = tableFindString(&vm.strings, heapChars, len, hash);
   if (interned != NULL) {
-    // String is already interned, free the memory allocated for the formatted string
     FREE_ARRAY(char, heapChars, len + 1);
     return interned;
   }
 
-  // String is not interned, create a new string
   return allocateString(heapChars, len, hash);
 }
 
@@ -168,11 +167,18 @@ static void printFunction(ObjFunction* function) {
 
 void printObject(Value value) {
   switch (OBJ_TYPE(value)) {
+    case OBJ_CLASS:
+      printf("%s", AS_CLASS(value)->name->chars);
+      break;
     case OBJ_CLOSURE:
       printFunction(AS_CLOSURE(value)->function);
       break;
     case OBJ_FUNCTION:
       printFunction(AS_FUNCTION(value));
+      break;
+    case OBJ_INSTANCE:
+      printf("%s instance",
+             AS_INSTANCE(value)->klass->name->chars);
       break;
     case OBJ_NATIVE:
       printf("<native fn>");
