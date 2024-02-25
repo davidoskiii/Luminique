@@ -5,10 +5,17 @@
 #include <time.h>
 #include <stdlib.h>
 
-#include "../object/object.h"
-#include "../vm/vm.h"
+#include "native.h"
 
-static unsigned int seed = 0; // Global seed variable
+static unsigned int seed = 0;
+
+static void defineNative(const char* name, NativeFn function) {
+  push(OBJ_VAL(copyString(name, (int)strlen(name))));
+  push(OBJ_VAL(newNative(function)));
+  tableSet(&vm.globals, AS_STRING(vm.stack[0]), vm.stack[1]);
+  pop();
+  pop();
+}
 
 static bool clockNative(int argCount, Value* args) {
   args[-1] = NUMBER_VAL((double)clock() / CLOCKS_PER_SEC);
@@ -183,11 +190,10 @@ static bool inputNative(int argCount, Value* args) {
   }
 
   ObjString* prompt = AS_STRING(args[0]);
-  printValue(OBJ_VAL(prompt)); // Print the prompt using printValue
+  printValue(OBJ_VAL(prompt));
 
-  char inputBuffer[1024]; // Adjust the buffer size as needed
+  char inputBuffer[1024];
   if (fgets(inputBuffer, sizeof(inputBuffer), stdin) != NULL) {
-    // Remove newline character from input
     size_t length = strlen(inputBuffer);
     if (length > 0 && inputBuffer[length - 1] == '\n') {
       inputBuffer[length - 1] = '\0';
@@ -230,3 +236,19 @@ static bool numNative(int argCount, Value* args) {
   args[-1] = NUMBER_VAL(num);
   return true;
 }
+
+void initNatives() {
+  defineNative("clock", clockNative);
+  defineNative("printf", printNative);
+  defineNative("randint", randomNative);
+  defineNative("currentTime", currentTimeNative);
+  defineNative("sqrt", sqrtNative);
+  defineNative("abs", absNative);
+  defineNative("ceil", ceilNative);
+  defineNative("fabs", fabsNative);
+  defineNative("factorial", factorialNative);
+  defineNative("fmod", fmodNative);
+  defineNative("scanf", inputNative);
+  defineNative("num", numNative);
+}
+
