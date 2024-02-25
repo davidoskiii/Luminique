@@ -1,0 +1,24 @@
+let globalOne;
+let globalTwo;
+
+function main() {
+  {
+    let a = "one";
+    function one() {
+      print(a);
+    }
+    globalOne = one;
+  }
+
+  {
+    let a = "two";
+    function two() {
+      print(a);
+    }
+    globalTwo = two;
+  }
+}
+
+main();
+globalOne();
+globalTwo();

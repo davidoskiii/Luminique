@@ -124,6 +124,8 @@ int disassembleInstruction(Chunk* chunk, int offset) {
 
       return offset;
     }
+    case OP_CLOSE_UPVALUE:
+      return simpleInstruction("OP_CLOSE_UPVALUE", offset);
     case OP_PRINT:
       return simpleInstruction("OP_PRINT", offset);
     case OP_RETURN:
