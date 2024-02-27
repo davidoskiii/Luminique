@@ -710,7 +710,7 @@ static void classDeclaration() {
   currentClass = currentClass->enclosing;
 }
 
-static void varDeclaration() {
+static void varDeclaration(bool isMutable) {
   uint8_t global = parseVariable("Expect variable name.");
 
   if (match(TOKEN_EQUAL)) {
@@ -744,7 +744,9 @@ static void forStatement() {
   if (match(TOKEN_SEMICOLON)) {
     // No initializer.
   } else if (match(TOKEN_VAR)) {
-    varDeclaration();
+    varDeclaration(true);
+  } else if (match(TOKEN_CONST)) {
+    varDeclaration(false);
   } else {
     expressionStatement();
   }
@@ -945,7 +947,9 @@ static void declaration() {
   } else if (match(TOKEN_FUN)) {
     funDeclaration();
   } else if (match(TOKEN_VAR)) {
-    varDeclaration();
+    varDeclaration(true);
+  } else if (match(TOKEN_CONST)) {
+    varDeclaration(false);
   } else {
     statement();
   }
