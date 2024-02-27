@@ -1,0 +1,18 @@
+let x = 0;
+print("Creating global variable x");
+x = 1;
+print("Setting global variable x to");
+
+function testLocal(){
+    const y1 = 5;
+    print("Creating immutable local letiable y1");
+    let y2 = 10;
+    y2 = 20;
+    y1 = 10;
+
+    print(y2);
+    print(y1);
+    print(x);
+}
+
+testLocal();

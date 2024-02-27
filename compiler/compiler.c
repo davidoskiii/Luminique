@@ -498,7 +498,7 @@ static void checkMutability(int arg, uint8_t opCode) {
       break;
     case OP_SET_UPVALUE: 
       if (!current->upvalues[arg].isMutable) { 
-        error("Cannot assign to immutable captured upvalue.");
+        error("Cannot assign to immutable upvalue.");
       }
       break;
     case OP_SET_GLOBAL:
