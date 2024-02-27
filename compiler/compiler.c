@@ -739,7 +739,9 @@ static void classDeclaration() {
 static void varDeclaration(bool isMutable) {
   uint8_t global = parseVariable("Expect variable name.");
 
-  if (match(TOKEN_EQUAL)) {
+  if (!isMutable && !check(TOKEN_EQUAL)) {
+    error("Const variable must be initialized upon declaration.");
+  } else if (match(TOKEN_EQUAL)) {
     expression();
   } else {
     emitByte(OP_NIL);

@@ -8,7 +8,7 @@ function testLocal(){
     print("Creating immutable local letiable y1");
     let y2 = 10;
     y2 = 20;
-    y1 = 10;
+    y1 = 10; // error
 
     print(y2);
     print(y1);
@@ -16,3 +16,20 @@ function testLocal(){
 }
 
 testLocal();
+
+function testUpvalue(){ 
+    const x1 = 5;
+    let x2 = 10;
+    const x3;
+
+    function testUpvalueInner(){ 
+        print(x1 + x2);
+        x2 = 20;
+        print(x1 + x2);
+        x1 = 10; // error       
+    }
+    testUpvalueInner();
+}
+
+
+testUpvalue();
