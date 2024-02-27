@@ -31,5 +31,12 @@ function testUpvalue(){
     testUpvalueInner();
 }
 
-
 testUpvalue();
+
+function testParameters(const a, b){ 
+    print(a);
+    print(b);
+    a = 5; // error
+    b = 5;
+}
+testParameters(2, 3);
