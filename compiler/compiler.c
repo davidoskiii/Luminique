@@ -47,11 +47,13 @@ typedef struct {
   Token name;
   int depth;
   bool isCaptured;
+  bool isMutable;
 } Local;
 
 typedef struct {
   uint8_t index;
   bool isLocal;
+  bool isMutable;
 } Upvalue;
 
 typedef enum {
@@ -343,6 +345,8 @@ static void addLocal(Token name) {
   local->name = name;
   local->depth = -1;
   local->isCaptured = false;
+
+  local->isMutable = true;
 }
 
 static void declareVariable() {
@@ -575,6 +579,7 @@ ParseRule rules[] = {
   [TOKEN_THIS]          = {this_,    NULL,   PREC_NONE},
   [TOKEN_TRUE]          = {literal,  NULL,   PREC_NONE},
   [TOKEN_VAR]           = {NULL,     NULL,   PREC_NONE},
+  [TOKEN_CONST]         = {NULL,     NULL,   PREC_NONE},
   [TOKEN_WHILE]         = {NULL,     NULL,   PREC_NONE},
   [TOKEN_ERROR]         = {NULL,     NULL,   PREC_NONE},
   [TOKEN_EOF]           = {NULL,     NULL,   PREC_NONE},
