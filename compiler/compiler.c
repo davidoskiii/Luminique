@@ -297,8 +297,7 @@ static int resolveLocal(Compiler* compiler, Token* name) {
   return -1;
 }
 
-static int addUpvalue(Compiler* compiler, uint8_t index,
-                      bool isLocal) {
+static int addUpvalue(Compiler* compiler, uint8_t index, bool isLocal, bool isMutable) {
   int upvalueCount = compiler->function->upvalueCount;
 
   for (int i = 0; i < upvalueCount; i++) {
@@ -315,6 +314,7 @@ static int addUpvalue(Compiler* compiler, uint8_t index,
 
   compiler->upvalues[upvalueCount].isLocal = isLocal;
   compiler->upvalues[upvalueCount].index = index;
+  compiler->upvalues[upvalueCount].isMutable = isMutable;
   return compiler->function->upvalueCount++;
 }
 
@@ -324,12 +324,12 @@ static int resolveUpvalue(Compiler* compiler, Token* name) {
   int local = resolveLocal(compiler->enclosing, name);
   if (local != -1) {
     compiler->enclosing->locals[local].isCaptured = true;
-    return addUpvalue(compiler, (uint8_t)local, true);
+    return addUpvalue(compiler, (uint8_t)local, true, compiler->enclosing->locals[local].isMutable);
   }
 
   int upvalue = resolveUpvalue(compiler->enclosing, name);
   if (upvalue != -1) {
-    return addUpvalue(compiler, (uint8_t)upvalue, false);
+    return addUpvalue(compiler, (uint8_t)upvalue, false, compiler->enclosing->locals[local].isMutable);
   }
 
   return -1;
