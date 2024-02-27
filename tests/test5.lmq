@@ -40,3 +40,5 @@ function testParameters(const a, b){
     b = 5;
 }
 testParameters(2, 3);
+
+printf = true; // error becouse it's a native function
