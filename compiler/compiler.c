@@ -377,15 +377,15 @@ static uint8_t parseVariable(const char* errorMessage) {
   return identifierConstant(&parser.previous);
 }
 
-static void markInitialized() {
+static void markInitialized(bool isMutable) {
   if (current->scopeDepth == 0) return;
-  current->locals[current->localCount - 1].depth =
-      current->scopeDepth;
+  current->locals[current->localCount - 1].depth = current->scopeDepth;
+  current->locals[current->localCount - 1].isMutable = isMutable;
 }
 
-static void defineVariable(uint8_t global) {
+static void defineVariable(uint8_t global, bool isMutable) {
   if (current->scopeDepth > 0) {
-    markInitialized();
+    markInitialized(isMutable);
     return;
   }
 
@@ -650,8 +650,13 @@ static void function(FunctionType type) {
       if (current->function->arity > 255) {
         errorAtCurrent("Can't have more than 255 parameters.");
       }
-      uint8_t constant = parseVariable("Expect parameter name.");
-      defineVariable(constant);
+      if (match(TOKEN_CONST)) {
+        uint8_t constant = parseVariable("Expect parameter name.");
+        defineVariable(constant, false);
+      } else {
+        uint8_t constant = parseVariable("Expect parameter name.");
+        defineVariable(constant, true);
+      }
     } while (match(TOKEN_COMMA));
   }
 
@@ -691,7 +696,7 @@ static void classDeclaration() {
   declareVariable();
 
   emitBytes(OP_CLASS, nameConstant);
-  defineVariable(nameConstant);
+  defineVariable(nameConstant, false);
 
   ClassCompiler classCompiler;
   classCompiler.enclosing = currentClass;
@@ -720,14 +725,14 @@ static void varDeclaration(bool isMutable) {
   }
   consume(TOKEN_SEMICOLON, "Expect ';' after variable declaration.");
 
-  defineVariable(global);
+  defineVariable(global, isMutable);
 }
 
 static void funDeclaration() {
   uint8_t global = parseVariable("Expect function name.");
-  markInitialized();
+  markInitialized(false);
   function(TYPE_FUNCTION);
-  defineVariable(global);
+  defineVariable(global, false);
 }
 
 
@@ -925,6 +930,7 @@ static void synchronize() {
     switch (parser.current.type) {
       case TOKEN_CLASS:
       case TOKEN_FUN:
+      case TOKEN_CONST:
       case TOKEN_VAR:
       case TOKEN_FOR:
       case TOKEN_IF:
