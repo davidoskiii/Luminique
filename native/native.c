@@ -9,12 +9,34 @@
 
 static unsigned int seed = 0;
 
-static void defineNative(const char* name, NativeFn function) {
+void defineNativeFunction(const char* name, NativeFn function) {
   push(OBJ_VAL(copyString(name, (int)strlen(name))));
   push(OBJ_VAL(newNative(function)));
   tableSet(&vm.globalValues, AS_STRING(vm.stack[0]), vm.stack[1]);
   pop();
   pop();
+}
+
+ObjClass* defineNativeClass(const char* name) {
+  ObjString* className = copyString(name, (int)strlen(name));
+  push(OBJ_VAL(className));
+  ObjClass* nativeClass = newClass(className);
+  nativeClass->isNative = true;
+  push(OBJ_VAL(nativeClass));
+  tableSet(&vm.globalValues, AS_STRING(vm.stack[0]), vm.stack[1]);
+  pop();
+  pop();
+  return nativeClass;
+}
+
+void defineNativeMethod(ObjClass* klass, const char* name, NativeMethod method) {
+	ObjNativeMethod* nativeMethod = newNativeMethod(method);
+	push(OBJ_VAL(nativeMethod));
+	ObjString* methodName = copyString(name, (int)strlen(name));
+	push(OBJ_VAL(methodName));
+	tableSet(&klass->methods, methodName, OBJ_VAL(nativeMethod));
+	pop(vm);
+	pop(vm);
 }
 
 static bool clockNative(int argCount, Value* args) {
@@ -238,17 +260,17 @@ static bool numNative(int argCount, Value* args) {
 }
 
 void initNatives() {
-  defineNative("clock", clockNative);
-  defineNative("printf", printNative);
-  defineNative("randint", randomNative);
-  defineNative("currentTime", currentTimeNative);
-  defineNative("sqrt", sqrtNative);
-  defineNative("abs", absNative);
-  defineNative("ceil", ceilNative);
-  defineNative("fabs", fabsNative);
-  defineNative("factorial", factorialNative);
-  defineNative("fmod", fmodNative);
-  defineNative("scanf", inputNative);
-  defineNative("num", numNative);
+  defineNativeFunction("clock", clockNative);
+  defineNativeFunction("printf", printNative);
+  defineNativeFunction("randint", randomNative);
+  defineNativeFunction("currentTime", currentTimeNative);
+  defineNativeFunction("sqrt", sqrtNative);
+  defineNativeFunction("abs", absNative);
+  defineNativeFunction("ceil", ceilNative);
+  defineNativeFunction("fabs", fabsNative);
+  defineNativeFunction("factorial", factorialNative);
+  defineNativeFunction("fmod", fmodNative);
+  defineNativeFunction("scanf", inputNative);
+  defineNativeFunction("num", numNative);
 }
 

@@ -5,5 +5,8 @@
 #include "../vm/vm.h"
 
 void initNatives();
+void defineNativeFunction(const char* name, NativeFn function);
+ObjClass* defineNativeClass(const char* name);
+void defineNativeMethod(ObjClass* klass, const char* name, NativeMethod method);
 
 #endif

@@ -36,6 +36,7 @@ ObjBoundMethod* newBoundMethod(Value receiver, ObjClosure* method) {
 ObjClass* newClass(ObjString* name) {
   ObjClass* klass = ALLOCATE_OBJ(ObjClass, OBJ_CLASS);
   klass->name = name;
+  klass->isNative = false;
   initTable(&klass->methods);
   return klass;
 }
@@ -73,6 +74,12 @@ ObjNative* newNative(NativeFn function) {
   ObjNative* native = ALLOCATE_OBJ(ObjNative, OBJ_NATIVE);
   native->function = function;
   return native;
+}
+
+ObjNativeMethod* newNativeMethod(NativeMethod method) {
+  ObjNativeMethod* nativeMethod = ALLOCATE_OBJ(ObjNativeMethod, OBJ_NATIVE_METHOD);
+  nativeMethod->method = method;
+  return nativeMethod;
 }
 
 static ObjString* allocateString(char* chars, int length, uint32_t hash) {

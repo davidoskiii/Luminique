@@ -11,6 +11,7 @@
 #include "../object/object.h"
 #include "../memory/memory.h"
 #include "../native/native.h"
+#include "../std/std.h"
 #include "vm.h"
 
 VM vm;
@@ -21,7 +22,7 @@ static void resetStack() {
   vm.openUpvalues = NULL;
 }
 
-static void runtimeError(const char* format, ...) {
+void runtimeError(const char* format, ...) {
   va_list args;
   va_start(args, format);
   vfprintf(stderr, format, args);
@@ -62,6 +63,7 @@ void initVM() {
   vm.initString = copyString("__init__", 8);
 
   initNatives();
+  initStd();
 }
 
 void freeVM() {

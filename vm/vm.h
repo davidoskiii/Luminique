@@ -47,6 +47,7 @@ void initVM();
 void freeVM();
 bool loadGlobal(ObjString* name, Value* value);
 InterpretResult interpret(const char* source);
+void runtimeError(const char* format, ...);
 void push(Value value);
 Value pop();
 
