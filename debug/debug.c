@@ -147,6 +147,8 @@ int disassembleInstruction(Chunk* chunk, int offset) {
       return constantInstruction("OP_METHOD", chunk, offset);
     case OP_INVOKE:
       return invokeInstruction("OP_INVOKE", chunk, offset);
+    case OP_THROW:
+      return simpleInstruction("OP_THROW", offset);
     case OP_RETURN:
       return simpleInstruction("OP_RETURN", offset);
     default:

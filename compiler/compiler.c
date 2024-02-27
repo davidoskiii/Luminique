@@ -954,6 +954,8 @@ static void synchronize() {
     if (parser.previous.type == TOKEN_SEMICOLON) return;
     switch (parser.current.type) {
       case TOKEN_CLASS:
+      case TOKEN_SWITCH:
+      case TOKEN_THROW:
       case TOKEN_FUN:
       case TOKEN_CONST:
       case TOKEN_VAR:

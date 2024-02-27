@@ -41,6 +41,7 @@ typedef enum {
   OP_SET_PROPERTY,
   OP_METHOD,
   OP_INVOKE,
+  OP_THROW,
   OP_RETURN,
 } OpCode;
 
