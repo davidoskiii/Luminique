@@ -489,15 +489,15 @@ static void string(bool canAssign) {
   emitConstant(OBJ_VAL(copyString(parser.previous.start + 1, parser.previous.length - 2)));
 }
 
-static void checkMutability(Compiler* compiler, int arg, uint8_t opCode) { 
+static void checkMutability(int arg, uint8_t opCode) { 
   switch (opCode) {
     case OP_SET_LOCAL: 
-      if (!compiler->locals[arg].isMutable) { 
+      if (!current->locals[arg].isMutable) { 
         error("Cannot assign to immutable local variable.");
       }
       break;
     case OP_SET_UPVALUE: 
-      if (!compiler->upvalues[arg].isMutable) { 
+      if (!current->upvalues[arg].isMutable) { 
         error("Cannot assign to immutable captured upvalue.");
       }
       break;
@@ -525,6 +525,7 @@ static void namedVariable(Token name, bool canAssign) {
   }
 
   if (canAssign && match(TOKEN_EQUAL)) {
+    checkMutability(arg, setOp);
     expression();
     emitBytes(setOp, (uint8_t)arg);
   } else {
