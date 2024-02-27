@@ -261,7 +261,7 @@ static bool numNative(int argCount, Value* args) {
 
 void initNatives() {
   defineNativeFunction("clock", clockNative);
-  defineNativeFunction("printf", printNative);
+  defineNativeFunction("print", printNative);
   defineNativeFunction("randint", randomNative);
   defineNativeFunction("currentTime", currentTimeNative);
   defineNativeFunction("sqrt", sqrtNative);

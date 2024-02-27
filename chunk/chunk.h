@@ -29,7 +29,6 @@ typedef enum {
   OP_POWER,
   OP_NOT,
   OP_NEGATE,
-  OP_PRINT,
   OP_JUMP,
   OP_JUMP_IF_FALSE,
   OP_LOOP,
@@ -41,6 +40,7 @@ typedef enum {
   OP_GET_PROPERTY,
   OP_SET_PROPERTY,
   OP_METHOD,
+  OP_INVOKE,
   OP_RETURN,
 } OpCode;
 

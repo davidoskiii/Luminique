@@ -140,12 +140,41 @@ static bool callValue(Value callee, int argCount) {
           return false;
         }
       }
+      case OBJ_NATIVE_METHOD: {
+        NativeMethod method = AS_NATIVE_METHOD(callee);
+        Value result = method(vm.stackTop[-argCount - 1], argCount, vm.stackTop - argCount);
+        vm.stackTop -= argCount + 1;
+        push(result);
+        return true;
+      }
       default:
         break; // Non-callable object type.
     }
   }
   runtimeError("Can only call functions and classes.");
   return false;
+}
+
+static bool invokeFromClass(ObjClass* klass, ObjString* name, int argCount) {
+  Value method;
+  if (!tableGet(&klass->methods, name, &method)) {
+    runtimeError("Undefined property '%s'.", name->chars);
+    return false;
+  }
+  return call(AS_CLOSURE(method), argCount);
+}
+
+static bool invoke(ObjString* name, int argCount) {
+  Value receiver = peek(argCount);
+  ObjInstance* instance = AS_INSTANCE(receiver);
+
+  Value value;
+  if (tableGet(&instance->fields, name, &value)) {
+    vm.stackTop[-argCount - 1] = value;
+    return callValue(value, argCount);
+  }
+
+  return invokeFromClass(instance->klass, name, argCount);
 }
 
 static bool bindMethod(ObjClass* klass, ObjString* name) {
@@ -468,9 +497,13 @@ static InterpretResult run() {
       case OP_METHOD:
         defineMethod(READ_STRING());
         break;
-      case OP_PRINT: {
-        printValue(pop());
-        printf("\n");
+      case OP_INVOKE: {
+        ObjString* method = READ_STRING();
+        int argCount = READ_BYTE();
+        if (!invoke(method, argCount)) {
+          return INTERPRET_RUNTIME_ERROR;
+        }
+        frame = &vm.frames[vm.frameCount - 1];
         break;
       }
       case OP_RETURN: {

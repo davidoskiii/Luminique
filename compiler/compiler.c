@@ -455,6 +455,10 @@ static void dot(bool canAssign) {
   if (canAssign && match(TOKEN_EQUAL)) {
     expression();
     emitBytes(OP_SET_PROPERTY, name);
+  } else if (match(TOKEN_LEFT_PAREN)) {
+    uint8_t argCount = argumentList();
+    emitBytes(OP_INVOKE, name);
+    emitByte(argCount);
   } else {
     emitBytes(OP_GET_PROPERTY, name);
   }
@@ -510,8 +514,8 @@ static void checkMutability(int arg, uint8_t opCode) {
       ObjString* name = identifierName(arg);
       Value value;
       if (tableGet(&vm.globalValues, name, &value)) { 
-          error("Cannot assign to immutable global variables.");
-            }
+        error("Cannot assign to immutable global variables.");
+      }
       break;
     default:
       break;
@@ -603,7 +607,6 @@ ParseRule rules[] = {
   [TOKEN_IF]            = {NULL,     NULL,   PREC_NONE},
   [TOKEN_NIL]           = {literal,  NULL,   PREC_NONE},
   [TOKEN_OR]            = {NULL,     or_,    PREC_OR},
-  [TOKEN_PRINT]         = {NULL,     NULL,   PREC_NONE},
   [TOKEN_RETURN]        = {NULL,     NULL,   PREC_NONE},
   [TOKEN_SUPER]         = {NULL,     NULL,   PREC_NONE},
   [TOKEN_THIS]          = {this_,    NULL,   PREC_NONE},
@@ -911,16 +914,6 @@ static void ifStatement() {
   patchJump(elseJump);
 }
 
-static void printStatement() {
-  consume(TOKEN_LEFT_PAREN, "Expect '(' after 'print'.");
-
-  expression();
-
-  consume(TOKEN_RIGHT_PAREN, "Expect ')' after value.");
-  consume(TOKEN_SEMICOLON, "Expect ';' after statement.");
-  emitByte(OP_PRINT);
-}
-
 static void returnStatement() {
   if (current->type == TYPE_SCRIPT) {
     error("Can't return from top-level code.");
@@ -967,7 +960,6 @@ static void synchronize() {
       case TOKEN_FOR:
       case TOKEN_IF:
       case TOKEN_WHILE:
-      case TOKEN_PRINT:
       case TOKEN_RETURN:
         return;
 
@@ -996,9 +988,7 @@ static void declaration() {
 }
 
 static void statement() {
-  if (match(TOKEN_PRINT)) {
-    printStatement();
-  } else if (match(TOKEN_FOR)) {
+  if (match(TOKEN_FOR)) {
     forStatement();
   } else if (match(TOKEN_SWITCH)) {
     switchStatement();
