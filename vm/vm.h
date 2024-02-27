@@ -21,6 +21,7 @@ typedef struct {
 
   Value stack[STACK_MAX];
   Value* stackTop;
+  Table globalValues;
   Table globals;
   Table strings;
   ObjString* initString;
@@ -44,6 +45,7 @@ extern VM vm;
 
 void initVM();
 void freeVM();
+bool loadGlobal(ObjString* name, Value* value);
 InterpretResult interpret(const char* source);
 void push(Value value);
 Value pop();

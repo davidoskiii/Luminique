@@ -180,6 +180,7 @@ static void markRoots() {
     markObject((Obj*)upvalue);
   }
 
+  markTable(&vm.globalValues);
   markTable(&vm.globals);
   markCompilerRoots();
   markObject((Obj*)vm.initString);

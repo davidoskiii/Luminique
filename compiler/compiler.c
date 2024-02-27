@@ -233,6 +233,10 @@ static uint8_t makeConstant(Value value) {
 }
 
 
+static ObjString* identifierName(uint8_t arg) {
+  return AS_STRING(currentChunk()->constants.values[arg]);
+}
+
 static ObjFunction* endCompiler() {
   emitReturn();
   ObjFunction* function = current->function;
@@ -387,9 +391,10 @@ static void defineVariable(uint8_t global, bool isMutable) {
   if (current->scopeDepth > 0) {
     markInitialized(isMutable);
     return;
+  } else {
+    uint8_t opCode = isMutable ? OP_DEFINE_GLOBAL : OP_DEFINE_CONST;
+    emitBytes(opCode, global);
   }
-
-  emitBytes(OP_DEFINE_GLOBAL, global);
 }
 
 static uint8_t argumentList() {
@@ -502,7 +507,11 @@ static void checkMutability(int arg, uint8_t opCode) {
       }
       break;
     case OP_SET_GLOBAL:
-      // TODO
+      ObjString* name = identifierName(arg);
+      Value value;
+      if (tableGet(&vm.globalValues, name, &value)) { 
+          error("Cannot assign to immutable global variables.");
+            }
       break;
     default:
       break;

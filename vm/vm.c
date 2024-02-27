@@ -54,6 +54,7 @@ void initVM() {
   vm.grayCapacity = 0;
   vm.grayStack = NULL;
 
+  initTable(&vm.globalValues);
   initTable(&vm.globals);
   initTable(&vm.strings);
 
@@ -64,6 +65,7 @@ void initVM() {
 }
 
 void freeVM() {
+  freeTable(&vm.globalValues);
   freeTable(&vm.globals);
   freeTable(&vm.strings);
   vm.initString = NULL;
@@ -156,6 +158,11 @@ static bool bindMethod(ObjClass* klass, ObjString* name) {
   push(OBJ_VAL(bound));
   return true;
 }
+
+bool loadGlobal(ObjString* name, Value* value) {
+    if (tableGet(&vm.globalValues, name, value)) return true;
+    return tableGet(&vm.globals, name, value);
+} 
 
 static ObjUpvalue* captureUpvalue(Value* local) {
   ObjUpvalue* prevUpvalue = NULL;
@@ -297,7 +304,7 @@ static InterpretResult run() {
       case OP_GET_GLOBAL: {
         ObjString* name = READ_STRING();
         Value value;
-        if (!tableGet(&vm.globals, name, &value)) {
+        if (!loadGlobal(name, &value)) {
           runtimeError("Undefined variable '%s'.", name->chars);
           return INTERPRET_RUNTIME_ERROR;
         }
@@ -307,6 +314,12 @@ static InterpretResult run() {
       case OP_DEFINE_GLOBAL: {
         ObjString* name = READ_STRING();
         tableSet(&vm.globals, name, peek(0));
+        pop();
+        break;
+      }
+      case OP_DEFINE_CONST: {
+        ObjString* name = READ_STRING();
+        tableSet(&vm.globalValues, name, peek(0));
         pop();
         break;
       }
