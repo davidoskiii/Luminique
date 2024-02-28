@@ -615,6 +615,10 @@ ParseRule rules[] = {
   [TOKEN_CONST]         = {NULL,     NULL,   PREC_NONE},
   [TOKEN_WHILE]         = {NULL,     NULL,   PREC_NONE},
   [TOKEN_ERROR]         = {NULL,     NULL,   PREC_NONE},
+  [TOKEN_THROW]         = {NULL,     NULL,   PREC_NONE},
+  [TOKEN_TRY]           = {NULL,     NULL,   PREC_NONE},
+  [TOKEN_CATCH]         = {NULL,     NULL,   PREC_NONE},
+  [TOKEN_FINALLY]       = {NULL,     NULL,   PREC_NONE},
   [TOKEN_EOF]           = {NULL,     NULL,   PREC_NONE},
 };
 
@@ -914,6 +918,12 @@ static void ifStatement() {
   patchJump(elseJump);
 }
 
+static void throwStatement() {
+  expression();
+  consume(TOKEN_SEMICOLON, "Expect ';' after thrown exception object.");
+  emitByte(OP_THROW);
+}
+
 static void returnStatement() {
   if (current->type == TYPE_SCRIPT) {
     error("Can't return from top-level code.");
@@ -996,6 +1006,8 @@ static void statement() {
     switchStatement();
   } else if (match(TOKEN_IF)) {
     ifStatement();
+  } else if (match(TOKEN_THROW)) {
+    throwStatement();
   } else if (match(TOKEN_RETURN)) {
     returnStatement();
   } else if (match(TOKEN_WHILE)) {
