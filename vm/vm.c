@@ -108,6 +108,20 @@ static bool call(ObjClosure* closure, int argCount) {
   return true;
 }
 
+static bool callNativeFunction(NativeFn function, int argCount) {
+  Value result = function(argCount, vm.stackTop - argCount);
+  vm.stackTop -= (size_t)argCount + 1;
+  push(result);
+  return true;
+}
+
+static bool callNativeMethod(NativeMethod method, int argCount) {
+  Value result = method(vm.stackTop[-argCount - 1], argCount, vm.stackTop - argCount);
+  vm.stackTop -= argCount + 1;
+  push(result);
+  return true;
+}
+
 static bool callValue(Value callee, int argCount) {
   if (IS_OBJ(callee)) {
     switch (OBJ_TYPE(callee)) {
@@ -130,23 +144,10 @@ static bool callValue(Value callee, int argCount) {
       }
       case OBJ_CLOSURE:
         return call(AS_CLOSURE(callee), argCount);
-      case OBJ_NATIVE: {
-        NativeFn native = AS_NATIVE(callee);
-        if (native(argCount, vm.stackTop - argCount)) {
-          vm.stackTop -= argCount;
-          return true;
-        } else {
-          runtimeError(AS_STRING(vm.stackTop[-argCount - 1])->chars);
-          return false;
-        }
-      }
-      case OBJ_NATIVE_METHOD: {
-        NativeMethod method = AS_NATIVE_METHOD(callee);
-        Value result = method(vm.stackTop[-argCount - 1], argCount, vm.stackTop - argCount);
-        vm.stackTop -= argCount + 1;
-        push(result);
-        return true;
-      }
+      case OBJ_NATIVE:
+        return callNativeFunction(AS_NATIVE(callee), argCount);
+      case OBJ_NATIVE_METHOD: 
+        return callNativeMethod(AS_NATIVE_METHOD(callee), argCount);
       default:
         break; // Non-callable object type.
     }
@@ -255,6 +256,21 @@ static void concatenate() {
   pop();
   pop();
   push(OBJ_VAL(result));
+}
+
+static void makeArray(uint8_t elementCount) {
+  ObjArray* array = newArray();
+  push(OBJ_VAL(array));
+  for (int i = elementCount; i > 0; i--) {
+    writeValueArray(&array->elements, peek(i));
+  }
+  pop();
+
+  while (elementCount > 0) {
+    elementCount--;
+    pop();
+  }
+  push(OBJ_VAL(array));
 }
 
 static InterpretResult run() {
@@ -497,6 +513,11 @@ static InterpretResult run() {
       case OP_METHOD:
         defineMethod(READ_STRING());
         break;
+      case OP_ARRAY: {
+        int elementCount = READ_BYTE();
+        makeArray(elementCount);
+        break;
+      }
       case OP_INVOKE: {
         ObjString* method = READ_STRING();
         int argCount = READ_BYTE();

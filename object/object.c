@@ -70,6 +70,21 @@ ObjInstance* newInstance(ObjClass* klass) {
   return instance;
 }
 
+ObjArray* newArray() {
+  ObjArray* list = ALLOCATE_OBJ(ObjArray, OBJ_ARRAY);
+  initValueArray(&list->elements);
+  return list;
+}
+
+ObjArray* copyArray(ValueArray elements) {
+  ObjArray* list = ALLOCATE_OBJ(ObjArray, OBJ_ARRAY);
+  initValueArray(&list->elements);
+  for (int i = 0; i < elements.count; i++) {
+    writeValueArray(&list->elements, elements.values[i]);
+  }
+  return list;
+}
+
 ObjNative* newNative(NativeFn function) {
   ObjNative* native = ALLOCATE_OBJ(ObjNative, OBJ_NATIVE);
   native->function = function;
@@ -180,13 +195,22 @@ static void printFunction(ObjFunction* function) {
   printf("<fn %s>", function->name->chars);
 }
 
+static void printArray(ObjArray* list) {
+  printf("[");
+  for (int i = 0; i < list->elements.count; i++) {
+    printValue(list->elements.values[i]);
+    if (i < list->elements.count - 1) printf(", ");
+  }
+  printf("]");
+}
+
 void printObject(Value value) {
   switch (OBJ_TYPE(value)) {
     case OBJ_BOUND_METHOD:
       printFunction(AS_BOUND_METHOD(value)->method->function);
       break;
     case OBJ_CLASS:
-      printf("%s", AS_CLASS(value)->name->chars);
+      printf("%s class", AS_CLASS(value)->name->chars);
       break;
     case OBJ_CLOSURE:
       printFunction(AS_CLOSURE(value)->function);
@@ -195,11 +219,16 @@ void printObject(Value value) {
       printFunction(AS_FUNCTION(value));
       break;
     case OBJ_INSTANCE:
-      printf("%s instance",
-             AS_INSTANCE(value)->klass->name->chars);
+      printf("%s instance", AS_INSTANCE(value)->klass->name->chars);
+      break;
+    case OBJ_ARRAY:
+      printArray(AS_ARRAY(value));
       break;
     case OBJ_NATIVE:
       printf("<native fn>");
+      break;
+    case OBJ_NATIVE_METHOD:
+      printf("<native method>");
       break;
     case OBJ_STRING:
       printf("%s", AS_CSTRING(value));

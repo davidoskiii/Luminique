@@ -6,6 +6,7 @@
 #include <stdlib.h>
 
 #include "native.h"
+#include "../assert/assert.h"
 
 static unsigned int seed = 0;
 
@@ -37,6 +38,16 @@ void defineNativeMethod(ObjClass* klass, const char* name, NativeMethod method) 
 	tableSet(&klass->methods, methodName, OBJ_VAL(nativeMethod));
 	pop(vm);
 	pop(vm);
+}
+
+NATIVE_FUNCTION(clock){
+	if (argCount > 0) {
+	  assertArgCount("clock()", 0, argCount);
+	  runtimeError("native function clock() expects 0 argument but got %d.", argCount);
+	  RETURN_NUMBER((double)clock() / CLOCKS_PER_SEC);
+		return NIL_VAL;
+	}
+	return NUMBER_VAL((double)clock() / CLOCKS_PER_SEC);
 }
 
 static bool clockNative(int argCount, Value* args) {
@@ -260,17 +271,17 @@ static bool numNative(int argCount, Value* args) {
 }
 
 void initNatives() {
-  defineNativeFunction("clock", clockNative);
-  defineNativeFunction("print", printNative);
-  defineNativeFunction("randint", randomNative);
-  defineNativeFunction("currentTime", currentTimeNative);
-  defineNativeFunction("sqrt", sqrtNative);
-  defineNativeFunction("abs", absNative);
-  defineNativeFunction("ceil", ceilNative);
-  defineNativeFunction("fabs", fabsNative);
-  defineNativeFunction("factorial", factorialNative);
-  defineNativeFunction("fmod", fmodNative);
-  defineNativeFunction("scanf", inputNative);
-  defineNativeFunction("num", numNative);
+  DEF_FUNCTION(clock);
+//  defineNativeFunction("print", printNative);
+//  defineNativeFunction("randint", randomNative);
+//  defineNativeFunction("currentTime", currentTimeNative);
+//  defineNativeFunction("sqrt", sqrtNative);
+//  defineNativeFunction("abs", absNative);
+//  defineNativeFunction("ceil", ceilNative);
+//  defineNativeFunction("fabs", fabsNative);
+//  defineNativeFunction("factorial", factorialNative);
+//  defineNativeFunction("fmod", fmodNative);
+//  defineNativeFunction("scanf", inputNative);
+//  defineNativeFunction("num", numNative);
 }
 

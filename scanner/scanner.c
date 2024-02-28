@@ -175,6 +175,8 @@ static TokenType identifierType() {
                 case 'y': return checkKeyword(3, 0, "", TOKEN_TRY);
               }
             }
+          }
+        }
       break;
     case 'w': return checkKeyword(1, 4, "hile", TOKEN_WHILE);
   }
@@ -227,6 +229,8 @@ Token scanToken() {
   switch (c) {
     case '(': return makeToken(TOKEN_LEFT_PAREN);
     case ')': return makeToken(TOKEN_RIGHT_PAREN);
+    case '[': return makeToken(TOKEN_LEFT_BRAKE);
+    case ']': return makeToken(TOKEN_RIGHT_BRAKE);
     case '{': return makeToken(TOKEN_LEFT_BRACE);
     case '}': return makeToken(TOKEN_RIGHT_BRACE);
     case ';': return makeToken(TOKEN_SEMICOLON);
