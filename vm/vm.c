@@ -172,6 +172,12 @@ static bool invokeFromClass(ObjClass* klass, ObjString* name, int argCount) {
 
 static bool invoke(ObjString* name, int argCount) {
   Value receiver = peek(argCount);
+
+  if (!IS_INSTANCE(receiver)) {
+    runtimeError("Only instances have methods.");
+    return false;
+  }
+
   ObjInstance* instance = AS_INSTANCE(receiver);
 
   Value value;
