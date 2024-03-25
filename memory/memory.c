@@ -110,13 +110,9 @@ static void blackenObject(Obj* object) {
       markTable(&instance->fields);
       break;
     }
-    case OBJ_ARRAY: {
-      ObjArray* list = (ObjArray*)object;
-      markArray(&list->elements);
-      break;
-    }
     case OBJ_NATIVE:
     case OBJ_NATIVE_METHOD:
+    case OBJ_NATIVE_INSTANCE:
     case OBJ_STRING:
       break;
   }
@@ -156,14 +152,14 @@ static void freeObject(Obj* object) {
       FREE(ObjInstance, object);
       break;
     }
-    case OBJ_ARRAY:
-      FREE(ObjArray, object);
-      break;
     case OBJ_NATIVE:
       FREE(ObjNative, object);
       break;
     case OBJ_NATIVE_METHOD:
       FREE(ObjNativeMethod, object);
+      break;
+    case OBJ_NATIVE_INSTANCE:
+      FREE(ObjNativeInstance, object);
       break;
     case OBJ_STRING: {
       ObjString* string = (ObjString*)object;

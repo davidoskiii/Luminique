@@ -16,6 +16,9 @@ typedef struct {
 } CallFrame;
 
 typedef struct {
+  ObjClass* objectClass;
+  ObjClass* arrayClass;
+
   CallFrame frames[FRAMES_MAX];
   int frameCount;
 

@@ -5,12 +5,14 @@
 #include <time.h>
 #include <stdlib.h>
 
+#include "../classes/native/native.h"
+#include "../classes/array/array.h"
+#include "../classes/object/object.h"
 #include "../common.h"
 #include "../compiler/compiler.h"
 #include "../debug/debug.h"
 #include "../object/object.h"
 #include "../memory/memory.h"
-#include "../native/native.h"
 #include "../std/std.h"
 #include "vm.h"
 
@@ -63,6 +65,7 @@ void initVM() {
   vm.initString = copyString("__init__", 8);
 
   initNatives();
+  initObject();
   initStd();
 }
 
@@ -156,13 +159,15 @@ static bool callValue(Value callee, int argCount) {
   return false;
 }
 
+
 static bool invokeFromClass(ObjClass* klass, ObjString* name, int argCount) {
   Value method;
-  if (!tableGet(&klass->methods, name, &method)) {
-    runtimeError("Undefined property '%s'.", name->chars);
-    return false;
+  if (tableGet(&klass->methods, name, &method)) {
+    return call(AS_CLOSURE(method), argCount);
   }
-  return call(AS_CLOSURE(method), argCount);
+
+  runtimeError("Undefined property '%s'.", name->chars);
+  return false;
 }
 
 static bool invoke(ObjString* name, int argCount) {
@@ -174,8 +179,13 @@ static bool invoke(ObjString* name, int argCount) {
     vm.stackTop[-argCount - 1] = value;
     return callValue(value, argCount);
   }
+  
+  if (invokeFromClass(instance->klass, name, argCount)) {
+    return true;
+  }
 
-  return invokeFromClass(instance->klass, name, argCount);
+  runtimeError("Undefined property '%s'.", name->chars);
+  return false;
 }
 
 static bool bindMethod(ObjClass* klass, ObjString* name) {
@@ -256,21 +266,6 @@ static void concatenate() {
   pop();
   pop();
   push(OBJ_VAL(result));
-}
-
-static void makeArray(uint8_t elementCount) {
-  ObjArray* array = newArray();
-  push(OBJ_VAL(array));
-  for (int i = elementCount; i > 0; i--) {
-    writeValueArray(&array->elements, peek(i));
-  }
-  pop();
-
-  while (elementCount > 0) {
-    elementCount--;
-    pop();
-  }
-  push(OBJ_VAL(array));
 }
 
 static InterpretResult run() {
@@ -510,21 +505,52 @@ static InterpretResult run() {
         push(value);
         break;
       }
+      case OP_GET_SUPER: {
+        ObjString* name = READ_STRING();
+        ObjClass* superclass = AS_CLASS(pop());
+
+        if (!bindMethod(superclass, name)) {
+          return INTERPRET_RUNTIME_ERROR;
+        }
+        break;
+      }
       case OP_METHOD:
         defineMethod(READ_STRING());
         break;
-      case OP_ARRAY: {
-        int elementCount = READ_BYTE();
-        makeArray(elementCount);
-        break;
-      }
       case OP_INVOKE: {
         ObjString* method = READ_STRING();
         int argCount = READ_BYTE();
+        Value receiver = peek(argCount);
+
         if (!invoke(method, argCount)) {
+          if (IS_NIL(receiver)) runtimeError("Calling undefined method '%s' on nil.", method->chars);
+          return INTERPRET_RUNTIME_ERROR;
+        }
+        
+        frame = &vm.frames[vm.frameCount - 1];
+        break;
+      }
+      case OP_SUPER_INVOKE: {
+        ObjString* method = READ_STRING();
+        int argCount = READ_BYTE();
+        ObjClass* superclass = AS_CLASS(pop());
+        if (!invokeFromClass(superclass, method, argCount)) {
           return INTERPRET_RUNTIME_ERROR;
         }
         frame = &vm.frames[vm.frameCount - 1];
+        break;
+      }
+      case OP_INHERIT: {
+        Value superclass = peek(1);
+
+        if (!IS_CLASS(superclass)) {
+          runtimeError("Superclass must be a class.");
+          return INTERPRET_RUNTIME_ERROR;
+        }
+
+        ObjClass* subclass = AS_CLASS(peek(0));
+        tableAddAll(&AS_CLASS(superclass)->methods, &subclass->methods);
+        pop(); // Subclass.
         break;
       }
       case OP_RETURN: {

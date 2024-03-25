@@ -1,6 +1,6 @@
 class Scone {
   function topping(first, second) {
-    print("scone with " + first + " and " + second);
+    System.println("scone with " + first + " and " + second);
   }
 }
 
@@ -13,7 +13,7 @@ class CoffeeMaker {
   }
 
   function brew() {
-    print("Enjoy your cup of " + this.coffee);
+    System.println("Enjoy your cup of " + this.coffee);
 
     this.coffee = nil;
   }
@@ -21,3 +21,11 @@ class CoffeeMaker {
 
 let maker = CoffeeMaker("coffee and chicory");
 maker.brew();
+
+class CoffeeMakerButBetter : CoffeeMaker {
+  function better() {
+    System.println("I'm just better");
+  }
+}
+
+CoffeeMakerButBetter.better();

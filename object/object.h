@@ -13,9 +13,9 @@
 #define IS_CLOSURE(value) isObjType(value, OBJ_CLOSURE)
 #define IS_FUNCTION(value) isObjType(value, OBJ_FUNCTION)
 #define IS_INSTANCE(value) isObjType(value, OBJ_INSTANCE)
-#define IS_ARRAY(value) isObjType(value, OBJ_ARRAY)
 #define IS_NATIVE(value) isObjType(value, OBJ_NATIVE)
 #define IS_NATIVE_METHOD(value) isObjType(value, OBJ_NATIVE_METHOD)
+#define IS_NATIVE_INSTANCE(value) isObjType(value, OBJ_NATIVE_INSTANCE)
 #define IS_STRING(value) isObjType(value, OBJ_STRING)
 
 #define AS_BOUND_METHOD(value) ((ObjBoundMethod*)AS_OBJ(value))
@@ -23,10 +23,10 @@
 #define AS_CLOSURE(value) ((ObjClosure*)AS_OBJ(value))
 #define AS_FUNCTION(value) ((ObjFunction*)AS_OBJ(value))
 #define AS_INSTANCE(value) ((ObjInstance*)AS_OBJ(value))
-#define AS_ARRAY(value) ((ObjArray*)AS_OBJ(value))
 #define AS_NATIVE(value) \
     (((ObjNative*)AS_OBJ(value))->function)
 #define AS_NATIVE_METHOD(value) (((ObjNativeMethod*)AS_OBJ(value))->method)
+#define AS_NATIVE_INSTANCE(value) ((ObjNativeInstance*)AS_OBJ(value))
 #define AS_STRING(value) ((ObjString*)AS_OBJ(value))
 #define AS_CSTRING(value) (((ObjString*)AS_OBJ(value))->chars)
 
@@ -36,9 +36,9 @@ typedef enum {
   OBJ_CLOSURE,
   OBJ_FUNCTION,
   OBJ_INSTANCE,
-  OBJ_ARRAY,
   OBJ_NATIVE,
   OBJ_NATIVE_METHOD,
+  OBJ_NATIVE_INSTANCE,
   OBJ_STRING,
   OBJ_UPVALUE
 } ObjType;
@@ -59,6 +59,7 @@ typedef struct {
 
 typedef Value (*NativeFn)(int argCount, Value* args);
 typedef Value (*NativeMethod)(Value receiver, int argCount, Value* args);
+typedef Value (*NativeInstance)(Value receiver, int argCount, Value* args);
 
 typedef struct {
   Obj obj;
@@ -91,7 +92,7 @@ typedef struct {
   int upvalueCount;
 } ObjClosure;
 
-typedef struct {
+typedef struct ObjClass {
   Obj obj;
   ObjString* name;
   Table methods;
@@ -104,10 +105,10 @@ typedef struct {
   Table fields;
 } ObjInstance;
 
-typedef struct ObjArray {
+typedef struct {
   Obj obj;
-  ValueArray elements;
-} ObjArray;
+  NativeInstance instance;
+} ObjNativeInstance;
 
 typedef struct {
   Obj obj;
@@ -120,10 +121,9 @@ ObjClass* newClass(ObjString* name);
 ObjClosure* newClosure(ObjFunction* function);
 ObjFunction* newFunction();
 ObjInstance* newInstance(ObjClass* klass);
-ObjArray* newArray();
-ObjArray* copyArray(ValueArray elements);
 ObjNative* newNative(NativeFn function);
 ObjNativeMethod* newNativeMethod(NativeMethod method);
+ObjNativeInstance* newNativeInstance(NativeInstance instance);
 ObjString* takeString(char* chars, int length);
 ObjString* copyFormattedString(const char* format, ...);
 ObjString* copyString(const char* chars, int length);

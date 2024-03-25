@@ -48,3 +48,22 @@ bool valuesEqual(Value a, Value b) {
     default:         return false; // Unreachable.
   }
 }
+
+char* valueToString(Value value) {
+  if (IS_BOOL(value)) {
+    return AS_BOOL(value) ? "true" : "false";
+  } else if (IS_NIL(value)) {
+    return "nil";
+  } else if (IS_OBJ(value)) {
+    Obj* object = AS_OBJ(value);
+    if (IS_STRING(value)) {
+      return AS_CSTRING(value);
+    }
+    else {
+      return "Object";
+    }
+  }
+  else {
+    return "undefined";
+  }
+}

@@ -6,13 +6,21 @@
 #include <stdlib.h>
 
 #include "native.h"
-#include "../assert/assert.h"
+#include "../../assert/assert.h"
 
 static unsigned int seed = 0;
 
 void defineNativeFunction(const char* name, NativeFn function) {
   push(OBJ_VAL(copyString(name, (int)strlen(name))));
   push(OBJ_VAL(newNative(function)));
+  tableSet(&vm.globalValues, AS_STRING(vm.stack[0]), vm.stack[1]);
+  pop();
+  pop();
+}
+
+void defineNativeInstance(const char* name, NativeInstance instance) {
+  push(OBJ_VAL(copyString(name, (int)strlen(name))));
+  push(OBJ_VAL(newNativeInstance(instance)));
   tableSet(&vm.globalValues, AS_STRING(vm.stack[0]), vm.stack[1]);
   pop();
   pop();
@@ -36,8 +44,8 @@ void defineNativeMethod(ObjClass* klass, const char* name, NativeMethod method) 
 	ObjString* methodName = copyString(name, (int)strlen(name));
 	push(OBJ_VAL(methodName));
 	tableSet(&klass->methods, methodName, OBJ_VAL(nativeMethod));
-	pop(vm);
-	pop(vm);
+	pop();
+	pop();
 }
 
 NATIVE_FUNCTION(clock){
