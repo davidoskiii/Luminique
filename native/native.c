@@ -6,7 +6,8 @@
 #include <stdlib.h>
 
 #include "native.h"
-#include "../../assert/assert.h"
+#include "../assert/assert.h"
+#include "../memory/memory.h"
 
 static unsigned int seed = 0;
 
@@ -48,34 +49,50 @@ void defineNativeMethod(ObjClass* klass, const char* name, NativeMethod method) 
 	pop();
 }
 
-NATIVE_FUNCTION(clock){
-	if (argCount > 0) {
-	  assertArgCount("clock()", 0, argCount);
-	  runtimeError("native function clock() expects 0 argument but got %d.", argCount);
-	  RETURN_NUMBER((double)clock() / CLOCKS_PER_SEC);
-		return NIL_VAL;
-	}
-	return NUMBER_VAL((double)clock() / CLOCKS_PER_SEC);
+NATIVE_FUNCTION(clock) {
+  assertArgCount("clock()", 0, argCount);
+  RETURN_NUMBER((double)clock() / CLOCKS_PER_SEC);
 }
 
-static bool clockNative(int argCount, Value* args) {
-  args[-1] = NUMBER_VAL((double)clock() / CLOCKS_PER_SEC);
-  return true;
+NATIVE_FUNCTION(print) {
+  assertArgCount("print", 1, argCount);
+
+  printValue(args[0]);
+
+  RETURN_NIL;
 }
 
-static bool printNative(int argCount, Value* args) {
-  if (argCount != 1) {
-    args[-1] = OBJ_VAL(copyFormattedString("Expected 1 argument but got %d", argCount));
-    return false;
-  }
+NATIVE_FUNCTION(println) {
+  assertArgCount("println", 1, argCount);
 
   printValue(args[0]);
   printf("\n");
-  args[-1] = NIL_VAL;
-  return true;
+
+  RETURN_NIL;
 }
 
-static bool randomNative(int argCount, Value* args) {
+NATIVE_FUNCTION(scanln) {
+  assertArgCount("scanln", 1, argCount);
+  assertArgIsString("scanln", args, 0);
+
+  ObjString* prompt = AS_STRING(args[0]);
+  printValue(OBJ_VAL(prompt));
+
+  char inputBuffer[2048];
+  if (fgets(inputBuffer, sizeof(inputBuffer), stdin) != NULL) {
+    size_t length = strlen(inputBuffer);
+    if (length > 0 && inputBuffer[length - 1] == '\n') {
+      inputBuffer[length - 1] = '\0';
+    }
+
+    RETURN_OBJ(copyString(inputBuffer, (int)strlen(inputBuffer)));
+  } else {
+    runtimeError("Error reading input");
+    exit(70);
+  }
+}
+
+/* static bool randomNative(int argCount, Value* args) {
   if (seed == 0) {
     seed = (unsigned int)time(NULL);
     srand(seed);
@@ -276,11 +293,13 @@ static bool numNative(int argCount, Value* args) {
 
   args[-1] = NUMBER_VAL(num);
   return true;
-}
+} */
 
 void initNatives() {
   DEF_FUNCTION(clock);
-//  defineNativeFunction("print", printNative);
+  DEF_FUNCTION(print);
+  DEF_FUNCTION(println);
+  DEF_FUNCTION(scanln);
 //  defineNativeFunction("randint", randomNative);
 //  defineNativeFunction("currentTime", currentTimeNative);
 //  defineNativeFunction("sqrt", sqrtNative);

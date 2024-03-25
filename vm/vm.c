@@ -5,9 +5,7 @@
 #include <time.h>
 #include <stdlib.h>
 
-#include "../classes/native/native.h"
-#include "../classes/array/array.h"
-#include "../classes/object/object.h"
+#include "../native/native.h"
 #include "../common.h"
 #include "../compiler/compiler.h"
 #include "../debug/debug.h"
@@ -65,7 +63,6 @@ void initVM() {
   vm.initString = copyString("__init__", 8);
 
   initNatives();
-  initObject();
   initStd();
 }
 

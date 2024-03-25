@@ -3,7 +3,7 @@
 
 #include "../object/object.h"
 #include "../vm/vm.h"
-#include "../classes/native/native.h"
+#include "../native/native.h"
 
 void initStd();
 

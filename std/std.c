@@ -69,7 +69,6 @@ static Value scanlnNativeMethod(Value reciver, int argCount, Value* args) {
 
 void initStd(){
 	ObjClass* systemClass = defineNativeClass("System");
-	ObjClass* mathClass = defineNativeClass("Math");
 	defineNativeMethod(systemClass, "println", printlnNativeMethod);
 	defineNativeMethod(systemClass, "toString", toStringNativeMethod);
   defineNativeMethod(systemClass, "scanln", scanlnNativeMethod);
