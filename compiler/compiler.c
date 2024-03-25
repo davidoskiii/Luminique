@@ -17,6 +17,7 @@
 typedef struct {
   Token current;
   Token previous;
+  Token next;
   bool hadError;
   bool panicMode;
 } Parser;
@@ -117,12 +118,13 @@ static void errorAtCurrent(const char* message) {
 
 static void advance() {
   parser.previous = parser.current;
+  parser.current = parser.next;
 
   for (;;) {
-    parser.current = scanToken();
-    if (parser.current.type != TOKEN_ERROR) break;
+    parser.next = scanToken();
+    if (parser.next.type != TOKEN_ERROR) break;
 
-    errorAtCurrent(parser.current.start);
+    errorAtCurrent(parser.next.start);
   }
 }
 
@@ -137,6 +139,10 @@ static void consume(TokenType type, const char* message) {
 
 static bool check(TokenType type) {
   return parser.current.type == type;
+}
+
+bool checkNext(TokenType type) {
+  return parser.next.type == type;
 }
 
 static bool match(TokenType type) {
@@ -205,9 +211,13 @@ static void initCompiler(Compiler* compiler, FunctionType type) {
   compiler->function = newFunction();
   compiler->scopeDepth = 0;
   current = compiler;
+
   if (type != TYPE_SCRIPT) {
-    current->function->name = copyString(parser.previous.start,
-                                         parser.previous.length);
+    if (parser.previous.length == 8 && memcmp(parser.previous.start, "function", 8) == 0) {
+      compiler->function->name = copyString("", 0);
+    } else {
+      compiler->function->name = copyString(parser.previous.start, parser.previous.length);
+    }
   }
 
   Local* local = &current->locals[current->localCount++];
@@ -274,6 +284,7 @@ static void endScope() {
 
 static void expression();
 static void block();
+static void function(FunctionType type);
 static void statement();
 static void declaration();
 static ParseRule* getRule(TokenType type);
@@ -413,6 +424,22 @@ static uint8_t argumentList() {
   return argCount;
 }
 
+static void parameterList() {
+  do {
+    current->function->arity++;
+    if (current->function->arity > 255) {
+      errorAtCurrent("Can't have more than 255 parameters.");
+    }
+    if (match(TOKEN_CONST)) {
+      uint8_t constant = parseVariable("Expect parameter name.");
+      defineVariable(constant, false);
+    } else {
+      uint8_t constant = parseVariable("Expect parameter name.");
+      defineVariable(constant, true);
+    }
+  } while (match(TOKEN_COMMA));
+}
+
 static void and_(bool canAssign) {
   int endJump = emitJump(OP_JUMP_IF_FALSE);
 
@@ -521,6 +548,10 @@ static void checkMutability(int arg, uint8_t opCode) {
     default:
       break;
   }
+}
+
+static void closure(bool canAssign) {
+  function(TYPE_FUNCTION);
 }
 
 static void namedVariable(Token name, bool canAssign) {
@@ -636,7 +667,7 @@ ParseRule rules[] = {
   [TOKEN_ELSE]          = {NULL,       NULL,    PREC_NONE},
   [TOKEN_FALSE]         = {literal,    NULL,    PREC_NONE},
   [TOKEN_FOR]           = {NULL,       NULL,    PREC_NONE},
-  [TOKEN_FUN]           = {NULL,       NULL,    PREC_NONE},
+  [TOKEN_FUN]           = {closure,    NULL,    PREC_NONE},
   [TOKEN_IF]            = {NULL,       NULL,    PREC_NONE},
   [TOKEN_NIL]           = {literal,    NULL,    PREC_NONE},
   [TOKEN_OR]            = {NULL,       or_,     PREC_OR},
@@ -715,19 +746,7 @@ static void function(FunctionType type) {
   consume(TOKEN_LEFT_PAREN, "Expect '(' after function name.");
 
   if (!check(TOKEN_RIGHT_PAREN)) {
-    do {
-      current->function->arity++;
-      if (current->function->arity > 255) {
-        errorAtCurrent("Can't have more than 255 parameters.");
-      }
-      if (match(TOKEN_CONST)) {
-        uint8_t constant = parseVariable("Expect parameter name.");
-        defineVariable(constant, false);
-      } else {
-        uint8_t constant = parseVariable("Expect parameter name.");
-        defineVariable(constant, true);
-      }
-    } while (match(TOKEN_COMMA));
+    parameterList();
   }
 
   consume(TOKEN_RIGHT_PAREN, "Expect ')' after parameters.");
@@ -1085,6 +1104,7 @@ ObjFunction* compile(const char* source) {
   parser.hadError = false;
   parser.panicMode = false;
 
+  advance();
   advance();
 
   while (!match(TOKEN_EOF)) {
