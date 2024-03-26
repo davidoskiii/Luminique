@@ -53,6 +53,12 @@ static bool match(char expected) {
   return true;
 }
 
+static bool matchNext(char expected) {
+  if (isAtEnd() || peekNext() != expected) return false;
+  scanner.current += 2;
+  return true;
+}
+
 static Token makeToken(TokenType type) {
   Token token;
   token.type = type;
@@ -235,7 +241,17 @@ Token scanToken() {
     case '}': return makeToken(TOKEN_RIGHT_BRACE);
     case ';': return makeToken(TOKEN_SEMICOLON);
     case ',': return makeToken(TOKEN_COMMA);
-    case '.': return makeToken(TOKEN_DOT);
+    case '.': {
+      if (match('.')) {
+        if (match('.')) {
+          return makeToken(TOKEN_DOT_DOT_DOT);
+        }
+        
+        return errorToken("Expected another '.'");
+      }
+      
+      return makeToken(TOKEN_DOT);
+    }
     case '-': return makeToken(TOKEN_MINUS);
     case '+': return makeToken(TOKEN_PLUS);
     case '/': return makeToken(TOKEN_SLASH);

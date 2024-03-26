@@ -425,6 +425,13 @@ static uint8_t argumentList() {
 }
 
 static void parameterList() {
+  if (match(TOKEN_DOT_DOT_DOT)) {
+    current->function->arity = -1;
+    uint8_t constant = parseVariable("Expect variadic parameter name.");
+    defineVariable(constant, false);
+    return;
+  }
+
   do {
     current->function->arity++;
     if (current->function->arity > 255) {
@@ -644,6 +651,7 @@ ParseRule rules[] = {
   [TOKEN_RIGHT_BRAKE]   = {NULL,       NULL,    PREC_NONE},
   [TOKEN_COMMA]         = {NULL,       NULL,    PREC_NONE},
   [TOKEN_DOT]           = {NULL,       dot,     PREC_CALL},
+  [TOKEN_DOT_DOT_DOT]   = {NULL,       binary,  PREC_CALL},
   [TOKEN_MINUS]         = {unary,      binary,  PREC_TERM},
   [TOKEN_PLUS]          = {NULL,       binary,  PREC_TERM},
   [TOKEN_SEMICOLON]     = {NULL,       NULL,    PREC_NONE},
