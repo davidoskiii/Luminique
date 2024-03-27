@@ -33,6 +33,7 @@ typedef enum {
   OP_JUMP,
   OP_JUMP_IF_FALSE,
   OP_LOOP,
+  OP_END,
   OP_CALL,
   OP_CLOSURE,
   OP_DUP,
@@ -63,5 +64,6 @@ void initChunk(Chunk* chunk);
 void freeChunk(Chunk* chunk);
 void writeChunk(Chunk* chunk, uint8_t byte, int line);
 int addConstant(Chunk* chunk, Value value);
+int opCodeOffset(Chunk* chunk, int ip);
 
 #endif

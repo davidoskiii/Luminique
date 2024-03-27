@@ -72,7 +72,10 @@ typedef struct Compiler {
   Local locals[UINT8_COUNT];
   int localCount;
   Upvalue upvalues[UINT8_COUNT];
+
   int scopeDepth;
+  int innermostLoopStart;
+  int innermostLoopScopeDepth;
 } Compiler;
 
 typedef struct ClassCompiler {
@@ -203,6 +206,20 @@ static void patchJump(int offset) {
   currentChunk()->code[offset + 1] = jump & 0xff;
 }
 
+static void endLoop() {
+  int offset = current->innermostLoopStart;
+  Chunk* chunk = currentChunk();
+  while (offset < chunk->count) {
+    if (chunk->code[offset] == OP_END) {
+      chunk->code[offset] = OP_JUMP;
+      patchJump(offset + 1);
+    }
+    else {
+      offset += opCodeOffset(chunk, offset);
+    }
+  }
+}
+
 static void initCompiler(Compiler* compiler, FunctionType type) {
   compiler->enclosing = current;
   compiler->function = NULL;
@@ -210,6 +227,8 @@ static void initCompiler(Compiler* compiler, FunctionType type) {
   compiler->localCount = 0;
   compiler->function = newFunction();
   compiler->scopeDepth = 0;
+  compiler->innermostLoopStart = -1;
+  compiler->innermostLoopScopeDepth = 0;
   current = compiler;
 
   if (type != TYPE_SCRIPT) {
@@ -351,10 +370,10 @@ static int resolveUpvalue(Compiler* compiler, Token* name) {
   return -1;
 }
 
-static void addLocal(Token name) {
+static int addLocal(Token name) {
   if (current->localCount == UINT8_COUNT) {
     error("Too many local variables in function.");
-    return;
+    return -1;
   }
 
   Local* local = &current->locals[current->localCount++];
@@ -363,6 +382,39 @@ static void addLocal(Token name) {
   local->isCaptured = false;
 
   local->isMutable = true;
+
+  return current->localCount - 1;
+}
+
+static void getLocal(int slot) {
+  emitByte(OP_GET_LOCAL);
+  emitByte(slot);
+}
+
+static void setLocal(int slot) {
+  emitByte(OP_SET_LOCAL);
+  emitByte(slot);
+}
+
+static int discardLocals() {
+  int i = current->localCount - 1;
+  for (; i >= 0 && current->locals[i].depth > current->innermostLoopScopeDepth; i--) {
+    if (current->locals[i].isCaptured) {
+      emitByte(OP_CLOSE_UPVALUE);
+    }
+    else {
+      emitByte(OP_POP);
+    }
+  }
+  return current->localCount - i - 1;
+}
+
+
+static void invokeMethod(int args, const char* name, int length) {
+  int slot = makeConstant(OBJ_VAL(copyString(name, length)));
+  emitByte(OP_INVOKE);
+  emitByte(slot);
+  emitByte(args);
 }
 
 static void declareVariable() {
@@ -902,22 +954,43 @@ static void expressionStatement() {
   emitByte(OP_POP);
 }
 
+static void breakStatement() {
+  if (current->innermostLoopStart == -1) {
+    error("Cannot use 'break' outside of a loop.");
+  }
+  consume(TOKEN_SEMICOLON, "Expect ';' after 'break'.");
+
+  discardLocals();
+  emitJump(OP_END);
+}
+
+static void continueStatement() {
+  if (current->innermostLoopStart == -1) {
+    error("Cannot use 'continue' outside of a loop.");
+  }
+  consume(TOKEN_SEMICOLON, "Expect ';' after 'continue'.");
+
+  discardLocals();
+  emitLoop(current->innermostLoopStart);
+}
+
 static void forStatement() {
   beginScope();
-  consume(TOKEN_LEFT_PAREN, "Expect '(' after 'for'.");
 
-  if (match(TOKEN_SEMICOLON)) {
-    // No initializer.
-  } else if (match(TOKEN_VAR)) {
+  consume(TOKEN_LEFT_PAREN, "Expect '(' after 'for'.");
+  if (match(TOKEN_VAR)) {
     varDeclaration(true);
-  } else if (match(TOKEN_CONST)) {
-    varDeclaration(false);
+  } else if (match(TOKEN_SEMICOLON)) {
+    // No initializer.
   } else {
     expressionStatement();
   }
 
-  int loopStart = currentChunk()->count;
-  
+  int surroundingLoopStart = current->innermostLoopStart;
+  int surroundingLoopScopeDepth = current->innermostLoopScopeDepth;
+  current->innermostLoopStart = currentChunk()->count;
+  current->innermostLoopScopeDepth = current->scopeDepth;
+
   int exitJump = -1;
   if (!match(TOKEN_SEMICOLON)) {
     expression();
@@ -930,23 +1003,29 @@ static void forStatement() {
 
   if (!match(TOKEN_RIGHT_PAREN)) {
     int bodyJump = emitJump(OP_JUMP);
+
     int incrementStart = currentChunk()->count;
     expression();
     emitByte(OP_POP);
     consume(TOKEN_RIGHT_PAREN, "Expect ')' after for clauses.");
 
-    emitLoop(loopStart);
-    loopStart = incrementStart;
+    emitLoop(current->innermostLoopStart);
+    current->innermostLoopStart = incrementStart;
     patchJump(bodyJump);
   }
 
   statement();
-  emitLoop(loopStart);
+
+  emitLoop(current->innermostLoopStart);
 
   if (exitJump != -1) {
     patchJump(exitJump);
     emitByte(OP_POP); // Condition.
   }
+
+  endLoop();
+  current->innermostLoopStart = surroundingLoopStart;
+  current->innermostLoopScopeDepth = surroundingLoopScopeDepth;
 
   endScope();
 }
@@ -1064,7 +1143,11 @@ static void returnStatement() {
 }
 
 static void whileStatement() {
-  int loopStart = currentChunk()->count;
+  int loopStart = current->innermostLoopStart;
+  int scopeDepth = current->innermostLoopScopeDepth;
+  current->innermostLoopStart = currentChunk()->count;
+  current->innermostLoopScopeDepth = current->scopeDepth;
+
   consume(TOKEN_LEFT_PAREN, "Expect '(' after 'while'.");
   expression();
   consume(TOKEN_RIGHT_PAREN, "Expect ')' after condition.");
@@ -1072,10 +1155,14 @@ static void whileStatement() {
   int exitJump = emitJump(OP_JUMP_IF_FALSE);
   emitByte(OP_POP);
   statement();
-  emitLoop(loopStart);
+  emitLoop(current->innermostLoopStart);
 
   patchJump(exitJump);
   emitByte(OP_POP);
+
+  endLoop();
+  current->innermostLoopStart = loopStart;
+  current->innermostLoopScopeDepth = scopeDepth;
 }
 
 static void synchronize() {
@@ -1121,7 +1208,11 @@ static void declaration() {
 }
 
 static void statement() {
-  if (match(TOKEN_FOR)) {
+  if (match(TOKEN_BREAK)) {
+    breakStatement();
+  } else if (match(TOKEN_CONTINUE)) {
+    continueStatement();
+  } else if (match(TOKEN_FOR)) {
     forStatement();
   } else if (match(TOKEN_SWITCH)) {
     switchStatement();

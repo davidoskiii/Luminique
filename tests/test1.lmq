@@ -3,7 +3,7 @@ let message = "Hello, luminique!";
 {
   let message = "Hello, world!";
 
-  print(message + " | 1");
+  println(message + " | 1");
 }
 
 // This is a comment
@@ -11,26 +11,26 @@ let message = "Hello, luminique!";
 /* And this is a multiline
    comment */
 
-print(message + " | 2");
+println(message + " | 2");
 
 if (message == "Hello, python!") {
-  print("Not my language");
+  println("Not my language");
 } else if (message == "Hello, luminique!") {
-  print("There it is");
+  println("There it is");
 } else {
-  print("No hi?");
+  println("No hi?");
 }
 
 if ((5 == 5) && (2 == 2)) {
-  print("and: true");
+  println("and: true");
 } else {
-  print("and: flase");
+  println("and: flase");
 }
 
 if ((5 == 5) || (2 == 5)) {
-  print("or: true");
+  println("or: true");
 } else {
-  print("or: flase");
+  println("or: flase");
 }
 
 let i = 0;
@@ -41,7 +41,7 @@ while (i < 10) {
   number = number + i;
 }
 
-print(number);
+println(number);
 
 for (let j = 0; j <= 5; j = j + 1) {
   i = i + 1;
@@ -49,20 +49,20 @@ for (let j = 0; j <= 5; j = j + 1) {
 
 switch (i) {
   case 1:
-    print("one");
+    println("one");
   case 2:
-    print("two");
+    println("two");
   case 3:
-    print("three");
+    println("three");
   case 10:
-    print("ten");
+    println("ten");
   case 16:
-    print("sixteen");
+    println("sixteen");
   default:
-    print("default");
+    println("default");
 }
 
-print(i);
+println(i);
 
 function fib(n) {
   if (n < 2) return n;
@@ -70,5 +70,5 @@ function fib(n) {
 }
 
 let before = clock();
-print(fib(35));
-print(clock() - before);
+println(fib(35));
+println(clock() - before);

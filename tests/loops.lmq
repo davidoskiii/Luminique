@@ -1,0 +1,28 @@
+println("While loop");
+
+let i = 0;
+
+while (i < 15) {
+  if (i == 11) {
+    break;
+  } else if (i == 3 || i == 6) {
+    i = i + 1;
+    continue;
+  }
+
+  println(i);
+  i = i + 1;
+}
+
+println("");
+println("For loop");
+
+for (let i = 0; i < 15; i = i + 1) {
+  if (i == 11) {
+    break;
+  } else if (i == 3 || i == 6) {
+    continue;
+  }
+
+  println(i);
+}
