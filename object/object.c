@@ -176,6 +176,15 @@ ObjString* copyString(const char* chars, int length) {
   return allocateString(heapChars, length, hash);
 }
 
+ObjArray* copyArray(ValueArray elements) {
+    ObjArray* array = ALLOCATE_OBJ(ObjArray, OBJ_ARRAY);
+    initValueArray(&array->elements);
+    for (int i = 0; i < elements.count; i++) {
+        writeValueArray(&array->elements, elements.values[i]);
+    }
+    return array;
+}
+
 ObjUpvalue* newUpvalue(Value* slot) {
   ObjUpvalue* upvalue = ALLOCATE_OBJ(ObjUpvalue, OBJ_UPVALUE);
   upvalue->closed = NIL_VAL;

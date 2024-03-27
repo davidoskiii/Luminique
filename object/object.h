@@ -138,6 +138,7 @@ ObjNativeInstance* newNativeInstance(NativeInstance instance);
 ObjString* takeString(char* chars, int length);
 ObjString* copyFormattedString(const char* format, ...);
 ObjString* copyString(const char* chars, int length);
+ObjArray* copyArray(ValueArray elements);
 ObjUpvalue* newUpvalue(Value* slot);
 void printObject(Value value);
 

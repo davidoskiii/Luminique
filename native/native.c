@@ -6,6 +6,7 @@
 #include <stdlib.h>
 
 #include "native.h"
+#include "../arrays/arrays.h"
 #include "../assert/assert.h"
 #include "../memory/memory.h"
 
@@ -55,7 +56,7 @@ NATIVE_FUNCTION(clock) {
 }
 
 NATIVE_FUNCTION(print) {
-  assertArgCount("print", 1, argCount);
+  assertArgCount("print(message)", 1, argCount);
 
   printValue(args[0]);
 
@@ -63,7 +64,7 @@ NATIVE_FUNCTION(print) {
 }
 
 NATIVE_FUNCTION(println) {
-  assertArgCount("println", 1, argCount);
+  assertArgCount("println(message)", 1, argCount);
 
   printValue(args[0]);
   printf("\n");
@@ -72,8 +73,8 @@ NATIVE_FUNCTION(println) {
 }
 
 NATIVE_FUNCTION(scanln) {
-  assertArgCount("scanln", 1, argCount);
-  assertArgIsString("scanln", args, 0);
+  assertArgCount("scanln(prompt)", 1, argCount);
+  assertArgIsString("scanln(prompt)", args, 0);
 
   ObjString* prompt = AS_STRING(args[0]);
   printValue(OBJ_VAL(prompt));
@@ -90,6 +91,44 @@ NATIVE_FUNCTION(scanln) {
     runtimeError("Error reading input");
     exit(70);
   }
+}
+
+NATIVE_FUNCTION(append) {
+  assertArgCount("append(array, element)", 2, argCount);
+  assertArgIsArray("append(array, element)", args, 0);
+  writeValueArray(&AS_ARRAY(args[0])->elements, args[1]);
+  RETURN_NIL;
+}
+
+NATIVE_FUNCTION(clear) {
+  assertArgCount("clear(array)", 1, argCount);
+  assertArgIsArray("clear(array)", args, 0);
+  freeValueArray(&AS_ARRAY(args[0])->elements);
+  RETURN_NIL;
+}
+
+NATIVE_FUNCTION(clone) {
+  assertArgCount("clone(array)", 1, argCount);
+  assertArgIsArray("clone(array)", args, 0);
+  RETURN_OBJ(copyArray(AS_ARRAY(args[0])->elements));
+}
+
+NATIVE_FUNCTION(indexOf) {
+  assertArgCount("indexOf(array, value)", 2, argCount);
+  assertArgIsArray("indexOf(array, value)", args, 0);
+
+  ObjArray* array = AS_ARRAY(args[0]);
+  if (array->elements.count == 0) {
+    RETURN_NIL;
+  }
+
+  RETURN_NUMBER(arrayIndexOf(array, args[1]));
+}
+
+NATIVE_FUNCTION(length) {
+  assertArgCount("length(array)", 1, argCount);
+  assertArgIsArray("length(array)", args, 0);
+	RETURN_NUMBER(AS_ARRAY(args[0])->elements.count);
 }
 
 /* static bool randomNative(int argCount, Value* args) {
@@ -300,6 +339,11 @@ void initNatives() {
   DEF_FUNCTION(print);
   DEF_FUNCTION(println);
   DEF_FUNCTION(scanln);
+  DEF_FUNCTION(append);
+  DEF_FUNCTION(clear);
+  DEF_FUNCTION(clone);
+  DEF_FUNCTION(indexOf);
+  DEF_FUNCTION(length);
 //  defineNativeFunction("randint", randomNative);
 //  defineNativeFunction("currentTime", currentTimeNative);
 //  defineNativeFunction("sqrt", sqrtNative);

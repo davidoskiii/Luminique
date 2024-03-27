@@ -39,6 +39,13 @@ void assertArgIsString(const char* method, Value* args, int index){
 	}
 }
 
+void assertArgIsArray(const char* method, Value* args, int index){
+	if (!IS_ARRAY(args[index])) {
+		runtimeError("Method %s expects argument %d to be an array.", method, index + 1);
+		exit(70);
+	}
+}
+
 void assertError(const char* message) {
 	runtimeError(message);
 	exit(70);
