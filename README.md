@@ -18,12 +18,12 @@ To install Luminique, follow these steps:
 
 ```
 git clone https://github.com/davidoskiii/Luminique.git
+cd Luminique
 ```
 
-2. Compile it (working on adding a makefile):
+2. Compile the executable:
 ```
-gcc main.c chunk/chunk.c debug/debug.c memory/memory.c value/value.c vm/vm.c compiler/compiler.c scanner/scanner.c object/object.c table/table.c native/n
-ative.c std/std.c assert/assert.c arrays/arrays.c -o luminique -lm
+make
 ```
 
-3. Try it out with the examples in the tests directory.
+3. Try it out with the examples in the tests directory or read the documentation (dosn't exist yet :D).
