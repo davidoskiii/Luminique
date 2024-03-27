@@ -7,9 +7,8 @@ Luminique is a high-level programming language designed to provide developers wi
 - **High-level syntax**: Luminique's syntax is designed to be intuitive and easy to understand, making it accessible to both novice and experienced programmers.
 - **Bytecode execution**: Luminique programs are compiled to bytecode, which is then executed by the Luminique virtual machine (LVM). This allows for efficient execution and portability across different platforms.
 - **Garbage collection**: Luminique features automatic memory management through a garbage collector, relieving developers from manual memory management concerns.
-- **Interoperability**: Luminique can easily interface with existing C code, allowing developers to leverage existing libraries and tools.
 - **Dynamic typing**: Luminique supports dynamic typing, enabling flexible and expressive code without the need for explicit type declarations.
-- **Standard library**: Luminique comes with a standard library that provides commonly used functionality, such as file I/O, networking, and data manipulation.
+- **Standard library**: Luminique comes with a standard library that is updated day by day.
 
 ## Installation
 
