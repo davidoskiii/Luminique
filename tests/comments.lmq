@@ -1,0 +1,11 @@
+// This is an inline comment
+
+println("*some code*");
+
+/* This is a multiline comment
+   because you can go on a newline */
+
+println("Hello," + /* You can also use
+                      them in the middle 
+                      of you code (but i don't
+                      reccomend doing it) */ " World!");

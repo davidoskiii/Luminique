@@ -1,0 +1,22 @@
+// Pretty straight forward
+
+println(true || false); // true 'or' false (true)
+println(true or false); // both of them work for 'or'
+
+println(true && false) // true 'and' false (false)
+println(true and true) // true 'and' true (true)
+
+/* You can use the symbols '||' and '&&' or simply write
+   'and' and 'or', here is a truth table of both of them:
+
+
+   ====OR gate====     ====AND gate=== 
+   | 1 | 2 | out |     | 1 | 2 | out |
+   | f | f |  f  |     | f | f |  f  |
+   | t | f |  t  |     | t | f |  f  |
+   | f | t |  t  |     | f | t |  f  |
+   | t | t |  t  |     | t | t |  t  |
+   ===============     ===============
+
+
+*/ 

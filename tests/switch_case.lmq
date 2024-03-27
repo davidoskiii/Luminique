@@ -20,16 +20,12 @@ function calculate(n1, n2, operation) {
 
 let flag = true;
 
-System.println("Calculator");
+println("Calculator");
 
 while (flag) {
-  let n1 = System.scanln("Tell me the first number (q to exit): ");
-  let n2 = System.scanln("Tell me the second number (q to exit): ");
-  let op = System.scanln("Tell me the operation (q to exit): ");
+  let n1 = System.scanln("Tell me the first number: ");
+  let n2 = System.scanln("Tell me the second number: ");
+  let op = System.scanln("Tell me the operation: ");
 
-  if ((n1 or n2 or op) == "q") {
-    flag = false;
-  }
-
-  System.println(calculate(num(n1), num(n2), op));
+  println(calculate(num(n1), num(n2), op));
 }

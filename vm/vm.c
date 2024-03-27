@@ -561,31 +561,36 @@ static InterpretResult run() {
         push(element);
         break;
       }
-      case OP_SET_SUBSCRIPT: {
+      case OP_SET_SUBSCRIPT: {        
         if (!IS_NUMBER(peek(1))) {
           runtimeError("List index must be a number.");
           return INTERPRET_RUNTIME_ERROR;
         }
-
+        
+        Value element = pop();
         double index = AS_NUMBER(pop());
 
         if (index != (int) index) {
           runtimeError("List index must be an integer.");
           return INTERPRET_RUNTIME_ERROR;
         }
-        if (!IS_ARRAY(peek(1))) {
+        if (!IS_ARRAY(peek(0))) {
           runtimeError("Only List can have subscripts.");
           return INTERPRET_RUNTIME_ERROR;
         }
 
-        Value element = pop();
         int iIndex = (int) index;
         ObjArray* array = AS_ARRAY(pop());
         if (iIndex < 0 || iIndex >= array->elements.count) {
           runtimeError("List index is out of bound.");
           return INTERPRET_RUNTIME_ERROR;
         }
-        insertValueArray(&array->elements, iIndex, element);
+
+        if (!replaceValueArray(&array->elements, iIndex, element)) {
+          runtimeError("List index out of bound.");
+          return INTERPRET_RUNTIME_ERROR;
+        }
+
         push(OBJ_VAL(array));
         break;
       }

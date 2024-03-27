@@ -1,7 +1,0 @@
-function changeVariable(var) {
-  var = "another value";
-}
-
-let x = 5;
-changeVariable(x);
-println(x);

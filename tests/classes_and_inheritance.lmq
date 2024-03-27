@@ -1,0 +1,36 @@
+class Scone {
+  function topping(first, second) {
+    println("scone with " + first + " and " + second);
+  }
+}
+
+let scone = Scone();
+scone.topping("berries", "cream");
+
+class CoffeeMaker {
+  function __init__(coffee) {
+    this.coffee = coffee;
+  }
+
+  function brew() {
+    println("Enjoy your cup of " + this.coffee);
+
+    this.coffee = nil;
+  }
+}
+
+let maker = CoffeeMaker("coffee and chicory");
+maker.brew();
+
+class CoffeeMakerCherry : CoffeeMaker {
+  function __init__() {
+    this.coffee = nil;
+  }
+
+  function brew() {
+    println("Enjoy your cup of cherry coffee");
+  }
+}
+
+let cherryMaker = CoffeeMakerCherry();
+cherryMaker.brew();

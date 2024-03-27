@@ -1,0 +1,6 @@
+let t = "You will see this if the condition is true";
+let f = "You will see this if the condition is false";
+
+println(2 == 2 ? t : f); // true
+
+println(2 == 9 ? t : f); // false

@@ -2,4 +2,4 @@ let randomFunction = function (a, b, c) {
   return a + b + c;
 }; // becouse the statement is 'let' we need to conclude the function with a semicolon
 
-System.println(randomFunction(1, 1, 1));
+println(randomFunction(1, 1, 1));

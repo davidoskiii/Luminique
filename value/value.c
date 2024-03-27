@@ -34,6 +34,16 @@ void insertValueArray(ValueArray* array, int index, Value value) {
   array->values[index] = value;
 }
 
+int replaceValueArray(ValueArray* array, int index, Value value) {
+  if (index < 0 || index >= array->count) {
+    // Index out of bounds.
+    return 0;
+  }
+
+  array->values[index] = value;
+  return 1;
+}
+
 void freeValueArray(ValueArray* array) {
   FREE_ARRAY(Value, array->values, array->capacity);
   initValueArray(array);
