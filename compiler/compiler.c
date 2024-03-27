@@ -529,6 +529,44 @@ static void or_(bool canAssign) {
   patchJump(endJump);
 }
 
+
+static void array(bool canAssign) {
+  uint8_t elementCount = 0;
+  if (!check(TOKEN_RIGHT_BRAKE)) {
+    do {
+      expression();
+      if (elementCount == UINT8_MAX) {
+        error("Cannot have more than 255 elements.");
+      }
+      elementCount++;
+    } while (match(TOKEN_COMMA));
+  }
+
+  consume(TOKEN_RIGHT_BRAKE, "Expect ']' after elements.");
+  emitBytes(OP_ARRAY, elementCount);
+}
+
+// static void collection(bool canAssign) {
+//   if (match(TOKEN_RIGHT_BRAKE)) {
+//     emitBytes(OP_ARRAY, 0);
+//   } else {
+//     array();
+//   }
+// }
+
+static void subscript(bool canAssign) {
+  expression();
+  consume(TOKEN_RIGHT_BRAKE, "Expect ']' after subscript.");
+
+  if (canAssign && match(TOKEN_EQUAL)) {
+    expression();
+    emitByte(OP_SET_SUBSCRIPT);
+  }
+  else {
+    emitByte(OP_GET_SUBSCRIPT);
+  }
+}
+
 static void string(bool canAssign) {
   emitConstant(OBJ_VAL(copyString(parser.previous.start + 1, parser.previous.length - 2)));
 }
@@ -643,15 +681,15 @@ static void unary(bool canAssign) {
 }
 
 ParseRule rules[] = {
+  [TOKEN_LEFT_BRAKE]    = {array,      subscript, PREC_CALL}, 
+  [TOKEN_RIGHT_BRAKE]   = {NULL,       NULL,    PREC_NONE},
   [TOKEN_LEFT_PAREN]    = {grouping,   call,    PREC_CALL},
   [TOKEN_RIGHT_PAREN]   = {NULL,       NULL,    PREC_NONE},
   [TOKEN_LEFT_BRACE]    = {NULL,       NULL,    PREC_NONE}, 
   [TOKEN_RIGHT_BRACE]   = {NULL,       NULL,    PREC_NONE},
-  [TOKEN_LEFT_BRAKE]    = {NULL,       NULL,    PREC_NONE}, 
-  [TOKEN_RIGHT_BRAKE]   = {NULL,       NULL,    PREC_NONE},
   [TOKEN_COMMA]         = {NULL,       NULL,    PREC_NONE},
   [TOKEN_DOT]           = {NULL,       dot,     PREC_CALL},
-  [TOKEN_DOT_DOT_DOT]   = {NULL,       binary,  PREC_CALL},
+  [TOKEN_DOT_DOT_DOT]   = {NULL,       binary,  PREC_NONE},
   [TOKEN_MINUS]         = {unary,      binary,  PREC_TERM},
   [TOKEN_PLUS]          = {NULL,       binary,  PREC_TERM},
   [TOKEN_SEMICOLON]     = {NULL,       NULL,    PREC_NONE},

@@ -1,3 +1,7 @@
-class Ciao {}
+function changeVariable(var) {
+  var = "another value";
+}
 
-Ciao.ciao();
+let x = 5;
+changeVariable(x);
+println(x);

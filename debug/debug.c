@@ -67,6 +67,8 @@ int disassembleInstruction(Chunk* chunk, int offset) {
       return simpleInstruction("OP_TRUE", offset);
     case OP_FALSE:
       return simpleInstruction("OP_FALSE", offset);
+    case OP_ARRAY:
+      return byteInstruction("OP_ARRAY", chunk, offset);
     case OP_POP:
       return simpleInstruction("OP_POP", offset);
     case OP_GET_LOCAL:
@@ -121,6 +123,10 @@ int disassembleInstruction(Chunk* chunk, int offset) {
       return constantInstruction("OP_GET_PROPERTY", chunk, offset);
     case OP_SET_PROPERTY:
       return constantInstruction("OP_SET_PROPERTY", chunk, offset);
+    case OP_GET_SUBSCRIPT:
+      return simpleInstruction("OP_GET_SUBSCRIPT", offset);
+    case OP_SET_SUBSCRIPT:
+      return simpleInstruction("OP_SET_SUBSCRIPT", offset);
     case OP_GET_SUPER:
       return constantInstruction("OP_GET_SUPER", chunk, offset);
     case OP_CLOSURE: {

@@ -3,6 +3,7 @@
 
 #include "../object/object.h"
 #include "../memory/memory.h"
+#include "../vm/vm.h"
 #include "value.h"
 
 void initValueArray(ValueArray* array) {
@@ -20,6 +21,17 @@ void writeValueArray(ValueArray* array, Value value) {
 
   array->values[array->count] = value;
   array->count++;
+}
+
+void insertValueArray(ValueArray* array, int index, Value value) {
+  if (IS_OBJ(value)) push(value);
+  writeValueArray(array, NIL_VAL);
+  if (IS_OBJ(value)) pop();
+
+  for (int i = array->count - 1; i > index; i--) {
+    array->values[i] = array->values[i - 1];
+  }
+  array->values[index] = value;
 }
 
 void freeValueArray(ValueArray* array) {

@@ -33,6 +33,12 @@ ObjBoundMethod* newBoundMethod(Value receiver, ObjClosure* method) {
   return bound;
 }
 
+ObjArray* newArray() {
+  ObjArray* array = ALLOCATE_OBJ(ObjArray, OBJ_ARRAY);
+  initValueArray(&array->elements);
+  return array;
+}
+
 ObjClass* newClass(ObjString* name) {
   ObjClass* klass = ALLOCATE_OBJ(ObjClass, OBJ_CLASS);
   klass->name = name;
@@ -178,6 +184,15 @@ ObjUpvalue* newUpvalue(Value* slot) {
   return upvalue;
 }
 
+static void printArray(ObjArray* array) {
+  printf("[");
+  for (int i = 0; i < array->elements.count; i++) {
+    printValue(array->elements.values[i]);
+    if (i < array->elements.count - 1) printf(", ");
+  }
+  printf("]");
+}
+
 static void printFunction(ObjFunction* function) {
   if (function->name == NULL) {
     printf("<script>");
@@ -188,6 +203,9 @@ static void printFunction(ObjFunction* function) {
 
 void printObject(Value value) {
   switch (OBJ_TYPE(value)) {
+    case OBJ_ARRAY:
+      printArray(AS_ARRAY(value));
+      break;
     case OBJ_BOUND_METHOD:
       printFunction(AS_BOUND_METHOD(value)->method->function);
       break;

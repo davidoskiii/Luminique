@@ -89,6 +89,21 @@ static Value peek(int distance) {
   return vm.stackTop[-1 - distance];
 }
 
+static void makeArray(uint8_t elementCount) {
+  ObjArray* array = newArray();
+  push(OBJ_VAL(array));
+  for (int i = elementCount; i > 0; i--) {
+    writeValueArray(&array->elements, peek(i));
+  }
+  pop();
+
+  while (elementCount > 0) {
+    elementCount--;
+    pop();
+  }
+  push(OBJ_VAL(array));
+}
+
 static bool call(ObjClosure* closure, int argCount) {
   if (closure->function->arity > 0 && argCount != closure->function->arity) {
     runtimeError("Expected %d arguments but got %d.",
@@ -99,6 +114,11 @@ static bool call(ObjClosure* closure, int argCount) {
   if (vm.frameCount == FRAMES_MAX) {
     runtimeError("Stack overflow.");
     return false;
+  }
+
+  if (closure->function->arity == -1) {
+    makeArray(argCount);
+    argCount = 1;
   }
 
   CallFrame* frame = &vm.frames[vm.frameCount++];
@@ -319,6 +339,11 @@ static InterpretResult run() {
       case OP_NIL: push(NIL_VAL); break;
       case OP_TRUE: push(BOOL_VAL(true)); break;
       case OP_FALSE: push(BOOL_VAL(false)); break;
+      case OP_ARRAY: {
+        uint8_t elementCount = READ_BYTE();
+        makeArray(elementCount);
+        break;
+      }
       case OP_GET_UPVALUE: {
         uint8_t slot = READ_BYTE();
         push(*frame->closure->upvalues[slot]->location);
@@ -506,6 +531,62 @@ static InterpretResult run() {
         Value value = pop();
         pop();
         push(value);
+        break;
+      }
+      case OP_GET_SUBSCRIPT: {
+        if (!IS_NUMBER(peek(0))) {
+          runtimeError("List index must be a number.");
+          return INTERPRET_RUNTIME_ERROR;
+        }
+
+        double index = AS_NUMBER(pop());
+
+        if (index != (int) index) {
+          runtimeError("List index must be an integer.");
+          return INTERPRET_RUNTIME_ERROR;
+        }
+
+        if (!IS_ARRAY(peek(0))) {
+          runtimeError("Only arrays can have subscripts.");
+          return INTERPRET_RUNTIME_ERROR;
+        }
+
+        int iIndex = (int) index;
+        ObjArray* array = AS_ARRAY(pop());
+        if (iIndex < 0 || iIndex >= array->elements.count) {
+          runtimeError("List index is out of bound.");
+          return INTERPRET_RUNTIME_ERROR;
+        }
+        Value element = array->elements.values[iIndex];
+        push(element);
+        break;
+      }
+      case OP_SET_SUBSCRIPT: {
+        if (!IS_NUMBER(peek(1))) {
+          runtimeError("List index must be a number.");
+          return INTERPRET_RUNTIME_ERROR;
+        }
+
+        double index = AS_NUMBER(pop());
+
+        if (index != (int) index) {
+          runtimeError("List index must be an integer.");
+          return INTERPRET_RUNTIME_ERROR;
+        }
+        if (!IS_ARRAY(peek(1))) {
+          runtimeError("Only List can have subscripts.");
+          return INTERPRET_RUNTIME_ERROR;
+        }
+
+        Value element = pop();
+        int iIndex = (int) index;
+        ObjArray* array = AS_ARRAY(pop());
+        if (iIndex < 0 || iIndex >= array->elements.count) {
+          runtimeError("List index is out of bound.");
+          return INTERPRET_RUNTIME_ERROR;
+        }
+        insertValueArray(&array->elements, iIndex, element);
+        push(OBJ_VAL(array));
         break;
       }
       case OP_GET_SUPER: {
