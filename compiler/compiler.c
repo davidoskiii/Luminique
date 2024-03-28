@@ -148,6 +148,10 @@ bool checkNext(TokenType type) {
   return parser.next.type == type;
 }
 
+bool checkPrevious(TokenType type) {
+  return parser.previous.type == type;
+}
+
 static bool match(TokenType type) {
   if (!check(type)) return false;
   advance();
@@ -742,10 +746,10 @@ ParseRule rules[] = {
   [TOKEN_COMMA]         = {NULL,       NULL,    PREC_NONE},
   [TOKEN_DOT]           = {NULL,       dot,     PREC_CALL},
   [TOKEN_DOT_DOT_DOT]   = {NULL,       binary,  PREC_NONE},
+  [TOKEN_MINUS_MINUS]   = {NULL,       NULL,    PREC_CALL},
   [TOKEN_MINUS]         = {unary,      binary,  PREC_TERM},
-  [TOKEN_MINUS_MINUS]   = {prefix,     suffix,  PREC_CALL},
+  [TOKEN_PLUS_PLUS]     = {NULL,       NULL,    PREC_CALL},
   [TOKEN_PLUS]          = {NULL,       binary,  PREC_TERM},
-  [TOKEN_PLUS_PLUS]     = {prefix,     suffix,  PREC_CALL},
   [TOKEN_SEMICOLON]     = {NULL,       NULL,    PREC_NONE},
   [TOKEN_SLASH]         = {NULL,       binary,  PREC_FACTOR},
   [TOKEN_STAR]          = {NULL,       binary,  PREC_FACTOR},
