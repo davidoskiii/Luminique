@@ -476,7 +476,10 @@ static InterpretResult run() {
           runtimeError("Operand must be a number.");
           return INTERPRET_RUNTIME_ERROR;
         }
-        push(NUMBER_VAL(-AS_NUMBER(pop())));
+
+        if(IS_INT(peek(0))) push(INT_VAL(-AS_INT(pop())));
+        else push(NUMBER_VAL(-AS_NUMBER(pop())));
+
         break;
       case OP_JUMP: {
         uint16_t offset = READ_SHORT();

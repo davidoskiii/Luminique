@@ -19,7 +19,9 @@ typedef struct {
   ObjClass* objectClass;
   ObjClass* nilClass;
   ObjClass* boolClass;
+  ObjClass* intClass;
   ObjClass* numberClass;
+  ObjClass* floatClass;
   ObjClass* arrayClass;
 
   CallFrame frames[FRAMES_MAX];

@@ -27,8 +27,11 @@ uint32_t hashValue(Value value) {
     return hash64To32Bits((uint64_t)value.as.boolean);
   } else if (IS_OBJ(value)) {
     return hashObject(AS_OBJ(value));
-  } else {
-    double num = value.as.number;
+  } else if (IS_FLOAT(value)) {
+    double num = value.as.float_;
     return hash64To32Bits((uint64_t)num);
+  } else {
+    int num = value.as.integer;
+    return hash64To32Bits((uint64_t) num);
   }
 }

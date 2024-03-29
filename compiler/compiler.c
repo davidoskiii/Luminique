@@ -568,6 +568,11 @@ static void grouping(bool canAssign) {
   consume(TOKEN_RIGHT_PAREN, "Expect ')' after expression.");
 }
 
+static void integer(bool canAssign) {
+  int value = strtol(parser.previous.start, NULL, 10);
+  emitConstant(INT_VAL(value));
+}
+
 static void number(bool canAssign) {
   double value = strtod(parser.previous.start, NULL);
   emitConstant(NUMBER_VAL(value));
@@ -763,6 +768,7 @@ ParseRule rules[] = {
   [TOKEN_IDENTIFIER]    = {variable,   NULL,    PREC_NONE},
   [TOKEN_STRING]        = {string,     NULL,    PREC_NONE},
   [TOKEN_NUMBER]        = {number,     NULL,    PREC_NONE},
+  [TOKEN_INT]           = {integer,    NULL,    PREC_NONE},
   [TOKEN_AND]           = {NULL,       and_,    PREC_AND},
   [TOKEN_CLASS]         = {NULL,       NULL,    PREC_NONE},
   [TOKEN_ELSE]          = {NULL,       NULL,    PREC_NONE},

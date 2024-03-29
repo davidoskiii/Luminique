@@ -2,6 +2,7 @@
 #define cluminique_value_h
 
 #include "../common.h"
+#include <string.h>
 
 typedef struct Obj Obj;
 typedef struct ObjClass ObjClass;
@@ -10,7 +11,8 @@ typedef struct ObjString ObjString;
 typedef enum {
   VAL_BOOL,
   VAL_NIL,
-  VAL_NUMBER,
+  VAL_INT,
+  VAL_FLOAT,
   VAL_OBJ
 } ValueType;
 
@@ -18,7 +20,8 @@ typedef struct {
   ValueType type;
   union {
     bool boolean;
-    double number;
+    int integer;
+    double float_;
     Obj* obj;
   } as; 
 } Value;
@@ -26,16 +29,22 @@ typedef struct {
 
 #define IS_BOOL(value)    ((value).type == VAL_BOOL)
 #define IS_NIL(value)     ((value).type == VAL_NIL)
-#define IS_NUMBER(value)  ((value).type == VAL_NUMBER)
+#define IS_INT(value)     ((value).type == VAL_INT)
+#define IS_FLOAT(value)   ((value).type == VAL_FLOAT)
+#define IS_NUMBER(value)  valueIsNum(value)
 #define IS_OBJ(value)     ((value).type == VAL_OBJ)
 
 #define AS_BOOL(value)    ((value).as.boolean)
-#define AS_NUMBER(value)  ((value).as.number)
+#define AS_INT(value)     ((value).as.integer)
+#define AS_FLOAT(value)   ((value).as.float_)
+#define AS_NUMBER(value)  ((value).as.float_)
 #define AS_OBJ(value)     ((value).as.obj)
 
-#define BOOL_VAL(value)   ((Value){VAL_BOOL, {.boolean = value}})
-#define NIL_VAL           ((Value){VAL_NIL, {.number = 0}})
-#define NUMBER_VAL(value) ((Value){VAL_NUMBER, {.number = value}})
+#define BOOL_VAL(b)       ((Value){VAL_BOOL, {.boolean = b}})
+#define NIL_VAL           ((Value){VAL_NIL, {.integer = 0}})
+#define INT_VAL(i)        ((Value){VAL_INT, {.integer = i}})
+#define FLOAT_VAL(f)      ((Value){VAL_FLOAT, {.float_ = f}})
+#define NUMBER_VAL(num)   ((Value){VAL_FLOAT, {.float_ = num}})
 #define OBJ_VAL(object)   ((Value){VAL_OBJ, {.obj = (Obj*)object}})
 
 typedef struct {
@@ -53,8 +62,16 @@ void freeValueArray(ValueArray* array);
 void printValue(Value value);
 char* valueToString(Value value);
 
-static inline double valueToNum(Value value) {
-  return AS_NUMBER(value);
+static inline bool valueIsInt(Value value) {
+  return value.type == VAL_INT;
+}
+
+static inline bool valueIsNum(Value value) {
+  return IS_FLOAT(value) || valueIsInt(value);
+}
+
+static inline double valueToFloat(Value value) {
+  return AS_FLOAT(value);
 }
 
 static inline Value numToValue(double num) {

@@ -216,9 +216,10 @@ static Token number() {
     advance();
 
     while (isDigit(peek())) advance();
+    return makeToken(TOKEN_NUMBER);
   }
 
-  return makeToken(TOKEN_NUMBER);
+  return makeToken(TOKEN_INT);
 }
 
 static Token string() {

@@ -10,6 +10,19 @@
 #include "../object/object.h"
 #include "../vm/vm.h"
 
+
+static int gcd(int self, int other) {
+  while (self != other) {
+    if (self > other) self -= other;
+    else other -= self;
+  }
+  return self;
+}
+
+static int lcm(int self, int other) {
+  return (self * other) / gcd(self, other);
+}
+
 // BOOL
 
 NATIVE_METHOD(Bool, __init__) {
@@ -28,15 +41,44 @@ NATIVE_METHOD(Bool, toString) {
 	else RETURN_STRING("false", 5);
 }
 
-NATIVE_METHOD(Nil, clone) {
-	assertArgCount("Nil::clone()", 0, argCount);
-	RETURN_NIL;
+// INT
+
+NATIVE_METHOD(Int, __init__) {
+  assertError("Cannot instantiate from class Int.");
+  RETURN_NIL;
+}
+
+NATIVE_METHOD(Int, abs) {
+  assertArgCount("Int::abs()", 0, argCount);
+  RETURN_INT(abs(AS_INT(receiver)));
+}
+
+NATIVE_METHOD(Int, gcd) {
+  assertArgCount("Int::gcd(other)", 1, argCount);
+  assertArgIsInt("Int::gcd(other)", args, 0);
+  RETURN_INT(gcd(abs(AS_INT(receiver)), abs(AS_INT(args[0]))));
+}
+
+NATIVE_METHOD(Int, lcm) {
+  assertArgCount("Int::lcm(other)", 1, argCount);
+  assertArgIsInt("Int::lcm(other)", args, 0);
+  RETURN_INT(lcm(abs(AS_INT(receiver)), abs(AS_INT(args[0]))));
+}
+
+NATIVE_METHOD(Int, toFloat) {
+  assertArgCount("Int::toFloat()", 0, argCount);
+  RETURN_NUMBER((double)AS_INT(receiver));
 }
 
 // NIL
 
 NATIVE_METHOD(Nil, __init__) {
 	assertError("Cannot instantiate from class Nil.");
+	RETURN_NIL;
+}
+
+NATIVE_METHOD(Nil, clone) {
+	assertArgCount("Nil::clone()", 0, argCount);
 	RETURN_NIL;
 }
 
@@ -56,7 +98,6 @@ NATIVE_METHOD(Number, abs) {
 	assertArgCount("Number::abs()", 0, argCount);
 	RETURN_NUMBER(fabs(AS_NUMBER(receiver)));
 }
-
 
 NATIVE_METHOD(Number, arccos) {
   assertArgCount("Number::acos()", 0, argCount);
@@ -170,6 +211,11 @@ NATIVE_METHOD(Number, tan) {
   RETURN_NUMBER(tan(AS_NUMBER(receiver)));
 }
 
+NATIVE_METHOD(Number, toInt) {
+  assertArgCount("Number::toInt()", 0, argCount);
+  RETURN_INT((int)AS_NUMBER(receiver));
+}
+
 NATIVE_METHOD(Number, toString) {
 	assertArgCount("Number::toString()", 0, argCount);
 	char chars[24];
@@ -213,7 +259,7 @@ NATIVE_METHOD(Object, hasField) {
 
 NATIVE_METHOD(Object, hashCode) {
 	assertArgCount("Object::hashCode()", 0, argCount);
-	RETURN_NUMBER(hashValue(receiver));
+	RETURN_INT(hashValue(receiver));
 }
 
 NATIVE_METHOD(Object, instanceOf) {
@@ -292,5 +338,14 @@ void registerLangPackage(){
   DEF_METHOD(vm.numberClass, Number, sin);
 	DEF_METHOD(vm.numberClass, Number, sqrt);
   DEF_METHOD(vm.numberClass, Number, tan);
+  DEF_METHOD(vm.numberClass, Number, toInt);
 	DEF_METHOD(vm.numberClass, Number, toString);
+
+  vm.intClass = defineNativeClass("Int");
+  bindSuperclass(vm.intClass, vm.numberClass);
+  DEF_METHOD(vm.intClass, Int, __init__);
+  DEF_METHOD(vm.intClass, Int, abs);
+  DEF_METHOD(vm.intClass, Int, gcd);
+  DEF_METHOD(vm.intClass, Int, lcm);
+  DEF_METHOD(vm.intClass, Int, toFloat);
 }

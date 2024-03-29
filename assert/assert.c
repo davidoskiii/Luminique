@@ -46,6 +46,13 @@ void assertArgIsArray(const char* method, Value* args, int index){
 	}
 }
 
+void assertArgIsInt(const char* method, Value* args, int index) {
+	if (!IS_INT(args[index])) {
+		runtimeError("method %s expects argument %d to be an integer.", method, index + 1);
+		exit(70);
+	}
+}
+
 void assertNonZero(const char* method, double number, int index) {
 	if (number == 0) {
 		if (index < 0) runtimeError("Method %s expects receiver to be a non-zero number but got %g.", method, number);
