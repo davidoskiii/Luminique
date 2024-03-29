@@ -57,6 +57,22 @@ NATIVE_METHOD(Number, abs) {
 	RETURN_NUMBER(fabs(AS_NUMBER(receiver)));
 }
 
+
+NATIVE_METHOD(Number, arccos) {
+  assertArgCount("Number::acos()", 0, argCount);
+  RETURN_NUMBER(acos(AS_NUMBER(receiver)));
+}
+
+NATIVE_METHOD(Number, arcsin) {
+  assertArgCount("Number::asin()", 0, argCount);
+  RETURN_NUMBER(asin(AS_NUMBER(receiver)));
+}
+
+NATIVE_METHOD(Number, arctan) {
+  assertArgCount("Number::atan()", 0, argCount);
+  RETURN_NUMBER(atan(AS_NUMBER(receiver)));
+}
+
 NATIVE_METHOD(Number, cbrt) {
 	assertArgCount("Number::cbrt()", 0, argCount);
 	RETURN_NUMBER(cbrt(AS_NUMBER(receiver)));
@@ -72,6 +88,11 @@ NATIVE_METHOD(Number, clone) {
 	return receiver;
 }
 
+NATIVE_METHOD(Number, cos) {
+  assertArgCount("Number::cos()", 0, argCount);
+  RETURN_NUMBER(cos(AS_NUMBER(receiver)));
+}
+
 NATIVE_METHOD(Number, exp) {
 	assertArgCount("Number::exp()", 0, argCount);
 	RETURN_NUMBER(exp(AS_NUMBER(receiver)));
@@ -82,11 +103,10 @@ NATIVE_METHOD(Number, floor) {
 	RETURN_NUMBER(floor(AS_NUMBER(receiver)));
 }
 
-NATIVE_METHOD(Number, toString) {
-	assertArgCount("Number::toString()", 0, argCount);
-	char chars[24];
-	int length = snprintf(chars, 24, "%.14g", AS_NUMBER(receiver));
-	RETURN_STRING(chars, length);
+NATIVE_METHOD(Number, hypot) {
+  assertArgCount("Number::hypot(other)", 1, argCount);
+  assertArgIsNumber("Number::hypot(other)", args, 0);
+  RETURN_NUMBER(hypot(AS_NUMBER(receiver), AS_NUMBER(args[0])));
 }
 
 NATIVE_METHOD(Number, log) {
@@ -133,11 +153,28 @@ NATIVE_METHOD(Number, round) {
 	RETURN_NUMBER(round(AS_NUMBER(receiver)));
 }
 
+NATIVE_METHOD(Number, sin) {
+  assertArgCount("Number::sin()", 0, argCount);
+  RETURN_NUMBER(sin(AS_NUMBER(receiver)));
+}
+
 NATIVE_METHOD(Number, sqrt) {
 	assertArgCount("Number::sqrt()", 0, argCount);
 	double self = AS_NUMBER(receiver);
 	assertPositiveNumber("Number::sqrt()", self, -1);
 	RETURN_NUMBER(sqrt(self));
+}
+
+NATIVE_METHOD(Number, tan) {
+  assertArgCount("Number::tan()", 0, argCount);
+  RETURN_NUMBER(tan(AS_NUMBER(receiver)));
+}
+
+NATIVE_METHOD(Number, toString) {
+	assertArgCount("Number::toString()", 0, argCount);
+	char chars[24];
+	int length = snprintf(chars, 24, "%.14g", AS_NUMBER(receiver));
+	RETURN_STRING(chars, length);
 }
 
 // OBJECT
@@ -235,11 +272,16 @@ void registerLangPackage(){
 	bindSuperclass(vm.numberClass, vm.objectClass);
 	DEF_METHOD(vm.numberClass, Number, __init__);
 	DEF_METHOD(vm.numberClass, Number, abs);
+  DEF_METHOD(vm.numberClass, Number, arccos);
+  DEF_METHOD(vm.numberClass, Number, arcsin);
+  DEF_METHOD(vm.numberClass, Number, arctan);
 	DEF_METHOD(vm.numberClass, Number, cbrt);
 	DEF_METHOD(vm.numberClass, Number, ceil);
 	DEF_METHOD(vm.numberClass, Number, clone);
+  DEF_METHOD(vm.numberClass, Number, cos);
 	DEF_METHOD(vm.numberClass, Number, exp);
 	DEF_METHOD(vm.numberClass, Number, floor);
+  DEF_METHOD(vm.numberClass, Number, hypot);
 	DEF_METHOD(vm.numberClass, Number, log);
 	DEF_METHOD(vm.numberClass, Number, log2);
 	DEF_METHOD(vm.numberClass, Number, log10);
@@ -247,6 +289,8 @@ void registerLangPackage(){
 	DEF_METHOD(vm.numberClass, Number, min);
 	DEF_METHOD(vm.numberClass, Number, pow);
 	DEF_METHOD(vm.numberClass, Number, round);
+  DEF_METHOD(vm.numberClass, Number, sin);
 	DEF_METHOD(vm.numberClass, Number, sqrt);
+  DEF_METHOD(vm.numberClass, Number, tan);
 	DEF_METHOD(vm.numberClass, Number, toString);
 }
