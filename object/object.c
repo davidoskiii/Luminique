@@ -10,7 +10,6 @@
 #include "../vm/vm.h"
 
 #define ALLOCATE_OBJ(type, objectType, objectClass) (type*)allocateObject(sizeof(type), objectType, objectClass)
-#define ALLOCATE_STRING(length) (ObjString*)allocateObject(sizeof(ObjString) + length + 1, OBJ_STRING, vm.stringClass)
 
 static Obj* allocateObject(size_t size, ObjType type, ObjClass* klass) {
   Obj* object = (Obj*)reallocate(NULL, 0, size);
@@ -91,16 +90,15 @@ ObjNativeMethod* newNativeMethod(NativeMethod method) {
 }
 
 static ObjString* allocateString(char* chars, int length, uint32_t hash) {
-  ObjString* string = ALLOCATE_STRING(length);
-
+  ObjString* string = ALLOCATE_OBJ(ObjString, OBJ_STRING, vm.stringClass);
   string->length = length;
+  string->chars = chars;
   string->hash = hash;
 
   push(OBJ_VAL(string));
-  memcpy(string->chars, chars, length);
-  string->chars[length] = '\0';
   tableSet(&vm.strings, string, NIL_VAL);
   pop();
+
   return string;
 }
 
