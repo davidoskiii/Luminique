@@ -381,7 +381,11 @@ void registerLangPackage(){
   bindSuperclass(vm.intClass, vm.numberClass);
   DEF_METHOD(vm.intClass, Int, __init__);
   DEF_METHOD(vm.intClass, Int, abs);
+  DEF_METHOD(vm.intClass, Int, clone);
+  DEF_METHOD(vm.intClass, Int, factorial);
   DEF_METHOD(vm.intClass, Int, gcd);
+  DEF_METHOD(vm.intClass, Int, isEven);
+  DEF_METHOD(vm.intClass, Int, isOdd);
   DEF_METHOD(vm.intClass, Int, lcm);
   DEF_METHOD(vm.intClass, Int, toFloat);
 }
