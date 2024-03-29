@@ -275,12 +275,12 @@ static ObjFunction* endCompiler() {
   emitReturn();
   ObjFunction* function = current->function;
 
-// #ifdef DEBUG_PRINT_CODE
-//  if (!parser.hadError) {
-//    disassembleChunk(currentChunk(), function->name != NULL
-//        ? function->name->chars : "<script>");
-//  }
-// #endif
+#ifdef DEBUG_PRINT_CODE
+ if (!parser.hadError) {
+   disassembleChunk(currentChunk(), function->name != NULL
+       ? function->name->chars : "<script>");
+ }
+#endif
   
   current = current->enclosing;
   return function;
@@ -412,7 +412,6 @@ static int discardLocals() {
   }
   return current->localCount - i - 1;
 }
-
 
 static void invokeMethod(int args, const char* name, int length) {
   int slot = makeConstant(OBJ_VAL(copyString(name, length)));

@@ -16,7 +16,6 @@
 #define IS_INSTANCE(value) isObjType(value, OBJ_INSTANCE)
 #define IS_NATIVE(value) isObjType(value, OBJ_NATIVE)
 #define IS_NATIVE_METHOD(value) isObjType(value, OBJ_NATIVE_METHOD)
-#define IS_NATIVE_INSTANCE(value) isObjType(value, OBJ_NATIVE_INSTANCE)
 #define IS_STRING(value) isObjType(value, OBJ_STRING)
 
 #define AS_ARRAY(value) ((ObjArray*)AS_OBJ(value))
@@ -28,7 +27,6 @@
 #define AS_NATIVE(value) \
     (((ObjNative*)AS_OBJ(value))->function)
 #define AS_NATIVE_METHOD(value) (((ObjNativeMethod*)AS_OBJ(value))->method)
-#define AS_NATIVE_INSTANCE(value) ((ObjNativeInstance*)AS_OBJ(value))
 #define AS_STRING(value) ((ObjString*)AS_OBJ(value))
 
 #define AS_CARRAY(value) (((ObjArray*)AS_OBJ(value))->elements)
@@ -43,7 +41,6 @@ typedef enum {
   OBJ_INSTANCE,
   OBJ_NATIVE,
   OBJ_NATIVE_METHOD,
-  OBJ_NATIVE_INSTANCE,
   OBJ_STRING,
   OBJ_UPVALUE
 } ObjType;
@@ -134,7 +131,6 @@ ObjFunction* newFunction();
 ObjInstance* newInstance(ObjClass* klass);
 ObjNative* newNative(NativeFn function);
 ObjNativeMethod* newNativeMethod(NativeMethod method);
-ObjNativeInstance* newNativeInstance(NativeInstance instance);
 ObjString* takeString(char* chars, int length);
 ObjString* copyFormattedString(const char* format, ...);
 ObjString* copyString(const char* chars, int length);
