@@ -10,6 +10,13 @@
 #include "../object/object.h"
 #include "../vm/vm.h"
 
+static int factorial(int self) {
+  int result = 1;
+  for (int i = 1; i <= self; i++) {
+    result *= i;
+  }
+  return result;
+}
 
 static int gcd(int self, int other) {
   while (self != other) {
@@ -53,10 +60,32 @@ NATIVE_METHOD(Int, abs) {
   RETURN_INT(abs(AS_INT(receiver)));
 }
 
+NATIVE_METHOD(Int, clone) {
+  assertArgCount("Int::clone()", 0, argCount);
+  return receiver;
+}
+
+NATIVE_METHOD(Int, factorial) {
+  assertArgCount("Int::factorial()", 0, argCount);
+  int self = AS_INT(receiver);
+  assertPositiveNumber("Int::factorial()", self, -1);
+  RETURN_INT(factorial(self));
+}
+
 NATIVE_METHOD(Int, gcd) {
   assertArgCount("Int::gcd(other)", 1, argCount);
   assertArgIsInt("Int::gcd(other)", args, 0);
   RETURN_INT(gcd(abs(AS_INT(receiver)), abs(AS_INT(args[0]))));
+}
+
+NATIVE_METHOD(Int, isEven) {
+  assertArgCount("Int::isEven()", 0, argCount);
+  RETURN_BOOL(AS_INT(receiver) % 2 == 0);
+}
+
+NATIVE_METHOD(Int, isOdd) {
+  assertArgCount("Int::isOdd()", 0, argCount);
+  RETURN_BOOL(AS_INT(receiver) % 2 != 0);
 }
 
 NATIVE_METHOD(Int, lcm) {
@@ -68,6 +97,13 @@ NATIVE_METHOD(Int, lcm) {
 NATIVE_METHOD(Int, toFloat) {
   assertArgCount("Int::toFloat()", 0, argCount);
   RETURN_NUMBER((double)AS_INT(receiver));
+}
+
+NATIVE_METHOD(Int, toString) {
+  assertArgCount("Int::toString()", 0, argCount);
+	char chars[24];
+	int length = snprintf(chars, 24, "%.14g", AS_NUMBER(receiver));
+	RETURN_STRING(chars, length);
 }
 
 // NIL

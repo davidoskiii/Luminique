@@ -48,7 +48,14 @@ void assertArgIsArray(const char* method, Value* args, int index){
 
 void assertArgIsInt(const char* method, Value* args, int index) {
 	if (!IS_INT(args[index])) {
-		runtimeError("method %s expects argument %d to be an integer.", method, index + 1);
+		runtimeError("Method %s expects argument %d to be an integer.", method, index + 1);
+		exit(70);
+	}
+}
+
+void assertArgIsFloat(const char* method, Value* args, int index) {
+	if (!IS_FLOAT(args[index])) {
+		runtimeError("Method %s expects argument %d to be a floating point number.", method, index + 1);
 		exit(70);
 	}
 }
@@ -61,6 +68,14 @@ void assertNonZero(const char* method, double number, int index) {
 	}
 }
 
+void assertNonNegativeNumber(const char* method, double number, int index) {
+	if (number < 0) {
+		if (index < 0) runtimeError("Method %s expects receiver to be a non negative number but got %g.", method, number);
+		else runtimeError("Method %s expects argument %d to be a non negative number but got %g.", method, index, number);
+		exit(70);
+	}
+}
+
 void assertPositiveNumber(const char* method, double number, int index) {
 	if (number <= 0) {
 		if (index < 0) runtimeError("Method %s expects receiver to be a positive number but got %g.", method, number);
@@ -68,7 +83,6 @@ void assertPositiveNumber(const char* method, double number, int index) {
 		exit(70);
 	}
 }
-
 
 void assertError(const char* message) {
 	runtimeError(message);

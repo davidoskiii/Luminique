@@ -434,6 +434,10 @@ static InterpretResult run() {
       case OP_ADD: {
         if (IS_STRING(peek(0)) && IS_STRING(peek(1))) {
           concatenate();
+        } else if (IS_INT(peek(0)) && IS_INT(peek(1))) {
+          int b = AS_INT(pop());
+          int a = AS_INT(pop());
+          push(INT_VAL(a + b));
         } else if (IS_NUMBER(peek(0)) && IS_NUMBER(peek(1))) {
           double b = AS_NUMBER(pop());
           double a = AS_NUMBER(pop());
@@ -445,8 +449,24 @@ static InterpretResult run() {
         }
         break;
       }
-      case OP_SUBTRACT: BINARY_OP(NUMBER_VAL, -); break;
-      case OP_MULTIPLY: BINARY_OP(NUMBER_VAL, *); break;
+      case OP_SUBTRACT: {
+        if (IS_INT(peek(0)) && IS_INT(peek(1))) {
+          int b = AS_INT(pop());
+          int a = AS_INT(pop());
+          push(INT_VAL(a - b));
+        }
+        else BINARY_OP(NUMBER_VAL, -);
+        break;
+      }
+      case OP_MULTIPLY: {
+        if (IS_INT(peek(0)) && IS_INT(peek(1))) {
+          int b = AS_INT(pop());
+          int a = AS_INT(pop());
+          push(INT_VAL(a * b));
+        }
+        else BINARY_OP(NUMBER_VAL, *); 
+        break;
+      }
       case OP_DIVIDE:   BINARY_OP(NUMBER_VAL, /); break;
       case OP_MODULO: {
         if (!IS_NUMBER(peek(0)) || !IS_NUMBER(peek(1))) {
@@ -568,12 +588,12 @@ static InterpretResult run() {
           return INTERPRET_RUNTIME_ERROR;
         }
 
-        double index = AS_NUMBER(pop());
-
-        if (index != (int) index) {
+        if (!IS_INT(peek(0))) {
           runtimeError("List index must be an integer.");
           return INTERPRET_RUNTIME_ERROR;
         }
+
+        double index = AS_INT(pop());
 
         if (!IS_ARRAY(peek(0))) {
           runtimeError("Only arrays can have subscripts.");
@@ -595,14 +615,15 @@ static InterpretResult run() {
           runtimeError("List index must be a number.");
           return INTERPRET_RUNTIME_ERROR;
         }
-        
-        Value element = pop();
-        double index = AS_NUMBER(pop());
 
-        if (index != (int) index) {
+        if (!IS_INT(peek(1))) {
           runtimeError("List index must be an integer.");
           return INTERPRET_RUNTIME_ERROR;
         }
+
+        Value element = pop();
+        double index = AS_INT(pop());
+
         if (!IS_ARRAY(peek(0))) {
           runtimeError("Only List can have subscripts.");
           return INTERPRET_RUNTIME_ERROR;
