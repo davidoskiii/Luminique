@@ -10,4 +10,4 @@
 # Unignore Makefile
 !Makefile
 
-Make/*
+Make
