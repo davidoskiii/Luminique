@@ -211,20 +211,16 @@ static bool invoke(ObjString* name, int argCount) {
     return invokeFromClass(getObjClass(receiver), name, argCount);
   }
 
-  if (!IS_OBJ(receiver) || !IS_INSTANCE(receiver)) {
-    runtimeError("Only instances have methods.");
-    return false;
+  if (IS_INSTANCE(receiver)) {
+    ObjInstance* instance = AS_INSTANCE(receiver);
+    Value value;
+    if (tableGet(&instance->fields, name, &value)) {
+      vm.stackTop[-argCount - 1] = value;
+      return callValue(value, argCount);
+    }
   }
 
-  ObjInstance* instance = AS_INSTANCE(receiver);
-
-  Value value;
-  if (tableGet(&instance->fields, name, &value)) {
-    vm.stackTop[-argCount - 1] = value;
-    return callValue(value, argCount);
-  }
-
-  return invokeFromClass(instance->klass, name, argCount);
+  return invokeFromClass(getObjClass(receiver), name, argCount);
 }
 
 
@@ -564,7 +560,7 @@ static InterpretResult run() {
           break;
         }
 
-        if (!bindMethod(instance->klass, name)) {
+        if (!bindMethod(instance->obj.klass, name)) {
           return INTERPRET_RUNTIME_ERROR;
         }
         break;

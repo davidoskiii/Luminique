@@ -17,11 +17,13 @@ typedef struct {
 
 typedef struct {
   ObjClass* objectClass;
+  ObjClass* classClass;
   ObjClass* nilClass;
   ObjClass* boolClass;
   ObjClass* intClass;
   ObjClass* numberClass;
   ObjClass* floatClass;
+  ObjClass* stringClass;
   ObjClass* arrayClass;
 
   CallFrame frames[FRAMES_MAX];

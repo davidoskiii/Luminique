@@ -112,7 +112,7 @@ static void blackenObject(Obj* object) {
     }
     case OBJ_INSTANCE: {
       ObjInstance* instance = (ObjInstance*)object;
-      markObject((Obj*)instance->klass);
+      markObject((Obj*)object->klass);
       markTable(&instance->fields);
       break;
     }

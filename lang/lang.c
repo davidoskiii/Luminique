@@ -30,6 +30,36 @@ static int lcm(int self, int other) {
   return (self * other) / gcd(self, other);
 }
 
+static int searchString(ObjString* haystack, ObjString* needle, uint32_t start) {
+  if (needle->length == 0) return start;
+  if (start + needle->length > haystack->length || start >= haystack->length) return -1;
+  uint32_t shift[UINT8_MAX];
+  uint32_t needleEnd = needle->length - 1;
+
+  for (uint32_t index = 0; index < UINT8_MAX; index++){
+    shift[index] = needle->length;
+  }
+
+  for (uint32_t index = 0; index < needleEnd; index++){
+    char c = needle->chars[index];
+    shift[(uint8_t)c] = needleEnd - index;
+  }
+
+  char lastChar = needle->chars[needleEnd];
+  uint32_t range = haystack->length - needle->length;
+
+  for (uint32_t index = start; index <= range; ){
+    char c = haystack->chars[index + needleEnd];
+    if (lastChar == c && memcmp(haystack->chars + index, needle->chars, needleEnd) == 0){
+      return index;
+    }
+
+    index += shift[(uint8_t)c];
+  }
+  return -1;
+}
+
+
 // BOOL
 
 NATIVE_METHOD(Bool, __init__) {
@@ -46,6 +76,82 @@ NATIVE_METHOD(Bool, toString) {
 	assertArgCount("Bool::toString()", 0, argCount);
 	if (AS_BOOL(receiver)) RETURN_STRING("true", 4);
 	else RETURN_STRING("false", 5);
+}
+
+// CLASS
+
+NATIVE_METHOD(Class, __init__) {
+  assertArgCount("Class::__init__(name, superclass)", 2, argCount);
+  assertArgIsString("Class::__init__(name, superclass)", args, 0);
+  assertArgIsClass("Class::__init__(name, superclass)", args, 1);
+  ObjClass* klass = newClass(AS_STRING(args[0]));
+  bindSuperclass(klass, AS_CLASS(args[1]));
+  RETURN_OBJ(klass);
+}
+
+NATIVE_METHOD(Class, clone) {
+  assertArgCount("Class::clone()", 0, argCount);
+  return receiver;
+}
+
+NATIVE_METHOD(Class, getClass) {
+  assertArgCount("Class::getClass()", 0, argCount);
+  RETURN_OBJ(vm.classClass);
+}
+
+NATIVE_METHOD(Class, getClassName) {
+  assertArgCount("Class::getClassName()", 0, argCount);
+  RETURN_OBJ(vm.classClass->name);
+}
+
+NATIVE_METHOD(Class, instanceOf) {
+  assertArgCount("Class::instanceOf(class)", 1, argCount);
+  if (!IS_CLASS(args[0])) RETURN_FALSE;
+  ObjClass* klass = AS_CLASS(args[0]);
+  if (klass == vm.classClass) RETURN_TRUE;
+  else RETURN_FALSE;
+}
+
+NATIVE_METHOD(Class, memberOf) {
+  assertArgCount("Class::memberOf(class)", 1, argCount);
+  if (!IS_CLASS(args[0])) RETURN_FALSE;
+  ObjClass* klass = AS_CLASS(args[0]);
+  if (klass == vm.classClass) RETURN_TRUE;
+  else RETURN_FALSE;
+}
+
+NATIVE_METHOD(Class, name) {
+  assertArgCount("Class::name()", 0, argCount);
+  RETURN_OBJ(AS_CLASS(receiver)->name);
+}
+
+NATIVE_METHOD(Class, superclass) {
+  assertArgCount("Class::superclass()", 0, argCount);
+  ObjClass* klass = AS_CLASS(receiver);
+  if (klass->superclass == NULL) RETURN_NIL;
+  RETURN_OBJ(klass->superclass);
+}
+
+NATIVE_METHOD(Class, toString) {
+  assertArgCount("Class::toString()", 0, argCount);
+  RETURN_STRING_FMT("<class %s>", AS_CLASS(receiver)->name->chars);
+}
+
+// FLOAT
+
+NATIVE_METHOD(Float, __init__) {
+  assertError("Cannot instantiate from class Float.");
+  RETURN_NIL;
+}
+
+NATIVE_METHOD(Float, clone) {
+  assertArgCount("Float::clone()", 0, argCount);
+  return receiver;
+}
+
+NATIVE_METHOD(Float, toString) {
+  assertArgCount("Float::toString()", 0, argCount);
+  RETURN_STRING_FMT("%g", AS_FLOAT(receiver));
 }
 
 // INT
@@ -101,9 +207,7 @@ NATIVE_METHOD(Int, toFloat) {
 
 NATIVE_METHOD(Int, toString) {
   assertArgCount("Int::toString()", 0, argCount);
-	char chars[24];
-	int length = snprintf(chars, 24, "%.14g", AS_NUMBER(receiver));
-	RETURN_STRING(chars, length);
+  RETURN_STRING_FMT("%d", AS_INT(receiver));
 }
 
 // NIL
@@ -264,7 +368,7 @@ NATIVE_METHOD(Number, toString) {
 NATIVE_METHOD(Object, clone) {
 	assertArgCount("Object::clone()", 0, argCount);
 	ObjInstance* thisObject = AS_INSTANCE(receiver);
-	ObjInstance* thatObject = newInstance(thisObject->klass);
+  ObjInstance* thatObject = newInstance(OBJ_KLASS(receiver));
 	tableAddAll(&thisObject->fields, &thatObject->fields);
 	RETURN_OBJ(thatObject);
 }
@@ -323,7 +427,46 @@ NATIVE_METHOD(Object, memberOf) {
 
 NATIVE_METHOD(Object, toString) {
 	assertArgCount("Object::toString()", 0, argCount);
-	RETURN_STRING_FMT("[object %s]", AS_INSTANCE(receiver)->klass->name->chars);
+  RETURN_STRING_FMT("<object %s>", AS_OBJ(receiver)->klass->name->chars);
+}
+
+// STRING
+
+NATIVE_METHOD(String, __init__) {
+  assertArgCount("String::__init__(chars)", 1, argCount);
+  assertArgIsString("String::__init__(chars)", args, 0);
+  return args[0];
+}
+
+NATIVE_METHOD(String, clone) {
+  assertArgCount("String::clone()", 0, argCount);
+  return receiver;
+}
+
+NATIVE_METHOD(String, contains) {
+  assertArgCount("String::contains(chars)", 1, argCount);
+  assertArgIsString("String::contains(chars)", args, 0);
+  ObjString* haystack = AS_STRING(receiver);
+  ObjString* needle = AS_STRING(args[0]);
+  RETURN_BOOL(searchString(haystack, needle, 0) != -1);
+}
+
+NATIVE_METHOD(String, indexOf) {
+  assertArgCount("String::indexOf(chars)", 1, argCount);
+  assertArgIsString("String::indexOf(chars)", args, 0);
+  ObjString* haystack = AS_STRING(receiver);
+  ObjString* needle = AS_STRING(args[0]);
+  RETURN_INT(searchString(haystack, needle, 0));
+}
+
+NATIVE_METHOD(String, length) {
+  assertArgCount("String::length()", 0, argCount);
+  RETURN_INT(AS_STRING(receiver)->length);
+}
+
+NATIVE_METHOD(String, toString) {
+  assertArgCount("String::toString()", 0, argCount);
+  return receiver;
 }
 
 void registerLangPackage(){
@@ -337,6 +480,18 @@ void registerLangPackage(){
 	DEF_METHOD(vm.objectClass, Object, instanceOf);
 	DEF_METHOD(vm.objectClass, Object, memberOf);
 	DEF_METHOD(vm.objectClass, Object, toString);
+
+  vm.classClass = defineNativeClass("Class");
+  bindSuperclass(vm.classClass, vm.objectClass);
+  DEF_METHOD(vm.classClass, Class, __init__);
+  DEF_METHOD(vm.classClass, Class, clone);
+  DEF_METHOD(vm.classClass, Class, getClass);
+  DEF_METHOD(vm.classClass, Class, getClassName);
+  DEF_METHOD(vm.classClass, Class, instanceOf);
+  DEF_METHOD(vm.classClass, Class, memberOf);
+  DEF_METHOD(vm.classClass, Class, name);
+  DEF_METHOD(vm.classClass, Class, superclass);
+  DEF_METHOD(vm.classClass, Class, toString);
 
 	vm.nilClass = defineNativeClass("Nil");
 	bindSuperclass(vm.nilClass, vm.objectClass);
@@ -388,4 +543,21 @@ void registerLangPackage(){
   DEF_METHOD(vm.intClass, Int, isOdd);
   DEF_METHOD(vm.intClass, Int, lcm);
   DEF_METHOD(vm.intClass, Int, toFloat);
+  DEF_METHOD(vm.intClass, Int, toString);
+
+  vm.floatClass = defineNativeClass("Float");
+  bindSuperclass(vm.floatClass, vm.numberClass);
+  DEF_METHOD(vm.floatClass, Float, __init__);
+  DEF_METHOD(vm.floatClass, Float, clone);
+  DEF_METHOD(vm.floatClass, Float, toString);
+
+
+  vm.stringClass = defineNativeClass("String");
+  bindSuperclass(vm.stringClass, vm.objectClass);
+  DEF_METHOD(vm.stringClass, String, __init__);
+  DEF_METHOD(vm.stringClass, String, clone);
+  DEF_METHOD(vm.stringClass, String, contains);
+  DEF_METHOD(vm.stringClass, String, indexOf);
+  DEF_METHOD(vm.stringClass, String, length);
+  DEF_METHOD(vm.stringClass, String, toString);
 }
