@@ -155,14 +155,14 @@ static bool callValue(Value callee, int argCount) {
       case OBJ_BOUND_METHOD: {
         ObjBoundMethod* bound = AS_BOUND_METHOD(callee);
         vm.stackTop[-argCount - 1] = bound->receiver;
-        return call(bound->method, argCount);
+        return callMethod(OBJ_VAL(bound->method), argCount);
       }
       case OBJ_CLASS: {
         ObjClass* klass = AS_CLASS(callee);
         vm.stackTop[-argCount - 1] = OBJ_VAL(newInstance(klass));
         Value initializer;
         if (tableGet(&klass->methods, vm.initString, &initializer)) {
-          return call(AS_CLOSURE(initializer), argCount);
+          return callMethod(initializer, argCount);
         } else if (argCount != 0) {
           runtimeError("Expected 0 arguments but got %d.", argCount);
           return false;
@@ -206,6 +206,10 @@ static bool invokeFromClass(ObjClass* klass, ObjString* name, int argCount) {
 
 static bool invoke(ObjString* name, int argCount) {
   Value receiver = peek(argCount);
+
+  if (!IS_OBJ(receiver)) {
+    return invokeFromClass(getObjClass(receiver), name, argCount);
+  }
 
   if (!IS_OBJ(receiver) || !IS_INSTANCE(receiver)) {
     runtimeError("Only instances have methods.");

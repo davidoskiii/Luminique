@@ -138,6 +138,7 @@ ObjString* copyString(const char* chars, int length);
 ObjArray* copyArray(ValueArray elements);
 ObjUpvalue* newUpvalue(Value* slot);
 void printObject(Value value);
+ObjClass* getObjClass(Value value);
 
 static inline bool isObjType(Value value, ObjType type) {
   return IS_OBJ(value) && AS_OBJ(value)->type == type;

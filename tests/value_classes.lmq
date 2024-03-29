@@ -1,0 +1,33 @@
+println("Testing nil...");
+
+// let undefined = Nil();
+
+print("Class name for nil: ");
+println(nil.getClassName());
+print("Convert nil to string: ");
+println(nil.toString());
+println("");
+
+println("Testing bool...");
+
+// let bool = Bool(); 
+
+print("Class name for true: ");
+println(true.getClassName());
+print("Class name for false: ");
+println(false.getClassName());
+
+let bool = 3 > 2;
+
+println("Evaluating '3 > 2' as string: ");
+println(bool.toString());
+println("");
+
+println("Testing number...");
+
+// let num = Number();
+
+print("Class name for number: ");
+println(1.getClassName());
+print("Convert number to string: ");
+println(5.toString());
