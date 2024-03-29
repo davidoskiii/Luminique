@@ -1,0 +1,11 @@
+let object = Object();
+
+println(object);
+
+println(object.equals("Hello World"));
+
+println(object.hasField("length"));
+println(object.getClass());
+println(object.instanceOf(Object));
+println(object.memberOf(Object));
+println(object.toString());

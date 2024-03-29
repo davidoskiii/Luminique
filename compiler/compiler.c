@@ -18,6 +18,7 @@ typedef struct {
   Token current;
   Token previous;
   Token next;
+  Token rootClass;
   bool hadError;
   bool panicMode;
 } Parser;
@@ -80,7 +81,6 @@ typedef struct Compiler {
 
 typedef struct ClassCompiler {
   struct ClassCompiler* enclosing;
-  bool hasSuperclass;
 } ClassCompiler;
 
 Parser parser;
@@ -697,8 +697,6 @@ static Token syntheticToken(const char* text) {
 static void super_(bool canAssign) {
   if (currentClass == NULL) {
     error("Can't use 'super' outside of a class.");
-  } else if (!currentClass->hasSuperclass) {
-    error("Can't use 'super' in a class with no superclass.");
   }
 
   consume(TOKEN_DOT, "Expect '.' after 'super'.");
@@ -885,7 +883,6 @@ static void classDeclaration() {
   defineVariable(nameConstant, false);
 
   ClassCompiler classCompiler;
-  classCompiler.hasSuperclass = false;
   classCompiler.enclosing = currentClass;
   currentClass = &classCompiler;
 
@@ -897,15 +894,18 @@ static void classDeclaration() {
     if (identifiersEqual(&className, &parser.previous)) {
       error("A class can't inherit from itself.");
     }
-
-    beginScope();
-    addLocal(syntheticToken("super"));
-    defineVariable(0, false);
-
-    namedVariable(className, false);
-    emitByte(OP_INHERIT);
-    classCompiler.hasSuperclass = true;
+  } else {
+    namedVariable(parser.rootClass, false);
+    if (identifiersEqual(&className, &parser.rootClass)) {
+      error("Cannot redeclare root class Object.");
+    }
   }
+
+  beginScope();
+  addLocal(syntheticToken("super"));
+  defineVariable(0, false);
+  namedVariable(className, false);
+  emitByte(OP_INHERIT);
 
   namedVariable(className, false);
   consume(TOKEN_LEFT_BRACE, "Expect '{' before class body.");
@@ -916,10 +916,7 @@ static void classDeclaration() {
 
   consume(TOKEN_RIGHT_BRACE, "Expect '}' after class body.");
   emitByte(OP_POP);
-
-  if (classCompiler.hasSuperclass) {
-    endScope();
-  }
+  endScope();
 
   currentClass = currentClass->enclosing;
 }
@@ -1237,6 +1234,7 @@ ObjFunction* compile(const char* source) {
   Compiler compiler;
   initCompiler(&compiler, TYPE_SCRIPT);
 
+  parser.rootClass = syntheticToken("Object");
   parser.hadError = false;
   parser.panicMode = false;
 

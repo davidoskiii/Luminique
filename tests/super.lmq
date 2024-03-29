@@ -1,0 +1,25 @@
+class A { 
+  function method() { 
+    println("A method");
+  }
+
+  function toString() { 
+    return super.toString() + " of class " + this.getClassName();
+  }
+}
+
+class B : A { 
+  function method() {  
+    println("B method");
+  }
+  function test() {
+    super.method();
+  }
+}
+
+class C : B { }
+
+C().test();
+let c = C();
+c.test();
+println(c.toString());
