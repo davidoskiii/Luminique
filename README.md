@@ -8,6 +8,7 @@ Luminique is a high-level programming language designed to provide developers wi
 - **Bytecode execution**: Luminique programs are compiled to bytecode, which is then executed by the Luminique virtual machine (LVM). This allows for efficient execution and portability across different platforms.
 - **Garbage collection**: Luminique features automatic memory management through a garbage collector, relieving developers from manual memory management concerns.
 - **Dynamic typing**: Luminique supports dynamic typing, enabling flexible and expressive code without the need for explicit type declarations.
+- **Object model: In Luminique everything is an object and every object has a class, this includes `nil`, `true`, `false`, `number`, `string`, `function`, `class` etc.**
 - **Standard library**: Luminique comes with a standard library that is updated day by day.
 
 ## Installation
@@ -24,6 +25,7 @@ cd Luminique
 2. Compile the executable:
 ```
 make
+./Make/bin/luminique
 ```
 
 3. Try it out with the examples in the tests directory or read the documentation (dosn't exist yet :D).
