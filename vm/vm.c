@@ -284,6 +284,15 @@ static void defineMethod(ObjString* name) {
   pop();
 }
 
+void bindSuperclass(ObjClass* subclass, ObjClass* superclass) {
+  if (superclass == NULL) {
+    runtimeError("Superclass cannot be null for class %s", subclass->name);
+    return;
+  }
+  subclass->superclass = superclass;
+  tableAddAll(&superclass->methods, &subclass->methods);
+}
+
 static bool isFalsey(Value value) {
   return IS_NIL(value) || (IS_BOOL(value) && !AS_BOOL(value));
 }
@@ -651,7 +660,7 @@ static InterpretResult run() {
         }
 
         ObjClass* subclass = AS_CLASS(peek(0));
-        tableAddAll(&AS_CLASS(superclass)->methods, &subclass->methods);
+        bindSuperclass(subclass, AS_CLASS(superclass));
         pop(); // Subclass.
         break;
       }

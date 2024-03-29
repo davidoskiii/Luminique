@@ -22,4 +22,11 @@ class C : B { }
 C().test();
 let c = C();
 c.test();
+
 println(c.toString());
+println(c.instanceOf(C));
+println(c.instanceOf(B));
+println(c.instanceOf(A));
+println(c.instanceOf(Object));
+println(b.instanceOf(C));
+println(b.instanceOf(A));

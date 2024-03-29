@@ -7,6 +7,14 @@
 #include "../object/object.h"
 #include "../vm/vm.h"
 
+NATIVE_METHOD(Object, clone) {
+	assertArgCount("Object::clone()", 0, argCount);
+	ObjInstance* thisObject = AS_INSTANCE(receiver);
+	ObjInstance* thatObject = newInstance(thisObject->klass);
+	tableAddAll(&thisObject->fields, &thatObject->fields);
+	RETURN_OBJ(thatObject);
+}
+
 NATIVE_METHOD(Object, equals) {
 	assertArgCount("Object::equals(value)", 1, argCount);
 	RETURN_BOOL(valuesEqual(receiver, args[0]));
@@ -36,7 +44,14 @@ NATIVE_METHOD(Object, instanceOf) {
 	if (!IS_CLASS(args[0])) RETURN_FALSE;
 	ObjClass* thisClass = AS_INSTANCE(receiver)->klass;
 	ObjClass* thatClass = AS_CLASS(args[0]);
-	RETURN_BOOL(thisClass == thatClass);
+	if (thisClass == thatClass) RETURN_TRUE;
+
+	ObjClass* superclass = thisClass->superclass;
+	while (superclass != NULL) {
+		if (superclass == thatClass) RETURN_TRUE;
+		superclass = superclass->superclass;
+	}
+	RETURN_FALSE;
 }
 
 NATIVE_METHOD(Object, memberOf) {
@@ -69,6 +84,7 @@ NATIVE_METHOD(Object, toString) {
 
 void registerLangPackage(){
 	ObjClass* objectClass = defineNativeClass("Object");
+	DEF_METHOD(objectClass, Object, clone);
 	DEF_METHOD(objectClass, Object, equals);
 	DEF_METHOD(objectClass, Object, getClass);
 	DEF_METHOD(objectClass, Object, getClassName);

@@ -8,4 +8,9 @@ println(object.hasField("length"));
 println(object.getClass());
 println(object.instanceOf(Object));
 println(object.memberOf(Object));
+
 println(object.toString());
+
+let pair2 = pair.clone();
+print(pair2.first + pair2.second);
+print(pair.equals(pair2));

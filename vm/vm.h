@@ -46,8 +46,11 @@ typedef enum {
 
 extern VM vm;
 
+
 void initVM();
 void freeVM();
+
+void bindSuperclass(ObjClass* subclass, ObjClass* superclass);
 bool loadGlobal(ObjString* name, Value* value);
 InterpretResult interpret(const char* source);
 void runtimeError(const char* format, ...);
