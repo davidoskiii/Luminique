@@ -12,6 +12,7 @@
 #include "../object/object.h"
 #include "../memory/memory.h"
 #include "../std/std.h"
+#include "../lang/lang.h"
 #include "vm.h"
 
 VM vm;
@@ -62,6 +63,7 @@ void initVM() {
   vm.initString = NULL;
   vm.initString = copyString("__init__", 8);
 
+  registerLangPackage();
   initNatives();
   initStd();
 }
@@ -142,6 +144,11 @@ static bool callNativeMethod(NativeMethod method, int argCount) {
   return true;
 }
 
+static bool callMethod(Value method, int argCount) {
+  if (IS_NATIVE_METHOD(method)) return callNativeMethod(AS_NATIVE_METHOD(method), argCount);
+  else return call(AS_CLOSURE(method), argCount);
+}
+
 static bool callValue(Value callee, int argCount) {
   if (IS_OBJ(callee)) {
     switch (OBJ_TYPE(callee)) {
@@ -164,10 +171,20 @@ static bool callValue(Value callee, int argCount) {
       }
       case OBJ_CLOSURE:
         return call(AS_CLOSURE(callee), argCount);
-      case OBJ_NATIVE:
-        return callNativeFunction(AS_NATIVE(callee), argCount);
-      case OBJ_NATIVE_METHOD: 
-        return callNativeMethod(AS_NATIVE_METHOD(callee), argCount);
+      case OBJ_NATIVE: {
+        NativeFn native = AS_NATIVE(callee);
+        Value result = native(argCount, vm.stackTop - argCount);
+        vm.stackTop -= argCount + 1;
+        push(result);
+        return true;
+      }
+      case OBJ_NATIVE_METHOD: {
+        NativeMethod method = AS_NATIVE_METHOD(callee);
+        Value result = method(vm.stackTop[-argCount - 1], argCount, vm.stackTop - argCount);
+        vm.stackTop -= argCount + 1;
+        push(result);
+        return true;
+      }
       default:
         break; // Non-callable object type.
     }
@@ -177,20 +194,20 @@ static bool callValue(Value callee, int argCount) {
 }
 
 
+
 static bool invokeFromClass(ObjClass* klass, ObjString* name, int argCount) {
   Value method;
-  if (tableGet(&klass->methods, name, &method)) {
-    return call(AS_CLOSURE(method), argCount);
+  if (!tableGet(&klass->methods, name, &method)) {
+    runtimeError("Undefined property '%s'.", name->chars);
+    return false;
   }
-
-  runtimeError("Undefined property '%s'.", name->chars);
-  return false;
+  return callMethod(method, argCount);
 }
 
 static bool invoke(ObjString* name, int argCount) {
   Value receiver = peek(argCount);
 
-  if (!IS_INSTANCE(receiver)) {
+  if (!IS_OBJ(receiver) || !IS_INSTANCE(receiver)) {
     runtimeError("Only instances have methods.");
     return false;
   }
@@ -202,14 +219,10 @@ static bool invoke(ObjString* name, int argCount) {
     vm.stackTop[-argCount - 1] = value;
     return callValue(value, argCount);
   }
-  
-  if (invokeFromClass(instance->klass, name, argCount)) {
-    return true;
-  }
 
-  runtimeError("Undefined property '%s'.", name->chars);
-  return false;
+  return invokeFromClass(instance->klass, name, argCount);
 }
+
 
 static bool bindMethod(ObjClass* klass, ObjString* name) {
   Value method;
@@ -317,17 +330,17 @@ static InterpretResult run() {
 
   for (;;) {
 
-// #ifdef DEBUG_TRACE_EXECUTION
-//    printf("          ");
-//    for (Value* slot = vm.stack; slot < vm.stackTop; slot++) {
-//      printf("[ ");
-//      printValue(*slot);
-//      printf(" ]");
-//    }
-//    printf("\n");
-//    disassembleInstruction(&frame->closure->function->chunk,
-//        (int)(frame->ip - frame->closure->function->chunk.code));
-// #endif
+#ifdef DEBUG_TRACE_EXECUTION
+   printf("          ");
+   for (Value* slot = vm.stack; slot < vm.stackTop; slot++) {
+     printf("[ ");
+     printValue(*slot);
+     printf(" ]");
+   }
+   printf("\n");
+   disassembleInstruction(&frame->closure->function->chunk,
+       (int)(frame->ip - frame->closure->function->chunk.code));
+#endif
 
     uint8_t instruction;
     switch (instruction = READ_BYTE()) {

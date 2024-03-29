@@ -117,7 +117,6 @@ static void blackenObject(Obj* object) {
     }
     case OBJ_NATIVE:
     case OBJ_NATIVE_METHOD:
-    case OBJ_NATIVE_INSTANCE:
     case OBJ_STRING:
       break;
   }
@@ -165,9 +164,6 @@ static void freeObject(Obj* object) {
       break;
     case OBJ_NATIVE_METHOD:
       FREE(ObjNativeMethod, object);
-      break;
-    case OBJ_NATIVE_INSTANCE:
-      FREE(ObjNativeInstance, object);
       break;
     case OBJ_STRING: {
       ObjString* string = (ObjString*)object;

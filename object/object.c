@@ -88,12 +88,6 @@ ObjNativeMethod* newNativeMethod(NativeMethod method) {
   return nativeMethod;
 }
 
-ObjNativeInstance* newNativeInstance(NativeInstance instance) {
-  ObjNativeInstance* nativeInstance = ALLOCATE_OBJ(ObjNativeInstance, OBJ_NATIVE_INSTANCE);
-  nativeInstance->instance = instance;
-  return nativeInstance;
-}
-
 static ObjString* allocateString(char* chars, int length, uint32_t hash) {
   ObjString* string = ALLOCATE_OBJ(ObjString, OBJ_STRING);
   string->length = length;
@@ -235,9 +229,6 @@ void printObject(Value value) {
       break;
     case OBJ_NATIVE_METHOD:
       printf("<native method>");
-      break;
-    case OBJ_NATIVE_INSTANCE:
-      printf("<native instance>");
       break;
     case OBJ_STRING:
       printf("%s", AS_CSTRING(value));

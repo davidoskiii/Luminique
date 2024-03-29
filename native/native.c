@@ -20,14 +20,6 @@ void defineNativeFunction(const char* name, NativeFn function) {
   pop();
 }
 
-void defineNativeInstance(const char* name, NativeInstance instance) {
-  push(OBJ_VAL(copyString(name, (int)strlen(name))));
-  push(OBJ_VAL(newNativeInstance(instance)));
-  tableSet(&vm.globalValues, AS_STRING(vm.stack[0]), vm.stack[1]);
-  pop();
-  pop();
-}
-
 ObjClass* defineNativeClass(const char* name) {
   ObjString* className = copyString(name, (int)strlen(name));
   push(OBJ_VAL(className));
