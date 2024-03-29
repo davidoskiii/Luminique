@@ -46,6 +46,23 @@ void assertArgIsArray(const char* method, Value* args, int index){
 	}
 }
 
+void assertNonZero(const char* method, double number, int index) {
+	if (number == 0) {
+		if (index < 0) runtimeError("Method %s expects receiver to be a non-zero number but got %g.", method, number);
+		else runtimeError("Method %s expects argument %d to be a non-zero number but got %g.", method, index, number);
+		exit(70);
+	}
+}
+
+void assertPositiveNumber(const char* method, double number, int index) {
+	if (number <= 0) {
+		if (index < 0) runtimeError("Method %s expects receiver to be a positive number but got %g.", method, number);
+		else runtimeError("Method %s expects argument %d to be a positive number but got %g.", method, index, number);
+		exit(70);
+	}
+}
+
+
 void assertError(const char* message) {
 	runtimeError(message);
 	exit(70);

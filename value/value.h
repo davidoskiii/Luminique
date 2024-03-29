@@ -53,4 +53,12 @@ void freeValueArray(ValueArray* array);
 void printValue(Value value);
 char* valueToString(Value value);
 
+static inline double valueToNum(Value value) {
+  return AS_NUMBER(value);
+}
+
+static inline Value numToValue(double num) {
+  return NUMBER_VAL(num);
+}
+
 #endif

@@ -133,6 +133,8 @@ ObjInstance* newInstance(ObjClass* klass);
 ObjNative* newNative(NativeFn function);
 ObjNativeMethod* newNativeMethod(NativeMethod method);
 ObjString* takeString(char* chars, int length);
+ObjString* formattedString(const char* format, ...);
+ObjString* formattedLongString(const char* format, ...);
 ObjString* copyFormattedString(const char* format, ...);
 ObjString* copyString(const char* chars, int length);
 ObjArray* copyArray(ValueArray elements);

@@ -10,6 +10,8 @@ void assertArgIsClass(const char* method, Value* args, int index);
 void assertArgIsNumber(const char* method, Value* args, int index);
 void assertArgIsString(const char* method, Value* args, int index);
 void assertArgIsArray(const char* method, Value* args, int index);
+void assertPositiveNumber(const char* method, double number, int index);
+void assertNonZero(const char* method, double number, int index);
 void assertError(const char* message);
 
 #endif 

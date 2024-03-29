@@ -2,8 +2,9 @@
 #include <string.h>
 #include <stdarg.h>
 
-#include "../memory/memory.h"
 #include "object.h"
+#include "../hash/hash.h"
+#include "../memory/memory.h"
 #include "../table/table.h"
 #include "../value/value.h"
 #include "../vm/vm.h"
@@ -102,15 +103,6 @@ static ObjString* allocateString(char* chars, int length, uint32_t hash) {
   return string;
 }
 
-static uint32_t hashString(const char* key, int length) {
-  uint32_t hash = 2166136261u;
-  for (int i = 0; i < length; i++) {
-    hash ^= (uint8_t)key[i];
-    hash *= 16777619;
-  }
-  return hash;
-}
-
 ObjString* takeString(char* chars, int length) {
   uint32_t hash = hashString(chars, length);
 
@@ -122,6 +114,25 @@ ObjString* takeString(char* chars, int length) {
 
   return allocateString(chars, length, hash);
 }
+
+ObjString* formattedString(const char* format, ...) {
+  char chars[UINT8_MAX];
+  va_list args;
+  va_start(args, format);
+  int length = vsnprintf(chars, UINT8_MAX, format, args);
+  va_end(args);
+  return copyString(chars, length);
+}
+
+ObjString* formattedLongString(const char* format, ...) {
+  char chars[UINT16_MAX];
+  va_list args;
+  va_start(args, format);
+  int length = vsnprintf(chars, UINT16_MAX, format, args);
+  va_end(args);
+  return copyString(chars, length);
+}
+
 
 char* createFormattedString(const char* format, ...) {
   va_list args;
