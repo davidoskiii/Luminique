@@ -81,16 +81,26 @@ char* valueToString(Value value) {
     return AS_BOOL(value) ? "true" : "false";
   } else if (IS_NIL(value)) {
     return "nil";
+  } else if (IS_INT(value)) {
+    char* chars = ALLOCATE(char, (size_t)11);
+    int length = snprintf(chars, 11, "%d", AS_INT(value));
+    return chars;
+  } else if (IS_FLOAT(value)) {
+    char* chars = ALLOCATE(char, (size_t)24);
+    int length = snprintf(chars, 24, "%.14g", AS_FLOAT(value));
+    return chars;
   } else if (IS_OBJ(value)) {
     Obj* object = AS_OBJ(value);
+
     if (IS_STRING(value)) {
       return AS_CSTRING(value);
-    }
-    else {
-      return "Object";
+    } else {
+      char* chars = ALLOCATE(char, (size_t)(7 + object->klass->name->length));
+      int length = snprintf(chars, UINT8_MAX, "<object %s>", object->klass->name->chars);
+      return chars;
     }
   }
   else {
-    return "undefined";
+    return "";
   }
 }

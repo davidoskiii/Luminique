@@ -1,13 +1,13 @@
 let array1 = [1, 2, 3, 4];
 
-append(array1, 5);
+array1.append(5);
 println(array1); // [1, 2, 3, 4, 5]
 
-clear(array1);
+array1.clear();
 println(array1); // []
 
 for (let i = 1; i < 6; i = i + 1) {
-  append(array1, i);
+  array1.append(i);
   println(array1);
 }
 
@@ -16,8 +16,15 @@ println(value);
 
 let array2 = [1, 3, 5, 9];
 
-for (let i = 0; i < length(array1); i = i + 1) {
-  for (let j = 0; j < length(array2); j = j + 1) {
+let array3 = Array();
+
+println(array3);
+array3.append(2);
+
+println(array3);
+
+for (let i = 0; i < array1.length(); i = i + 1) {
+  for (let j = 0; j < array2.length(); j = j + 1) {
     if (array1[i] == array2[j]) {
       println(array1[i]);
     }

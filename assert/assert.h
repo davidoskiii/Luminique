@@ -12,7 +12,7 @@ void assertArgIsString(const char* method, Value* args, int index);
 void assertArgIsArray(const char* method, Value* args, int index);
 void assertArgIsFloat(const char* method, Value* args, int index);
 void assertArgIsInt(const char* method, Value* args, int index);
-void assertArgWithinRange(const char* method, int arg, int min, int max, int index);
+void assertIndexWithinRange(const char* method, int arg, int min, int max, int index);
 void assertNonNegativeNumber(const char* method, double number, int index);
 void assertPositiveNumber(const char* method, double number, int index);
 void assertNonZero(const char* method, double number, int index);

@@ -15,6 +15,7 @@
 #define IS_CLOSURE(value) isObjType(value, OBJ_CLOSURE)
 #define IS_FUNCTION(value) isObjType(value, OBJ_FUNCTION)
 #define IS_INSTANCE(value) isObjType(value, OBJ_INSTANCE)
+#define IS_ARRAY(value) isObjType(value, OBJ_ARRAY)
 #define IS_NATIVE_FUNCTION(value) isObjType(value, OBJ_NATIVE_FUNCTION)
 #define IS_NATIVE_METHOD(value) isObjType(value, OBJ_NATIVE_METHOD)
 #define IS_STRING(value) isObjType(value, OBJ_STRING)
@@ -25,6 +26,7 @@
 #define AS_CLOSURE(value) ((ObjClosure*)AS_OBJ(value))
 #define AS_FUNCTION(value) ((ObjFunction*)AS_OBJ(value))
 #define AS_INSTANCE(value) ((ObjInstance*)AS_OBJ(value))
+#define AS_ARRAY(value) ((ObjArray*)AS_OBJ(value))
 #define AS_NATIVE_FUNCTION(value) ((ObjNativeFunction*)AS_OBJ(value))
 #define AS_NATIVE_METHOD(value) ((ObjNativeMethod*)AS_OBJ(value))
 #define AS_STRING(value) ((ObjString*)AS_OBJ(value))
@@ -33,12 +35,12 @@
 #define AS_CSTRING(value) (((ObjString*)AS_OBJ(value))->chars)
 
 typedef enum {
-  OBJ_ARRAY,
   OBJ_BOUND_METHOD,
   OBJ_CLASS,
   OBJ_CLOSURE,
   OBJ_FUNCTION,
   OBJ_INSTANCE,
+  OBJ_ARRAY,
   OBJ_NATIVE_FUNCTION,
   OBJ_NATIVE_METHOD,
   OBJ_STRING,

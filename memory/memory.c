@@ -76,8 +76,8 @@ static void blackenObject(Obj* object) {
 
   switch (object->type) {
     case OBJ_ARRAY: {
-      ObjArray* list = (ObjArray*)object;
-      markArray(&list->elements);
+      ObjArray* array = (ObjArray*)object;
+      markArray(&array->elements);
       break;
     }
     case OBJ_BOUND_METHOD: {

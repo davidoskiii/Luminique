@@ -13,6 +13,7 @@
 #include "../memory/memory.h"
 #include "../std/std.h"
 #include "../lang/lang.h"
+#include "../util/util.h"
 #include "../string/string.h"
 #include "vm.h"
 
@@ -65,6 +66,7 @@ void initVM() {
   vm.initString = copyString("__init__", 8);
 
   registerLangPackage();
+  registerUtilPackage();
   initNatives();
   initStd();
 }

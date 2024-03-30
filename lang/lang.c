@@ -536,7 +536,7 @@ NATIVE_METHOD(String, getChar) {
 
   ObjString* self = AS_STRING(receiver);
   int index = AS_INT(args[0]);
-  assertArgWithinRange("String::getChar(index)", index, 0, self->length, 0);
+  assertIndexWithinRange("String::getChar(index)", index, 0, self->length, 0);
 
   char chars[2];
   chars[0] = self->chars[index];
