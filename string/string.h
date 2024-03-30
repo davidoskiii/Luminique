@@ -24,4 +24,12 @@ ObjString* toLowerString(ObjString* string);
 ObjString* toUpperString(ObjString* string);
 ObjString* trimString(ObjString* string);
 
+int utf8NumBytes(int value);
+char* utf8Encode(int value);
+int utf8Decode(const uint8_t* bytes, uint32_t length);
+ObjString* utf8StringFromByte(uint8_t byte);
+ObjString* utf8StringFromCodePoint(int codePoint);
+int utf8CodePointOffset(const char* string, int index);
+ObjString* utf8CodePointAtIndex(const char* string, int index);
+
 #endif

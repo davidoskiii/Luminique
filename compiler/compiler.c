@@ -627,7 +627,7 @@ static void subscript(bool canAssign) {
   }
 }
 
-static int parseHexDigit(char c) {
+static int hexDigit(char c) {
   if (c >= '0' && c <= '9') return c - '0';
   if (c >= 'a' && c <= 'f') return c - 'a' + 10;
   if (c >= 'A' && c <= 'F') return c - 'A' + 10;
@@ -636,102 +636,130 @@ static int parseHexDigit(char c) {
   return -1;
 }
 
-static int parseHexEscape(const char* source, int startIndex, int length) {
+static int hexEscape(const char* source, int startIndex, int length) {
   int value = 0;
   for (int i = 0; i < length; i++) {
-    int index = startIndex + i;
+    int index = startIndex + i + 2;
     if (source[index] == '"' || source[index] == '\0') {
       error("Incomplete hex escape sequence.");
       break;
     }
 
-    int digit = parseHexDigit(source[index]);
+    int digit = hexDigit(source[index]);
     if (digit == -1) break;
     value = (value * 16) | digit;
   }
   return value;
 }
 
-static ObjString* parseString() {
+static int unicodeEscape(const char* source, char* target, int base, int startIndex, int currentLength) {
+  int value = hexEscape(source, startIndex, 4);
+  int numBytes = utf8NumBytes(value);
+  if (numBytes < 0) error("Negative unicode character specified.");
+  if (value > 0xffff) numBytes++;
+
+  if (numBytes > 0) {
+    char* utfChar = utf8Encode(value);
+    if (utfChar == NULL) error("Invalid unicode character specified.");
+    else {
+      memcpy(target + currentLength, utfChar, (size_t)numBytes + 1);
+      free(utfChar);
+    }
+  }
+  return numBytes;
+}
+
+char* parseString() {
   int maxLength = parser.previous.length - 2;
   int length = 0;
   const char* source = parser.previous.start + 1;
   char* target = (char*)malloc((size_t)maxLength + 1);
-
   if (target == NULL) {
     fprintf(stderr, "Not enough memory to allocate string in compiler. \n");
     exit(74);
   }
 
   int i = 0;
-  for (int i = 0; i < maxLength; i++) {
+  for (int i = 0; i < maxLength; i++, length++) {
     if (source[i] == '\\') {
       switch (source[i + 1]) {
         case 'a': {
-          target[length++] = '\a';
+          target[length] = '\a';
           i++;
           break;
         }
         case 'b': {
-          target[length++] = '\b';
+          target[length] = '\b';
           i++;
           break;
         }
         case 'f': {
-          target[length++] = '\f';
+          target[length] = '\f';
           i++;
           break;
         }
         case 'n': {
-          target[length++] = '\n';
+          target[length] = '\n';
           i++;
           break;
         }
         case 'r': {
-          target[length++] = '\r';
+          target[length] = '\r';
           i++;
           break;
         }
         case 't': {
-          target[length++] = '\t';
+          target[length] = '\t';
           i++;
           break;
         }
         case 'v': {
-          target[length++] = '\v';
+          target[length] = '\v';
           i++;
           break;
         }
         case 'x': {
-          i += 2;
-          target[length++] = parseHexEscape(source, i, 2);
-          i++;
+          target[length] = hexEscape(source, i, 2);
+          i += 3;
+          break;
+        }
+        case 'u': {
+          int numBytes = unicodeEscape(source, target, 4, i, length);  
+          length += numBytes > 4 ? numBytes - 2 : numBytes - 1;
+          i += numBytes > 4 ? 6 : 5;
+          break;
+        }
+        case 'U': {
+          int numBytes = unicodeEscape(source, target, 8, i, length);
+          length += numBytes > 4 ? numBytes - 2 : numBytes - 1;
+          i += 9;
           break;
         }
         case '"': {
-          target[length++] = '"';
+          target[length] = '"';
           i++;
           break;
         }
         case '\\': {
-          target[length++] = '\\';
+          target[length] = '\\';
           i++;
           break;
         }
-        default: target[length++] = source[i];
+        default: target[length] = source[i];
       }
     }
-    else target[length++] = source[i];
+    else target[length] = source[i];
   }
 
   target = (char*)reallocate(target, (size_t)maxLength + 1, (size_t)length + 1);
   target[length] = '\0';
-  return takeString(target, length);
+  return target;
 }
 
 static void string(bool canAssign) {
-  ObjString* string = parseString();
-  emitConstant(OBJ_VAL(string));
+  char* string = parseString();
+  int length = (int)strlen(string);
+  emitConstant(OBJ_VAL(takeString(string, length)));
 }
 
 static void interpolation(bool canAssign) {
