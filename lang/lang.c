@@ -124,6 +124,39 @@ NATIVE_METHOD(Float, toString) {
   RETURN_STRING_FMT("%g", AS_FLOAT(receiver));
 }
 
+// FUNCTION
+
+NATIVE_METHOD(Function, __init__) {
+  assertError("Cannot instantiate from class Function.");
+  RETURN_NIL;
+}
+
+NATIVE_METHOD(Function, arity) {
+  assertArgCount("Function::arity()", 0, argCount);
+  RETURN_INT(AS_CLOSURE(receiver)->function->arity);
+}
+
+NATIVE_METHOD(Function, clone) {
+  assertArgCount("Function::clone()", 0, argCount);
+  return receiver;
+}
+
+NATIVE_METHOD(Function, name) {
+  assertArgCount("Function::name()", 0, argCount);
+  ObjClosure* closure = AS_CLOSURE(receiver);
+  RETURN_OBJ(closure->function->name);
+}
+
+NATIVE_METHOD(Function, toString) {
+  assertArgCount("Function::toString()", 0, argCount);
+  RETURN_STRING_FMT("<fn %s>", AS_CLOSURE(receiver)->function->name->chars);
+}
+
+NATIVE_METHOD(Function, upvalueCount) {
+  assertArgCount("Function::upvalueCount()", 0, argCount);
+  RETURN_INT(AS_CLOSURE(receiver)->upvalueCount);
+}
+
 // INT
 
 NATIVE_METHOD(Int, __init__) {
@@ -323,7 +356,7 @@ NATIVE_METHOD(Number, tan) {
 
 NATIVE_METHOD(Number, toInt) {
   assertArgCount("Number::toInt()", 0, argCount);
-  RETURN_INT((int)AS_NUMBER(receiver));
+  RETURN_INT(AS_INT(receiver));
 }
 
 NATIVE_METHOD(Number, toString) {
@@ -498,11 +531,26 @@ NATIVE_METHOD(String, subString) {
   RETURN_OBJ(subString(AS_STRING(receiver), AS_INT(args[0]), AS_INT(args[1])));
 }
 
+NATIVE_METHOD(String, toLowercase) {
+  assertArgCount("String::toLowercase()", 0, argCount);
+  RETURN_OBJ(toLowerString(AS_STRING(receiver)));
+}
 
 NATIVE_METHOD(String, toString) {
   assertArgCount("String::toString()", 0, argCount);
   return receiver;
 }
+
+NATIVE_METHOD(String, toUppercase) {
+  assertArgCount("String::toLowercase()", 0, argCount);
+  RETURN_OBJ(toUpperString(AS_STRING(receiver)));
+}
+
+NATIVE_METHOD(String, trim) {
+  assertArgCount("String::trim()", 0, argCount);
+  RETURN_OBJ(trimString(AS_STRING(receiver)));
+}
+
 
 void registerLangPackage(){
 	vm.objectClass = defineNativeClass("Object");
@@ -602,5 +650,17 @@ void registerLangPackage(){
   DEF_METHOD(vm.stringClass, String, reverse);
   DEF_METHOD(vm.stringClass, String, startsWith);
   DEF_METHOD(vm.stringClass, String, subString);
+  DEF_METHOD(vm.stringClass, String, toLowercase);
   DEF_METHOD(vm.stringClass, String, toString);
+  DEF_METHOD(vm.stringClass, String, toUppercase);
+  DEF_METHOD(vm.stringClass, String, trim);
+
+  vm.functionClass = defineNativeClass("Function");
+  bindSuperclass(vm.functionClass, vm.objectClass);
+  DEF_METHOD(vm.functionClass, Function, __init__);
+  DEF_METHOD(vm.functionClass, Function, arity);
+  DEF_METHOD(vm.functionClass, Function, clone);
+  DEF_METHOD(vm.functionClass, Function, name);
+  DEF_METHOD(vm.functionClass, Function, toString);
+  DEF_METHOD(vm.functionClass, Function, upvalueCount);
 }

@@ -18,6 +18,7 @@ typedef struct {
 typedef struct {
   ObjClass* objectClass;
   ObjClass* classClass;
+  ObjClass* functionClass;
   ObjClass* nilClass;
   ObjClass* boolClass;
   ObjClass* intClass;

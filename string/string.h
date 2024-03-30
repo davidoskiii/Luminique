@@ -20,5 +20,8 @@ ObjString* decapitalizeString(ObjString* string);
 ObjString* replaceString(ObjString* original, ObjString* target, ObjString* replace);
 ObjString* subString(ObjString* original, int fromIndex, int toIndex);
 ObjString* reverseStringBasedOnMemory(ObjString* string);
+ObjString* toLowerString(ObjString* string);
+ObjString* toUpperString(ObjString* string);
+ObjString* trimString(ObjString* string);
 
 #endif

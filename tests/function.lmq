@@ -1,0 +1,51 @@
+// 'normal' function
+
+function isEven(n) {
+  return n % 2 == 0;
+}
+
+println(isEven(3));
+println(isEven(10));
+
+print("Class of function 'isEven()' is: ");
+println(isEven.getClassName());
+
+// variadic function
+
+function returnArgs(...args) {
+  return args;
+}
+
+println(returnArgs(1, 2, 3, 4, 5, 6, 7, 8));
+
+// closure 
+
+function outer() {
+  let x = "value";
+  function middle() {
+    function inner() {
+      println(x);
+    }
+
+    println("Create inner closure");
+    return inner;
+  }
+
+  println("Return from outer");
+  return middle;
+}
+
+let mid = outer();
+let in = mid();
+in();
+
+print("Class of function 'in()' is: ");
+println(in.getClassName());
+
+// anonymous
+
+let randomFunction = function (a, b, c) {
+  return a + b + c;
+}; // because the statement is 'let' we need to conclude the function with a semicolon
+
+println(randomFunction(1, 1, 1));

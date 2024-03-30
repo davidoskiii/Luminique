@@ -1,0 +1,49 @@
+class Fraction {
+    function __init__(numerator, denominator) {
+        if (!numerator.instanceOf(Int) or !numerator.instanceOf(Int)) {
+            println("Numerator and Denominator must be integers.");
+            return;
+        }
+
+        this.numerator = numerator;
+        this.denominator = denominator;
+    }
+
+    function reduce() {
+        let gcd = this.numerator.gcd(this.denominator);
+        let numerator = this.numerator / gcd;
+        let denominator = this.denominator / gcd;
+        return Fraction(numerator.toInt(), denominator.toInt());
+    }
+
+    function toString() {
+        return this.numerator.toString() + "/" + this.denominator.toString();
+    }
+
+    function isEqual(frac2) {
+        if (!frac2.instanceOf(Fraction)) {
+            println("Argument must be a fraction");
+            return;
+        }
+
+        let reduced1 = frac2.reduce();
+        let reduced2 = Fraction(this.numerator, this.denominator).reduce();
+
+        if (reduced1.toString() == reduced2.toString()) {
+          return true;
+        } else {
+          return false;
+        }
+    }
+}
+
+println("Created class Fraction...");
+
+let frac = Fraction(3, 6);
+let frac2 = frac.reduce();
+
+println(frac.toString());
+println(frac2.toString());
+println(frac == frac2);
+
+println(frac.isEqual(frac2));
