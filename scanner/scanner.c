@@ -8,6 +8,7 @@ typedef struct {
   const char* start;
   const char* current;
   int line;
+  int interpolationDepth;
 } Scanner;
 
 Scanner scanner;
@@ -46,6 +47,10 @@ static char peekNext() {
   return scanner.current[1];
 }
 
+static char peekPrevious(Scanner* scanner) {
+  return scanner->current[-1];
+}
+
 static bool match(char expected) {
   if (isAtEnd()) return false;
   if (*scanner.current != expected) return false;
@@ -74,6 +79,7 @@ static Token errorToken(const char* message) {
   token.start = message;
   token.length = (int)strlen(message);
   token.line = scanner.line;
+  scanner.interpolationDepth = 0;
   return token;
 }
 
@@ -225,12 +231,20 @@ static Token number() {
 static Token string() {
   while (peek() != '"' && !isAtEnd()) {
     if (peek() == '\n') scanner.line++;
+    else if (peek() == '$' && peekNext() == '{') {
+      if (scanner.interpolationDepth >= 15) {
+        return errorToken("Interpolation may only nest 15 levels deep.");
+      }
+      scanner.interpolationDepth++;
+      advance();
+      Token token = makeToken(TOKEN_INTERPOLATION);
+      advance();
+      return token;
+    }
     advance();
   }
 
   if (isAtEnd()) return errorToken("Unterminated string.");
-
-  // The closing quote.
   advance();
   return makeToken(TOKEN_STRING);
 }
@@ -251,7 +265,12 @@ Token scanToken() {
     case '[': return makeToken(TOKEN_LEFT_BRAKE);
     case ']': return makeToken(TOKEN_RIGHT_BRAKE);
     case '{': return makeToken(TOKEN_LEFT_BRACE);
-    case '}': return makeToken(TOKEN_RIGHT_BRACE);
+    case '}': 
+      if (scanner.interpolationDepth > 0) {
+        scanner.interpolationDepth--;
+        return string();
+      }
+      return makeToken(TOKEN_RIGHT_BRACE);
     case ';': return makeToken(TOKEN_SEMICOLON);
     case ',': return makeToken(TOKEN_COMMA);
     case '.': {
