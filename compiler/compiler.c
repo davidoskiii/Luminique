@@ -708,6 +708,11 @@ static ObjString* parseString() {
           i++;
           break;
         }
+        case '"': {
+          target[length++] = '"';
+          i++;
+          break;
+        }
         case '\\': {
           target[length++] = '\\';
           i++;

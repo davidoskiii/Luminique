@@ -47,8 +47,8 @@ static char peekNext() {
   return scanner.current[1];
 }
 
-static char peekPrevious(Scanner* scanner) {
-  return scanner->current[-1];
+static char peekPrevious() {
+  return scanner.current[-1];
 }
 
 static bool match(char expected) {
@@ -229,7 +229,7 @@ static Token number() {
 }
 
 static Token string() {
-  while (peek() != '"' && !isAtEnd()) {
+  while ((peek() != '"' || peekPrevious() == '\\') && !isAtEnd()) {
     if (peek() == '\n') scanner.line++;
     else if (peek() == '$' && peekNext() == '{') {
       if (scanner.interpolationDepth >= 15) {
