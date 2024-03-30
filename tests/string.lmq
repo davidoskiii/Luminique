@@ -32,3 +32,14 @@ println(str.subString(3, 8));
 
 print("Reversing String: ");
 println(str.reverse());
+
+println("Testing simple string interpolation: ");
+
+const steep = 2;
+const cool = 3;
+
+println("Tea will be ready in ${steep + cool} minutes.");
+
+println("Testing nested string interpolation: ");
+
+println("Nested ${"interpolation?! Are you ${"mad?!"}"}");

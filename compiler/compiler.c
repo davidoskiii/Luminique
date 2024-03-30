@@ -590,7 +590,6 @@ static void or_(bool canAssign) {
   patchJump(endJump);
 }
 
-
 static void array(bool canAssign) {
   uint8_t elementCount = 0;
   if (!check(TOKEN_RIGHT_BRAKE)) {
@@ -631,6 +630,37 @@ static void subscript(bool canAssign) {
 static void string(bool canAssign) {
   emitConstant(OBJ_VAL(copyString(parser.previous.start + 1, parser.previous.length - 2)));
 }
+
+static void interpolation(bool canAssign) {
+  int count = 0;
+  do {
+    bool concatenate = false;
+    bool isString = false;
+
+    if (parser.previous.length > 2) {
+      string(canAssign);
+      concatenate = true;
+      isString = true;
+      if (count > 0) emitByte(OP_ADD);
+    }
+
+    expression();
+    invokeMethod(0, "toString", 8);
+
+    if (concatenate || (count >= 1 && !isString)) {
+      emitByte(OP_ADD);
+    }
+
+    count++;
+  } while (match(TOKEN_INTERPOLATION));
+
+  consume(TOKEN_STRING, "Expect end of string interpolation.");
+  if (parser.previous.length > 2) {
+    string(canAssign);
+    emitByte(OP_ADD);
+  }
+}
+
 
 static void checkMutability(int arg, uint8_t opCode) { 
   switch (opCode) {
@@ -768,6 +798,7 @@ ParseRule rules[] = {
   [TOKEN_LESS_EQUAL]    = {NULL,       binary,  PREC_COMPARISON},
   [TOKEN_IDENTIFIER]    = {variable,   NULL,    PREC_NONE},
   [TOKEN_STRING]        = {string,     NULL,    PREC_NONE},
+  [TOKEN_INTERPOLATION] = {interpolation, NULL, PREC_NONE},
   [TOKEN_NUMBER]        = {number,     NULL,    PREC_NONE},
   [TOKEN_INT]           = {integer,    NULL,    PREC_NONE},
   [TOKEN_AND]           = {NULL,       and_,    PREC_AND},
