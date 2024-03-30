@@ -30,36 +30,6 @@ static int lcm(int self, int other) {
   return (self * other) / gcd(self, other);
 }
 
-static int searchString(ObjString* haystack, ObjString* needle, uint32_t start) {
-  if (needle->length == 0) return start;
-  if (start + needle->length > haystack->length || start >= haystack->length) return -1;
-  uint32_t shift[UINT8_MAX];
-  uint32_t needleEnd = needle->length - 1;
-
-  for (uint32_t index = 0; index < UINT8_MAX; index++){
-    shift[index] = needle->length;
-  }
-
-  for (uint32_t index = 0; index < needleEnd; index++){
-    char c = needle->chars[index];
-    shift[(uint8_t)c] = needleEnd - index;
-  }
-
-  char lastChar = needle->chars[needleEnd];
-  uint32_t range = haystack->length - needle->length;
-
-  for (uint32_t index = start; index <= range; ){
-    char c = haystack->chars[index + needleEnd];
-    if (lastChar == c && memcmp(haystack->chars + index, needle->chars, needleEnd) == 0){
-      return index;
-    }
-
-    index += shift[(uint8_t)c];
-  }
-  return -1;
-}
-
-
 // BOOL
 
 NATIVE_METHOD(Bool, __init__) {
@@ -438,6 +408,11 @@ NATIVE_METHOD(String, __init__) {
   return args[0];
 }
 
+NATIVE_METHOD(String, capitalize) {
+  assertArgCount("String::capitalize()", 0, argCount);
+  RETURN_OBJ(capitalizeString(AS_STRING(receiver)));
+}
+
 NATIVE_METHOD(String, clone) {
   assertArgCount("String::clone()", 0, argCount);
   return receiver;
@@ -449,6 +424,34 @@ NATIVE_METHOD(String, contains) {
   ObjString* haystack = AS_STRING(receiver);
   ObjString* needle = AS_STRING(args[0]);
   RETURN_BOOL(searchString(haystack, needle, 0) != -1);
+}
+
+NATIVE_METHOD(String, decapitalize) {
+  assertArgCount("String::decapitalize()", 0, argCount);
+  RETURN_OBJ(decapitalizeString(AS_STRING(receiver)));
+}
+
+NATIVE_METHOD(String, endsWith) {
+  assertArgCount("String::endsWith(chars)", 1, argCount);
+  assertArgIsString("String::endsWith(chars)", args, 0);
+  ObjString* haystack = AS_STRING(receiver);
+  ObjString* needle = AS_STRING(args[0]);
+  if (needle->length > haystack->length) RETURN_FALSE;
+  RETURN_BOOL(memcmp(haystack->chars + haystack->length - needle->length, needle->chars, needle->length) == 0);
+}
+
+NATIVE_METHOD(String, getChar) {
+  assertArgCount("String::getChar(index)", 1, argCount);
+  assertArgIsInt("String::getChar(index)", args, 0);
+
+  ObjString* self = AS_STRING(receiver);
+  int index = AS_INT(args[0]);
+  assertArgWithinRange("String::getChar(index)", index, 0, self->length, 0);
+
+  char chars[2];
+  chars[0] = self->chars[index];
+  chars[1] = '\n';
+  RETURN_STRING(chars, 1);
 }
 
 NATIVE_METHOD(String, indexOf) {
@@ -463,6 +466,38 @@ NATIVE_METHOD(String, length) {
   assertArgCount("String::length()", 0, argCount);
   RETURN_INT(AS_STRING(receiver)->length);
 }
+
+
+NATIVE_METHOD(String, replace) {
+  assertArgCount("String::replace(target, replacement)", 2, argCount);
+  assertArgIsString("String::replace(target, replacement)", args, 0);
+  assertArgIsString("String::replace(target, replacement)", args, 1);
+  RETURN_OBJ(replaceString(AS_STRING(receiver), AS_STRING(args[0]), AS_STRING(args[1])));
+}
+
+NATIVE_METHOD(String, reverse) {
+  assertArgCount("String::reverse()", 0, argCount);
+  ObjString* self = AS_STRING(receiver);
+  if (self->length <= 1) return receiver;
+  return OBJ_VAL(reverseStringBasedOnMemory(self));
+}
+
+NATIVE_METHOD(String, startsWith) {
+  assertArgCount("String::startsWith(chars)", 1, argCount);
+  assertArgIsString("String::startsWith(chars)", args, 0);
+  ObjString* haystack = AS_STRING(receiver);
+  ObjString* needle = AS_STRING(args[0]);
+  if (needle->length > haystack->length) RETURN_FALSE;
+  RETURN_BOOL(memcmp(haystack->chars, needle->chars, needle->length) == 0);
+}
+
+NATIVE_METHOD(String, subString) {
+  assertArgCount("String::subString(from, to)", 2, argCount);
+  assertArgIsInt("String::subString(from, to)", args, 0);
+  assertArgIsInt("String::subString(from, to)", args, 1);
+  RETURN_OBJ(subString(AS_STRING(receiver), AS_INT(args[0]), AS_INT(args[1])));
+}
+
 
 NATIVE_METHOD(String, toString) {
   assertArgCount("String::toString()", 0, argCount);
@@ -555,9 +590,17 @@ void registerLangPackage(){
   vm.stringClass = defineNativeClass("String");
   bindSuperclass(vm.stringClass, vm.objectClass);
   DEF_METHOD(vm.stringClass, String, __init__);
+  DEF_METHOD(vm.stringClass, String, capitalize);
   DEF_METHOD(vm.stringClass, String, clone);
   DEF_METHOD(vm.stringClass, String, contains);
+  DEF_METHOD(vm.stringClass, String, decapitalize);
+  DEF_METHOD(vm.stringClass, String, endsWith);
+  DEF_METHOD(vm.stringClass, String, getChar);
   DEF_METHOD(vm.stringClass, String, indexOf);
   DEF_METHOD(vm.stringClass, String, length);
+  DEF_METHOD(vm.stringClass, String, replace);
+  DEF_METHOD(vm.stringClass, String, reverse);
+  DEF_METHOD(vm.stringClass, String, startsWith);
+  DEF_METHOD(vm.stringClass, String, subString);
   DEF_METHOD(vm.stringClass, String, toString);
 }

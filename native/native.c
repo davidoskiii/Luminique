@@ -9,6 +9,7 @@
 #include "../arrays/arrays.h"
 #include "../assert/assert.h"
 #include "../memory/memory.h"
+#include "../string/string.h"
 
 static unsigned int seed = 0;
 

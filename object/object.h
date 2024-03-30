@@ -125,6 +125,7 @@ typedef struct ObjArray {
   ValueArray elements;
 } ObjArray;
 
+Obj* allocateObject(size_t size, ObjType type, ObjClass* klass);
 ObjBoundMethod* newBoundMethod(Value receiver, ObjClosure* method);
 ObjArray* newArray();
 ObjClass* newClass(ObjString* name);
@@ -133,11 +134,6 @@ ObjFunction* newFunction();
 ObjInstance* newInstance(ObjClass* klass);
 ObjNative* newNative(NativeFn function);
 ObjNativeMethod* newNativeMethod(NativeMethod method);
-ObjString* takeString(char* chars, int length);
-ObjString* formattedString(const char* format, ...);
-ObjString* formattedLongString(const char* format, ...);
-ObjString* copyFormattedString(const char* format, ...);
-ObjString* copyString(const char* chars, int length);
 ObjArray* copyArray(ValueArray elements);
 ObjUpvalue* newUpvalue(Value* slot);
 void printObject(Value value);

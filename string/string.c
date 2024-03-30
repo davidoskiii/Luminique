@@ -1,0 +1,218 @@
+#include <ctype.h>
+#include <stdarg.h>
+#include <stdio.h>
+#include <string.h>
+
+#include "../hash/hash.h"
+#include "../memory/memory.h"
+#include "../vm/vm.h"
+#include "string.h"
+
+#define ALLOCATE_OBJ(type, objectType, objectClass) (type*)allocateObject(sizeof(type), objectType, objectClass)
+
+static ObjString* allocateString(char* chars, int length, uint32_t hash) {
+  ObjString* string = ALLOCATE_OBJ(ObjString, OBJ_STRING, vm.stringClass);
+  string->length = length;
+  string->chars = chars;
+  string->hash = hash;
+
+  push(OBJ_VAL(string));
+  tableSet(&vm.strings, string, NIL_VAL);
+  pop();
+
+  return string;
+}
+
+
+ObjString* takeString(char* chars, int length) {
+  uint32_t hash = hashString(chars, length);
+
+  ObjString* interned = tableFindString(&vm.strings, chars, length, hash);
+  if (interned != NULL) {
+    FREE_ARRAY(char, chars, length + 1);
+    return interned;
+  }
+
+  return allocateString(chars, length, hash);
+}
+
+ObjString* copyString(const char* chars, int length) {
+  uint32_t hash = hashString(chars, length);
+
+
+  ObjString* interned = tableFindString(&vm.strings, chars, length, hash);
+  if (interned != NULL) return interned;
+
+  char* heapChars = ALLOCATE(char, length + 1);
+  memcpy(heapChars, chars, length);
+  heapChars[length] = '\0';
+  return allocateString(heapChars, length, hash);
+}
+
+ObjString* formattedString(const char* format, ...) {
+  char chars[UINT8_MAX];
+  va_list args;
+  va_start(args, format);
+  int length = vsnprintf(chars, UINT8_MAX, format, args);
+  va_end(args);
+  return copyString(chars, length);
+}
+
+ObjString* formattedLongString(const char* format, ...) {
+  char chars[UINT16_MAX];
+  va_list args;
+  va_start(args, format);
+  int length = vsnprintf(chars, UINT16_MAX, format, args);
+  va_end(args);
+  return copyString(chars, length);
+}
+
+
+char* createFormattedString(const char* format, ...) {
+  va_list args;
+  va_start(args, format);
+  size_t len = vsnprintf(NULL, 0, format, args);
+  va_end(args);
+  char* result = ALLOCATE(char, len + 1);
+
+  va_start(args, format);
+  vsnprintf(result, len + 1, format, args);
+  va_end(args);
+
+  return result;
+}
+
+ObjString* copyFormattedString(const char* format, ...) {
+  va_list args;
+  va_start(args, format);
+  size_t len = vsnprintf(NULL, 0, format, args);
+  va_end(args);
+
+  char* heapChars = ALLOCATE(char, len + 1);
+
+  va_start(args, format);
+  vsnprintf(heapChars, len + 1, format, args);
+  va_end(args);
+  uint32_t hash = hashString(heapChars, len);
+  ObjString* interned = tableFindString(&vm.strings, heapChars, len, hash);
+  if (interned != NULL) {
+    FREE_ARRAY(char, heapChars, len + 1);
+    return interned;
+  }
+
+  return allocateString(heapChars, len, hash);
+}
+
+int searchString(ObjString* haystack, ObjString* needle, uint32_t start) {
+  if (needle->length == 0) return start;
+  if (start + needle->length > (uint32_t)haystack->length || start >= (uint32_t)haystack->length) return -1;
+  uint32_t shift[UINT8_MAX];
+  uint32_t needleEnd = needle->length - 1;
+
+  for (uint32_t index = 0; index < UINT8_MAX; index++) {
+    shift[index] = needle->length;
+  }
+
+  for (uint32_t index = 0; index < needleEnd; index++) {
+    char c = needle->chars[index];
+    shift[(uint8_t)c] = needleEnd - index;
+  }
+
+  char lastChar = needle->chars[needleEnd];
+  uint32_t range = haystack->length - needle->length;
+
+  for (uint32_t index = start; index <= range; ) {
+    char c = haystack->chars[index + needleEnd];
+    if (lastChar == c && memcmp(haystack->chars + index, needle->chars, needleEnd) == 0) {
+      return index;
+    }
+
+    index += shift[(uint8_t)c];
+  }
+
+  return -1;
+}
+
+ObjString* capitalizeString(ObjString* string) {
+  if (string->length == 0) return string;
+  char* heapChars = ALLOCATE(char, (size_t)string->length + 1);
+
+  heapChars[0] = (char)toupper(string->chars[0]);
+  for (int offset = 1; offset < string->length; offset++) {
+    heapChars[offset] = string->chars[offset];
+  }
+  heapChars[string->length] = '\0';
+  return takeString(heapChars, (int)string->length);
+}
+
+ObjString* decapitalizeString(ObjString* string) {
+  if (string->length == 0) return string;
+  char* heapChars = ALLOCATE(char, (size_t)string->length + 1);
+
+  heapChars[0] = (char)tolower(string->chars[0]);
+  for (int offset = 1; offset < string->length; offset++) {
+    heapChars[offset] = string->chars[offset];
+  }
+  heapChars[string->length] = '\0';
+  return takeString(heapChars, (int)string->length);
+}
+
+ObjString* replaceString(ObjString* original, ObjString* target, ObjString* replace) {
+  if (original->length == 0 || target->length == 0 || original->length < target->length) return original;
+  int startIndex = searchString(original, target, 0);
+  if (startIndex == -1) return original;
+
+  int newLength = original->length - target->length + replace->length;
+  char* heapChars = ALLOCATE(char, (size_t)newLength + 1);
+
+  int offset = 0;
+  while (offset < startIndex) {
+    heapChars[offset] = original->chars[offset];
+    offset++;
+  }
+
+  while (offset < startIndex + replace->length) {
+    heapChars[offset] = replace->chars[offset - startIndex];
+    offset++;
+  }
+
+  while (offset < newLength) {
+    heapChars[offset] = original->chars[offset - replace->length + target->length];
+    offset++;
+  }
+
+  heapChars[newLength] = '\n';
+  return takeString(heapChars, (int)newLength);
+}
+
+ObjString* subString(ObjString* original, int fromIndex, int toIndex) {
+  if (fromIndex >= original->length || toIndex > original->length || fromIndex > toIndex) {
+    return copyString("", 0);
+  }
+
+  int newLength = toIndex - fromIndex + 1;
+  char* heapChars = ALLOCATE(char, (size_t)newLength + 1);
+  for (int i = 0; i < newLength; i++) {
+    heapChars[i] = original->chars[fromIndex + i];
+  }
+
+  heapChars[newLength] = '\n';
+  return takeString(heapChars, (int)newLength);
+}
+
+ObjString* reverseStringBasedOnMemory(ObjString* string) {
+  if (string->length <= 1) return string;
+
+  char* reversedChars = ALLOCATE(char, string->length + 1);
+  if (reversedChars == NULL) {
+    fprintf(stderr, "Memory allocation failed\n");
+    return NULL;
+  }
+
+  for (int i = 0; i < string->length; i++) {
+    reversedChars[i] = string->chars[string->length - i - 1];
+  }
+  reversedChars[string->length] = '\0';
+
+  return takeString(reversedChars, string->length);
+}

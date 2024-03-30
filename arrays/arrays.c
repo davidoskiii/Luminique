@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "arrays.h"
+#include "../string/string.h"
 
 int arrayIndexOf(ObjArray* array, Value element) {
 	for (int i = 0; i < array->elements.count; i++) {

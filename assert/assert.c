@@ -2,6 +2,7 @@
 #include <stdlib.h>
 
 #include "assert.h"
+#include "../string/string.h"
 #include "../vm/vm.h"
 
 void assertArgCount(const char* method, int expectedCount, int actualCount){
@@ -58,6 +59,13 @@ void assertArgIsFloat(const char* method, Value* args, int index) {
 		runtimeError("Method %s expects argument %d to be a floating point number.", method, index + 1);
 		exit(70);
 	}
+}
+
+void assertArgWithinRange(const char* method, int arg, int min, int max, int index){
+  if (arg < min || arg >= max) {
+    runtimeError("Method %s expects argument %d to be an index within range %d to %d but got %d.", method, index, min, max, arg);
+    exit(70);
+  }
 }
 
 void assertNonZero(const char* method, double number, int index) {

@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "std.h"
+#include "../string/string.h"
 
 static Value printlnNativeMethod(Value receiver, int argCount, Value* args) {
 	if (argCount != 1) {

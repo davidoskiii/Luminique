@@ -11,7 +11,7 @@
 
 #define ALLOCATE_OBJ(type, objectType, objectClass) (type*)allocateObject(sizeof(type), objectType, objectClass)
 
-static Obj* allocateObject(size_t size, ObjType type, ObjClass* klass) {
+Obj* allocateObject(size_t size, ObjType type, ObjClass* klass) {
   Obj* object = (Obj*)reallocate(NULL, 0, size);
   object->type = type;
   object->klass = klass;
@@ -87,98 +87,6 @@ ObjNativeMethod* newNativeMethod(NativeMethod method) {
   ObjNativeMethod* nativeMethod = ALLOCATE_OBJ(ObjNativeMethod, OBJ_NATIVE_METHOD, NULL);
   nativeMethod->method = method;
   return nativeMethod;
-}
-
-static ObjString* allocateString(char* chars, int length, uint32_t hash) {
-  ObjString* string = ALLOCATE_OBJ(ObjString, OBJ_STRING, vm.stringClass);
-  string->length = length;
-  string->chars = chars;
-  string->hash = hash;
-
-  push(OBJ_VAL(string));
-  tableSet(&vm.strings, string, NIL_VAL);
-  pop();
-
-  return string;
-}
-
-ObjString* takeString(char* chars, int length) {
-  uint32_t hash = hashString(chars, length);
-
-  ObjString* interned = tableFindString(&vm.strings, chars, length, hash);
-  if (interned != NULL) {
-    FREE_ARRAY(char, chars, length + 1);
-    return interned;
-  }
-
-  return allocateString(chars, length, hash);
-}
-
-ObjString* formattedString(const char* format, ...) {
-  char chars[UINT8_MAX];
-  va_list args;
-  va_start(args, format);
-  int length = vsnprintf(chars, UINT8_MAX, format, args);
-  va_end(args);
-  return copyString(chars, length);
-}
-
-ObjString* formattedLongString(const char* format, ...) {
-  char chars[UINT16_MAX];
-  va_list args;
-  va_start(args, format);
-  int length = vsnprintf(chars, UINT16_MAX, format, args);
-  va_end(args);
-  return copyString(chars, length);
-}
-
-
-char* createFormattedString(const char* format, ...) {
-  va_list args;
-  va_start(args, format);
-  size_t len = vsnprintf(NULL, 0, format, args);
-  va_end(args);
-  char* result = ALLOCATE(char, len + 1);
-
-  va_start(args, format);
-  vsnprintf(result, len + 1, format, args);
-  va_end(args);
-
-  return result;
-}
-
-ObjString* copyFormattedString(const char* format, ...) {
-  va_list args;
-  va_start(args, format);
-  size_t len = vsnprintf(NULL, 0, format, args);
-  va_end(args);
-
-  char* heapChars = ALLOCATE(char, len + 1);
-
-  va_start(args, format);
-  vsnprintf(heapChars, len + 1, format, args);
-  va_end(args);
-  uint32_t hash = hashString(heapChars, len);
-  ObjString* interned = tableFindString(&vm.strings, heapChars, len, hash);
-  if (interned != NULL) {
-    FREE_ARRAY(char, heapChars, len + 1);
-    return interned;
-  }
-
-  return allocateString(heapChars, len, hash);
-}
-
-ObjString* copyString(const char* chars, int length) {
-  uint32_t hash = hashString(chars, length);
-
-
-  ObjString* interned = tableFindString(&vm.strings, chars, length, hash);
-  if (interned != NULL) return interned;
-
-  char* heapChars = ALLOCATE(char, length + 1);
-  memcpy(heapChars, chars, length);
-  heapChars[length] = '\0';
-  return allocateString(heapChars, length, hash);
 }
 
 ObjArray* copyArray(ValueArray elements) {
