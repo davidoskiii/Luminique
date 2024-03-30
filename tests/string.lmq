@@ -43,3 +43,13 @@ println("Tea will be ready in ${steep + cool} minutes.");
 println("Testing nested string interpolation: ");
 
 println("Nested ${"interpolation?! Are you ${"mad?!"}"}");
+
+println("");
+
+println("Testing escaping characters...");
+
+println("Escaping new line: ");
+println("Line 1,\nLine 2.");
+
+println("Escaping backslash: ");
+println("8 \\ 2 = 4");

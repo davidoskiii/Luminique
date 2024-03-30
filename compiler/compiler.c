@@ -627,8 +627,106 @@ static void subscript(bool canAssign) {
   }
 }
 
+static int parseHexDigit(char c) {
+  if (c >= '0' && c <= '9') return c - '0';
+  if (c >= 'a' && c <= 'f') return c - 'a' + 10;
+  if (c >= 'A' && c <= 'F') return c - 'A' + 10;
+
+  error("Invalid hex escape sequence.");
+  return -1;
+}
+
+static int parseHexEscape(const char* source, int startIndex, int length) {
+  int value = 0;
+  for (int i = 0; i < length; i++) {
+    int index = startIndex + i;
+    if (source[index] == '"' || source[index] == '\0') {
+      error("Incomplete hex escape sequence.");
+      break;
+    }
+
+    int digit = parseHexDigit(source[index]);
+    if (digit == -1) break;
+    value = (value * 16) | digit;
+  }
+  return value;
+}
+
+static ObjString* parseString() {
+  int maxLength = parser.previous.length - 2;
+  int length = 0;
+  const char* source = parser.previous.start + 1;
+  char* target = (char*)malloc((size_t)maxLength + 1);
+
+  if (target == NULL) {
+    fprintf(stderr, "Not enough memory to allocate string in compiler. \n");
+    exit(74);
+  }
+
+  int i = 0;
+  for (int i = 0; i < maxLength; i++) {
+    if (source[i] == '\\') {
+      switch (source[i + 1]) {
+        case 'a': {
+          target[length++] = '\a';
+          i++;
+          break;
+        }
+        case 'b': {
+          target[length++] = '\b';
+          i++;
+          break;
+        }
+        case 'f': {
+          target[length++] = '\f';
+          i++;
+          break;
+        }
+        case 'n': {
+          target[length++] = '\n';
+          i++;
+          break;
+        }
+        case 'r': {
+          target[length++] = '\r';
+          i++;
+          break;
+        }
+        case 't': {
+          target[length++] = '\t';
+          i++;
+          break;
+        }
+        case 'v': {
+          target[length++] = '\v';
+          i++;
+          break;
+        }
+        case 'x': {
+          i += 2;
+          target[length++] = parseHexEscape(source, i, 2);
+          i++;
+          break;
+        }
+        case '\\': {
+          target[length++] = '\\';
+          i++;
+          break;
+        }
+        default: target[length++] = source[i];
+      }
+    }
+    else target[length++] = source[i];
+  }
+
+  target = (char*)reallocate(target, (size_t)maxLength + 1, (size_t)length + 1);
+  target[length] = '\0';
+  return takeString(target, length);
+}
+
 static void string(bool canAssign) {
-  emitConstant(OBJ_VAL(copyString(parser.previous.start + 1, parser.previous.length - 2)));
+  ObjString* string = parseString();
+  emitConstant(OBJ_VAL(string));
 }
 
 static void interpolation(bool canAssign) {
