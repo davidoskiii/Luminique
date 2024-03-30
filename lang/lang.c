@@ -133,6 +133,11 @@ NATIVE_METHOD(Function, __init__) {
 
 NATIVE_METHOD(Function, arity) {
   assertArgCount("Function::arity()", 0, argCount);
+
+  if (IS_NATIVE_FUNCTION(receiver)) {
+     RETURN_INT(AS_NATIVE_FUNCTION(receiver)->arity);
+  }
+
   RETURN_INT(AS_CLOSURE(receiver)->function->arity);
 }
 
@@ -141,20 +146,72 @@ NATIVE_METHOD(Function, clone) {
   return receiver;
 }
 
+NATIVE_METHOD(Function, isNative) {
+  assertArgCount("Function::isNative()", 0, argCount);
+  RETURN_BOOL(IS_NATIVE_FUNCTION(receiver));
+}
+
 NATIVE_METHOD(Function, name) {
   assertArgCount("Function::name()", 0, argCount);
-  ObjClosure* closure = AS_CLOSURE(receiver);
-  RETURN_OBJ(closure->function->name);
+  if (IS_NATIVE_FUNCTION(receiver)) {
+    RETURN_OBJ(AS_NATIVE_FUNCTION(receiver)->name);
+  }
+  RETURN_OBJ(AS_CLOSURE(receiver)->function->name);
 }
 
 NATIVE_METHOD(Function, toString) {
   assertArgCount("Function::toString()", 0, argCount);
+
+  if (IS_NATIVE_FUNCTION(receiver)) {
+    RETURN_STRING_FMT("<native fn %s>", AS_NATIVE_FUNCTION(receiver)->name->chars);
+  }
+
   RETURN_STRING_FMT("<fn %s>", AS_CLOSURE(receiver)->function->name->chars);
 }
 
 NATIVE_METHOD(Function, upvalueCount) {
   assertArgCount("Function::upvalueCount()", 0, argCount);
   RETURN_INT(AS_CLOSURE(receiver)->upvalueCount);
+}
+
+// METHOD
+
+
+NATIVE_METHOD(Method, __init__) {
+  assertError("Cannot instantiate from class Method.");
+  RETURN_NIL;
+}
+
+NATIVE_METHOD(Method, arity) {
+  assertArgCount("Method::arity()", 0, argCount);
+  RETURN_INT(AS_BOUND_METHOD(receiver)->method->function->arity);
+}
+
+NATIVE_METHOD(Method, clone) {
+  assertArgCount("Method::clone()", 0, argCount);
+  return receiver;
+}
+
+NATIVE_METHOD(Method, name) {
+  assertArgCount("Method::name()", 0, argCount);
+  ObjBoundMethod* bound = AS_BOUND_METHOD(receiver);
+  RETURN_STRING_FMT("%s::%s", getObjClass(bound->receiver)->name->chars, bound->method->function->name->chars);
+}
+
+NATIVE_METHOD(Method, receiver) {
+  assertArgCount("Method::receiver()", 0, argCount);
+  RETURN_VAL(AS_BOUND_METHOD(receiver)->receiver);
+}
+
+NATIVE_METHOD(Method, toString) {
+  assertArgCount("Method::toString()", 0, argCount);
+  ObjBoundMethod* bound = AS_BOUND_METHOD(receiver);
+  RETURN_STRING_FMT("<method %s::%s>", getObjClass(bound->receiver)->name->chars, bound->method->function->name->chars);
+}
+
+NATIVE_METHOD(Method, upvalueCount) {
+  assertArgCount("Function::upvalueCount()", 0, argCount);
+  RETURN_INT(AS_BOUND_METHOD(receiver)->method->upvalueCount);
 }
 
 // INT
@@ -554,113 +611,123 @@ NATIVE_METHOD(String, trim) {
 
 void registerLangPackage(){
 	vm.objectClass = defineNativeClass("Object");
-	DEF_METHOD(vm.objectClass, Object, clone);
-	DEF_METHOD(vm.objectClass, Object, equals);
-	DEF_METHOD(vm.objectClass, Object, getClass);
-	DEF_METHOD(vm.objectClass, Object, getClassName);
-	DEF_METHOD(vm.objectClass, Object, hasField);
-	DEF_METHOD(vm.objectClass, Object, hashCode);
-	DEF_METHOD(vm.objectClass, Object, instanceOf);
-	DEF_METHOD(vm.objectClass, Object, memberOf);
-	DEF_METHOD(vm.objectClass, Object, toString);
+  DEF_METHOD(vm.objectClass, Object, clone, 0);
+  DEF_METHOD(vm.objectClass, Object, equals, 1);
+  DEF_METHOD(vm.objectClass, Object, getClass, 0);
+  DEF_METHOD(vm.objectClass, Object, getClassName, 0);
+  DEF_METHOD(vm.objectClass, Object, hasField, 1);
+  DEF_METHOD(vm.objectClass, Object, hashCode, 0);
+  DEF_METHOD(vm.objectClass, Object, instanceOf, 1);
+  DEF_METHOD(vm.objectClass, Object, memberOf, 1);
+  DEF_METHOD(vm.objectClass, Object, toString, 0);
 
   vm.classClass = defineNativeClass("Class");
   bindSuperclass(vm.classClass, vm.objectClass);
-  DEF_METHOD(vm.classClass, Class, __init__);
-  DEF_METHOD(vm.classClass, Class, clone);
-  DEF_METHOD(vm.classClass, Class, getClass);
-  DEF_METHOD(vm.classClass, Class, getClassName);
-  DEF_METHOD(vm.classClass, Class, instanceOf);
-  DEF_METHOD(vm.classClass, Class, memberOf);
-  DEF_METHOD(vm.classClass, Class, name);
-  DEF_METHOD(vm.classClass, Class, superclass);
-  DEF_METHOD(vm.classClass, Class, toString);
+  DEF_METHOD(vm.classClass, Class, __init__, 2);
+  DEF_METHOD(vm.classClass, Class, clone, 0);
+  DEF_METHOD(vm.classClass, Class, getClass, 0);
+  DEF_METHOD(vm.classClass, Class, getClassName, 0);
+  DEF_METHOD(vm.classClass, Class, instanceOf, 1);
+  DEF_METHOD(vm.classClass, Class, memberOf, 1);
+  DEF_METHOD(vm.classClass, Class, name, 0);
+  DEF_METHOD(vm.classClass, Class, superclass, 0);
+  DEF_METHOD(vm.classClass, Class, toString, 0);
 
 	vm.nilClass = defineNativeClass("Nil");
 	bindSuperclass(vm.nilClass, vm.objectClass);
-	DEF_METHOD(vm.nilClass, Nil, __init__);
-	DEF_METHOD(vm.nilClass, Nil, clone);
-	DEF_METHOD(vm.nilClass, Nil, toString);
+	DEF_METHOD(vm.nilClass, Nil, __init__, 0);
+	DEF_METHOD(vm.nilClass, Nil, clone, 0);
+	DEF_METHOD(vm.nilClass, Nil, toString, 0);
 
 	vm.boolClass = defineNativeClass("Bool");
 	bindSuperclass(vm.boolClass, vm.objectClass);
-	DEF_METHOD(vm.boolClass, Bool, __init__);
-	DEF_METHOD(vm.boolClass, Bool, clone);
-	DEF_METHOD(vm.boolClass, Bool, toString);
+	DEF_METHOD(vm.boolClass, Bool, __init__, 0);
+	DEF_METHOD(vm.boolClass, Bool, clone, 0);
+	DEF_METHOD(vm.boolClass, Bool, toString, 0);
 
 	vm.numberClass = defineNativeClass("Number");
 	bindSuperclass(vm.numberClass, vm.objectClass);
-	DEF_METHOD(vm.numberClass, Number, __init__);
-	DEF_METHOD(vm.numberClass, Number, abs);
-  DEF_METHOD(vm.numberClass, Number, arccos);
-  DEF_METHOD(vm.numberClass, Number, arcsin);
-  DEF_METHOD(vm.numberClass, Number, arctan);
-	DEF_METHOD(vm.numberClass, Number, cbrt);
-	DEF_METHOD(vm.numberClass, Number, ceil);
-	DEF_METHOD(vm.numberClass, Number, clone);
-  DEF_METHOD(vm.numberClass, Number, cos);
-	DEF_METHOD(vm.numberClass, Number, exp);
-	DEF_METHOD(vm.numberClass, Number, floor);
-  DEF_METHOD(vm.numberClass, Number, hypot);
-	DEF_METHOD(vm.numberClass, Number, log);
-	DEF_METHOD(vm.numberClass, Number, log2);
-	DEF_METHOD(vm.numberClass, Number, log10);
-	DEF_METHOD(vm.numberClass, Number, max);
-	DEF_METHOD(vm.numberClass, Number, min);
-	DEF_METHOD(vm.numberClass, Number, pow);
-	DEF_METHOD(vm.numberClass, Number, round);
-  DEF_METHOD(vm.numberClass, Number, sin);
-	DEF_METHOD(vm.numberClass, Number, sqrt);
-  DEF_METHOD(vm.numberClass, Number, tan);
-  DEF_METHOD(vm.numberClass, Number, toInt);
-	DEF_METHOD(vm.numberClass, Number, toString);
+  DEF_METHOD(vm.numberClass, Number, __init__, 0);
+  DEF_METHOD(vm.numberClass, Number, abs, 0);
+  DEF_METHOD(vm.numberClass, Number, arccos, 0);
+  DEF_METHOD(vm.numberClass, Number, arcsin, 0);
+  DEF_METHOD(vm.numberClass, Number, arctan, 0);
+  DEF_METHOD(vm.numberClass, Number, cbrt, 0);
+  DEF_METHOD(vm.numberClass, Number, ceil, 0);
+  DEF_METHOD(vm.numberClass, Number, clone, 0);
+  DEF_METHOD(vm.numberClass, Number, cos, 0);
+  DEF_METHOD(vm.numberClass, Number, exp, 1);
+  DEF_METHOD(vm.numberClass, Number, floor, 0);
+  DEF_METHOD(vm.numberClass, Number, hypot, 1);
+  DEF_METHOD(vm.numberClass, Number, log, 0);
+  DEF_METHOD(vm.numberClass, Number, log2, 0);
+  DEF_METHOD(vm.numberClass, Number, log10, 0);
+  DEF_METHOD(vm.numberClass, Number, max, 1);
+  DEF_METHOD(vm.numberClass, Number, min, 1);
+  DEF_METHOD(vm.numberClass, Number, pow, 1);
+  DEF_METHOD(vm.numberClass, Number, round, 0);
+  DEF_METHOD(vm.numberClass, Number, sin, 0);
+  DEF_METHOD(vm.numberClass, Number, sqrt, 0);
+  DEF_METHOD(vm.numberClass, Number, tan, 0);
+  DEF_METHOD(vm.numberClass, Number, toInt, 0);
+  DEF_METHOD(vm.numberClass, Number, toString, 0);
 
   vm.intClass = defineNativeClass("Int");
   bindSuperclass(vm.intClass, vm.numberClass);
-  DEF_METHOD(vm.intClass, Int, __init__);
-  DEF_METHOD(vm.intClass, Int, abs);
-  DEF_METHOD(vm.intClass, Int, clone);
-  DEF_METHOD(vm.intClass, Int, factorial);
-  DEF_METHOD(vm.intClass, Int, gcd);
-  DEF_METHOD(vm.intClass, Int, isEven);
-  DEF_METHOD(vm.intClass, Int, isOdd);
-  DEF_METHOD(vm.intClass, Int, lcm);
-  DEF_METHOD(vm.intClass, Int, toFloat);
-  DEF_METHOD(vm.intClass, Int, toString);
+  DEF_METHOD(vm.intClass, Int, __init__, 0);
+  DEF_METHOD(vm.intClass, Int, abs, 0);
+  DEF_METHOD(vm.intClass, Int, clone, 0);
+  DEF_METHOD(vm.intClass, Int, factorial, 0);
+  DEF_METHOD(vm.intClass, Int, gcd, 1);
+  DEF_METHOD(vm.intClass, Int, isEven, 0);
+  DEF_METHOD(vm.intClass, Int, isOdd, 0);
+  DEF_METHOD(vm.intClass, Int, lcm, 1);
+  DEF_METHOD(vm.intClass, Int, toFloat, 0);
+  DEF_METHOD(vm.intClass, Int, toString, 0);
 
   vm.floatClass = defineNativeClass("Float");
   bindSuperclass(vm.floatClass, vm.numberClass);
-  DEF_METHOD(vm.floatClass, Float, __init__);
-  DEF_METHOD(vm.floatClass, Float, clone);
-  DEF_METHOD(vm.floatClass, Float, toString);
+  DEF_METHOD(vm.floatClass, Float, __init__, 0);
+  DEF_METHOD(vm.floatClass, Float, clone, 0);
+  DEF_METHOD(vm.floatClass, Float, toString, 0);
 
 
   vm.stringClass = defineNativeClass("String");
   bindSuperclass(vm.stringClass, vm.objectClass);
-  DEF_METHOD(vm.stringClass, String, __init__);
-  DEF_METHOD(vm.stringClass, String, capitalize);
-  DEF_METHOD(vm.stringClass, String, clone);
-  DEF_METHOD(vm.stringClass, String, contains);
-  DEF_METHOD(vm.stringClass, String, decapitalize);
-  DEF_METHOD(vm.stringClass, String, endsWith);
-  DEF_METHOD(vm.stringClass, String, getChar);
-  DEF_METHOD(vm.stringClass, String, indexOf);
-  DEF_METHOD(vm.stringClass, String, length);
-  DEF_METHOD(vm.stringClass, String, replace);
-  DEF_METHOD(vm.stringClass, String, reverse);
-  DEF_METHOD(vm.stringClass, String, startsWith);
-  DEF_METHOD(vm.stringClass, String, subString);
-  DEF_METHOD(vm.stringClass, String, toLowercase);
-  DEF_METHOD(vm.stringClass, String, toString);
-  DEF_METHOD(vm.stringClass, String, toUppercase);
-  DEF_METHOD(vm.stringClass, String, trim);
+  DEF_METHOD(vm.stringClass, String, __init__, 1);
+  DEF_METHOD(vm.stringClass, String, capitalize, 0);
+  DEF_METHOD(vm.stringClass, String, clone, 0);
+  DEF_METHOD(vm.stringClass, String, contains, 1);
+  DEF_METHOD(vm.stringClass, String, decapitalize, 0);
+  DEF_METHOD(vm.stringClass, String, endsWith, 1);
+  DEF_METHOD(vm.stringClass, String, getChar, 1);
+  DEF_METHOD(vm.stringClass, String, indexOf, 1);
+  DEF_METHOD(vm.stringClass, String, length, 0);
+  DEF_METHOD(vm.stringClass, String, replace, 2);
+  DEF_METHOD(vm.stringClass, String, reverse, 0);
+  DEF_METHOD(vm.stringClass, String, startsWith, 1);
+  DEF_METHOD(vm.stringClass, String, subString, 2);
+  DEF_METHOD(vm.stringClass, String, toLowercase, 0);
+  DEF_METHOD(vm.stringClass, String, toString, 0);
+  DEF_METHOD(vm.stringClass, String, toUppercase, 0);
+  DEF_METHOD(vm.stringClass, String, trim, 0);
 
   vm.functionClass = defineNativeClass("Function");
   bindSuperclass(vm.functionClass, vm.objectClass);
-  DEF_METHOD(vm.functionClass, Function, __init__);
-  DEF_METHOD(vm.functionClass, Function, arity);
-  DEF_METHOD(vm.functionClass, Function, clone);
-  DEF_METHOD(vm.functionClass, Function, name);
-  DEF_METHOD(vm.functionClass, Function, toString);
-  DEF_METHOD(vm.functionClass, Function, upvalueCount);
+  DEF_METHOD(vm.functionClass, Function, __init__, 0);
+  DEF_METHOD(vm.functionClass, Function, arity, 0);
+  DEF_METHOD(vm.functionClass, Function, clone, 0);
+  DEF_METHOD(vm.functionClass, Function, name, 0);
+  DEF_METHOD(vm.functionClass, Function, toString, 0);
+  DEF_METHOD(vm.functionClass, Function, upvalueCount, 0);
+
+  vm.methodClass = defineNativeClass("Method");
+  bindSuperclass(vm.methodClass, vm.objectClass);
+  DEF_METHOD(vm.methodClass, Method, __init__, 0);
+  DEF_METHOD(vm.methodClass, Method, arity, 0);
+  DEF_METHOD(vm.methodClass, Method, clone, 0);
+  DEF_METHOD(vm.methodClass, Method, name, 0);
+  DEF_METHOD(vm.methodClass, Method, receiver, 0);
+  DEF_METHOD(vm.methodClass, Method, toString, 0);
+  DEF_METHOD(vm.methodClass, Method, upvalueCount, 0);
 }

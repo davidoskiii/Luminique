@@ -28,7 +28,7 @@ Obj* allocateObject(size_t size, ObjType type, ObjClass* klass) {
 }
 
 ObjBoundMethod* newBoundMethod(Value receiver, ObjClosure* method) {
-  ObjBoundMethod* bound = ALLOCATE_OBJ(ObjBoundMethod, OBJ_BOUND_METHOD, NULL);
+  ObjBoundMethod* bound = ALLOCATE_OBJ(ObjBoundMethod, OBJ_BOUND_METHOD, vm.methodClass);
   bound->receiver = receiver;
   bound->method = method;
   return bound;
@@ -77,14 +77,19 @@ ObjInstance* newInstance(ObjClass* klass) {
   return instance;
 }
 
-ObjNative* newNative(NativeFn function) {
-  ObjNative* native = ALLOCATE_OBJ(ObjNative, OBJ_NATIVE, NULL);
-  native->function = function;
-  return native;
+ObjNativeFunction* newNativeFunction(ObjString* name, int arity, NativeFn function) {
+  ObjNativeFunction* nativeFunction = ALLOCATE_OBJ(ObjNativeFunction, OBJ_NATIVE_FUNCTION, vm.functionClass);
+  nativeFunction->name = name;
+  nativeFunction->arity = arity;
+  nativeFunction->function = function;
+  return nativeFunction;
 }
 
-ObjNativeMethod* newNativeMethod(NativeMethod method) {
+ObjNativeMethod* newNativeMethod(ObjClass* klass, ObjString* name, int arity, NativeMethod method) {
   ObjNativeMethod* nativeMethod = ALLOCATE_OBJ(ObjNativeMethod, OBJ_NATIVE_METHOD, NULL);
+  nativeMethod->klass = klass;
+  nativeMethod->name = name;
+  nativeMethod->arity = arity;
   nativeMethod->method = method;
   return nativeMethod;
 }
@@ -143,7 +148,7 @@ void printObject(Value value) {
     case OBJ_INSTANCE:
       printf("<object %s>", AS_OBJ(value)->klass->name->chars);
       break;
-    case OBJ_NATIVE:
+    case OBJ_NATIVE_FUNCTION:
       printf("<native fn>");
       break;
     case OBJ_NATIVE_METHOD:

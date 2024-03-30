@@ -3,53 +3,21 @@
 #include <string.h>
 
 #include "std.h"
+#include "../assert/assert.h"
 #include "../string/string.h"
 
-static Value printlnNativeMethod(Value receiver, int argCount, Value* args) {
-	if (argCount != 1) {
-		runtimeError("Method 'println' expects 1 argument but got %d.", argCount);
-		exit(70);
-	}
+NATIVE_METHOD(System, println) {
+  assertArgCount("println(message)", 1, argCount);
 
   printValue(args[0]);
   printf("\n");
 
-  return NIL_VAL;
+  RETURN_NIL;
 }
 
-static Value toStringNativeMethod(Value receiver, int argCount, Value* args) {
-	if (argCount != 1) {
-		runtimeError("Method 'toString' expects 1 argument but got %d.", argCount);
-		exit(70);
-	}
-
-	if (IS_BOOL(args[0])) {
-    if (AS_BOOL(args[0])) {
-		  return OBJ_VAL(copyString("true", 4));
-    } else {
-		  return OBJ_VAL(copyString("false", 5));
-    }
-	} else if (IS_NIL(args[0])) {
-		return OBJ_VAL(copyString("nil", 3));
-	} else if (IS_NUMBER(args[0])) {
-		char chars[24];
-		int length = snprintf(chars, 24, "%.14g", AS_NUMBER(args[0]));
-		return OBJ_VAL(copyString(chars, length));
-	} else {
-		return OBJ_VAL(copyString("Object", 6));
-	}
-}
-
-static Value scanlnNativeMethod(Value reciver, int argCount, Value* args) {
-  if (argCount != 1) {
-		runtimeError("Method 'scanln' expects 1 argument but got %d.", argCount);
-		exit(70);
-  }
-
-  if (!IS_STRING(args[0])) {
-    runtimeError("The argument must be of type string");
-    exit(70);
-  }
+NATIVE_METHOD(System, scanln) {
+  assertArgCount("scanln(prompt)", 1, argCount);
+  assertArgIsString("scanln(prompt)", args, 0);
 
   ObjString* prompt = AS_STRING(args[0]);
   printValue(OBJ_VAL(prompt));
@@ -61,7 +29,7 @@ static Value scanlnNativeMethod(Value reciver, int argCount, Value* args) {
       inputBuffer[length - 1] = '\0';
     }
 
-    return OBJ_VAL(copyString(inputBuffer, (int)strlen(inputBuffer)));
+    RETURN_OBJ(copyString(inputBuffer, (int)strlen(inputBuffer)));
   } else {
     runtimeError("Error reading input");
     exit(70);
@@ -70,7 +38,6 @@ static Value scanlnNativeMethod(Value reciver, int argCount, Value* args) {
 
 void initStd(){
 	ObjClass* systemClass = defineNativeClass("System");
-	defineNativeMethod(systemClass, "println", printlnNativeMethod);
-	defineNativeMethod(systemClass, "toString", toStringNativeMethod);
-  defineNativeMethod(systemClass, "scanln", scanlnNativeMethod);
+  DEF_METHOD(systemClass, System, println, 1);
+  DEF_METHOD(systemClass, System, scanln, 1);
 }

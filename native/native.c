@@ -13,9 +13,10 @@
 
 static unsigned int seed = 0;
 
-void defineNativeFunction(const char* name, NativeFn function) {
-  push(OBJ_VAL(copyString(name, (int)strlen(name))));
-  push(OBJ_VAL(newNative(function)));
+void defineNativeFunction(const char* name, int arity, NativeFn function) {
+  ObjString* functionName = copyString(name, (int)strlen(name));
+  push(OBJ_VAL(functionName));
+  push(OBJ_VAL(newNativeFunction(functionName, arity, function)));
   tableSet(&vm.globalValues, AS_STRING(vm.stack[0]), vm.stack[1]);
   pop();
   pop();
@@ -33,14 +34,14 @@ ObjClass* defineNativeClass(const char* name) {
   return nativeClass;
 }
 
-void defineNativeMethod(ObjClass* klass, const char* name, NativeMethod method) {
-	ObjNativeMethod* nativeMethod = newNativeMethod(method);
-	push(OBJ_VAL(nativeMethod));
-	ObjString* methodName = copyString(name, (int)strlen(name));
-	push(OBJ_VAL(methodName));
-	tableSet(&klass->methods, methodName, OBJ_VAL(nativeMethod));
-	pop();
-	pop();
+void defineNativeMethod(ObjClass* klass, const char* name, int arity, NativeMethod method) {
+  ObjString* methodName = copyString(name, (int)strlen(name));
+  push(OBJ_VAL(methodName));
+  ObjNativeMethod* nativeMethod = newNativeMethod(klass, methodName, arity, method);
+  push(OBJ_VAL(nativeMethod));
+  tableSet(&klass->methods, methodName, OBJ_VAL(nativeMethod));
+  pop();
+  pop();
 }
 
 NATIVE_FUNCTION(clock) {
@@ -328,15 +329,15 @@ static bool numNative(int argCount, Value* args) {
 } */
 
 void initNatives() {
-  DEF_FUNCTION(clock);
-  DEF_FUNCTION(print);
-  DEF_FUNCTION(println);
-  DEF_FUNCTION(scanln);
-  DEF_FUNCTION(append);
-  DEF_FUNCTION(clear);
-  DEF_FUNCTION(clone);
-  DEF_FUNCTION(indexOf);
-  DEF_FUNCTION(length);
+  DEF_FUNCTION(clock, 0);
+  DEF_FUNCTION(print, 1);
+  DEF_FUNCTION(println, 1);
+  DEF_FUNCTION(scanln, 1);
+  DEF_FUNCTION(append, 2);
+  DEF_FUNCTION(clear, 1);
+  DEF_FUNCTION(clone, 1);
+  DEF_FUNCTION(indexOf, 2);
+  DEF_FUNCTION(length, 1);
 //  defineNativeFunction("randint", randomNative);
 //  defineNativeFunction("currentTime", currentTimeNative);
 //  defineNativeFunction("sqrt", sqrtNative);

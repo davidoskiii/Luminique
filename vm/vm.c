@@ -146,7 +146,10 @@ static bool callNativeMethod(NativeMethod method, int argCount) {
 }
 
 static bool callMethod(Value method, int argCount) {
-  if (IS_NATIVE_METHOD(method)) return callNativeMethod(AS_NATIVE_METHOD(method), argCount);
+  if (IS_NATIVE_METHOD(method)) {
+    return callNativeMethod(AS_NATIVE_METHOD(method)->method, argCount);
+  }
+
   else return call(AS_CLOSURE(method), argCount);
 }
 
@@ -172,15 +175,15 @@ static bool callValue(Value callee, int argCount) {
       }
       case OBJ_CLOSURE:
         return call(AS_CLOSURE(callee), argCount);
-      case OBJ_NATIVE: {
-        NativeFn native = AS_NATIVE(callee);
+      case OBJ_NATIVE_FUNCTION: {
+        NativeFn native = AS_NATIVE_FUNCTION(callee)->function;
         Value result = native(argCount, vm.stackTop - argCount);
         vm.stackTop -= (size_t)argCount + 1;
         push(result);
         return true;
       }
       case OBJ_NATIVE_METHOD: {
-        NativeMethod method = AS_NATIVE_METHOD(callee);
+        NativeMethod method = AS_NATIVE_METHOD(callee)->method;
         Value result = method(vm.stackTop[-argCount - 1], argCount, vm.stackTop - argCount);
         vm.stackTop -= argCount + 1;
         push(result);

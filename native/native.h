@@ -6,9 +6,8 @@
 
 #define NATIVE_FUNCTION(name) static Value name##NativeFunction(int argCount, Value* args)
 #define NATIVE_METHOD(className, name) static Value name##NativeMethodFor##className(Value receiver, int argCount, Value* args)
-#define DEF_FUNCTION(name) defineNativeFunction(#name, name##NativeFunction)
-#define DEF_FUNCTION(name) defineNativeFunction(#name, name##NativeFunction)
-#define DEF_METHOD(klass, className, name) defineNativeMethod(klass, #name, name##NativeMethodFor##className)
+#define DEF_FUNCTION(name, arity) defineNativeFunction(#name, arity, name##NativeFunction)
+#define DEF_METHOD(klass, className, name, arity) defineNativeMethod(klass, #name, arity, name##NativeMethodFor##className)
 
 #define RETURN_NIL return NIL_VAL
 #define RETURN_FALSE return BOOL_VAL(false)
@@ -20,11 +19,12 @@
 #define RETURN_STRING(chars, length) return OBJ_VAL(copyString(chars, length))
 #define RETURN_STRING_FMT(...) return OBJ_VAL(formattedString(__VA_ARGS__))
 #define RETURN_STRING_FMTL(...) return OBJ_VAL(formattedLongString(__VA_ARGS__))
+#define RETURN_VAL(value) return value
 
 
 void initNatives();
-void defineNativeFunction(const char* name, NativeFn function);
+void defineNativeFunction(const char* name, int arity, NativeFn functionion);
+void defineNativeMethod(ObjClass* klass, const char* name, int arity, NativeMethod method);
 ObjClass* defineNativeClass(const char* name);
-void defineNativeMethod(ObjClass* klass, const char* name, NativeMethod method);
 
 #endif
