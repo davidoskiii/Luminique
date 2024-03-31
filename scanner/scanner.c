@@ -189,14 +189,14 @@ static TokenType identifierType() {
             if (scanner.current - scanner.start > 2) {
               switch (scanner.start[2]) {
                 case 'i': return checkKeyword(3, 1, "s", TOKEN_THIS);
-                case 'r': return checkKeyword(3, 2, "ow", TOKEN_THROW);
+                // case 'r': return checkKeyword(3, 2, "ow", TOKEN_THROW);
               }
             }
           case 'r':
             if (scanner.current - scanner.start > 2) {
               switch (scanner.start[2]) {
                 case 'u': return checkKeyword(3, 1, "e", TOKEN_TRUE);
-                case 'y': return checkKeyword(3, 0, "", TOKEN_TRY);
+                // case 'y': return checkKeyword(3, 0, "", TOKEN_TRY);
               }
             }
           }
