@@ -182,6 +182,18 @@ NATIVE_METHOD(Array, removeAt) {
 	RETURN_VAL(element);
 }
 
+NATIVE_METHOD(Array, setAt) {
+	assertArgCount("Array::setAt(index, element)", 2, argCount);
+	assertArgIsInt("Array::setAt(index, element)", args, 0);
+	ObjArray* self = AS_ARRAY(receiver);
+	int index = AS_INT(args[0]);
+	assertIndexWithinRange("Array::insertAt(index)", index, 0, self->elements.count, 0);
+	self->elements.values[index] = args[1];
+	if (index == self->elements.count) self->elements.count++;
+	return receiver;
+}
+
+
 NATIVE_METHOD(Array, subArray) {
 	assertArgCount("Array::subArray(from, to)", 2, argCount);
 	assertArgIsInt("Array::subArray(from, to)", args, 0);
