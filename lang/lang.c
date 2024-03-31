@@ -572,6 +572,24 @@ NATIVE_METHOD(String, reverse) {
   return OBJ_VAL(reverseStringBasedOnMemory(self));
 }
 
+NATIVE_METHOD(String, split) {
+  assertArgCount("String::split(delimiter)", 1, argCount);
+  assertArgIsString("String::split(delimiter)", args, 0);
+  ObjString* self = AS_STRING(receiver);
+  ObjString* delimiter = AS_STRING(args[0]);
+
+  ObjArray* array = newArray();
+  char* string = strdup(self->chars);
+  char* next = NULL;
+  char* token = strtok_r(string, delimiter->chars, &next);
+  while (token != NULL) {
+    writeValueArray(&array->elements, OBJ_VAL(copyString(token, (int)strlen(token))));
+    token = strtok_r(NULL, delimiter->chars, &next);
+  }
+  free(string);
+  RETURN_OBJ(array);
+}
+
 NATIVE_METHOD(String, startsWith) {
   assertArgCount("String::startsWith(chars)", 1, argCount);
   assertArgIsString("String::startsWith(chars)", args, 0);
