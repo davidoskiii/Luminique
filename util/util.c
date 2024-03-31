@@ -70,7 +70,6 @@ static ObjString* arrayToString(ObjArray* array) {
 				offset += length + 2;
 			}
 		}
-		if (offset < 1) return copyString("[]", 2);
 		string[offset] = ']';
 		string[offset + 1] = '\0';
 		return copyString(string, (int)offset + 1);
