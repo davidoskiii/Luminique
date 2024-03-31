@@ -19,6 +19,16 @@ static int arrayIndexOf(ObjArray* array, Value element) {
 	return -1;
 }
 
+static bool arrayEqual(ObjArray* array1, ObjArray* array2) {
+	if (array1->elements.count != array2->elements.count) return false;
+
+	for (int i = 0; i < array1->elements.count; i++) {
+		if (array1->elements.values[i].type != array2->elements.values[i].type) return false;
+	}
+
+	return true;
+}
+
 static void arrayInsertAt(ObjArray* array, int index, Value element) {
 	if (IS_OBJ(element)) push(element);
 	writeValueArray(&array->elements, NIL_VAL);
@@ -95,7 +105,19 @@ NATIVE_METHOD(Array, clear) {
 
 NATIVE_METHOD(Array, clone) {
 	assertArgCount("Array::clone()", 0, argCount);
-	RETURN_OBJ(copyArray(AS_ARRAY(receiver)->elements));
+	ObjArray* self = AS_ARRAY(receiver);
+	RETURN_OBJ(copyArray(self->elements, 0, self->elements.count));
+}
+
+NATIVE_METHOD(Array, contains) {
+	assertArgCount("Array::contains(element)", 1, argCount);
+	RETURN_BOOL(arrayIndexOf(AS_ARRAY(receiver), args[0]) != -1);
+}
+
+NATIVE_METHOD(Array, equals) {
+	assertArgCount("Array::equals(other)", 1, argCount);
+	if (!IS_ARRAY(args[0])) RETURN_FALSE;
+	RETURN_BOOL(arrayEqual(AS_ARRAY(receiver), AS_ARRAY(args[0])));
 }
 
 NATIVE_METHOD(Array, getAt) {
@@ -105,6 +127,11 @@ NATIVE_METHOD(Array, getAt) {
 	int index = AS_INT(args[0]);
 	assertIndexWithinRange("Array::getAt(index)", index, 0, self->elements.count - 1, 0);
 	RETURN_VAL(self->elements.values[index]);
+}
+
+NATIVE_METHOD(Array, isEmpty) {
+	assertArgCount("Array::isEmpty()", 0, argCount);
+	RETURN_BOOL(AS_ARRAY(receiver)->elements.count == 0);
 }
 
 NATIVE_METHOD(Array, indexOf) {
@@ -155,6 +182,19 @@ NATIVE_METHOD(Array, removeAt) {
 	RETURN_VAL(element);
 }
 
+NATIVE_METHOD(Array, subArray) {
+	assertArgCount("Array::subArray(from, to)", 2, argCount);
+	assertArgIsInt("Array::subArray(from, to)", args, 0);
+	assertArgIsInt("Array::subArray(from, to)", args, 1);
+	ObjArray* self = AS_ARRAY(receiver);
+	int fromIndex = AS_INT(args[0]);
+	int toIndex = AS_INT(args[1]);
+
+	assertIndexWithinRange("Array::subArray(from, to)", fromIndex, 0, self->elements.count, 0);
+	assertIndexWithinRange("Array::subArray(from, to", toIndex, fromIndex, self->elements.count, 1);
+	RETURN_OBJ(copyArray(self->elements, fromIndex, toIndex));
+}
+
 NATIVE_METHOD(Array, toString) {
 	assertArgCount("Array::toString()", 0, argCount);
 	RETURN_OBJ(arrayToString(AS_ARRAY(receiver)));
@@ -167,12 +207,16 @@ void registerUtilPackage() {
 	DEF_METHOD(vm.arrayClass, Array, append, 1);
 	DEF_METHOD(vm.arrayClass, Array, clear, 0);
 	DEF_METHOD(vm.arrayClass, Array, clone, 0);
+	DEF_METHOD(vm.arrayClass, Array, contains, 1);
+	DEF_METHOD(vm.arrayClass, Array, equals, 1);
 	DEF_METHOD(vm.arrayClass, Array, getAt, 1);
 	DEF_METHOD(vm.arrayClass, Array, indexOf, 1);
 	DEF_METHOD(vm.arrayClass, Array, insertAt, 2);
+  DEF_METHOD(vm.arrayClass, Array, isEmpty, 0);
 	DEF_METHOD(vm.arrayClass, Array, lastIndexOf, 1);
 	DEF_METHOD(vm.arrayClass, Array, length, 0);
 	DEF_METHOD(vm.arrayClass, Array, remove, 1);
 	DEF_METHOD(vm.arrayClass, Array, removeAt, 1);
+  DEF_METHOD(vm.arrayClass, Array, subArray, 2);
 	DEF_METHOD(vm.arrayClass, Array, toString, 0);
 }

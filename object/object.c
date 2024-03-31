@@ -94,13 +94,13 @@ ObjNativeMethod* newNativeMethod(ObjClass* klass, ObjString* name, int arity, Na
   return nativeMethod;
 }
 
-ObjArray* copyArray(ValueArray elements) {
-    ObjArray* array = ALLOCATE_OBJ(ObjArray, OBJ_ARRAY, vm.arrayClass);
-    initValueArray(&array->elements);
-    for (int i = 0; i < elements.count; i++) {
-        writeValueArray(&array->elements, elements.values[i]);
-    }
-    return array;
+ObjArray* copyArray(ValueArray elements, int fromIndex, int toIndex) {
+  ObjArray* array = ALLOCATE_OBJ(ObjArray, OBJ_ARRAY, vm.arrayClass);
+  initValueArray(&array->elements);
+  for (int i = fromIndex; i < toIndex; i++) {
+    writeValueArray(&array->elements, elements.values[i]);
+  }
+  return array;
 }
 
 ObjUpvalue* newUpvalue(Value* slot) {

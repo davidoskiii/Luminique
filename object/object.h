@@ -140,7 +140,7 @@ ObjFunction* newFunction();
 ObjInstance* newInstance(ObjClass* klass);
 ObjNativeFunction* newNativeFunction(ObjString* name, int arity, NativeFn function);
 ObjNativeMethod* newNativeMethod(ObjClass* klass, ObjString* name, int arity, NativeMethod method);
-ObjArray* copyArray(ValueArray elements);
+ObjArray* copyArray(ValueArray elements, int fromIndex, int toIndex);
 ObjUpvalue* newUpvalue(Value* slot);
 void printObject(Value value);
 ObjClass* getObjClass(Value value);
