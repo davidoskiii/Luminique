@@ -10,6 +10,7 @@
 #define OBJ_KLASS(value) (AS_OBJ(value)->klass)
 
 #define IS_ARRAY(value) isObjType(value, OBJ_ARRAY)
+#define IS_DICTIONARY(value) isObjType(value, OBJ_DICTIONARY)
 #define IS_BOUND_METHOD(value) isObjType(value, OBJ_BOUND_METHOD)
 #define IS_CLASS(value) isObjType(value, OBJ_CLASS)
 #define IS_CLOSURE(value) isObjType(value, OBJ_CLOSURE)
@@ -21,6 +22,7 @@
 #define IS_STRING(value) isObjType(value, OBJ_STRING)
 
 #define AS_ARRAY(value) ((ObjArray*)AS_OBJ(value))
+#define AS_DICTIONARY(value) ((ObjDictionary*)AS_OBJ(value))
 #define AS_BOUND_METHOD(value) ((ObjBoundMethod*)AS_OBJ(value))
 #define AS_CLASS(value) ((ObjClass*)AS_OBJ(value))
 #define AS_CLOSURE(value) ((ObjClosure*)AS_OBJ(value))
@@ -41,6 +43,7 @@ typedef enum {
   OBJ_FUNCTION,
   OBJ_INSTANCE,
   OBJ_ARRAY,
+  OBJ_DICTIONARY,
   OBJ_NATIVE_FUNCTION,
   OBJ_NATIVE_METHOD,
   OBJ_STRING,
@@ -131,16 +134,23 @@ typedef struct ObjArray {
   ValueArray elements;
 } ObjArray;
 
+typedef struct ObjDictionary {
+  Obj obj;
+  Table table;
+} ObjDictionary;
+
 Obj* allocateObject(size_t size, ObjType type, ObjClass* klass);
 ObjBoundMethod* newBoundMethod(Value receiver, ObjClosure* method);
 ObjArray* newArray();
+ObjArray* copyArray(ValueArray elements, int fromIndex, int toIndex);
+ObjDictionary* newDictionary();
+ObjDictionary* copyDictionary(Table table);
 ObjClass* newClass(ObjString* name);
 ObjClosure* newClosure(ObjFunction* function);
 ObjFunction* newFunction();
 ObjInstance* newInstance(ObjClass* klass);
 ObjNativeFunction* newNativeFunction(ObjString* name, int arity, NativeFn function);
 ObjNativeMethod* newNativeMethod(ObjClass* klass, ObjString* name, int arity, NativeMethod method);
-ObjArray* copyArray(ValueArray elements, int fromIndex, int toIndex);
 ObjUpvalue* newUpvalue(Value* slot);
 void printObject(Value value);
 ObjClass* getObjClass(Value value);

@@ -79,6 +79,11 @@ static void blackenObject(Obj* object) {
       markArray(&((ObjArray*)object)->elements);
       break;
     }
+    case OBJ_DICTIONARY: {
+      ObjDictionary* dictionary = (ObjDictionary*)object;
+      markTable(&dictionary->table);
+      break;
+    }
     case OBJ_BOUND_METHOD: {
       ObjBoundMethod* bound = (ObjBoundMethod*)object;
       markValue(bound->receiver);
@@ -141,6 +146,12 @@ static void freeObject(Obj* object) {
       freeValueArray(&((ObjArray*)object)->elements);
       FREE(ObjArray, object);
       break;
+    case OBJ_DICTIONARY: {
+      ObjDictionary* dictionary = (ObjDictionary*)object;
+      freeTable(&dictionary->table);
+      FREE(ObjDictionary, object);
+      break;
+    }
     case OBJ_BOUND_METHOD:
       FREE(ObjBoundMethod, object);
       break;

@@ -606,13 +606,24 @@ static void array(bool canAssign) {
   emitBytes(OP_ARRAY, elementCount);
 }
 
-// static void collection(bool canAssign) {
-//   if (match(TOKEN_RIGHT_BRAKE)) {
-//     emitBytes(OP_ARRAY, 0);
-//   } else {
-//     array();
-//   }
-// }
+static void dictionary(bool canAssign) {
+  uint8_t entryCount = 0;
+  if (!check(TOKEN_RIGHT_BRACE)) {
+    do {
+      expression();
+      consume(TOKEN_COLON, "Expect ':' after entry key.");
+      expression();
+
+      if (entryCount == UINT8_MAX) {
+        error("Cannot have more than 255 entries.");
+      }
+      entryCount++;
+    } while (match(TOKEN_COMMA));
+  }
+
+  consume(TOKEN_RIGHT_BRACE, "Expect '}' after entries.");
+  emitBytes(OP_DICTIONARY, entryCount);
+}
 
 static void subscript(bool canAssign) {
   expression();
@@ -905,7 +916,7 @@ ParseRule rules[] = {
   [TOKEN_RIGHT_BRAKE]   = {NULL,       NULL,    PREC_NONE},
   [TOKEN_LEFT_PAREN]    = {grouping,   call,    PREC_CALL},
   [TOKEN_RIGHT_PAREN]   = {NULL,       NULL,    PREC_NONE},
-  [TOKEN_LEFT_BRACE]    = {NULL,       NULL,    PREC_NONE}, 
+  [TOKEN_LEFT_BRACE]    = {dictionary, NULL,    PREC_NONE}, 
   [TOKEN_RIGHT_BRACE]   = {NULL,       NULL,    PREC_NONE},
   [TOKEN_COMMA]         = {NULL,       NULL,    PREC_NONE},
   [TOKEN_DOT]           = {NULL,       dot,     PREC_CALL},

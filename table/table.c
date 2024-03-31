@@ -3,8 +3,9 @@
 
 #include "../memory/memory.h"
 #include "../object/object.h"
-#include "table.h"
+#include "../string/string.h"
 #include "../value/value.h"
+#include "table.h"
 
 #define TABLE_MAX_LOAD 0.75
 
@@ -147,5 +148,55 @@ void markTable(Table* table) {
     Entry* entry = &table->entries[i];
     markObject((Obj*)entry->key);
     markValue(entry->value);
+  }
+}
+
+ObjString* tableToString(Table* table) {
+  if (table->count == 0) return copyString("{}", 2);
+  else {
+    char string[UINT8_MAX] = "";
+    string[0] = '{';
+    size_t offset = 1;
+    int startIndex = 0;
+    for (int i = 0; i < table->capacity; i++) {
+      Entry* entry = &table->entries[i];
+      if (entry->key == NULL) continue;
+      ObjString* key = entry->key;
+      size_t keyLength = (size_t)key->length;
+      Value value = entry->value;
+      char* valueChars = valueToString(value);
+      size_t valueLength = strlen(valueChars);
+
+      memcpy(string + offset, key->chars, keyLength);
+      offset += keyLength;
+      memcpy(string + offset, ": ", 2);
+      offset += 2;
+      memcpy(string + offset, valueChars, valueLength);
+      offset += valueLength;
+      startIndex = i + 1;
+      break;
+    }
+
+    for (int i = startIndex; i < table->capacity; i++) {
+      Entry* entry = &table->entries[i];
+      if (entry->key == NULL) continue;
+      ObjString* key = entry->key;
+      size_t keyLength = (size_t)key->length;
+      Value value = entry->value;
+      char* valueChars = valueToString(value);
+      size_t valueLength = strlen(valueChars);
+
+      memcpy(string + offset, ", ", 2);
+      offset += 2;
+      memcpy(string + offset, key->chars, keyLength);
+      offset += keyLength;
+      memcpy(string + offset, ": ", 2);
+      offset += 2;
+      memcpy(string + offset, valueChars, valueLength);
+      offset += valueLength;
+    }
+    string[offset] = '}';
+    string[offset + 1] = '\0';
+    return copyString(string, (int)offset + 1);
   }
 }

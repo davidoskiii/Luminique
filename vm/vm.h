@@ -27,6 +27,7 @@ typedef struct {
   ObjClass* floatClass;
   ObjClass* stringClass;
   ObjClass* arrayClass;
+  ObjClass* dictionaryClass;
 
   CallFrame frames[FRAMES_MAX];
   int frameCount;

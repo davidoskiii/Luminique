@@ -40,6 +40,28 @@ ObjArray* newArray() {
   return array;
 }
 
+ObjArray* copyArray(ValueArray elements, int fromIndex, int toIndex) {
+  ObjArray* array = ALLOCATE_OBJ(ObjArray, OBJ_ARRAY, vm.arrayClass);
+  initValueArray(&array->elements);
+  for (int i = fromIndex; i < toIndex; i++) {
+    writeValueArray(&array->elements, elements.values[i]);
+  }
+  return array;
+}
+
+ObjDictionary* newDictionary() {
+  ObjDictionary* dictionary = ALLOCATE_OBJ(ObjDictionary, OBJ_DICTIONARY, vm.dictionaryClass);
+  initTable(&dictionary->table);
+  return dictionary;
+}
+
+ObjDictionary* copyDictionary(Table table) {
+  ObjDictionary* dictionary = ALLOCATE_OBJ(ObjDictionary, OBJ_DICTIONARY, vm.dictionaryClass);
+  initTable(&dictionary->table);
+  tableAddAll(&table, &dictionary->table);
+  return dictionary;
+}
+
 ObjClass* newClass(ObjString* name) {
   ObjClass* klass = ALLOCATE_OBJ(ObjClass, OBJ_CLASS, vm.classClass);
   klass->name = name;
@@ -94,15 +116,6 @@ ObjNativeMethod* newNativeMethod(ObjClass* klass, ObjString* name, int arity, Na
   return nativeMethod;
 }
 
-ObjArray* copyArray(ValueArray elements, int fromIndex, int toIndex) {
-  ObjArray* array = ALLOCATE_OBJ(ObjArray, OBJ_ARRAY, vm.arrayClass);
-  initValueArray(&array->elements);
-  for (int i = fromIndex; i < toIndex; i++) {
-    writeValueArray(&array->elements, elements.values[i]);
-  }
-  return array;
-}
-
 ObjUpvalue* newUpvalue(Value* slot) {
   ObjUpvalue* upvalue = ALLOCATE_OBJ(ObjUpvalue, OBJ_UPVALUE, NULL);
   upvalue->closed = NIL_VAL;
@@ -120,6 +133,27 @@ static void printArray(ObjArray* array) {
   printf("]");
 }
 
+static void printDictionary(ObjDictionary* dictionary) {
+  printf("{");
+  int startIndex = 0;
+  for (int i = 0; i < dictionary->table.capacity; i++) {
+    Entry* entry = &dictionary->table.entries[i];
+    if (entry->key == NULL) continue;
+    printf("%s: ", entry->key->chars);
+    printValue(entry->value);
+    startIndex = i + 1;
+    break;
+  }
+
+  for (int i = startIndex; i < dictionary->table.capacity; i++) {
+    Entry* entry = &dictionary->table.entries[i];
+    if (entry->key == NULL) continue;
+    printf(", %s: ", entry->key->chars);
+    printValue(entry->value);
+  }
+  printf("}");
+}
+
 static void printFunction(ObjFunction* function) {
   if (function->name == NULL) {
     printf("<script>");
@@ -132,6 +166,9 @@ void printObject(Value value) {
   switch (OBJ_TYPE(value)) {
     case OBJ_ARRAY:
       printArray(AS_ARRAY(value));
+      break;
+    case OBJ_DICTIONARY: 
+      printDictionary(AS_DICTIONARY(value));
       break;
     case OBJ_BOUND_METHOD:
       printFunction(AS_BOUND_METHOD(value)->method->function);

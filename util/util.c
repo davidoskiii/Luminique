@@ -10,6 +10,43 @@
 #include "../value/value.h"
 #include "../vm/vm.h"
 
+static ObjString* dictionaryToString(ObjDictionary* dictionary) {
+	if (dictionary->table.count == 0) return copyString("{}", 2);
+	else {
+		char string[UINT8_MAX] = "";
+		string[0] = '{';
+		size_t offset = 1;
+		for (int i = 0; i < dictionary->table.capacity; i++) {
+			Entry* entry = &dictionary->table.entries[i];
+			if (entry->key == NULL) continue;
+
+			ObjString* key = entry->key;
+			size_t keyLength = (size_t)key->length;
+			Value value = entry->value;
+			char* valueChars = valueToString(value);
+			size_t valueLength = strlen(valueChars);
+
+			memcpy(string + offset, key->chars, keyLength);
+			offset += keyLength;
+			memcpy(string + offset, ": ", 2);
+			offset += 2;
+			memcpy(string + offset, valueChars, valueLength);
+
+			if (i == dictionary->table.capacity - 1) {
+				offset += valueLength;
+			}
+			else {
+				memcpy(string + offset + valueLength, ", ", 2);
+				offset += valueLength + 2;
+			}
+		}
+
+		string[offset] = '}';
+		string[offset + 1] = '\0';
+		return copyString(string, (int)offset + 1);
+	}
+}
+
 static int arrayIndexOf(ObjArray* array, Value element) {
 	for (int i = 0; i < array->elements.count; i++) {
 		if (valuesEqual(array->elements.values[i], element)) {
@@ -85,6 +122,8 @@ static ObjString* arrayToString(ObjArray* array) {
 		return copyString(string, (int)offset + 1);
 	}
 }
+
+// ARRAY
 
 NATIVE_METHOD(Array, __init__) {
 	assertArgCount("Array::__init__()", 0, argCount);
@@ -212,6 +251,41 @@ NATIVE_METHOD(Array, toString) {
 	RETURN_OBJ(arrayToString(AS_ARRAY(receiver)));
 }
 
+// DICTIONARY
+
+NATIVE_METHOD(Dictionary, __init__) {
+	assertArgCount("Dictionary::__init__()", 0, argCount);
+	RETURN_OBJ(newDictionary(vm));
+}
+
+NATIVE_METHOD(Dictionary, clear) {
+	assertArgCount("Dictionary::clear()", 0, argCount);
+	freeTable(&AS_DICTIONARY(receiver)->table);
+	return receiver;
+}
+
+NATIVE_METHOD(Dictionary, clone) {
+	assertArgCount("Dictionary::clone()", 0, argCount);
+	ObjDictionary* self = AS_DICTIONARY(receiver);
+	RETURN_OBJ(copyDictionary(self->table));
+}
+
+NATIVE_METHOD(Dictionary, isEmpty) {
+	assertArgCount("Dictionary::isEmpty()", 0, argCount);
+	RETURN_BOOL(AS_DICTIONARY(receiver)->table.count == 0);
+}
+
+NATIVE_METHOD(Dictionary, length) {
+	assertArgCount("Dictionary::length()", 0, argCount);
+	ObjDictionary* self = AS_DICTIONARY(receiver);
+	RETURN_INT(AS_DICTIONARY(receiver)->table.count);
+}
+
+NATIVE_METHOD(Dictionary, toString) {
+	assertArgCount("Dictionary::toString()", 0, argCount);
+	RETURN_OBJ(dictionaryToString(AS_DICTIONARY(receiver)));
+}
+
 void registerUtilPackage() {
 	vm.arrayClass = defineNativeClass("Array");
 	bindSuperclass(vm.arrayClass, vm.objectClass);
@@ -231,4 +305,13 @@ void registerUtilPackage() {
 	DEF_METHOD(vm.arrayClass, Array, removeAt, 1);
   DEF_METHOD(vm.arrayClass, Array, subArray, 2);
 	DEF_METHOD(vm.arrayClass, Array, toString, 0);
+
+	vm.dictionaryClass = defineNativeClass("Dictionary");
+	bindSuperclass(vm.dictionaryClass, vm.objectClass);
+	DEF_METHOD(vm.dictionaryClass, Dictionary, __init__, 0);
+	DEF_METHOD(vm.dictionaryClass, Dictionary, clear, 0);
+	DEF_METHOD(vm.dictionaryClass, Dictionary, clone, 0);
+	DEF_METHOD(vm.dictionaryClass, Dictionary, isEmpty, 0);
+	DEF_METHOD(vm.dictionaryClass, Dictionary, length, 0);
+	DEF_METHOD(vm.dictionaryClass, Dictionary, toString, 0);
 }

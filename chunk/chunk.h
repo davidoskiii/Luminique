@@ -10,6 +10,7 @@ typedef enum {
   OP_TRUE,
   OP_FALSE,
   OP_ARRAY,
+  OP_DICTIONARY,
   OP_POP,
   OP_GET_LOCAL,
   OP_SET_LOCAL,
