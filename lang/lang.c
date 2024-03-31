@@ -723,6 +723,7 @@ void registerLangPackage(){
   DEF_METHOD(vm.stringClass, String, length, 0);
   DEF_METHOD(vm.stringClass, String, replace, 2);
   DEF_METHOD(vm.stringClass, String, reverse, 0);
+  DEF_METHOD(vm.stringClass, String, split, 1);
   DEF_METHOD(vm.stringClass, String, startsWith, 1);
   DEF_METHOD(vm.stringClass, String, subString, 2);
   DEF_METHOD(vm.stringClass, String, toLowercase, 0);
