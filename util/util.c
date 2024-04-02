@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 
 #include "util.h"
 #include "../assert/assert.h"
@@ -32,13 +33,8 @@ static ObjString* dictionaryToString(ObjDictionary* dictionary) {
 			offset += 2;
 			memcpy(string + offset, valueChars, valueLength);
 
-			if (i == dictionary->table.capacity - 1) {
-				offset += valueLength;
-			}
-			else {
-				memcpy(string + offset + valueLength, ", ", 2);
-				offset += valueLength + 2;
-			}
+			memcpy(string + offset + valueLength, "; ", 2);
+      offset += valueLength + 2;
 		}
 
 		string[offset] = '}';
@@ -54,6 +50,13 @@ static int arrayIndexOf(ObjArray* array, Value element) {
 		}
 	}
 	return -1;
+}
+
+static void arrayAddAll(ObjArray* from, ObjArray* to) {
+	if (from->elements.count == 0) return;
+	for (int i = 0; i < from->elements.count; i++) {
+		writeValueArray(&to->elements, from->elements.values[i]);
+	}
 }
 
 static bool arrayEqual(ObjArray* array1, ObjArray* array2) {
@@ -136,6 +139,13 @@ NATIVE_METHOD(Array, append) {
 	RETURN_OBJ(&receiver);
 }
 
+NATIVE_METHOD(Array, addAll) {
+	assertArgCount("Array::add(array)", 1, argCount);
+	assertArgIsArray("Array::add(array)", args, 0);
+	arrayAddAll(AS_ARRAY(args[0]), AS_ARRAY(receiver));
+	return receiver;
+}
+
 NATIVE_METHOD(Array, clear) {
 	assertArgCount("Array::clear()", 0, argCount);
 	freeValueArray(&AS_ARRAY(receiver)->elements);
@@ -211,6 +221,17 @@ NATIVE_METHOD(Array, remove) {
 	RETURN_TRUE;
 }
 
+NATIVE_METHOD(Array, putAt) {
+	assertArgCount("Array::putAt(index, element)", 2, argCount);
+	assertArgIsInt("Array::putAt(index, element)", args, 0);
+	ObjArray* self = AS_ARRAY(receiver);
+	int index = AS_INT(args[0]);
+	assertIndexWithinRange("Array::putAt(index)", index, 0, self->elements.count, 0);
+	self->elements.values[index] = args[1];
+	if (index == self->elements.count) self->elements.count++;
+	return receiver;
+}
+
 NATIVE_METHOD(Array, removeAt) {
 	assertArgCount("Array::removeAt(index)", 1, argCount);
 	assertArgIsInt("Array::removeAt(index)", args, 0);
@@ -220,18 +241,6 @@ NATIVE_METHOD(Array, removeAt) {
 	Value element = arrayRemoveAt(self, index);
 	RETURN_VAL(element);
 }
-
-NATIVE_METHOD(Array, setAt) {
-	assertArgCount("Array::setAt(index, element)", 2, argCount);
-	assertArgIsInt("Array::setAt(index, element)", args, 0);
-	ObjArray* self = AS_ARRAY(receiver);
-	int index = AS_INT(args[0]);
-	assertIndexWithinRange("Array::insertAt(index)", index, 0, self->elements.count, 0);
-	self->elements.values[index] = args[1];
-	if (index == self->elements.count) self->elements.count++;
-	return receiver;
-}
-
 
 NATIVE_METHOD(Array, subArray) {
 	assertArgCount("Array::subArray(from, to)", 2, argCount);
@@ -270,6 +279,26 @@ NATIVE_METHOD(Dictionary, clone) {
 	RETURN_OBJ(copyDictionary(self->table));
 }
 
+NATIVE_METHOD(Dictionary, containsKey) {
+	assertArgCount("Dictionary::containsKey(key)", 1, argCount);
+	assertArgIsString("Dictionary::containsKey(key)", args, 0);
+	RETURN_BOOL(tableContainsKey(&AS_DICTIONARY(receiver)->table, AS_STRING(args[0])));
+}
+
+NATIVE_METHOD(Dictionary, containsValue) {
+	assertArgCount("Dictionary::containsValue(value)", 1, argCount);
+	RETURN_BOOL(tableContainsValue(&AS_DICTIONARY(receiver)->table, args[0]));
+}
+
+NATIVE_METHOD(Dictionary, getAt) {
+	assertArgCount("Dictionary::getAt(key)", 1, argCount);
+	assertArgIsString("Dictionary::getAt(key)", args, 0);
+	Value value;
+	bool valueExists = tableGet(&AS_DICTIONARY(receiver)->table, AS_STRING(args[0]), &value);
+	if (!valueExists) RETURN_NIL;
+	RETURN_VAL(value);
+}
+
 NATIVE_METHOD(Dictionary, isEmpty) {
 	assertArgCount("Dictionary::isEmpty()", 0, argCount);
 	RETURN_BOOL(AS_DICTIONARY(receiver)->table.count == 0);
@@ -279,6 +308,33 @@ NATIVE_METHOD(Dictionary, length) {
 	assertArgCount("Dictionary::length()", 0, argCount);
 	ObjDictionary* self = AS_DICTIONARY(receiver);
 	RETURN_INT(AS_DICTIONARY(receiver)->table.count);
+}
+
+NATIVE_METHOD(Dictionary, putAll) {
+	assertArgCount("Dictionary::putAll(dictionary)", 1, argCount);
+	assertArgIsDictionary("Dictionary::putAll(dictionary)", args, 0);
+	tableAddAll(&AS_DICTIONARY(args[0])->table, &AS_DICTIONARY(receiver)->table);
+	return receiver;
+}
+
+NATIVE_METHOD(Dictionary, put) {
+	assertArgCount("Dictionary::put(key, value)", 2, argCount);
+	assertArgIsString("Dictionary::put(key, value)", args, 0);
+	tableSet(&AS_DICTIONARY(receiver)->table, AS_STRING(args[0]), args[1]);
+	return receiver;
+}
+
+NATIVE_METHOD(Dictionary, removeAt) {
+	assertArgCount("Dictionary::removeAt(key)", 1, argCount);
+	assertArgIsString("Dictionary::removeAt(key)", args, 0);
+	ObjDictionary* self = AS_DICTIONARY(receiver);
+	ObjString* key = AS_STRING(args[0]);
+	Value value;
+
+	bool keyExists = tableGet(&self->table, key, &value);
+	if (!keyExists) RETURN_NIL;
+	tableDelete(&self->table, key);
+	RETURN_VAL(value);
 }
 
 NATIVE_METHOD(Dictionary, toString) {
@@ -291,6 +347,7 @@ void registerUtilPackage() {
 	bindSuperclass(vm.arrayClass, vm.objectClass);
 	DEF_METHOD(vm.arrayClass, Array, __init__, 0);
 	DEF_METHOD(vm.arrayClass, Array, append, 1);
+  DEF_METHOD(vm.arrayClass, Array, addAll, 1);
 	DEF_METHOD(vm.arrayClass, Array, clear, 0);
 	DEF_METHOD(vm.arrayClass, Array, clone, 0);
 	DEF_METHOD(vm.arrayClass, Array, contains, 1);
@@ -301,6 +358,7 @@ void registerUtilPackage() {
   DEF_METHOD(vm.arrayClass, Array, isEmpty, 0);
 	DEF_METHOD(vm.arrayClass, Array, lastIndexOf, 1);
 	DEF_METHOD(vm.arrayClass, Array, length, 0);
+  DEF_METHOD(vm.arrayClass, Array, putAt, 2);
 	DEF_METHOD(vm.arrayClass, Array, remove, 1);
 	DEF_METHOD(vm.arrayClass, Array, removeAt, 1);
   DEF_METHOD(vm.arrayClass, Array, subArray, 2);
@@ -310,8 +368,14 @@ void registerUtilPackage() {
 	bindSuperclass(vm.dictionaryClass, vm.objectClass);
 	DEF_METHOD(vm.dictionaryClass, Dictionary, __init__, 0);
 	DEF_METHOD(vm.dictionaryClass, Dictionary, clear, 0);
+	DEF_METHOD(vm.dictionaryClass, Dictionary, containsKey, 1);
+	DEF_METHOD(vm.dictionaryClass, Dictionary, containsValue, 1);
+	DEF_METHOD(vm.dictionaryClass, Dictionary, getAt, 1);
 	DEF_METHOD(vm.dictionaryClass, Dictionary, clone, 0);
 	DEF_METHOD(vm.dictionaryClass, Dictionary, isEmpty, 0);
 	DEF_METHOD(vm.dictionaryClass, Dictionary, length, 0);
+	DEF_METHOD(vm.dictionaryClass, Dictionary, put, 2);
+	DEF_METHOD(vm.dictionaryClass, Dictionary, putAll, 1);
+	DEF_METHOD(vm.dictionaryClass, Dictionary, removeAt, 1);
 	DEF_METHOD(vm.dictionaryClass, Dictionary, toString, 0);
 }

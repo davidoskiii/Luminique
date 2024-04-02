@@ -151,6 +151,22 @@ void markTable(Table* table) {
   }
 }
 
+bool tableContainsKey(Table* table, ObjString* key) {
+  if (table->count == 0) return false;
+  Entry* entry = findEntry(table->entries, table->capacity, key);
+  return entry->key != NULL;
+}
+
+bool tableContainsValue(Table* table, Value value) {
+  if (table->count == 0) return false;
+  for (int i = 0; i < table->capacity; i++) {
+    Entry* entry = &table->entries[i];
+    if (entry->key == NULL) continue;
+    if (valuesEqual(entry->value, value)) return true;
+  }
+  return false;
+}
+
 ObjString* tableToString(Table* table) {
   if (table->count == 0) return copyString("{}", 2);
   else {

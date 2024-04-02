@@ -19,6 +19,8 @@ void initTable(Table* table);
 void freeTable(Table* table);
 bool tableGet(Table* table, ObjString* key, Value* value);
 bool tableSet(Table* table, ObjString* key, Value value);
+bool tableContainsKey(Table* table, ObjString* key);
+bool tableContainsValue(Table* table, Value value);
 bool tableDelete(Table* table, ObjString* key);
 void tableAddAll(Table* from, Table* to);
 ObjString* tableFindString(Table* table, const char* chars, int length, uint32_t hash);

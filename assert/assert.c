@@ -47,6 +47,13 @@ void assertArgIsArray(const char* method, Value* args, int index){
 	}
 }
 
+void assertArgIsDictionary(const char* method, Value* args, int index){
+	if (!IS_DICTIONARY(args[index])) {
+		runtimeError("Method %s expects argument %d to be a dictionary.", method, index + 1);
+		exit(70);
+	}
+}
+
 void assertArgIsInt(const char* method, Value* args, int index) {
 	if (!IS_INT(args[index])) {
 		runtimeError("Method %s expects argument %d to be an integer.", method, index + 1);
