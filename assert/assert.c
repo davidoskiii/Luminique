@@ -2,6 +2,7 @@
 #include <stdlib.h>
 
 #include "assert.h"
+#include "../native/native.h"
 #include "../string/string.h"
 #include "../vm/vm.h"
 
@@ -66,6 +67,18 @@ void assertArgIsFloat(const char* method, Value* args, int index) {
 		runtimeError("Method %s expects argument %d to be a floating point number.", method, index + 1);
 		exit(70);
 	}
+}
+
+void assertInstanceOf(const char* method, Value arg, char* className, int index) {
+  if (!isObjInstanceOf(arg, getNativeClass(className))) {
+    if (index < 0) {
+      runtimeError("method %s expects receiver to be an instance of class %s but got %s.",  className, getObjClass(arg)->name->chars);
+    }
+    else {
+      runtimeError("method %s expects argument %d to be an instance of class %s but got %s.", method, index, className, getObjClass(arg)->name->chars);
+    }
+    exit(70);
+  }
 }
 
 void assertIndexWithinRange(const char* method, int arg, int min, int max, int index) {

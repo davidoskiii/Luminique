@@ -100,6 +100,22 @@ NATIVE_FUNCTION(dateNow) {
   RETURN_OBJ(date);
 }
 
+
+NATIVE_FUNCTION(dateTimeNow) {
+  assertArgCount("dateTimeNow()", 0, argCount);
+  time_t nowTime;
+  time(&nowTime);
+  struct tm* now = localtime(&nowTime);
+  ObjInstance* date = newInstance(getNativeClass("DateTime"));
+  setObjProperty(date, "year", INT_VAL(1900 + now->tm_year));
+  setObjProperty(date, "month", INT_VAL(1 + now->tm_mon));
+  setObjProperty(date, "day", INT_VAL(now->tm_mday));
+  setObjProperty(date, "hour", INT_VAL(now->tm_hour));
+  setObjProperty(date, "minute", INT_VAL(now->tm_min));
+  setObjProperty(date, "second", INT_VAL(now->tm_sec));
+  RETURN_OBJ(date);
+}
+
 NATIVE_FUNCTION(println) {
   assertArgCount("println(message)", 1, argCount);
 
@@ -336,6 +352,7 @@ static bool numNative(int argCount, Value* args) {
 void initNatives() {
   DEF_FUNCTION(clock, 0);
   DEF_FUNCTION(dateNow, 0);
+  DEF_FUNCTION(dateTimeNow, 0);
   DEF_FUNCTION(print, 1);
   DEF_FUNCTION(println, 1);
   DEF_FUNCTION(scanln, 1);

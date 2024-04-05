@@ -144,6 +144,19 @@ void setObjProperty(ObjInstance* object, char* name, Value value) {
   tableSet(&object->fields, copyString(name, (int)strlen(name)), value);
 }
 
+bool isObjInstanceOf(Value value, ObjClass* klass) {
+  ObjClass* currentClass = getObjClass(value);
+  if (currentClass == klass) return true;
+
+  ObjClass* superClass = currentClass->superclass;
+  while (superClass != NULL) {
+    if (superClass == klass) return true;
+    superClass = superClass->superclass;
+  }
+  return false;
+}
+
+
 static void printDictionary(ObjDictionary* dictionary) {
   printf("{");
   int startIndex = 0;

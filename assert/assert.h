@@ -13,6 +13,7 @@ void assertArgIsArray(const char* method, Value* args, int index);
 void assertArgIsDictionary(const char* method, Value* args, int index);
 void assertArgIsFloat(const char* method, Value* args, int index);
 void assertArgIsInt(const char* method, Value* args, int index);
+void assertInstanceOf(const char* method, Value arg, char* className, int index);
 void assertIndexWithinRange(const char* method, int arg, int min, int max, int index);
 void assertNonNegativeNumber(const char* method, double number, int index);
 void assertPositiveNumber(const char* method, double number, int index);

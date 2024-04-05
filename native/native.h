@@ -26,5 +26,8 @@ void initNatives();
 void defineNativeFunction(const char* name, int arity, NativeFn functionion);
 void defineNativeMethod(ObjClass* klass, const char* name, int arity, NativeMethod method);
 ObjClass* defineNativeClass(const char* name);
+ObjClass* getNativeClass(const char* name);
+ObjNativeFunction* getNativeFunction(const char* name);
+ObjNativeMethod* getNativeMethod(ObjClass* klass, const char* name);
 
 #endif

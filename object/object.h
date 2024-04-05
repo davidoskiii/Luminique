@@ -156,6 +156,7 @@ void printObject(Value value);
 ObjClass* getObjClass(Value value);
 Value getObjProperty(ObjInstance* object, char* name);
 void setObjProperty(ObjInstance* object, char* name, Value value);
+bool isObjInstanceOf(Value value, ObjClass* klass);
 
 static inline bool isObjType(Value value, ObjType type) {
   return IS_OBJ(value) && AS_OBJ(value)->type == type;
