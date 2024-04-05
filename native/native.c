@@ -43,6 +43,37 @@ void defineNativeMethod(ObjClass* klass, const char* name, int arity, NativeMeth
   pop();
 }
 
+
+ObjClass* getNativeClass(const char* name) {
+  Value klass;
+  tableGet(&vm.globalValues, newString(name), &klass);
+  if (!IS_CLASS(klass)) {
+    runtimeError("Native class %s is undefined.", name);
+    exit(70);
+  }
+  return AS_CLASS(klass);
+}
+
+ObjNativeFunction* getNativeFunction(const char* name) {
+  Value function;
+  tableGet(&vm.globalValues, newString(name), &function);
+  if (!IS_NATIVE_FUNCTION(function)) {
+    runtimeError("Native function %s is undefined.", name);
+    exit(70);
+  }
+  return AS_NATIVE_FUNCTION(function);
+}
+
+ObjNativeMethod* getNativeMethod(ObjClass* klass, const char* name) {
+  Value method;
+  tableGet(&klass->methods, newString(name), &method);
+  if (!IS_NATIVE_METHOD(method)) {
+    runtimeError("Native method %s::%s is undefined.", klass->name->chars, name);
+    exit(70);
+  }
+  return AS_NATIVE_METHOD(method);
+}
+
 NATIVE_FUNCTION(clock) {
   assertArgCount("clock()", 0, argCount);
   RETURN_NUMBER((double)clock() / CLOCKS_PER_SEC);
@@ -54,6 +85,19 @@ NATIVE_FUNCTION(print) {
   printValue(args[0]);
 
   RETURN_NIL;
+}
+
+
+NATIVE_FUNCTION(dateNow) {
+  assertArgCount("dateNow()", 0, argCount);
+  time_t nowTime;
+  time(&nowTime);
+  struct tm *now = localtime(&nowTime);
+  ObjInstance* date = newInstance(getNativeClass("Date"));
+  setObjProperty(date, "year", INT_VAL(1900 + now->tm_year));
+  setObjProperty(date, "month", INT_VAL(1 + now->tm_mon));
+  setObjProperty(date, "day", INT_VAL(now->tm_mday));
+  RETURN_OBJ(date);
 }
 
 NATIVE_FUNCTION(println) {
@@ -291,6 +335,7 @@ static bool numNative(int argCount, Value* args) {
 
 void initNatives() {
   DEF_FUNCTION(clock, 0);
+  DEF_FUNCTION(dateNow, 0);
   DEF_FUNCTION(print, 1);
   DEF_FUNCTION(println, 1);
   DEF_FUNCTION(scanln, 1);

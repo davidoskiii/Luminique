@@ -7,6 +7,7 @@
 #include "../memory/memory.h"
 #include "../table/table.h"
 #include "../value/value.h"
+#include "../string/string.h"
 #include "../vm/vm.h"
 
 #define ALLOCATE_OBJ(type, objectType, objectClass) (type*)allocateObject(sizeof(type), objectType, objectClass)
@@ -131,6 +132,16 @@ static void printArray(ObjArray* array) {
     if (i < array->elements.count - 1) printf(", ");
   }
   printf("]");
+}
+
+Value getObjProperty(ObjInstance* object, char* name) {
+  Value value;
+  tableGet(&object->fields, copyString(name, (int)strlen(name)), &value);
+  return value;
+}
+
+void setObjProperty(ObjInstance* object, char* name, Value value) {
+  tableSet(&object->fields, copyString(name, (int)strlen(name)), value);
 }
 
 static void printDictionary(ObjDictionary* dictionary) {

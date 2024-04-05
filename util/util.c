@@ -1,15 +1,26 @@
+#include <math.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
 
 #include "util.h"
+#include "../pcg/pcg.h"
 #include "../assert/assert.h"
 #include "../native/native.h"
 #include "../object/object.h"
 #include "../string/string.h"
 #include "../value/value.h"
 #include "../vm/vm.h"
+
+static struct tm dateToTm(int year, int month, int day) {
+	struct tm cDate = { 
+		.tm_year = year - 1900,
+		.tm_mon = month - 1,
+		.tm_mday = day
+	};
+	return cDate;
+}
 
 static ObjString* dictionaryToString(ObjDictionary* dictionary) {
 	if (dictionary->table.count == 0) return copyString("{}", 2);
@@ -260,6 +271,82 @@ NATIVE_METHOD(Array, toString) {
 	RETURN_OBJ(arrayToString(AS_ARRAY(receiver)));
 }
 
+// DATE 
+
+NATIVE_METHOD(Date, __init__) {
+	assertArgCount("Date::__init__(day, month, year)", 3, argCount);
+	assertArgIsInt("Date::__init__(day, month, year)", args, 0);
+	assertArgIsInt("Date::__init__(day, month, year)", args, 1);
+	assertArgIsInt("Date::__init__(day, month, year)", args, 2);
+
+	ObjInstance* self = AS_INSTANCE(receiver);
+	setObjProperty(self, "day", args[0]);
+	setObjProperty(self, "month", args[1]);
+	setObjProperty(self, "year", args[2]);
+	return receiver;
+}
+
+NATIVE_METHOD(Date, toString) {
+	assertArgCount("Date::toString()", 0, argCount);
+	ObjInstance* self = AS_INSTANCE(receiver);
+	Value year = getObjProperty(self, "year");
+	Value month = getObjProperty(self, "month");
+	Value day = getObjProperty(self, "day");
+	RETURN_STRING_FMT("%02d/%02d/%d", AS_INT(day), AS_INT(month), AS_INT(year));
+}
+
+// RANDOM
+
+NATIVE_METHOD(Random, getSeed) {
+	assertArgCount("Random::getSeed()", 0, argCount);
+	Value seed = getObjProperty(AS_INSTANCE(receiver), "seed");
+	RETURN_VAL(seed);
+}
+
+NATIVE_METHOD(Random, __init__) {
+	assertArgCount("Random::__init__()", 0, argCount);
+	ObjInstance* self = AS_INSTANCE(receiver);
+	uint64_t seed = (uint64_t)time(NULL);
+	pcg32_seed(seed);
+	setObjProperty(self, "seed", INT_VAL(abs((int)seed)));
+	return receiver;
+}
+
+NATIVE_METHOD(Random, nextBool) {
+	assertArgCount("Random::nextBool()", 0, argCount);
+	bool value = pcg32_random_bool();
+	RETURN_BOOL(value);
+}
+
+NATIVE_METHOD(Random, nextFloat) {
+	assertArgCount("Random::nextFloat()", 0, argCount);
+	double value = pcg32_random_double();
+	RETURN_NUMBER(value);
+}
+
+NATIVE_METHOD(Random, nextInt) {
+	assertArgCount("Random::nextInt()", 0, argCount);
+	uint32_t value = pcg32_random_int();
+	RETURN_INT((int)value);
+}
+
+NATIVE_METHOD(Random, nextIntBounded) {
+	assertArgCount("Random::nextIntBounded(bound)", 1, argCount);
+	assertArgIsInt("Random::nextIntBounded(bound)", args, 0);
+	assertNonNegativeNumber("Random::nextIntBounded(bound)", AS_NUMBER(args[0]), 0);
+	uint32_t value = pcg32_random_int_bounded((uint32_t)AS_INT(args[0]));
+	RETURN_INT((int)value);
+}
+
+NATIVE_METHOD(Random, setSeed) {
+	assertArgCount("Random::setSeed(seed)", 1, argCount);
+	assertArgIsInt("Random::setSeed(seed)", args, 0);
+	assertNonNegativeNumber("Random::setSeed(seed)", AS_NUMBER(args[0]), 0);
+	pcg32_seed((uint64_t)AS_INT(args[0]));
+	setObjProperty(AS_INSTANCE(receiver), "seed", args[0]);
+	RETURN_NIL;
+}
+
 // DICTIONARY
 
 NATIVE_METHOD(Dictionary, __init__) {
@@ -378,4 +465,20 @@ void registerUtilPackage() {
 	DEF_METHOD(vm.dictionaryClass, Dictionary, putAll, 1);
 	DEF_METHOD(vm.dictionaryClass, Dictionary, removeAt, 1);
 	DEF_METHOD(vm.dictionaryClass, Dictionary, toString, 0);
+
+
+	ObjClass* randomClass = defineNativeClass("Random");
+	bindSuperclass(randomClass, vm.objectClass);
+	DEF_METHOD(randomClass, Random, getSeed, 0);
+	DEF_METHOD(randomClass, Random, __init__, 0);
+	DEF_METHOD(randomClass, Random, nextBool, 0);
+	DEF_METHOD(randomClass, Random, nextFloat, 0);
+	DEF_METHOD(randomClass, Random, nextInt, 0);
+	DEF_METHOD(randomClass, Random, nextIntBounded, 1);
+	DEF_METHOD(randomClass, Random, setSeed, 1);
+
+	ObjClass* dateClass = defineNativeClass("Date");
+	bindSuperclass(dateClass, vm.objectClass);
+	DEF_METHOD(dateClass, Date, __init__, 3);
+	DEF_METHOD(dateClass, Date, toString, 0);
 }

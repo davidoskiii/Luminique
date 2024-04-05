@@ -1,0 +1,11 @@
+let now = dateNow();
+
+println("Today is the ${now}.");
+
+now.day = now.day + 1;
+
+println("Tomorrow is going to be the ${now}.");
+
+let birthday = Date(7, 8, 2010);
+
+println("I was born on the ${birthday}.");
