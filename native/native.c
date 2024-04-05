@@ -87,32 +87,32 @@ NATIVE_FUNCTION(print) {
   RETURN_NIL;
 }
 
-
 NATIVE_FUNCTION(dateNow) {
   assertArgCount("dateNow()", 0, argCount);
   time_t nowTime;
   time(&nowTime);
-  struct tm *now = localtime(&nowTime);
+  struct tm now;
+  localtime_r(&nowTime, &now);
   ObjInstance* date = newInstance(getNativeClass("Date"));
-  setObjProperty(date, "year", INT_VAL(1900 + now->tm_year));
-  setObjProperty(date, "month", INT_VAL(1 + now->tm_mon));
-  setObjProperty(date, "day", INT_VAL(now->tm_mday));
+  setObjProperty(date, "year", INT_VAL(1900 + now.tm_year));
+  setObjProperty(date, "month", INT_VAL(1 + now.tm_mon));
+  setObjProperty(date, "day", INT_VAL(now.tm_mday));
   RETURN_OBJ(date);
 }
-
 
 NATIVE_FUNCTION(dateTimeNow) {
   assertArgCount("dateTimeNow()", 0, argCount);
   time_t nowTime;
   time(&nowTime);
-  struct tm* now = localtime(&nowTime);
+  struct tm now;
+  localtime_r(&nowTime, &now);
   ObjInstance* date = newInstance(getNativeClass("DateTime"));
-  setObjProperty(date, "year", INT_VAL(1900 + now->tm_year));
-  setObjProperty(date, "month", INT_VAL(1 + now->tm_mon));
-  setObjProperty(date, "day", INT_VAL(now->tm_mday));
-  setObjProperty(date, "hour", INT_VAL(now->tm_hour));
-  setObjProperty(date, "minute", INT_VAL(now->tm_min));
-  setObjProperty(date, "second", INT_VAL(now->tm_sec));
+  setObjProperty(date, "year", INT_VAL(1900 + now.tm_year));
+  setObjProperty(date, "month", INT_VAL(1 + now.tm_mon));
+  setObjProperty(date, "day", INT_VAL(now.tm_mday));
+  setObjProperty(date, "hour", INT_VAL(now.tm_hour));
+  setObjProperty(date, "minute", INT_VAL(now.tm_min));
+  setObjProperty(date, "second", INT_VAL(now.tm_sec));
   RETURN_OBJ(date);
 }
 

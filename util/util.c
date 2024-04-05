@@ -61,6 +61,31 @@ static double dateTimeObjGetTimestamp(ObjInstance* dateTime) {
 	return dateTimeGetTimestamp(AS_INT(year), AS_INT(month), AS_INT(day), AS_INT(hour), AS_INT(minute), AS_INT(second));
 }
 
+static ObjInstance* dateObjFromTimestamp(ObjClass* dateClass, double timeValue) {
+  time_t timestamp = (time_t)timeValue;
+  struct tm time;
+  localtime_r(&timestamp, &time);
+  ObjInstance* date = newInstance(dateClass);
+  setObjProperty(date, "year", INT_VAL(1900 + time.tm_year));
+  setObjProperty(date, "month", INT_VAL(1 + time.tm_mon));
+  setObjProperty(date, "day", INT_VAL(time.tm_mday));
+  return date;
+}
+
+static ObjInstance* dateTimeObjFromTimestamp(ObjClass* dateTimeClass, double timeValue) {
+  time_t timestamp = (time_t)timeValue;
+  struct tm time;
+  localtime_r(&timestamp, &time);
+  ObjInstance* dateTime = newInstance(dateTimeClass);
+  setObjProperty(dateTime, "year", INT_VAL(1900 + time.tm_year));
+  setObjProperty(dateTime, "month", INT_VAL(1 + time.tm_mon));
+  setObjProperty(dateTime, "day", INT_VAL(time.tm_mday));
+  setObjProperty(dateTime, "hour", INT_VAL(time.tm_hour));
+  setObjProperty(dateTime, "minute", INT_VAL(time.tm_min));
+  setObjProperty(dateTime, "second", INT_VAL(time.tm_sec));
+  return dateTime;
+}
+
 static void duration__init__(int* duration, Value* args) {
 	int days = AS_INT(args[0]);
 	int hours = AS_INT(args[1]);
@@ -360,6 +385,24 @@ NATIVE_METHOD(Date, __init__) {
 	return receiver;
 }
 
+NATIVE_METHOD(Date, minus) {
+  assertArgCount("Date::minus(duration)", 1, argCount);
+  assertInstanceOf("Date::minus(duration)", args[0], "Duration", 0);
+  ObjInstance* self = AS_INSTANCE(receiver);
+  double timestamp = dateObjGetTimestamp(self) - durationTotalSeconds(AS_INSTANCE(args[0]));
+  ObjInstance* date = dateObjFromTimestamp(self->obj.klass, timestamp);
+  RETURN_OBJ(date);
+}
+
+NATIVE_METHOD(Date, plus) {
+  assertArgCount("Date::plus(duration)", 1, argCount);
+  assertInstanceOf("Date::plus(duration)", args[0], "Duration", 0);
+  ObjInstance* self = AS_INSTANCE(receiver);
+  double timestamp = dateObjGetTimestamp(self) + durationTotalSeconds(AS_INSTANCE(args[0]));
+  ObjInstance* date = dateObjFromTimestamp(self->obj.klass, timestamp);
+  RETURN_OBJ(date);
+}
+
 NATIVE_METHOD(Date, toString) {
 	assertArgCount("Date::toString()", 0, argCount);
 	ObjInstance* self = AS_INSTANCE(receiver);
@@ -484,6 +527,25 @@ NATIVE_METHOD(DateTime, __init__) {
 	return receiver;
 }
 
+
+NATIVE_METHOD(DateTime, minus) {
+  assertArgCount("DateTime::minus(duration)", 1, argCount);
+  assertInstanceOf("DateTime::minus(duration)", args[0], "Duration", 0);
+  ObjInstance* self = AS_INSTANCE(receiver);
+  double timestamp = dateTimeObjGetTimestamp(self) - durationTotalSeconds(AS_INSTANCE(args[0]));
+  ObjInstance* dateTime = dateTimeObjFromTimestamp(self->obj.klass, timestamp);
+  RETURN_OBJ(dateTime);
+}
+
+NATIVE_METHOD(DateTime, plus) {
+  assertArgCount("DateTime::plus(duration)", 1, argCount);
+  assertInstanceOf("DateTime::plus(duration)", args[0], "Duration", 0);
+  ObjInstance* self = AS_INSTANCE(receiver);
+  double timestamp = dateTimeObjGetTimestamp(self) + durationTotalSeconds(AS_INSTANCE(args[0]));
+  ObjInstance* dateTime = dateTimeObjFromTimestamp(self->obj.klass, timestamp);
+  RETURN_OBJ(dateTime);
+}
+
 NATIVE_METHOD(DateTime, after) {
 	assertArgCount("DateTime::after(date)", 1, argCount);
 	assertInstanceOf("DateTime::after(date)", args[0], "DateTime", 0);
@@ -544,10 +606,10 @@ NATIVE_METHOD(Duration, __init__) {
 	assertArgIsInt("Duration::__init__(days, hours, minutes, seconds)", args, 2);
 	assertArgIsInt("Duration::__init__(days, hours, minutes, seconds)", args, 3);
 
-	assertNonNegativeNumber("Duration::__init__(days, hours, minutes, seconds)", AS_NUMBER(args[0]), 1);
-	assertNonNegativeNumber("Duration::__init__(days, hours, minutes, seconds)", AS_NUMBER(args[1]), 2);
-	assertNonNegativeNumber("Duration::__init__(days, hours, minutes, seconds)", AS_NUMBER(args[2]), 3);
-	assertNonNegativeNumber("Duration::__init__(days, hours, minutes, seconds)", AS_NUMBER(args[3]), 4);
+	assertNonNegativeNumber("Duration::__init__(days, hours, minutes, seconds)", AS_NUMBER(args[0]), 0);
+	assertNonNegativeNumber("Duration::__init__(days, hours, minutes, seconds)", AS_NUMBER(args[1]), 1);
+	assertNonNegativeNumber("Duration::__init__(days, hours, minutes, seconds)", AS_NUMBER(args[2]), 2);
+	assertNonNegativeNumber("Duration::__init__(days, hours, minutes, seconds)", AS_NUMBER(args[3]), 3);
 
 	ObjInstance* self = AS_INSTANCE(receiver);
 	int duration[4];
@@ -711,6 +773,8 @@ void registerUtilPackage() {
 	DEF_METHOD(dateClass, Date, before, 1);
 	DEF_METHOD(dateClass, Date, diff, 1);
 	DEF_METHOD(dateClass, Date, getTimestamp, 0);
+	DEF_METHOD(dateClass, Date, minus, 1);
+	DEF_METHOD(dateClass, Date, plus, 1);
 	DEF_METHOD(dateClass, Date, toDateTime, 0);
 	DEF_METHOD(dateClass, Date, toString, 0);
 
@@ -721,6 +785,8 @@ void registerUtilPackage() {
 	DEF_METHOD(dateTimeClass, DateTime, before, 1);
 	DEF_METHOD(dateTimeClass, DateTime, diff, 1);
 	DEF_METHOD(dateTimeClass, DateTime, getTimestamp, 0);
+	DEF_METHOD(dateTimeClass, DateTime, minus, 1);
+	DEF_METHOD(dateTimeClass, DateTime, plus, 1);
 	DEF_METHOD(dateTimeClass, DateTime, toDate, 0);
 	DEF_METHOD(dateTimeClass, DateTime, toString, 0);
 

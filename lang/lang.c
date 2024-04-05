@@ -722,6 +722,12 @@ void registerLangPackage(){
   DEF_METHOD(vm.stringClass, String, toUppercase, 0);
   DEF_METHOD(vm.stringClass, String, trim, 0);
 
+  for (int i = 0; i < vm.strings.capacity; i++) {
+    Entry* entry = &vm.strings.entries[i];
+    if (entry->key == NULL) continue;
+    entry->key->obj.klass = vm.stringClass;
+  }
+
   vm.functionClass = defineNativeClass("Function");
   bindSuperclass(vm.functionClass, vm.objectClass);
   DEF_METHOD(vm.functionClass, Function, __init__, 0);
