@@ -1,0 +1,8 @@
+let regex = Regex("\\b[A-Za-z0-9._%-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,4}\\b");
+println("Creating regular expression pattern for email: ${regex}");
+
+let text = "regex.in.luminique@compiler.com and test@domain.com";
+println("Creating text: ${text}");
+println("Text matches email pattern: ${regex.match(text)}");
+
+println("Replace regular expression pattern: ${regex.replace(text, "this is an email")}");

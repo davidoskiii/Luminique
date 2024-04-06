@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
+#include <regex.h>
 
 #include "util.h"
 #include "../pcg/pcg.h"
@@ -12,6 +13,31 @@
 #include "../string/string.h"
 #include "../value/value.h"
 #include "../vm/vm.h"
+
+#define MAX_MATCHES 1
+
+char *substr(const char *str, int start, int end) {
+  int len = end - start;
+  char *substr = malloc(len + 1);
+  if (!substr) {
+    return NULL;
+  }
+  strncpy(substr, str + start, len);
+  substr[len] = '\0';
+  return substr;
+}
+
+char *concat(const char *s1, const char *s2) {
+  size_t len1 = strlen(s1);
+  size_t len2 = strlen(s2);
+  char *result = malloc(len1 + len2 + 1);
+  if (!result) {
+    return NULL;
+  }
+  strcpy(result, s1);
+  strcat(result, s2);
+  return result;
+}
 
 static struct tm dateToTm(int year, int month, int day) {
 	struct tm cDate = { 
@@ -284,7 +310,7 @@ NATIVE_METHOD(Array, getAt) {
 	assertArgIsInt("Array::getAt(index)", args, 0);
 	ObjArray* self = AS_ARRAY(receiver);
 	int index = AS_INT(args[0]);
-	assertIndexWithinRange("Array::getAt(index)", index, 0, self->elements.count - 1, 0);
+	assertNumberWithinRange("Array::getAt(index)", index, 0, self->elements.count - 1, 0);
 	RETURN_VAL(self->elements.values[index]);
 }
 
@@ -305,7 +331,7 @@ NATIVE_METHOD(Array, insertAt) {
 	assertArgIsInt("Array::insertAt(index, element)", args, 0);
 	ObjArray* self = AS_ARRAY(receiver);
 	int index = AS_INT(args[0]);
-	assertIndexWithinRange("Array::insertAt(index)", index, 0, self->elements.count, 0);
+	assertNumberWithinRange("Array::insertAt(index)", index, 0, self->elements.count, 0);
 	arrayInsertAt(self, index, args[1]);
 	RETURN_VAL(args[1]);
 }
@@ -336,7 +362,7 @@ NATIVE_METHOD(Array, putAt) {
 	assertArgIsInt("Array::putAt(index, element)", args, 0);
 	ObjArray* self = AS_ARRAY(receiver);
 	int index = AS_INT(args[0]);
-	assertIndexWithinRange("Array::putAt(index)", index, 0, self->elements.count, 0);
+	assertNumberWithinRange("Array::putAt(index)", index, 0, self->elements.count, 0);
 	self->elements.values[index] = args[1];
 	if (index == self->elements.count) self->elements.count++;
 	return receiver;
@@ -347,7 +373,7 @@ NATIVE_METHOD(Array, removeAt) {
 	assertArgIsInt("Array::removeAt(index)", args, 0);
 	ObjArray* self = AS_ARRAY(receiver);
 	int index = AS_INT(args[0]);
-	assertIndexWithinRange("Array::removeAt(index)", AS_INT(args[0]), 0, self->elements.count - 1, 0);
+	assertNumberWithinRange("Array::removeAt(index)", AS_INT(args[0]), 0, self->elements.count - 1, 0);
 	Value element = arrayRemoveAt(self, index);
 	RETURN_VAL(element);
 }
@@ -360,8 +386,8 @@ NATIVE_METHOD(Array, subArray) {
 	int fromIndex = AS_INT(args[0]);
 	int toIndex = AS_INT(args[1]);
 
-	assertIndexWithinRange("Array::subArray(from, to)", fromIndex, 0, self->elements.count, 0);
-	assertIndexWithinRange("Array::subArray(from, to", toIndex, fromIndex, self->elements.count, 1);
+	assertNumberWithinRange("Array::subArray(from, to)", fromIndex, 0, self->elements.count, 0);
+	assertNumberWithinRange("Array::subArray(from, to", toIndex, fromIndex, self->elements.count, 1);
 	RETURN_OBJ(copyArray(self->elements, fromIndex, toIndex));
 }
 
@@ -387,7 +413,7 @@ NATIVE_METHOD(Date, __init__) {
 
 NATIVE_METHOD(Date, minus) {
   assertArgCount("Date::minus(duration)", 1, argCount);
-  assertInstanceOf("Date::minus(duration)", args[0], "Duration", 0);
+  assertObjInstanceOfClass("Date::minus(duration)", args[0], "Duration", 0);
   ObjInstance* self = AS_INSTANCE(receiver);
   double timestamp = dateObjGetTimestamp(self) - durationTotalSeconds(AS_INSTANCE(args[0]));
   ObjInstance* date = dateObjFromTimestamp(self->obj.klass, timestamp);
@@ -396,7 +422,7 @@ NATIVE_METHOD(Date, minus) {
 
 NATIVE_METHOD(Date, plus) {
   assertArgCount("Date::plus(duration)", 1, argCount);
-  assertInstanceOf("Date::plus(duration)", args[0], "Duration", 0);
+  assertObjInstanceOfClass("Date::plus(duration)", args[0], "Duration", 0);
   ObjInstance* self = AS_INSTANCE(receiver);
   double timestamp = dateObjGetTimestamp(self) + durationTotalSeconds(AS_INSTANCE(args[0]));
   ObjInstance* date = dateObjFromTimestamp(self->obj.klass, timestamp);
@@ -427,7 +453,7 @@ NATIVE_METHOD(Date, toDateTime) {
 
 NATIVE_METHOD(Date, after) {
 	assertArgCount("Date::after(date)", 1, argCount);
-	assertInstanceOf("Date::after(date)", args[0], "Date", 0);
+	assertObjInstanceOfClass("Date::after(date)", args[0], "Date", 0);
 	double timestamp = dateObjGetTimestamp(AS_INSTANCE(receiver));
 	double timestamp2 = dateObjGetTimestamp(AS_INSTANCE(args[0]));
 	RETURN_BOOL(timestamp > timestamp2);
@@ -435,7 +461,7 @@ NATIVE_METHOD(Date, after) {
 
 NATIVE_METHOD(Date, before) {
 	assertArgCount("Date::before(date)", 1, argCount);
-	assertInstanceOf("Date::before(date)", args[0], "Date", 0);
+	assertObjInstanceOfClass("Date::before(date)", args[0], "Date", 0);
 	double timestamp = dateObjGetTimestamp(AS_INSTANCE(receiver));
 	double timestamp2 = dateObjGetTimestamp(AS_INSTANCE(args[0]));
 	RETURN_BOOL(timestamp < timestamp2);
@@ -443,7 +469,7 @@ NATIVE_METHOD(Date, before) {
 
 NATIVE_METHOD(Date, diff) {
 	assertArgCount("Date::diff(date)", 1, argCount);
-	assertInstanceOf("Date::diff(date)", args[0], "Date", 0);
+	assertObjInstanceOfClass("Date::diff(date)", args[0], "Date", 0);
 	double timestamp = dateObjGetTimestamp(AS_INSTANCE(receiver));
 	double timestamp2 = dateObjGetTimestamp(AS_INSTANCE(args[0]));
 	RETURN_NUMBER(timestamp - timestamp2);
@@ -492,7 +518,7 @@ NATIVE_METHOD(Random, nextInt) {
 NATIVE_METHOD(Random, nextIntBounded) {
 	assertArgCount("Random::nextIntBounded(bound)", 1, argCount);
 	assertArgIsInt("Random::nextIntBounded(bound)", args, 0);
-	assertNonNegativeNumber("Random::nextIntBounded(bound)", AS_NUMBER(args[0]), 0);
+	assertNumberNonNegative("Random::nextIntBounded(bound)", AS_NUMBER(args[0]), 0);
 	uint32_t value = pcg32_random_int_bounded((uint32_t)AS_INT(args[0]));
 	RETURN_INT((int)value);
 }
@@ -500,7 +526,7 @@ NATIVE_METHOD(Random, nextIntBounded) {
 NATIVE_METHOD(Random, setSeed) {
 	assertArgCount("Random::setSeed(seed)", 1, argCount);
 	assertArgIsInt("Random::setSeed(seed)", args, 0);
-	assertNonNegativeNumber("Random::setSeed(seed)", AS_NUMBER(args[0]), 0);
+	assertNumberNonNegative("Random::setSeed(seed)", AS_NUMBER(args[0]), 0);
 	pcg32_seed((uint64_t)AS_INT(args[0]));
 	setObjProperty(AS_INSTANCE(receiver), "seed", args[0]);
 	RETURN_NIL;
@@ -530,7 +556,7 @@ NATIVE_METHOD(DateTime, __init__) {
 
 NATIVE_METHOD(DateTime, minus) {
   assertArgCount("DateTime::minus(duration)", 1, argCount);
-  assertInstanceOf("DateTime::minus(duration)", args[0], "Duration", 0);
+  assertObjInstanceOfClass("DateTime::minus(duration)", args[0], "Duration", 0);
   ObjInstance* self = AS_INSTANCE(receiver);
   double timestamp = dateTimeObjGetTimestamp(self) - durationTotalSeconds(AS_INSTANCE(args[0]));
   ObjInstance* dateTime = dateTimeObjFromTimestamp(self->obj.klass, timestamp);
@@ -539,7 +565,7 @@ NATIVE_METHOD(DateTime, minus) {
 
 NATIVE_METHOD(DateTime, plus) {
   assertArgCount("DateTime::plus(duration)", 1, argCount);
-  assertInstanceOf("DateTime::plus(duration)", args[0], "Duration", 0);
+  assertObjInstanceOfClass("DateTime::plus(duration)", args[0], "Duration", 0);
   ObjInstance* self = AS_INSTANCE(receiver);
   double timestamp = dateTimeObjGetTimestamp(self) + durationTotalSeconds(AS_INSTANCE(args[0]));
   ObjInstance* dateTime = dateTimeObjFromTimestamp(self->obj.klass, timestamp);
@@ -548,7 +574,7 @@ NATIVE_METHOD(DateTime, plus) {
 
 NATIVE_METHOD(DateTime, after) {
 	assertArgCount("DateTime::after(date)", 1, argCount);
-	assertInstanceOf("DateTime::after(date)", args[0], "DateTime", 0);
+	assertObjInstanceOfClass("DateTime::after(date)", args[0], "DateTime", 0);
 	double timestamp = dateTimeObjGetTimestamp(AS_INSTANCE(receiver));
 	double timestamp2 = dateTimeObjGetTimestamp(AS_INSTANCE(args[0]));
 	RETURN_BOOL(timestamp > timestamp2);
@@ -556,7 +582,7 @@ NATIVE_METHOD(DateTime, after) {
 
 NATIVE_METHOD(DateTime, before) {
 	assertArgCount("DateTime::before(date)", 1, argCount);
-	assertInstanceOf("DateTime::before(date)", args[0], "DateTime", 0);
+	assertObjInstanceOfClass("DateTime::before(date)", args[0], "DateTime", 0);
 	double timestamp = dateTimeObjGetTimestamp(AS_INSTANCE(receiver));
 	double timestamp2 = dateTimeObjGetTimestamp(AS_INSTANCE(args[0]));
 	RETURN_BOOL(timestamp < timestamp2);
@@ -564,7 +590,7 @@ NATIVE_METHOD(DateTime, before) {
 
 NATIVE_METHOD(DateTime, diff) {
 	assertArgCount("DateTime::diff(date)", 1, argCount);
-	assertInstanceOf("DateTime::diff(date)", args[0], "DateTime", 0);
+	assertObjInstanceOfClass("DateTime::diff(date)", args[0], "DateTime", 0);
 	double timestamp = dateTimeObjGetTimestamp(AS_INSTANCE(receiver));
 	double timestamp2 = dateTimeObjGetTimestamp(AS_INSTANCE(args[0]));
 	RETURN_NUMBER(timestamp - timestamp2);
@@ -606,10 +632,10 @@ NATIVE_METHOD(Duration, __init__) {
 	assertArgIsInt("Duration::__init__(days, hours, minutes, seconds)", args, 2);
 	assertArgIsInt("Duration::__init__(days, hours, minutes, seconds)", args, 3);
 
-	assertNonNegativeNumber("Duration::__init__(days, hours, minutes, seconds)", AS_NUMBER(args[0]), 0);
-	assertNonNegativeNumber("Duration::__init__(days, hours, minutes, seconds)", AS_NUMBER(args[1]), 1);
-	assertNonNegativeNumber("Duration::__init__(days, hours, minutes, seconds)", AS_NUMBER(args[2]), 2);
-	assertNonNegativeNumber("Duration::__init__(days, hours, minutes, seconds)", AS_NUMBER(args[3]), 3);
+	assertNumberNonNegative("Duration::__init__(days, hours, minutes, seconds)", AS_NUMBER(args[0]), 0);
+	assertNumberNonNegative("Duration::__init__(days, hours, minutes, seconds)", AS_NUMBER(args[1]), 1);
+	assertNumberNonNegative("Duration::__init__(days, hours, minutes, seconds)", AS_NUMBER(args[2]), 2);
+	assertNumberNonNegative("Duration::__init__(days, hours, minutes, seconds)", AS_NUMBER(args[3]), 3);
 
 	ObjInstance* self = AS_INSTANCE(receiver);
 	int duration[4];
@@ -634,6 +660,103 @@ NATIVE_METHOD(Duration, toString) {
 	Value minutes = getObjProperty(self, "minutes");
 	Value seconds = getObjProperty(self, "seconds");
 	RETURN_STRING_FMT("%d days, %02d hours, %02d minutes, %02d seconds", AS_INT(days), AS_INT(hours), AS_INT(minutes), AS_INT(seconds));
+}
+
+// REGEX 
+
+NATIVE_METHOD(Regex, __init__) {
+	assertArgCount("Regex::__init__(pattern)", 1, argCount);
+	assertArgIsString("Regex::__init__(pattern)", args, 0);
+	ObjInstance* self = AS_INSTANCE(receiver);
+	setObjProperty(self, "pattern", args[0]);
+	RETURN_OBJ(self);
+}
+
+NATIVE_METHOD(Regex, match) {
+  assertArgCount("Regex::match(string)", 1, argCount);
+  assertArgIsString("Regex::match(string)", args, 0);
+  Value pattern = getObjProperty(AS_INSTANCE(receiver), "pattern");
+  int length;
+  regex_t regex;
+  regmatch_t matches[MAX_MATCHES];
+  int index;
+  const char *text = AS_CSTRING(args[0]);
+
+  int reti = regcomp(&regex, AS_CSTRING(pattern), REG_EXTENDED);
+  if (reti) {
+    regfree(&regex);
+    RETURN_FALSE;
+  }
+
+  reti = regexec(&regex, text, MAX_MATCHES, matches, 0);
+  if (!reti) {
+    index = matches[0].rm_so;
+  } else {
+    index = -1;
+  }
+
+  regfree(&regex);
+
+  RETURN_BOOL(index != -1);
+}
+
+NATIVE_METHOD(Regex, replace) {
+  assertArgCount("Regex::replace(original, replacement)", 2, argCount);
+  assertArgIsString("Regex::replace(original, replacement)", args, 0);
+  assertArgIsString("Regex::replace(original, replacement)", args, 1);
+  Value pattern = getObjProperty(AS_INSTANCE(receiver), "pattern");
+  ObjString* original = AS_STRING(args[0]);
+  ObjString* replacement = AS_STRING(args[1]);
+  regex_t regex;
+  regmatch_t matches[MAX_MATCHES];
+  const char *pattern_str = AS_CSTRING(pattern);
+  const char *original_str = original->chars;
+  char *result = NULL;
+  int new_length = 0;
+
+  int reti = regcomp(&regex, pattern_str, REG_EXTENDED);
+  if (reti) {
+    regfree(&regex);
+    RETURN_OBJ(original);
+  }
+
+  int offset = 0;
+
+  char *accumulator = strdup("");
+
+  // Iterate over all matches and replace each occurrence
+  while (regexec(&regex, original_str + offset, MAX_MATCHES, matches, 0) == 0) {
+    int start = matches[0].rm_so;
+    int end = matches[0].rm_eo;
+    int replacement_length = strlen(replacement->chars);
+
+    new_length += start + replacement_length;
+
+    char *prefix = substr(original_str, offset, offset + start);
+    accumulator = concat(accumulator, prefix);
+    free(prefix);
+
+    accumulator = concat(accumulator, replacement->chars);
+
+    offset += end;
+  }
+
+  accumulator = concat(accumulator, original_str + offset);
+
+  result = strdup(accumulator);
+  new_length = strlen(result);
+
+  free(accumulator);
+
+  regfree(&regex);
+
+  RETURN_OBJ(takeString(result, new_length));
+}
+
+NATIVE_METHOD(Regex, toString) {
+	assertArgCount("Regex::toString()", 0, argCount);
+	Value pattern = getObjProperty(AS_INSTANCE(receiver), "pattern");
+	return pattern;
 }
 
 // DICTIONARY
@@ -795,4 +918,12 @@ void registerUtilPackage() {
   DEF_METHOD(durationClass, Duration, __init__, 4);
 	DEF_METHOD(durationClass, Duration, getTotalSeconds, 0);
 	DEF_METHOD(durationClass, Duration, toString, 0);
+
+
+	ObjClass* regexClass = defineNativeClass("Regex");
+	bindSuperclass(regexClass, vm.objectClass);
+	DEF_METHOD(regexClass, Regex, __init__, 1);
+	DEF_METHOD(regexClass, Regex, match, 1);
+	DEF_METHOD(regexClass, Regex, replace, 2);
+	DEF_METHOD(regexClass, Regex, toString, 0);
 }

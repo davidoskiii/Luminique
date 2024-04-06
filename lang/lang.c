@@ -234,7 +234,7 @@ NATIVE_METHOD(Int, clone) {
 NATIVE_METHOD(Int, factorial) {
   assertArgCount("Int::factorial()", 0, argCount);
   int self = AS_INT(receiver);
-  assertPositiveNumber("Int::factorial()", self, -1);
+  assertNumberPositive("Int::factorial()", self, -1);
   RETURN_INT(factorial(self));
 }
 
@@ -353,21 +353,21 @@ NATIVE_METHOD(Number, hypot) {
 NATIVE_METHOD(Number, log) {
 	assertArgCount("Number::log()", 0, argCount);
 	double self = AS_NUMBER(receiver);
-	assertPositiveNumber("Number::log2()", self, -1);
+	assertNumberPositive("Number::log2()", self, -1);
 	RETURN_NUMBER(log(self));
 }
 
 NATIVE_METHOD(Number, log10) {
 	assertArgCount("Number::log10()", 0, argCount);
 	double self = AS_NUMBER(receiver);
-	assertPositiveNumber("Number::log10()", self, -1);
+	assertNumberPositive("Number::log10()", self, -1);
 	RETURN_NUMBER(log10(self));
 }
 
 NATIVE_METHOD(Number, log2) {
 	assertArgCount("Number::log2()", 0, argCount);
 	double self = AS_NUMBER(receiver);
-	assertPositiveNumber("Number::log2()", self, -1);
+	assertNumberPositive("Number::log2()", self, -1);
 	RETURN_NUMBER(log2(self));
 }
 
@@ -402,7 +402,7 @@ NATIVE_METHOD(Number, sin) {
 NATIVE_METHOD(Number, sqrt) {
 	assertArgCount("Number::sqrt()", 0, argCount);
 	double self = AS_NUMBER(receiver);
-	assertPositiveNumber("Number::sqrt()", self, -1);
+	assertNumberPositive("Number::sqrt()", self, -1);
 	RETURN_NUMBER(sqrt(self));
 }
 
@@ -527,7 +527,7 @@ NATIVE_METHOD(String, getChar) {
 
   ObjString* self = AS_STRING(receiver);
   int index = AS_INT(args[0]);
-  assertIndexWithinRange("String::getChar(index)", index, 0, self->length, 0);
+  assertNumberWithinRange("String::getChar(index)", index, 0, self->length, 0);
 
   char chars[2];
   chars[0] = self->chars[index];
