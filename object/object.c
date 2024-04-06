@@ -163,8 +163,17 @@ static void printDictionary(ObjDictionary* dictionary) {
   for (int i = 0; i < dictionary->table.capacity; i++) {
     Entry* entry = &dictionary->table.entries[i];
     if (entry->key == NULL) continue;
-    printf("%s: ", entry->key->chars);
-    printValue(entry->value);
+
+    printf("\"%s\": ", entry->key->chars);
+
+    if (IS_STRING(entry->value)) {
+      printf("\"");
+      printValue(entry->value);
+      printf("\"");
+    } else {
+      printValue(entry->value);
+    }
+
     startIndex = i + 1;
     break;
   }
@@ -172,9 +181,15 @@ static void printDictionary(ObjDictionary* dictionary) {
   for (int i = startIndex; i < dictionary->table.capacity; i++) {
     Entry* entry = &dictionary->table.entries[i];
     if (entry->key == NULL) continue;
-    printf(", %s: ", entry->key->chars);
-    printValue(entry->value);
-    printf("; ");
+    printf(", \"%s\": ", entry->key->chars);
+
+    if (IS_STRING(entry->value)) {
+      printf("\"");
+      printValue(entry->value);
+      printf("\"");
+    } else {
+      printValue(entry->value);
+    }
   }
   printf("}");
 }

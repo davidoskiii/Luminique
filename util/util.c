@@ -147,38 +147,6 @@ static double durationTotalSeconds(ObjInstance* duration) {
 	return 86400.0 * AS_INT(days) + 3600.0 * AS_INT(hours) + 60.0 * AS_INT(minutes) + AS_INT(seconds);
 }
 
-static ObjString* dictionaryToString(ObjDictionary* dictionary) {
-	if (dictionary->table.count == 0) return copyString("{}", 2);
-	else {
-		char string[UINT8_MAX] = "";
-		string[0] = '{';
-		size_t offset = 1;
-		for (int i = 0; i < dictionary->table.capacity; i++) {
-			Entry* entry = &dictionary->table.entries[i];
-			if (entry->key == NULL) continue;
-
-			ObjString* key = entry->key;
-			size_t keyLength = (size_t)key->length;
-			Value value = entry->value;
-			char* valueChars = valueToString(value);
-			size_t valueLength = strlen(valueChars);
-
-			memcpy(string + offset, key->chars, keyLength);
-			offset += keyLength;
-			memcpy(string + offset, ": ", 2);
-			offset += 2;
-			memcpy(string + offset, valueChars, valueLength);
-
-			memcpy(string + offset + valueLength, "; ", 2);
-      offset += valueLength + 2;
-		}
-
-		string[offset] = '}';
-		string[offset + 1] = '\0';
-		return copyString(string, (int)offset + 1);
-	}
-}
-
 static int arrayIndexOf(ObjArray* array, Value element) {
 	for (int i = 0; i < array->elements.count; i++) {
 		if (valuesEqual(array->elements.values[i], element)) {
@@ -838,7 +806,7 @@ NATIVE_METHOD(Dictionary, removeAt) {
 
 NATIVE_METHOD(Dictionary, toString) {
 	assertArgCount("Dictionary::toString()", 0, argCount);
-	RETURN_OBJ(dictionaryToString(AS_DICTIONARY(receiver)));
+	RETURN_OBJ(tableToString(&AS_DICTIONARY(receiver)->table));
 }
 
 void registerUtilPackage() {

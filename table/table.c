@@ -167,6 +167,7 @@ bool tableContainsValue(Table* table, Value value) {
   return false;
 }
 
+
 ObjString* tableToString(Table* table) {
   if (table->count == 0) return copyString("{}", 2);
   else {
@@ -174,45 +175,50 @@ ObjString* tableToString(Table* table) {
     string[0] = '{';
     size_t offset = 1;
     int startIndex = 0;
+
     for (int i = 0; i < table->capacity; i++) {
       Entry* entry = &table->entries[i];
       if (entry->key == NULL) continue;
+      if (startIndex == 0) startIndex = i;
+
       ObjString* key = entry->key;
       size_t keyLength = (size_t)key->length;
       Value value = entry->value;
       char* valueChars = valueToString(value);
       size_t valueLength = strlen(valueChars);
 
+      if (i > startIndex) {
+        memcpy(string + offset, ", ", 2);
+        offset += 2;
+      }
+
+      string[offset] = '\"';
+      offset++;
+     
       memcpy(string + offset, key->chars, keyLength);
+
       offset += keyLength;
+      string[offset] = '\"';
+      offset++;
+
       memcpy(string + offset, ": ", 2);
       offset += 2;
+
+      if (IS_STRING(value)) {
+        string[offset] = '\"';
+        offset++;
+      }
       memcpy(string + offset, valueChars, valueLength);
       offset += valueLength;
-      startIndex = i + 1;
-      break;
+      if (IS_STRING(value)) {
+        string[offset] = '\"';
+        offset++;
+      }
     }
 
-    for (int i = startIndex; i < table->capacity; i++) {
-      Entry* entry = &table->entries[i];
-      if (entry->key == NULL) continue;
-      ObjString* key = entry->key;
-      size_t keyLength = (size_t)key->length;
-      Value value = entry->value;
-      char* valueChars = valueToString(value);
-      size_t valueLength = strlen(valueChars);
-
-      memcpy(string + offset, ", ", 2);
-      offset += 2;
-      memcpy(string + offset, key->chars, keyLength);
-      offset += keyLength;
-      memcpy(string + offset, ": ", 2);
-      offset += 2;
-      memcpy(string + offset, valueChars, valueLength);
-      offset += valueLength;
-    }
     string[offset] = '}';
     string[offset + 1] = '\0';
     return copyString(string, (int)offset + 1);
   }
 }
+
