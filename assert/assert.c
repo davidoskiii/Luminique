@@ -25,6 +25,13 @@ void assertArgIsClass(const char* method, Value* args, int index) {
   }
 }
 
+void assertArgIsClosure(const char* method, Value* args, int index) {
+  if (!IS_CLOSURE(args[index])) {
+    runtimeError("Method %s expects argument %d to be a closure.", method, index + 1);
+    exit(70);
+  }
+}
+
 void assertArgIsDictionary(const char* method, Value* args, int index) {
   if (!IS_DICTIONARY(args[index])) {
     runtimeError("Method %s expects argument %d to be a dictionary.", method, index + 1);

@@ -10,6 +10,7 @@ void assertArgIsClass(const char* method, Value* args, int index);
 void assertArgIsDictionary(const char* method, Value* args, int index);
 void assertArgIsFloat(const char* method, Value* args, int index);
 void assertArgIsInt(const char* method, Value* args, int index);
+void assertArgIsClosure(const char* method, Value* args, int index);
 void assertArgIsArray(const char* method, Value* args, int index);
 void assertArgIsNumber(const char* method, Value* args, int index);
 void assertArgIsString(const char* method, Value* args, int index);
