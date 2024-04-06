@@ -12,7 +12,7 @@
 
 static unsigned int seed = 0;
 
-void defineNativeFunction(const char* name, int arity, NativeFn function) {
+void defineNativeFunction(const char* name, int arity, NativeFunction function) {
   ObjString* functionName = copyString(name, (int)strlen(name));
   push(OBJ_VAL(functionName));
   push(OBJ_VAL(newNativeFunction(functionName, arity, function)));

@@ -129,7 +129,7 @@ static bool makeDictionary(uint8_t entryCount) {
   return true;
 }
 
-static bool call(ObjClosure* closure, int argCount) {
+static bool callClosure(ObjClosure* closure, int argCount) {
   if (closure->function->arity > 0 && argCount != closure->function->arity) {
     runtimeError("Expected %d arguments but got %d.",
         closure->function->arity, argCount);
@@ -153,7 +153,7 @@ static bool call(ObjClosure* closure, int argCount) {
   return true;
 }
 
-static bool callNativeFunction(NativeFn function, int argCount) {
+static bool callNativeFunction(NativeFunction function, int argCount) {
   Value result = function(argCount, vm.stackTop - argCount);
   vm.stackTop -= (size_t)argCount + 1;
   push(result);
@@ -172,7 +172,7 @@ static bool callMethod(Value method, int argCount) {
     return callNativeMethod(AS_NATIVE_METHOD(method)->method, argCount);
   }
 
-  else return call(AS_CLOSURE(method), argCount);
+  else return callClosure(AS_CLOSURE(method), argCount);
 }
 
 static bool callValue(Value callee, int argCount) {
@@ -196,21 +196,11 @@ static bool callValue(Value callee, int argCount) {
         return true;
       }
       case OBJ_CLOSURE:
-        return call(AS_CLOSURE(callee), argCount);
-      case OBJ_NATIVE_FUNCTION: {
-        NativeFn native = AS_NATIVE_FUNCTION(callee)->function;
-        Value result = native(argCount, vm.stackTop - argCount);
-        vm.stackTop -= (size_t)argCount + 1;
-        push(result);
-        return true;
-      }
-      case OBJ_NATIVE_METHOD: {
-        NativeMethod method = AS_NATIVE_METHOD(callee)->method;
-        Value result = method(vm.stackTop[-argCount - 1], argCount, vm.stackTop - argCount);
-        vm.stackTop -= argCount + 1;
-        push(result);
-        return true;
-      }
+        return callClosure(AS_CLOSURE(callee), argCount);
+      case OBJ_NATIVE_FUNCTION: 
+        return callNativeFunction(AS_NATIVE_FUNCTION(callee)->function, argCount);
+      case OBJ_NATIVE_METHOD: 
+        return callNativeMethod(AS_NATIVE_METHOD(callee)->method, argCount);
       default:
         break; // Non-callable object type.
     }
@@ -770,7 +760,7 @@ InterpretResult interpret(const char* source) {
   ObjClosure* closure = newClosure(function);
   pop();
   push(OBJ_VAL(closure));
-  call(closure, 0);
+  callClosure(closure, 0);
 
   return run();
 }

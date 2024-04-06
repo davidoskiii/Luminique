@@ -100,7 +100,7 @@ ObjInstance* newInstance(ObjClass* klass) {
   return instance;
 }
 
-ObjNativeFunction* newNativeFunction(ObjString* name, int arity, NativeFn function) {
+ObjNativeFunction* newNativeFunction(ObjString* name, int arity, NativeFunction function) {
   ObjNativeFunction* nativeFunction = ALLOCATE_OBJ(ObjNativeFunction, OBJ_NATIVE_FUNCTION, vm.functionClass);
   nativeFunction->name = name;
   nativeFunction->arity = arity;

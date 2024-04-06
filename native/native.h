@@ -23,7 +23,7 @@
 
 
 void initNatives();
-void defineNativeFunction(const char* name, int arity, NativeFn functionion);
+void defineNativeFunction(const char* name, int arity, NativeFunction functionion);
 void defineNativeMethod(ObjClass* klass, const char* name, int arity, NativeMethod method);
 ObjClass* defineNativeClass(const char* name);
 ObjClass* getNativeClass(const char* name);

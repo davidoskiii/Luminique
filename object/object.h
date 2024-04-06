@@ -65,7 +65,7 @@ typedef struct {
   ObjString* name;
 } ObjFunction;
 
-typedef Value (*NativeFn)(int argCount, Value* args);
+typedef Value (*NativeFunction)(int argCount, Value* args);
 typedef Value (*NativeMethod)(Value receiver, int argCount, Value* args);
 typedef Value (*NativeInstance)(Value receiver, int argCount, Value* args);
 
@@ -73,7 +73,7 @@ typedef struct {
   Obj obj;
   ObjString* name;
   int arity;
-  NativeFn function;
+  NativeFunction function;
 } ObjNativeFunction;
 
 typedef struct {
@@ -149,7 +149,7 @@ ObjClass* newClass(ObjString* name);
 ObjClosure* newClosure(ObjFunction* function);
 ObjFunction* newFunction();
 ObjInstance* newInstance(ObjClass* klass);
-ObjNativeFunction* newNativeFunction(ObjString* name, int arity, NativeFn function);
+ObjNativeFunction* newNativeFunction(ObjString* name, int arity, NativeFunction function);
 ObjNativeMethod* newNativeMethod(ObjClass* klass, ObjString* name, int arity, NativeMethod method);
 ObjUpvalue* newUpvalue(Value* slot);
 void printObject(Value value);
