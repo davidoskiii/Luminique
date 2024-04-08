@@ -10,6 +10,8 @@
 #include "../object/object.h"
 #include "../vm/vm.h"
 
+#define MAX_BUFFER_SIZE 32
+
 static int factorial(int self) {
   int result = 1;
   for (int i = 1; i <= self; i++) {
@@ -28,6 +30,25 @@ static int gcd(int self, int other) {
 
 static int lcm(int self, int other) {
   return (self * other) / gcd(self, other);
+}
+
+char* intToBinary(int num, char* binaryString) {
+  int index = 0;
+  while (num > 0) {
+    binaryString[index++] = (num % 2) + '0';
+    num /= 2;
+  }
+  
+  binaryString[index] = '\0';
+  
+  int i, j;
+  for (i = 0, j = index - 1; i < j; i++, j--) {
+    char temp = binaryString[i];
+    binaryString[i] = binaryString[j];
+    binaryString[j] = temp;
+  }
+  
+  return binaryString;
 }
 
 // BOOL
@@ -265,6 +286,20 @@ NATIVE_METHOD(Int, toFloat) {
   RETURN_NUMBER((double)AS_INT(receiver));
 }
 
+NATIVE_METHOD(Int, toBinary) {
+  assertArgCount("Int::toBinary()", 0, argCount);
+  char buffer[MAX_BUFFER_SIZE];
+  intToBinary(AS_INT(receiver), buffer);
+  RETURN_STRING(buffer, strlen(buffer));
+}
+
+NATIVE_METHOD(Int, toHexadecimal) {
+  assertArgCount("Int::toHexadecimal()", 0, argCount);
+  char buffer[MAX_BUFFER_SIZE];
+  sprintf(buffer, "%x", AS_INT(receiver));
+  RETURN_STRING(buffer, strlen(buffer));
+}
+
 NATIVE_METHOD(Int, toString) {
   assertArgCount("Int::toString()", 0, argCount);
   RETURN_STRING_FMT("%d", AS_INT(receiver));
@@ -413,7 +448,7 @@ NATIVE_METHOD(Number, tan) {
 
 NATIVE_METHOD(Number, toInt) {
   assertArgCount("Number::toInt()", 0, argCount);
-  RETURN_INT(AS_INT(receiver));
+  RETURN_INT(AS_NUMBER(receiver));
 }
 
 NATIVE_METHOD(Number, toString) {
@@ -692,7 +727,9 @@ void registerLangPackage(){
   DEF_METHOD(vm.intClass, Int, isEven, 0);
   DEF_METHOD(vm.intClass, Int, isOdd, 0);
   DEF_METHOD(vm.intClass, Int, lcm, 1);
+  DEF_METHOD(vm.intClass, Int, toBinary, 0);
   DEF_METHOD(vm.intClass, Int, toFloat, 0);
+  DEF_METHOD(vm.intClass, Int, toHexadecimal, 0);
   DEF_METHOD(vm.intClass, Int, toString, 0);
 
   vm.floatClass = defineNativeClass("Float");

@@ -37,7 +37,7 @@ typedef struct {
 #define AS_BOOL(value)    ((value).as.boolean)
 #define AS_INT(value)     ((value).as.integer)
 #define AS_FLOAT(value)   ((value).as.float_)
-#define AS_NUMBER(value)  ((value).as.float_)
+#define AS_NUMBER(value)  (IS_INT(value) ? (value).as.integer : (value).as.float_)
 #define AS_OBJ(value)     ((value).as.obj)
 
 #define BOOL_VAL(b)       ((Value){VAL_BOOL, {.boolean = b}})
