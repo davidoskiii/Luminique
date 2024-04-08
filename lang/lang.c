@@ -464,7 +464,9 @@ NATIVE_METHOD(Object, clone) {
 	assertArgCount("Object::clone()", 0, argCount);
 	ObjInstance* thisObject = AS_INSTANCE(receiver);
   ObjInstance* thatObject = newInstance(OBJ_KLASS(receiver));
+  push(OBJ_VAL(thatObject));
 	tableAddAll(&thisObject->fields, &thatObject->fields);
+  pop();
 	RETURN_OBJ(thatObject);
 }
 
@@ -605,6 +607,7 @@ NATIVE_METHOD(String, split) {
   ObjString* delimiter = AS_STRING(args[0]);
 
   ObjArray* array = newArray();
+  push(OBJ_VAL(array));
   char* string = strdup(self->chars);
   char* next = NULL;
   char* token = strtok_r(string, delimiter->chars, &next);
@@ -613,6 +616,7 @@ NATIVE_METHOD(String, split) {
     token = strtok_r(NULL, delimiter->chars, &next);
   }
   free(string);
+  pop();
   RETURN_OBJ(array);
 }
 

@@ -92,9 +92,11 @@ static ObjInstance* dateObjFromTimestamp(ObjClass* dateClass, double timeValue) 
   struct tm time;
   localtime_r(&timestamp, &time);
   ObjInstance* date = newInstance(dateClass);
+  push(OBJ_VAL(date));
   setObjProperty(date, "year", INT_VAL(1900 + time.tm_year));
   setObjProperty(date, "month", INT_VAL(1 + time.tm_mon));
   setObjProperty(date, "day", INT_VAL(time.tm_mday));
+  pop();
   return date;
 }
 
@@ -103,12 +105,14 @@ static ObjInstance* dateTimeObjFromTimestamp(ObjClass* dateTimeClass, double tim
   struct tm time;
   localtime_r(&timestamp, &time);
   ObjInstance* dateTime = newInstance(dateTimeClass);
+  push(OBJ_VAL(dateTime));
   setObjProperty(dateTime, "year", INT_VAL(1900 + time.tm_year));
   setObjProperty(dateTime, "month", INT_VAL(1 + time.tm_mon));
   setObjProperty(dateTime, "day", INT_VAL(time.tm_mday));
   setObjProperty(dateTime, "hour", INT_VAL(time.tm_hour));
   setObjProperty(dateTime, "minute", INT_VAL(time.tm_min));
   setObjProperty(dateTime, "second", INT_VAL(time.tm_sec));
+  pop();
   return dateTime;
 }
 
@@ -410,12 +414,14 @@ NATIVE_METHOD(Date, toDateTime) {
 	assertArgCount("Date::toDateTime()", 0, argCount);
 	ObjInstance* self = AS_INSTANCE(receiver);
 	ObjInstance* dateTime = newInstance(getNativeClass("DateTime"));
+  push(OBJ_VAL(dateTime));
 	setObjProperty(dateTime, "year", getObjProperty(self, "year"));
 	setObjProperty(dateTime, "month", getObjProperty(self, "month"));
 	setObjProperty(dateTime, "day", getObjProperty(self, "day"));
 	setObjProperty(dateTime, "hour", INT_VAL(0));
 	setObjProperty(dateTime, "minute", INT_VAL(0));
 	setObjProperty(dateTime, "second", INT_VAL(0));
+  pop();
 	RETURN_OBJ(dateTime);
 }
 
@@ -573,9 +579,11 @@ NATIVE_METHOD(DateTime, toDate) {
 	assertArgCount("DateTime::toDate()", 0, argCount);
 	ObjInstance* self = AS_INSTANCE(receiver);
 	ObjInstance* date = newInstance(getNativeClass("Date"));
+  push(OBJ_VAL(date));
 	setObjProperty(date, "day", getObjProperty(self, "day"));
 	setObjProperty(date, "month", getObjProperty(self, "month"));
 	setObjProperty(date, "year", getObjProperty(self, "year"));
+  pop();
 	RETURN_OBJ(date);
 }
 
