@@ -255,7 +255,7 @@ NATIVE_METHOD(Int, clone) {
 NATIVE_METHOD(Int, factorial) {
   assertArgCount("Int::factorial()", 0, argCount);
   int self = AS_INT(receiver);
-  assertNumberPositive("Int::factorial()", self, -1);
+  assertNumberNonNegative("Int::factorial()", self, -1);
   RETURN_INT(factorial(self));
 }
 
@@ -331,32 +331,32 @@ NATIVE_METHOD(Number, __init__) {
 
 NATIVE_METHOD(Number, abs) {
 	assertArgCount("Number::abs()", 0, argCount);
-	RETURN_NUMBER(fabs(AS_NUMBER(receiver)));
+	RETURN_NUMBER(fabs(AS_NUMBER_LANG(receiver)));
 }
 
 NATIVE_METHOD(Number, arccos) {
   assertArgCount("Number::acos()", 0, argCount);
-  RETURN_NUMBER(acos(AS_NUMBER(receiver)));
+  RETURN_NUMBER(acos(AS_NUMBER_LANG(receiver)));
 }
 
 NATIVE_METHOD(Number, arcsin) {
   assertArgCount("Number::asin()", 0, argCount);
-  RETURN_NUMBER(asin(AS_NUMBER(receiver)));
+  RETURN_NUMBER(asin(AS_NUMBER_LANG(receiver)));
 }
 
 NATIVE_METHOD(Number, arctan) {
   assertArgCount("Number::atan()", 0, argCount);
-  RETURN_NUMBER(atan(AS_NUMBER(receiver)));
+  RETURN_NUMBER(atan(AS_NUMBER_LANG(receiver)));
 }
 
 NATIVE_METHOD(Number, cbrt) {
 	assertArgCount("Number::cbrt()", 0, argCount);
-	RETURN_NUMBER(cbrt(AS_NUMBER(receiver)));
+	RETURN_NUMBER(cbrt(AS_NUMBER_LANG(receiver)));
 }
 
 NATIVE_METHOD(Number, ceil) {
 	assertArgCount("Number::ceil()", 0, argCount);
-	RETURN_NUMBER(ceil(AS_NUMBER(receiver)));
+	RETURN_NUMBER(ceil(AS_NUMBER_LANG(receiver)));
 }
 
 NATIVE_METHOD(Number, clone) {
@@ -366,42 +366,42 @@ NATIVE_METHOD(Number, clone) {
 
 NATIVE_METHOD(Number, cos) {
   assertArgCount("Number::cos()", 0, argCount);
-  RETURN_NUMBER(cos(AS_NUMBER(receiver)));
+  RETURN_NUMBER(cos(AS_NUMBER_LANG(receiver)));
 }
 
 NATIVE_METHOD(Number, exp) {
 	assertArgCount("Number::exp()", 0, argCount);
-	RETURN_NUMBER(exp(AS_NUMBER(receiver)));
+	RETURN_NUMBER(exp(AS_NUMBER_LANG(receiver)));
 }
 
 NATIVE_METHOD(Number, floor) {
 	assertArgCount("Number::floor()", 0, argCount);
-	RETURN_NUMBER(floor(AS_NUMBER(receiver)));
+	RETURN_NUMBER(floor(AS_NUMBER_LANG(receiver)));
 }
 
 NATIVE_METHOD(Number, hypot) {
   assertArgCount("Number::hypot(other)", 1, argCount);
   assertArgIsNumber("Number::hypot(other)", args, 0);
-  RETURN_NUMBER(hypot(AS_NUMBER(receiver), AS_NUMBER(args[0])));
+  RETURN_NUMBER(hypot(AS_NUMBER_LANG(receiver), AS_NUMBER_LANG(args[0])));
 }
 
 NATIVE_METHOD(Number, log) {
 	assertArgCount("Number::log()", 0, argCount);
-	double self = AS_NUMBER(receiver);
+	double self = AS_NUMBER_LANG(receiver);
 	assertNumberPositive("Number::log2()", self, -1);
 	RETURN_NUMBER(log(self));
 }
 
 NATIVE_METHOD(Number, log10) {
 	assertArgCount("Number::log10()", 0, argCount);
-	double self = AS_NUMBER(receiver);
+	double self = AS_NUMBER_LANG(receiver);
 	assertNumberPositive("Number::log10()", self, -1);
 	RETURN_NUMBER(log10(self));
 }
 
 NATIVE_METHOD(Number, log2) {
 	assertArgCount("Number::log2()", 0, argCount);
-	double self = AS_NUMBER(receiver);
+	double self = AS_NUMBER_LANG(receiver);
 	assertNumberPositive("Number::log2()", self, -1);
 	RETURN_NUMBER(log2(self));
 }
@@ -409,52 +409,52 @@ NATIVE_METHOD(Number, log2) {
 NATIVE_METHOD(Number, max) {
 	assertArgCount("Number::max(other)", 1, argCount);
 	assertArgIsNumber("Number::max(other)", args, 0);
-	RETURN_NUMBER(fmax(AS_NUMBER(receiver), AS_NUMBER(args[0])));
+	RETURN_NUMBER(fmax(AS_NUMBER_LANG(receiver), AS_NUMBER_LANG(args[0])));
 }
 
 NATIVE_METHOD(Number, min) {
 	assertArgCount("Number::min(other)", 1, argCount);
 	assertArgIsNumber("Number::min(other)", args, 0);
-	RETURN_NUMBER(fmin(AS_NUMBER(receiver), AS_NUMBER(args[0])));
+	RETURN_NUMBER(fmin(AS_NUMBER_LANG(receiver), AS_NUMBER_LANG(args[0])));
 }
 
 NATIVE_METHOD(Number, pow) {
 	assertArgCount("Number::pow(exponent)", 1, argCount);
 	assertArgIsNumber("Number::pow(exponent)", args, 0);
-	RETURN_NUMBER(pow(AS_NUMBER(receiver), AS_NUMBER(args[0])));
+	RETURN_NUMBER(pow(AS_NUMBER_LANG(receiver), AS_NUMBER_LANG(args[0])));
 }
 
 NATIVE_METHOD(Number, round) {
 	assertArgCount("Number::round()", 0, argCount);
-	RETURN_NUMBER(round(AS_NUMBER(receiver)));
+	RETURN_NUMBER(round(AS_NUMBER_LANG(receiver)));
 }
 
 NATIVE_METHOD(Number, sin) {
   assertArgCount("Number::sin()", 0, argCount);
-  RETURN_NUMBER(sin(AS_NUMBER(receiver)));
+  RETURN_NUMBER(sin(AS_NUMBER_LANG(receiver)));
 }
 
 NATIVE_METHOD(Number, sqrt) {
 	assertArgCount("Number::sqrt()", 0, argCount);
-	double self = AS_NUMBER(receiver);
+	double self = AS_NUMBER_LANG(receiver);
 	assertNumberPositive("Number::sqrt()", self, -1);
 	RETURN_NUMBER(sqrt(self));
 }
 
 NATIVE_METHOD(Number, tan) {
   assertArgCount("Number::tan()", 0, argCount);
-  RETURN_NUMBER(tan(AS_NUMBER(receiver)));
+  RETURN_NUMBER(tan(AS_NUMBER_LANG(receiver)));
 }
 
 NATIVE_METHOD(Number, toInt) {
   assertArgCount("Number::toInt()", 0, argCount);
-  RETURN_INT(AS_NUMBER(receiver));
+  RETURN_INT(AS_NUMBER_LANG(receiver));
 }
 
 NATIVE_METHOD(Number, toString) {
 	assertArgCount("Number::toString()", 0, argCount);
 	char chars[24];
-	int length = snprintf(chars, 24, "%.14g", AS_NUMBER(receiver));
+	int length = snprintf(chars, 24, "%.14g", AS_NUMBER_LANG(receiver));
 	RETURN_STRING(chars, length);
 }
 
