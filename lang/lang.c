@@ -73,7 +73,7 @@ NATIVE_METHOD(Bool, toString) {
 
 NATIVE_METHOD(Exception, __init__) {
   assertArgCount("Exception::__init__(message)", 1, argCount);
-  assertArgIsString("Exception::__init__(message)", 0, argCount);
+  assertArgIsString("Exception::__init__(message)", args, 0);
   ObjInstance* exception = AS_INSTANCE(receiver);
   setObjProperty(exception, "message", args[0]);
   setObjProperty(exception, "stacktrace", NIL_VAL);

@@ -329,6 +329,36 @@ static void concatenate() {
   push(OBJ_VAL(result));
 }
 
+static ObjArray* getStackTrace() {
+  ObjArray* stackTrace = newArray();
+  push(OBJ_VAL(stackTrace));
+  for (int i = vm.frameCount - 1; i >= 0; i--) {
+    char stackTraceBuffer[UINT8_MAX];
+    CallFrame* frame = &vm.frames[i];
+    ObjFunction* function = frame->closure->function;
+    size_t instruction = frame->ip - function->chunk.code - 1;
+    uint32_t line = function->chunk.lines[instruction];
+
+    uint8_t length = snprintf(stackTraceBuffer, UINT8_MAX, "[line %d] in %s()", line, function->name == NULL ? "script" : function->name->chars);
+    ObjString* stackElement = copyString(stackTraceBuffer, length);
+    writeValueArray(&stackTrace->elements, OBJ_VAL(stackElement));
+  }
+  pop();
+  return stackTrace;
+}
+
+static void propagate() {
+  ObjInstance* exception = AS_INSTANCE(peek(0));
+  ObjString* message = AS_STRING(getObjProperty(exception, "message"));
+  fprintf(stderr, "Unhandled %s: %s\n", exception->obj.klass->name->chars, message->chars);
+  ObjArray* stackTrace = AS_ARRAY(getObjProperty(exception, "stacktrace"));
+  for (int i = 0; i < stackTrace->elements.count; i++) {
+    Value item = stackTrace->elements.values[i];
+    fprintf(stderr, "%s;\n", AS_CSTRING(item));
+  }
+  fflush(stderr);
+}
+
 static InterpretResult run() {
   CallFrame* frame = &vm.frames[vm.frameCount - 1];
 
@@ -727,6 +757,17 @@ static InterpretResult run() {
         bindSuperclass(subclass, AS_CLASS(superclass));
         pop(); // Subclass.
         break;
+      }
+      case OP_THROW: {
+        ObjArray* stackTrace = getStackTrace();
+        Value exception = peek(0);
+        if (!isObjInstanceOf(exception, vm.exceptionClass)) {
+          runtimeError("Only instances of class Exception may be thrown.");
+          return INTERPRET_RUNTIME_ERROR;
+        }
+        setObjProperty(AS_INSTANCE(exception), "stacktrace", OBJ_VAL(stackTrace));
+        propagate();
+        return INTERPRET_RUNTIME_ERROR;
       }
       case OP_RETURN: {
         Value result = pop();
