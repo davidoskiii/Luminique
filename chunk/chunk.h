@@ -50,7 +50,7 @@ typedef enum {
   OP_SUPER_INVOKE,
   OP_THROW,
   OP_TRY,
-  OP_END_TRY,
+  OP_CATCH,
   OP_INHERIT,
   OP_RETURN,
 } OpCode;

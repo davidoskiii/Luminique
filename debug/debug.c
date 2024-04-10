@@ -169,8 +169,8 @@ int disassembleInstruction(Chunk* chunk, int offset) {
       return simpleInstruction("OP_THROW", offset);
     case OP_TRY:
       return exceptionHandlerInstruction("OP_TRY", chunk, offset);
-    case OP_END_TRY:
-      return simpleInstruction("OP_END_TRY", offset);
+    case OP_CATCH:
+      return simpleInstruction("OP_CATCH", offset);
     case OP_INHERIT:
       return simpleInstruction("OP_INHERIT", offset);
     case OP_RETURN:

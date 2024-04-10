@@ -211,6 +211,11 @@ static void patchJump(int offset) {
   currentChunk()->code[offset + 1] = jump & 0xff;
 }
 
+static void patchAddress(int offset) {
+  currentChunk()->code[offset] = (currentChunk()->count >> 8) & 0xff;
+  currentChunk()->code[offset + 1] = currentChunk()->count & 0xff;
+}
+
 static void endLoop() {
   int offset = current->innermostLoopStart;
   Chunk* chunk = currentChunk();
@@ -1306,6 +1311,41 @@ static void throwStatement() {
   emitByte(OP_THROW);
 }
 
+static void tryStatement() {
+  emitByte(OP_TRY);
+  int exceptionType = currentChunk()->count;
+  emitByte(0xff);
+  int handlerAddress = currentChunk()->count;
+  emitBytes(0xff, 0xff);
+  statement();
+  emitByte(OP_CATCH);
+  int successJump = emitJump(OP_JUMP);
+
+  if (match(TOKEN_CATCH)) {
+    beginScope();
+    consume(TOKEN_LEFT_PAREN, "Expect '(' after catch");
+    consume(TOKEN_IDENTIFIER, "Expect type name to catch");
+    uint8_t name = identifierConstant(&parser.previous);
+    currentChunk()->code[exceptionType] = name;
+    patchAddress(handlerAddress);
+
+    if (check(TOKEN_IDENTIFIER)) {
+      consume(TOKEN_IDENTIFIER, "Expect identifier after exception type.");
+      addLocal(parser.previous);
+      markInitialized(false);
+      uint8_t variable = resolveLocal(current, &parser.previous);
+      emitBytes(OP_SET_LOCAL, variable);
+    }
+
+    consume(TOKEN_RIGHT_PAREN, "Expect ')' after catch statement");
+    emitByte(OP_CATCH);
+    statement();
+    endScope();
+  }
+
+  patchJump(successJump);
+}
+
 static void returnStatement() {
   if (current->type == TYPE_SCRIPT) {
     error("Can't return from top-level code.");
@@ -1402,6 +1442,8 @@ static void statement() {
     ifStatement();
   } else if (match(TOKEN_THROW)) {
     throwStatement();
+  } else if (match(TOKEN_TRY)) {
+    tryStatement();
   } else if (match(TOKEN_RETURN)) {
     returnStatement();
   } else if (match(TOKEN_WHILE)) {
