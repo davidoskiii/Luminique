@@ -4,7 +4,7 @@ println("The error message of 'exc' is: ${exc.message}.");
 
 try {
   throw exc;
-} catch (Exception e){ 
+} catch (Exception : e){ 
   println("Caught exception: ${e.message}.");
 }
 

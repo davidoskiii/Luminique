@@ -1329,6 +1329,8 @@ static void tryStatement() {
     currentChunk()->code[exceptionType] = name;
     patchAddress(handlerAddress);
 
+    consume(TOKEN_COLON, "Expect ': after name to catch");
+
     if (check(TOKEN_IDENTIFIER)) {
       consume(TOKEN_IDENTIFIER, "Expect identifier after exception type.");
       addLocal(parser.previous);
