@@ -347,14 +347,14 @@ ObjArray* getStackTrace() {
   return stackTrace;
 }
 
-static void propagate() {
+static void propagateException() {
   ObjInstance* exception = AS_INSTANCE(peek(0));
   ObjString* message = AS_STRING(getObjProperty(exception, "message"));
   fprintf(stderr, "Unhandled %s: %s\n", exception->obj.klass->name->chars, message->chars);
   ObjArray* stackTrace = AS_ARRAY(getObjProperty(exception, "stacktrace"));
   for (int i = 0; i < stackTrace->elements.count; i++) {
     Value item = stackTrace->elements.values[i];
-    fprintf(stderr, "%s;\n", AS_CSTRING(item));
+    fprintf(stderr, "%s.\n", AS_CSTRING(item));
   }
   fflush(stderr);
 }
@@ -372,7 +372,7 @@ void throwException(ObjClass* exceptionClass, const char* format, ...) {
   push(OBJ_VAL(exception));
   setObjProperty(exception, "message", OBJ_VAL(message));
   setObjProperty(exception, "stacktrace", OBJ_VAL(stacktrace));
-  propagate();
+  propagateException();
 }
 
 static InterpretResult run() {
@@ -782,7 +782,7 @@ static InterpretResult run() {
           return INTERPRET_RUNTIME_ERROR;
         }
         setObjProperty(AS_INSTANCE(exception), "stacktrace", OBJ_VAL(stackTrace));
-        propagate();
+        propagateException();
         return INTERPRET_RUNTIME_ERROR;
       }
       case OP_RETURN: {
