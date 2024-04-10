@@ -1317,9 +1317,11 @@ static void tryStatement() {
   emitByte(0xff);
   int handlerAddress = currentChunk()->count;
   emitBytes(0xff, 0xff);
+  int finallyAddress = currentChunk()->count;
+  emitBytes(0xff, 0xff);
   statement();
   emitByte(OP_CATCH);
-  int successJump = emitJump(OP_JUMP);
+  int catchJump = emitJump(OP_JUMP);
 
   if (match(TOKEN_CATCH)) {
     beginScope();
@@ -1343,9 +1345,24 @@ static void tryStatement() {
     emitByte(OP_CATCH);
     statement();
     endScope();
+  } else {
+    errorAtCurrent("Must have a catch statement following a try statement.");
   }
 
-  patchJump(successJump);
+  patchJump(catchJump);
+
+  if (match(TOKEN_FINALLY)) {
+    emitByte(OP_FALSE);
+    patchAddress(finallyAddress);
+    statement();
+
+    int finallyJump = emitJump(OP_JUMP_IF_FALSE);
+
+    emitByte(OP_POP);
+    emitByte(OP_FINALLY);
+    patchJump(finallyJump);
+    emitByte(OP_POP);
+  }
 }
 
 static void returnStatement() {
