@@ -19,11 +19,7 @@
 
 VM vm;
 
-static void resetStack() {
-  vm.stackTop = vm.stack;
-  vm.frameCount = 0;
-  vm.openUpvalues = NULL;
-
+static void resetCallFrames() {
   for (int i = 0; i < FRAMES_MAX; i++) {
     CallFrame* frame = &vm.frames[i];
     frame->closure = NULL;
@@ -31,6 +27,13 @@ static void resetStack() {
     frame->slots = NULL;
     frame->handlerCount = 0;
   }
+}
+
+static void resetStack() {
+  vm.stackTop = vm.stack;
+  vm.frameCount = 0;
+  vm.openUpvalues = NULL;
+  resetCallFrames();
 }
 
 void runtimeError(const char* format, ...) {
@@ -826,10 +829,16 @@ static InterpretResult run() {
         uint16_t handlerAddress = READ_SHORT();
         Value value;
         if (!loadGlobal(exceptionClass, &value)){
-          runtimeError("'%s' is not an instance of clox.std.lang.Exception", exceptionClass->chars);
+          runtimeError("Undefined class %s specified as exception type.", exceptionClass->chars);
           return INTERPRET_RUNTIME_ERROR;
         }
-        pushExceptionHandler(AS_CLASS(value), handlerAddress);
+
+        ObjClass* klass = AS_CLASS(value);
+        if (!isClassExtendingSuperclass(klass, vm.exceptionClass)) {
+          runtimeError("Expect subclass of clox.std.lang.Exception, but got Class %s.", exceptionClass->chars);
+          return INTERPRET_RUNTIME_ERROR;
+        }
+        pushExceptionHandler(klass, handlerAddress);
         break;
       }
       case OP_CATCH:

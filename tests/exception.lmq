@@ -8,4 +8,13 @@ try {
   println("Caught exception: ${e.message}.");
 }
 
-throw exc;
+// throw exc;
+
+class MyException : Exception {
+  function __init__(message) {
+    super.__init__(message);
+    this.message = "MyException error message is: ${message}";
+  }
+}
+
+// throw MyException("This is the error message of MyException");

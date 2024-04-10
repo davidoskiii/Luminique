@@ -157,6 +157,7 @@ ObjClass* getObjClass(Value value);
 Value getObjProperty(ObjInstance* object, char* name);
 void setObjProperty(ObjInstance* object, char* name, Value value);
 bool isObjInstanceOf(Value value, ObjClass* klass);
+bool isClassExtendingSuperclass(ObjClass* klass, ObjClass* superclass);
 
 static inline bool isObjType(Value value, ObjType type) {
   return IS_OBJ(value) && AS_OBJ(value)->type == type;

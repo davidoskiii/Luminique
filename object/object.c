@@ -144,18 +144,23 @@ void setObjProperty(ObjInstance* object, char* name, Value value) {
   tableSet(&object->fields, copyString(name, (int)strlen(name)), value);
 }
 
-bool isObjInstanceOf(Value value, ObjClass* klass) {
-  ObjClass* currentClass = getObjClass(value);
-  if (currentClass == klass) return true;
+bool isClassExtendingSuperclass(ObjClass* klass, ObjClass* superclass) {
+  if (klass == superclass) return true;
 
-  ObjClass* superClass = currentClass->superclass;
-  while (superClass != NULL) {
-    if (superClass == klass) return true;
-    superClass = superClass->superclass;
+  ObjClass* currentClass = klass->superclass;
+  while (currentClass != NULL) {
+    if (currentClass == superclass) return true;
+    currentClass = currentClass->superclass;
   }
   return false;
 }
 
+bool isObjInstanceOf(Value value, ObjClass* klass) {
+  ObjClass* currentClass = getObjClass(value);
+  if (currentClass == klass) return true;
+  if (isClassExtendingSuperclass(currentClass->superclass, klass)) return true;
+  return false;
+}
 
 static void printDictionary(ObjDictionary* dictionary) {
   printf("{");
