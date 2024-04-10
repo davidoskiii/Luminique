@@ -42,6 +42,8 @@ typedef struct {
 #define AS_OBJ(value)     ((value).as.obj)
 
 #define BOOL_VAL(b)       ((Value){VAL_BOOL, {.boolean = b}})
+#define TRUE_VAL          ((Value){VAL_BOOL, {.boolean = true}})
+#define FALSE_VAL         ((Value){VAL_BOOL, {.boolean = false}})
 #define NIL_VAL           ((Value){VAL_NIL, {.integer = 0}})
 #define INT_VAL(i)        ((Value){VAL_INT, {.integer = i}})
 #define FLOAT_VAL(f)      ((Value){VAL_FLOAT, {.float_ = f}})
