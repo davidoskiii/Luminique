@@ -329,7 +329,7 @@ static void concatenate() {
   push(OBJ_VAL(result));
 }
 
-static ObjArray* getStackTrace() {
+ObjArray* getStackTrace() {
   ObjArray* stackTrace = newArray();
   push(OBJ_VAL(stackTrace));
   for (int i = vm.frameCount - 1; i >= 0; i--) {
@@ -357,6 +357,22 @@ static void propagate() {
     fprintf(stderr, "%s;\n", AS_CSTRING(item));
   }
   fflush(stderr);
+}
+
+void throwException(ObjClass* exceptionClass, const char* format, ...) {
+  char chars[UINT8_MAX];
+  va_list args;
+  va_start(args, format);
+  int length = vsnprintf(chars, UINT8_MAX, format, args);
+  va_end(args);
+  ObjString* message = copyString(chars, length);
+
+  ObjArray* stacktrace = getStackTrace();
+  ObjInstance* exception = newInstance(exceptionClass);
+  push(OBJ_VAL(exception));
+  setObjProperty(exception, "message", OBJ_VAL(message));
+  setObjProperty(exception, "stacktrace", OBJ_VAL(stacktrace));
+  propagate();
 }
 
 static InterpretResult run() {
