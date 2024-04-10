@@ -77,6 +77,8 @@ int opCodeOffset(Chunk* chunk, int ip) {
     case OP_CALL: return 2;
     case OP_INVOKE: return 3;
     case OP_SUPER_INVOKE: return 3;
+    case OP_TRY: return 3;
+    case OP_END_TRY: return 3;
     case OP_CLOSURE: {
       int constant = (chunk->code[ip + 1] << 8) | chunk->code[ip + 2];
       ObjFunction* function = AS_FUNCTION(chunk->constants.values[constant]);
