@@ -69,6 +69,24 @@ NATIVE_METHOD(Bool, toString) {
 	else RETURN_STRING("false", 5);
 }
 
+// EXCEPTION
+
+NATIVE_METHOD(Exception, __init__) {
+  assertArgCount("Exception::__init__(message)", 1, argCount);
+  assertArgIsString("Exception::__init__(message)", 0, argCount);
+  ObjInstance* exception = AS_INSTANCE(receiver);
+  setObjProperty(exception, "message", args[0]);
+  setObjProperty(exception, "stacktrace", NIL_VAL);
+  RETURN_OBJ(exception);
+}
+
+NATIVE_METHOD(Exception, toString) {
+  assertArgCount("Exception::toString()", 0, argCount);
+  ObjInstance* self = AS_INSTANCE(receiver);
+  Value message = getObjProperty(self, "message");
+  RETURN_STRING_FMT("<Exception %s - %s>", self->obj.klass->name->chars, AS_CSTRING(message));
+}
+
 // CLASS
 
 NATIVE_METHOD(Class, __init__) {
@@ -681,6 +699,11 @@ void registerLangPackage(){
   DEF_METHOD(vm.classClass, Class, superclass, 0);
   DEF_METHOD(vm.classClass, Class, toString, 0);
   vm.objectClass->obj.klass = vm.classClass;
+
+  vm.exceptionClass = defineNativeClass("Exception");
+  bindSuperclass(vm.exceptionClass, vm.objectClass);
+  DEF_METHOD(vm.exceptionClass, Exception, __init__, 1);
+  DEF_METHOD(vm.exceptionClass, Exception, toString, 0);
 
 	vm.nilClass = defineNativeClass("Nil");
 	bindSuperclass(vm.nilClass, vm.objectClass);

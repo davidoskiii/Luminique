@@ -25,6 +25,7 @@ typedef struct {
   ObjClass* intClass;
   ObjClass* numberClass;
   ObjClass* floatClass;
+  ObjClass* exceptionClass;
   ObjClass* stringClass;
   ObjClass* arrayClass;
   ObjClass* dictionaryClass;
