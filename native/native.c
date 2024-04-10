@@ -74,6 +74,12 @@ ObjNativeMethod* getNativeMethod(ObjClass* klass, const char* name) {
   return AS_NATIVE_METHOD(method);
 }
 
+ObjClass* defineNativeException(const char* name, ObjClass* superClass) {
+  ObjClass* exceptionClass = defineNativeClass(name);
+  bindSuperclass(exceptionClass, superClass);
+  return exceptionClass;
+}
+
 NATIVE_FUNCTION(clock) {
   assertArgCount("clock()", 0, argCount);
   RETURN_NUMBER((double)clock() / CLOCKS_PER_SEC);

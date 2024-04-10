@@ -51,6 +51,7 @@ typedef enum {
   OP_THROW,
   OP_TRY,
   OP_CATCH,
+  OP_FINALLY,
   OP_INHERIT,
   OP_RETURN,
 } OpCode;

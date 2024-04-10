@@ -21,11 +21,13 @@ static int constantInstruction(const char* name, Chunk* chunk, int offset) {
 }
 
 static int exceptionHandlerInstruction(const char* name, Chunk* chunk, int offset) {
-  uint8_t type = chunk->code[offset + 1];
+  uint8_t exceptionType = chunk->code[offset + 1];
   uint16_t handlerAddress = (uint16_t)(chunk->code[offset + 2] << 8);
   handlerAddress |= chunk->code[offset + 3];
-  printf("%-16s %4d -> %d\n", name, type, handlerAddress);
-  return offset + 4;
+  uint16_t finallyAddress = (uint16_t)(chunk->code[offset + 4] << 8);
+  finallyAddress |= chunk->code[offset + 5];
+  printf("%-16s %4d -> %d, %d\n", name, exceptionType, handlerAddress, finallyAddress);
+  return offset + 6;
 }
 
 static int invokeInstruction(const char* name, Chunk* chunk, int offset) {
@@ -171,6 +173,8 @@ int disassembleInstruction(Chunk* chunk, int offset) {
       return exceptionHandlerInstruction("OP_TRY", chunk, offset);
     case OP_CATCH:
       return simpleInstruction("OP_CATCH", offset);
+    case OP_FINALLY:
+      return simpleInstruction("OP_FINALLY", offset);
     case OP_INHERIT:
       return simpleInstruction("OP_INHERIT", offset);
     case OP_RETURN:
