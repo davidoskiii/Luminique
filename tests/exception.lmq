@@ -1,0 +1,5 @@
+let exc = Exception("This is the error message");
+
+println(exc.message);
+
+throw exc;

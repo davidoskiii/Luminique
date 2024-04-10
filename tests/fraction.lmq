@@ -1,12 +1,18 @@
 class Fraction {
     function __init__(numerator, denominator) {
-        if (!numerator.instanceOf(Int) or !numerator.instanceOf(Int)) {
-            println("Numerator and Denominator must be integers.");
-            return;
-        }
-
+        this.validateNumbers(numerator, denominator);
         this.numerator = numerator;
         this.denominator = denominator;
+    }
+
+    function validateNumbers(numerator, denominator){
+        if (!numerator.instanceOf(Int) or !denominator.instanceOf(Int)){
+            throw Exception("Numerator and Denominator must be integers.");
+        }
+
+        if (denominator == 0){
+            throw Exception("Denominator of a Fraction object cannot be 0.");
+        }
     }
 
     function reduce() {
@@ -27,7 +33,7 @@ class Fraction {
         }
 
         let reduced1 = frac2.reduce();
-        let reduced2 = Fraction(this.numerator, this.denominator).reduce();
+        let reduced2 = this.reduce();
 
         if (reduced1.toString() == reduced2.toString()) {
           return true;
@@ -38,6 +44,8 @@ class Fraction {
 }
 
 println("Created class Fraction...");
+
+// let error = Fraction(3.2, 6.5);
 
 let frac = Fraction(3, 6);
 let frac2 = frac.reduce();
