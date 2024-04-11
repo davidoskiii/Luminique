@@ -152,10 +152,22 @@ NATIVE_FUNCTION(scanln) {
   }
 }
 
-void loadSourceFile(const char* filePath) {
+NATIVE_FUNCTION(require) {
+  assertArgCount("require(filePath)", 1, argCount);
+  assertArgIsString("require(filePath)", args, 0);
+  char* filePath = AS_CSTRING(args[0]);
+
+  InterpretResult result = loadSourceFile(filePath);
+  if (result == INTERPRET_COMPILE_ERROR) exit(65);
+  if (result == INTERPRET_RUNTIME_ERROR) exit(70);
+  RETURN_NIL;
+}
+
+InterpretResult loadSourceFile(const char* filePath) {
   char* source = readFile(filePath);
-  interpret(source);
+  InterpretResult result = interpret(source);
   free(source);
+  return result;
 }
 
 void initNatives() {
@@ -165,5 +177,6 @@ void initNatives() {
   DEF_FUNCTION(print, 1);
   DEF_FUNCTION(println, 1);
   DEF_FUNCTION(scanln, 1);
+  DEF_FUNCTION(require, 1);
 }
 
