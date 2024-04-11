@@ -873,6 +873,22 @@ static InterpretResult run() {
         }
         return INTERPRET_RUNTIME_ERROR;
       }
+      case OP_REQUIRE: {
+        ObjString* filePath = READ_STRING();
+        char* source = readFile(filePath->chars);
+        ObjFunction* function = compile(source);
+        free(source);
+
+        if (function == NULL) return INTERPRET_COMPILE_ERROR;
+        push(OBJ_VAL(function));
+        ObjClosure* closure = newClosure(function);
+        pop();
+
+        push(OBJ_VAL(closure));
+        callClosure(closure, 0);
+        frame = &vm.frames[vm.frameCount - 1];
+        break;
+      }
       case OP_RETURN: {
         Value result = pop();
         closeUpvalues(frame->slots);

@@ -42,16 +42,3 @@ class Fraction {
         }
     }
 }
-
-println("Created class Fraction...");
-
-// let error = Fraction(3.2, 6.5);
-
-let frac = Fraction(3, 6);
-let frac2 = frac.reduce();
-
-println(frac.toString());
-println(frac2.toString());
-println(frac == frac2);
-
-println(frac.isEqual(frac2));
