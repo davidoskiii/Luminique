@@ -54,8 +54,7 @@ char* intToBinary(int num, char* binaryString) {
 // BOOL
 
 NATIVE_METHOD(Bool, __init__) {
-	assertError("Cannot instantiate from class Bool.");
-	RETURN_NIL;
+	THROW_EXCEPTION(InstantiationError, "Cannot instantiate from class Bool.");
 }
 
 NATIVE_METHOD(Bool, clone) {
@@ -149,8 +148,7 @@ NATIVE_METHOD(Class, toString) {
 // FLOAT
 
 NATIVE_METHOD(Float, __init__) {
-  assertError("Cannot instantiate from class Float.");
-  RETURN_NIL;
+  THROW_EXCEPTION(InstantiationError, "Cannot instantiate from class Float.");
 }
 
 NATIVE_METHOD(Float, clone) {
@@ -166,8 +164,7 @@ NATIVE_METHOD(Float, toString) {
 // FUNCTION
 
 NATIVE_METHOD(Function, __init__) {
-  assertError("Cannot instantiate from class Function.");
-  RETURN_NIL;
+  THROW_EXCEPTION(InstantiationError, "Cannot instantiate from class Function.");
 }
 
 NATIVE_METHOD(Function, arity) {
@@ -217,8 +214,7 @@ NATIVE_METHOD(Function, upvalueCount) {
 
 
 NATIVE_METHOD(Method, __init__) {
-  assertError("Cannot instantiate from class Method.");
-  RETURN_NIL;
+  THROW_EXCEPTION(InstantiationError, "Cannot instantiate from class Method.");
 }
 
 NATIVE_METHOD(Method, arity) {
@@ -256,8 +252,7 @@ NATIVE_METHOD(Method, upvalueCount) {
 // INT
 
 NATIVE_METHOD(Int, __init__) {
-  assertError("Cannot instantiate from class Int.");
-  RETURN_NIL;
+  THROW_EXCEPTION(InstantiationError, "Cannot instantiate from class Int.");
 }
 
 NATIVE_METHOD(Int, abs) {
@@ -326,8 +321,7 @@ NATIVE_METHOD(Int, toString) {
 // NIL
 
 NATIVE_METHOD(Nil, __init__) {
-	assertError("Cannot instantiate from class Nil.");
-	RETURN_NIL;
+	THROW_EXCEPTION(InstantiationError, "Cannot instantiate from class Nil.");
 }
 
 NATIVE_METHOD(Nil, clone) {
@@ -343,8 +337,7 @@ NATIVE_METHOD(Nil, toString) {
 // NUMBER
 
 NATIVE_METHOD(Number, __init__) {
-	assertError("Cannot instantiate from class Number.");
-	RETURN_NIL;
+  THROW_EXCEPTION(InstantiationError, "Cannot instantiate from class Number.");
 }
 
 NATIVE_METHOD(Number, abs) {
@@ -711,6 +704,7 @@ void registerLangPackage(){
   defineNativeException("IllegalArgumentException", runtimeExceptionClass);
   defineNativeException("IndexOutOfBoundsException", runtimeExceptionClass);
   defineNativeException("UnsupportedOperationException", runtimeExceptionClass);
+  defineNativeException("InstantiationError", runtimeExceptionClass);
 
 	vm.nilClass = defineNativeClass("Nil");
 	bindSuperclass(vm.nilClass, vm.objectClass);
