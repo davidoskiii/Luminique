@@ -15,4 +15,6 @@
 #define UINT4_MAX 15
 #define UINT4_COUNT (UINT4_MAX + 1)
 
+char* readFile(const char* path);
+
 #endif
