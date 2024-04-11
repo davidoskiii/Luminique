@@ -799,6 +799,7 @@ void registerLangPackage(){
   DEF_METHOD(vm.functionClass, Function, __init__, 0);
   DEF_METHOD(vm.functionClass, Function, arity, 0);
   DEF_METHOD(vm.functionClass, Function, clone, 0);
+  DEF_METHOD(vm.functionClass, Function, isNative, 0);
   DEF_METHOD(vm.functionClass, Function, name, 0);
   DEF_METHOD(vm.functionClass, Function, toString, 0);
   DEF_METHOD(vm.functionClass, Function, upvalueCount, 0);

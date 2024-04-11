@@ -396,16 +396,6 @@ static int addLocal(Token name) {
   return current->localCount - 1;
 }
 
-static void getLocal(int slot) {
-  emitByte(OP_GET_LOCAL);
-  emitByte(slot);
-}
-
-static void setLocal(int slot) {
-  emitByte(OP_SET_LOCAL);
-  emitByte(slot);
-}
-
 static int discardLocals() {
   int i = current->localCount - 1;
   for (; i >= 0 && current->locals[i].depth > current->innermostLoopScopeDepth; i--) {
@@ -695,7 +685,6 @@ char* parseString() {
     exit(74);
   }
 
-  int i = 0;
   for (int i = 0; i < maxLength; i++, length++) {
     if (source[i] == '\\') {
       switch (source[i + 1]) {
