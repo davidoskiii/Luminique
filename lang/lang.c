@@ -705,6 +705,13 @@ void registerLangPackage(){
   DEF_METHOD(vm.exceptionClass, Exception, __init__, 1);
   DEF_METHOD(vm.exceptionClass, Exception, toString, 0);
 
+
+  ObjClass* runtimeExceptionClass = defineNativeException("RuntimeException", vm.exceptionClass);
+  defineNativeException("ArithmeticException", runtimeExceptionClass);
+  defineNativeException("IllegalArgumentException", runtimeExceptionClass);
+  defineNativeException("IndexOutOfBoundsException", runtimeExceptionClass);
+  defineNativeException("UnsupportedOperationException", runtimeExceptionClass);
+
 	vm.nilClass = defineNativeClass("Nil");
 	bindSuperclass(vm.nilClass, vm.objectClass);
 	DEF_METHOD(vm.nilClass, Nil, __init__, 0);

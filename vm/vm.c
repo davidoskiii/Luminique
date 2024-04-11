@@ -400,7 +400,7 @@ static void pushExceptionHandler(ObjClass* exceptionClass, uint16_t handlerAddre
   frame->handlerCount++;
 }
 
-void throwException(ObjClass* exceptionClass, const char* format, ...) {
+ObjInstance* throwException(ObjClass* exceptionClass, const char* format, ...) {
   char chars[UINT8_MAX];
   va_list args;
   va_start(args, format);
@@ -413,7 +413,8 @@ void throwException(ObjClass* exceptionClass, const char* format, ...) {
   push(OBJ_VAL(exception));
   setObjProperty(exception, "message", OBJ_VAL(message));
   setObjProperty(exception, "stacktrace", OBJ_VAL(stacktrace));
-  propagateException();
+  if (!propagateException()) exit(70);
+  else return exception;
 }
 
 static InterpretResult run() {
@@ -433,7 +434,9 @@ static InterpretResult run() {
     do { \
       if (!IS_NUMBER(peek(0)) || !IS_NUMBER(peek(1))) { \
         runtimeError("Operands must be numbers."); \
+        ObjClass* exceptionClass = getNativeClass("IllegalArgumentException"); \
         return INTERPRET_RUNTIME_ERROR; \
+        throwException(exceptionClass, "Operands must be numbers."); \
       } \
       double b = AS_NUMBER(pop()); \
       double a = AS_NUMBER(pop()); \
@@ -441,7 +444,6 @@ static InterpretResult run() {
     } while (false)
 
   for (;;) {
-
 #ifdef DEBUG_TRACE_EXECUTION
    printf("          ");
    for (Value* slot = vm.stack; slot < vm.stackTop; slot++) {
@@ -550,9 +552,8 @@ static InterpretResult run() {
           double a = AS_NUMBER(pop());
           push(NUMBER_VAL(a + b));
         } else {
-          runtimeError(
-              "Operands must be two numbers or two strings.");
-          return INTERPRET_RUNTIME_ERROR;
+          ObjClass* exceptionClass = getNativeClass("IllegalArgumentException");
+          throwException(exceptionClass, "Operands must be two numbers or two strings.");
         }
         break;
       }
@@ -574,7 +575,13 @@ static InterpretResult run() {
         else BINARY_OP(NUMBER_VAL, *); 
         break;
       }
-      case OP_DIVIDE:   BINARY_OP(NUMBER_VAL, /); break;
+      case OP_DIVIDE: {
+        if (IS_INT(peek(0)) && AS_INT(peek(0)) == 0) {
+          ObjClass* exceptionClass = getNativeClass("ArithmeticException");
+          throwException(exceptionClass, "Divide by 0 is illegal.");
+        } else BINARY_OP(NUMBER_VAL, /); 
+        break;
+      }
       case OP_MODULO: {
         if (!IS_NUMBER(peek(0)) || !IS_NUMBER(peek(1))) {
           runtimeError("Operands must be numbers.");
@@ -587,8 +594,8 @@ static InterpretResult run() {
       }
       case OP_POWER: {
         if (!IS_NUMBER(peek(0)) || !IS_NUMBER(peek(1))) {
-          runtimeError("Operands must be numbers.");
-          return INTERPRET_RUNTIME_ERROR;
+          ObjClass* exceptionClass = getNativeClass("IllegalArgumentException"); 
+          throwException(exceptionClass, "Operands must be numbers for power operator.");
         }
         double b = AS_NUMBER(pop());
         double a = AS_NUMBER(pop());
@@ -600,8 +607,8 @@ static InterpretResult run() {
         break;
       case OP_NEGATE:
         if (!IS_NUMBER(peek(0))) {
-          runtimeError("Operand must be a number.");
-          return INTERPRET_RUNTIME_ERROR;
+          ObjClass* exceptionClass = getNativeClass("IllegalArgumentException"); 
+          throwException(exceptionClass, "Operands must be numbers for negate operator.");
         }
 
         if(IS_INT(peek(0))) push(INT_VAL(-AS_INT(pop())));
@@ -690,42 +697,54 @@ static InterpretResult run() {
         break;
       }
       case OP_GET_SUBSCRIPT: {
-        if (IS_ARRAY(peek(0))) {
-          if (!IS_ARRAY(peek(1))) {
-            runtimeError("Only Array can have integer subscripts.");
-            return INTERPRET_RUNTIME_ERROR;
-          }
-
+        if (IS_INT(peek(0))) {
           int index = AS_INT(pop());
-          ObjArray* array = AS_ARRAY(pop());
 
-          if (index < 0 || index >= array->elements.count) {
-            runtimeError("Array index is out of bound.");
-            return INTERPRET_RUNTIME_ERROR;
+          if (IS_STRING(peek(0))) {
+            ObjString* string = AS_STRING(pop());
+            if (index < 0 || index >= string->length) {
+              ObjClass* exceptionClass = getNativeClass("IndexOutOfBoundsException");
+              throwException(exceptionClass, "String index is out of bound: %d.", index);
+            } else {
+              char chars[2] = { string->chars[index], '\0' };
+              ObjString* element = copyString(chars, 1);
+              push(OBJ_VAL(element));
+            }
+          } else if (IS_ARRAY(peek(0))) {
+            ObjArray* array = AS_ARRAY(pop());
+
+            if (index < 0 || index >= array->elements.count) {
+              ObjClass* exceptionClass = getNativeClass("IndexOutOfBoundsException");
+              throwException(exceptionClass, "Array index is out of bound: %d.", index);
+            } else {
+              Value element = array->elements.values[index];
+              push(element);
+            }
+          } else {
+            ObjClass* exceptionClass = getNativeClass("IllegalArgumentException");
+            throwException(exceptionClass, "Only String or Array can have integer subscripts.");
           }
-
-          Value element = array->elements.values[index];
-          push(element);
-
         } else if (IS_STRING(peek(0))) {
-          if (!IS_DICTIONARY(peek(1))) {
-            runtimeError("Only Dictionary can have string subscripts.");
-            return INTERPRET_RUNTIME_ERROR;
-          }
-
           ObjString* key = AS_STRING(pop());
-          ObjDictionary* dictionary = AS_DICTIONARY(pop());
-          Value value;
 
-          if (tableGet(&dictionary->table, key, &value)) {
-            push(value);
-          } else push(NIL_VAL);
+          if (!IS_DICTIONARY(peek(0))) {
+            ObjClass* exceptionClass = getNativeClass("IllegalArgumentException");
+            throwException(exceptionClass, "Only Dictionary can have string subscripts");
+          } else {
+            ObjDictionary* dictionary = AS_DICTIONARY(pop());
+            Value value;
 
+            if (tableGet(&dictionary->table, key, &value)) {
+              push(value);
+            } else {
+              ObjClass* exceptionClass = getNativeClass("IndexOutOfBoundsException");
+              throwException(exceptionClass, "Key wasn't found in Dictionary");
+            }
+          }
         } else {
-          runtimeError("Subscript must be integer or string.");
-          return INTERPRET_RUNTIME_ERROR;
+          ObjClass* exceptionClass = getNativeClass("IllegalArgumentException");
+          throwException(exceptionClass, "Subscript must be an integer or a string.");
         }
-
         break;
       }
       case OP_SET_SUBSCRIPT: {
@@ -740,16 +759,12 @@ static InterpretResult run() {
           ObjArray* array = AS_ARRAY(pop());
 
           if (index < 0 || index >= array->elements.count) {
-            runtimeError("Array index is out of bound.");
-            return INTERPRET_RUNTIME_ERROR;
+            ObjClass* exceptionClass = getNativeClass("IndexOutOfBoundsException");
+            throwException(exceptionClass, "Array index is out of bound.");
+          } else {
+            replaceValueArray(&array->elements, index, element);
+            push(OBJ_VAL(array));
           }
-
-          if (!replaceValueArray(&array->elements, index, element)) {
-            runtimeError("Array index is out of bound.");
-            return INTERPRET_RUNTIME_ERROR;
-          }
-
-          push(OBJ_VAL(array));
         } else if (IS_STRING(peek(1))) {
           if (!IS_DICTIONARY(peek(2))) {
             runtimeError("Only Dictionary can have string subscripts.");
@@ -762,8 +777,8 @@ static InterpretResult run() {
           tableSet(&dictionary->table, key, value);
           push(OBJ_VAL(dictionary));
         } else {
-          runtimeError("Subscript must be integer or string.");
-          return INTERPRET_RUNTIME_ERROR;
+          ObjClass* exceptionClass = getNativeClass("IllegalArgumentException");
+          throwException(exceptionClass, "Subscript must be a string.");
         }
         break;
       }
