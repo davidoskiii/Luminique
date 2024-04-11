@@ -874,13 +874,19 @@ static InterpretResult run() {
         return INTERPRET_RUNTIME_ERROR;
       }
       case OP_REQUIRE: {
-        ObjString* filePath = READ_STRING();
-        char* source = readFile(filePath->chars);
+        Value filePath = pop();
+        if (!IS_STRING(filePath)) {
+            runtimeError("Required file path must be a string.");
+            return INTERPRET_RUNTIME_ERROR;
+        }
+
+        char* source = readFile(AS_CSTRING(filePath));
         ObjFunction* function = compile(source);
         free(source);
 
         if (function == NULL) return INTERPRET_COMPILE_ERROR;
         push(OBJ_VAL(function));
+
         ObjClosure* closure = newClosure(function);
         pop();
 

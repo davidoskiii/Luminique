@@ -1358,14 +1358,11 @@ static void tryStatement() {
 static void requireStatement() {
   if (current->type != TYPE_SCRIPT) {
     error("Can only require source files from top-level code.");
-  } else if (!match(TOKEN_STRING)) {
-    error("Expect file path after 'require' keyword.");
   }
-
-  uint8_t sourceConstant = makeConstant(OBJ_VAL(copyString(parser.previous.start + 1, parser.previous.length - 2)));
-  emitBytes(OP_REQUIRE, sourceConstant);
-  emitByte(OP_POP);
-  consume(TOKEN_SEMICOLON, "Expect ';' after 'require' statement.");
+  
+  expression();
+  consume(TOKEN_SEMICOLON, "Expect ';' after required file path.");
+  emitByte(OP_REQUIRE);
 }
 
 static void returnStatement() {
