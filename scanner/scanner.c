@@ -177,7 +177,14 @@ static TokenType identifierType() {
       }
       break;
     case 'i': return checkKeyword(1, 1, "f", TOKEN_IF);
-    case 'l': return checkKeyword(1, 2, "et", TOKEN_VAR);
+    case 'l':
+        if (scanner.current - scanner.start > 1) {
+        switch (scanner.start[1]) {
+          case 'e': return checkKeyword(2, 1, "t", TOKEN_VAR);
+          case 'a': return checkKeyword(2, 4, "mbda", TOKEN_LAMBDA);
+        }
+      }
+      break;
     case 'n': return checkKeyword(1, 2, "il", TOKEN_NIL);
     case 'o': return checkKeyword(1, 1, "r", TOKEN_OR);
     case 'r': 
@@ -187,6 +194,7 @@ static TokenType identifierType() {
           case 't': return checkKeyword(3, 3, "urn", TOKEN_RETURN);
         }
       }
+      break;
     case 's':
         if (scanner.current - scanner.start > 1) {
         switch (scanner.start[1]) {
@@ -307,7 +315,6 @@ Token scanToken() {
     case '^': return makeToken(TOKEN_POWER);
     case ':': return makeToken(TOKEN_COLON);
     case '?': return makeToken(TOKEN_QUESTION);
-    case '|': return makeToken(TOKEN_PIPE);
 
     case '!':
       return makeToken(
@@ -332,7 +339,7 @@ Token scanToken() {
       if (match('|')) {
         return makeToken(TOKEN_OR);
       } else {
-        return errorToken("Expected '|'");
+        return makeToken(TOKEN_PIPE);
       }
 
     case '"': return string();
