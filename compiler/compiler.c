@@ -63,6 +63,7 @@ typedef enum {
   TYPE_FUNCTION,
   TYPE_INITIALIZER,
   TYPE_METHOD,
+  TYPE_LAMBDA,
   TYPE_SCRIPT
 } FunctionType;
 
@@ -253,7 +254,7 @@ static void initCompiler(Compiler* compiler, FunctionType type) {
   local->depth = 0;
   local->isCaptured = false;
   
-  if (type != TYPE_FUNCTION) {
+  if (type != TYPE_FUNCTION && type != TYPE_LAMBDA) {
     local->name.start = "this";
     local->name.length = 4;
   } else {
@@ -824,6 +825,10 @@ static void checkMutability(int arg, uint8_t opCode) {
 
 static void closure(bool canAssign) {
   function(TYPE_FUNCTION);
+}
+
+static void lambda(bool canAssign) {
+  function(TYPE_LAMBDA);
 }
 
 static void namedVariable(Token name, bool canAssign) {
