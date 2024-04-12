@@ -948,6 +948,7 @@ ParseRule rules[] = {
   [TOKEN_FALSE]         = {literal,       NULL,      PREC_NONE},
   [TOKEN_FOR]           = {NULL,          NULL,      PREC_NONE},
   [TOKEN_FUN]           = {closure,       NULL,      PREC_NONE},
+  [TOKEN_LAMBDA]        = {lambda,        NULL,      PREC_NONE},
   [TOKEN_IF]            = {NULL,          NULL,      PREC_NONE},
   [TOKEN_NIL]           = {literal,       NULL,      PREC_NONE},
   [TOKEN_OR]            = {NULL,          or_,       PREC_OR},
