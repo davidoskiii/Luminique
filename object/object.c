@@ -212,8 +212,9 @@ static void printFunction(ObjFunction* function) {
   if (function->name == NULL) {
     printf("<script>");
     return;
-  }
-  printf("<fn %s>", function->name->chars);
+  } else if (function->name->length == 0) {
+    printf("<function>");
+  } else printf("<function %s>", function->name->chars);
 }
 
 void printObject(Value value) {
@@ -221,6 +222,8 @@ void printObject(Value value) {
     case OBJ_ARRAY:
       printArray(AS_ARRAY(value));
       break;
+    case OBJ_FILE:
+      printf("<file %s>", AS_FILE(value)->name->chars);
     case OBJ_DICTIONARY: 
       printDictionary(AS_DICTIONARY(value));
       break;
@@ -240,10 +243,10 @@ void printObject(Value value) {
       printf("<object %s>", AS_OBJ(value)->klass->name->chars);
       break;
     case OBJ_NATIVE_FUNCTION:
-      printf("<native fn>");
+      printf("<native function %s>", AS_NATIVE_FUNCTION(value)->name->chars);
       break;
     case OBJ_NATIVE_METHOD:
-      printf("<native method>");
+      printf("<native method %s::%s>", AS_NATIVE_METHOD(value)->klass->name->chars, AS_NATIVE_METHOD(value)->name->chars);
       break;
     case OBJ_STRING:
       printf("%s", AS_CSTRING(value));
