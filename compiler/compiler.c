@@ -489,6 +489,7 @@ static void parameterList() {
     if (current->function->arity > 255) {
       errorAtCurrent("Can't have more than 255 parameters.");
     }
+
     if (match(TOKEN_CONST)) {
       uint8_t constant = parseVariable("Expect parameter name.");
       defineVariable(constant, false);
@@ -1020,11 +1021,7 @@ static void block() {
   consume(TOKEN_RIGHT_BRACE, "Expect '}' after block.");
 }
 
-static void function(FunctionType type) {
-  Compiler compiler;
-  initCompiler(&compiler, type);
-  beginScope(); 
-
+static void functionParameters() {
   consume(TOKEN_LEFT_PAREN, "Expect '(' after function name.");
 
   if (!check(TOKEN_RIGHT_PAREN)) {
@@ -1033,7 +1030,38 @@ static void function(FunctionType type) {
 
   consume(TOKEN_RIGHT_PAREN, "Expect ')' after parameters.");
   consume(TOKEN_LEFT_BRACE, "Expect '{' before function body.");
-  block();
+}
+
+static void lambdaParameters() {
+  consume(TOKEN_LEFT_PAREN, "Expect '(' after function name.");
+
+  if (!check(TOKEN_RIGHT_PAREN)) {
+    parameterList();
+  }
+
+  consume(TOKEN_RIGHT_PAREN, "Expect ')' after parameters.");
+  consume(TOKEN_COLON, "Expect ':' after ')'.");
+}
+
+static void function(FunctionType type) {
+  Compiler compiler;
+  initCompiler(&compiler, type);
+  beginScope(); 
+
+  if (type == TYPE_LAMBDA) {
+    lambdaParameters();
+    
+    consume(TOKEN_LEFT_PAREN, "Expect '(' after ':'.");
+
+    while (!check(TOKEN_RIGHT_PAREN) && !check(TOKEN_EOF)) {
+      declaration();
+    }
+
+    consume(TOKEN_RIGHT_PAREN, "Expect ')' after lambda body.");
+  } else {
+    functionParameters();
+    block();
+  }
 
   ObjFunction* function = endCompiler();
   emitBytes(OP_CLOSURE, makeConstant(OBJ_VAL(function)));
@@ -1133,8 +1161,13 @@ static void funDeclaration() {
 
 static void expressionStatement() {
   expression();
-  consume(TOKEN_SEMICOLON, "Expect ';' after expression.");
-  emitByte(OP_POP);
+
+  if (current->type == TYPE_LAMBDA && !check(TOKEN_SEMICOLON)) {
+    emitByte(OP_RETURN);
+  } else {
+    consume(TOKEN_SEMICOLON, "Expect ';' after expression.");
+    emitByte(OP_POP);
+  }
 }
 
 static void breakStatement() {

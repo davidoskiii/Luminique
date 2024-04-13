@@ -55,10 +55,32 @@ print("function 'time()' is native: ");
 
 println(time.isNative());
 
+print("\n");
+
 // anonymous
+
+println("Testing anonymous functions:");
 
 let randomFunction = function (a, b, c) {
   return a + b + c;
 }; // because the statement is 'let' we need to conclude the function with a semicolon
 
-println(randomFunction(1, 1, 1));
+println("Calling 'randomFunction(1, 1, 1)': ${randomFunction(1, 1, 1)}");
+
+print("\n");
+
+// lambdas
+
+println("Testing lambda functions:");
+
+let lambda1 = lambda (a, b, c) : (a + b + c);
+
+println("Calling 'lambda1(1, 1, 1)': ${lambda1(1, 1, 1)}");
+
+let lambda2 = lambda (a, b) : (
+  a = a.pow(b);
+  a = a + 2;
+  a // No semicolon because it's the return value 
+);
+
+println("Calling 'lambda2(2, 4)': ${lambda2(2, 4)}");
