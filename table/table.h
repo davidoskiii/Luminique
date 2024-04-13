@@ -23,6 +23,7 @@ bool tableContainsKey(Table* table, ObjString* key);
 bool tableContainsValue(Table* table, Value value);
 bool tableDelete(Table* table, ObjString* key);
 void tableAddAll(Table* from, Table* to);
+int tableFindIndex(Table* table, ObjString* key);
 ObjString* tableFindString(Table* table, const char* chars, int length, uint32_t hash);
 void tableRemoveWhite(Table* table);
 void markTable(Table* table);

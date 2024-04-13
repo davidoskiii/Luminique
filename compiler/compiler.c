@@ -401,6 +401,16 @@ static int addLocal(Token name) {
   return current->localCount - 1;
 }
 
+static void getLocal(int slot) {
+  emitByte(OP_GET_LOCAL);
+  emitByte(slot);
+}
+
+static void setLocal(int slot) {
+  emitByte(OP_SET_LOCAL);
+  emitByte(slot);
+}
+
 static int discardLocals() {
   int i = current->localCount - 1;
   for (; i >= 0 && current->locals[i].depth > current->innermostLoopScopeDepth; i--) {
@@ -1212,6 +1222,67 @@ static void forStatement() {
     varDeclaration(true);
   } else if (match(TOKEN_SEMICOLON)) {
     // No initializer.
+  } else if (match(TOKEN_IDENTIFIER)) {
+    Token valueToken, indexToken;
+    if (check(TOKEN_COMMA)) {
+      valueToken = parser.previous;
+      advance();
+      consume(TOKEN_IDENTIFIER, "Expect variable name after ','.");
+      indexToken = parser.previous;
+    } else { 
+      indexToken = syntheticToken("index ");
+      valueToken = parser.previous;
+    }
+
+    consume(TOKEN_COLON, "Expect ':' after variable name.");
+
+    expression();
+
+    if (current->localCount + 3 > UINT8_MAX) {
+      error("For loop can only contain up to 252 variables.");
+    }
+
+    int collectionSlot = addLocal(syntheticToken("collection "));
+    emitByte(OP_NIL);
+    int indexSlot = addLocal(indexToken);
+    markInitialized(true);
+    consume(TOKEN_RIGHT_PAREN, "Expect ')' after loop expression.");
+
+    int loopStart = current->innermostLoopStart;
+    int scopeDepth = current->innermostLoopScopeDepth;
+    current->innermostLoopStart = currentChunk()->count;
+    current->innermostLoopScopeDepth = current->scopeDepth;
+
+    getLocal(collectionSlot);
+    getLocal(indexSlot);
+    invokeMethod(1, "next", 4);
+    setLocal(indexSlot);
+    emitByte(OP_POP);
+    int exitJump = emitJump(OP_JUMP_IF_FALSE);
+
+    getLocal(collectionSlot);
+    getLocal(indexSlot);
+    invokeMethod(1, "nextValue", 9);
+
+    beginScope();
+    int valueSlot = addLocal(valueToken);
+    markInitialized(true);
+    setLocal(valueSlot);
+    statement();
+    endScope();
+
+    emitLoop(current->innermostLoopStart);
+    patchJump(exitJump);
+    endLoop();
+    emitByte(OP_POP);
+    emitByte(OP_POP);
+
+    current->localCount -= 2;
+    current->innermostLoopStart = loopStart;
+    current->innermostLoopScopeDepth = scopeDepth;
+    endScope();
+
+    return;
   } else {
     expressionStatement();
   }

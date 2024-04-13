@@ -10,7 +10,12 @@ while (i < 15) {
     continue;
   }
 
-  println(i);
+  if (i != 10) {
+    print("${i}, ");
+  } else {
+    println(i);
+  }
+
   i = i + 1;
 }
 
@@ -24,5 +29,27 @@ for (let i = 0; i < 15; i = i + 1) {
     continue;
   }
 
-  println(i);
+  if (i != 10) {
+    print("${i}, ");
+  } else {
+    println(i);
+  }
+}
+
+println("\nRange based for loop:");
+
+println("\nArray:");
+
+let arr = [1, 2, 3, 4];
+
+for (value, index : arr) {
+  println("value: ${value}, index: ${index}");
+}
+
+println("\nDictionary:");
+
+let dict = {"1": "one", "2": "two"};
+
+for (value, key : dict) {
+  println("value: \"${value}\", key: \"${key}\"");
 }

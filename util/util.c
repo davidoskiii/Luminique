@@ -346,6 +346,30 @@ NATIVE_METHOD(Array, remove) {
 	RETURN_TRUE;
 }
 
+
+NATIVE_METHOD(Array, next) {
+  assertArgCount("Array::next(index)", 1, argCount);
+  ObjArray* self = AS_ARRAY(receiver);
+  if (IS_NIL(args[0])) {
+    if (self->elements.count == 0) RETURN_FALSE;
+    RETURN_INT(0);
+  }
+
+  assertArgIsInt("Array::next(index)", args, 0);
+  int index = AS_INT(args[0]);
+  if (index < 0 || index < self->elements.count - 1) RETURN_INT(index + 1);
+  RETURN_NIL;
+}
+
+NATIVE_METHOD(Array, nextValue) {
+  assertArgCount("Array::nextValue(index)", 1, argCount);
+  assertArgIsInt("Array::nextValue(index)", args, 0);
+  ObjArray* self = AS_ARRAY(receiver);
+  int index = AS_INT(args[0]);
+  if (index > -1 && index < self->elements.count) RETURN_VAL(self->elements.values[index]);
+  RETURN_NIL;
+}
+
 NATIVE_METHOD(Array, putAt) {
 	assertArgCount("Array::putAt(index, element)", 2, argCount);
 	assertArgIsInt("Array::putAt(index, element)", args, 0);
@@ -802,6 +826,35 @@ NATIVE_METHOD(Dictionary, length) {
 	RETURN_INT(AS_DICTIONARY(receiver)->table.count);
 }
 
+NATIVE_METHOD(Dictionary, next) {
+  assertArgCount("Dictionary::next(index)", 1, argCount);
+  ObjDictionary* self = AS_DICTIONARY(receiver);
+  if (self->table.count == 0) RETURN_FALSE;
+
+  int index = 0;
+  if (!IS_NIL(args[0])) {
+    ObjString* key = AS_STRING(args[0]);
+    // index = AS_INT(args[0]);
+    index = tableFindIndex(&self->table, key);
+    if (index < 0 || index >= self->table.capacity) RETURN_FALSE;
+    index++;
+  }
+
+  for (; index < self->table.capacity; index++) {
+    if (self->table.entries[index].key != NULL) RETURN_OBJ(self->table.entries[index].key);
+  }
+
+  RETURN_FALSE;
+}
+
+NATIVE_METHOD(Dictionary, nextValue) {
+  assertArgCount("Dictionary::nextValue(key)", 1, argCount);
+  assertArgIsString("Dictionary::nextValue(key)", args, 0);
+  ObjDictionary* self = AS_DICTIONARY(receiver);
+  int index = tableFindIndex(&self->table, AS_STRING(args[0]));
+  RETURN_VAL(self->table.entries[index].value);
+}
+
 NATIVE_METHOD(Dictionary, putAll) {
 	assertArgCount("Dictionary::putAll(dictionary)", 1, argCount);
 	assertArgIsDictionary("Dictionary::putAll(dictionary)", args, 0);
@@ -851,6 +904,8 @@ void registerUtilPackage() {
   DEF_METHOD(vm.arrayClass, Array, isEmpty, 0);
 	DEF_METHOD(vm.arrayClass, Array, lastIndexOf, 1);
 	DEF_METHOD(vm.arrayClass, Array, length, 0);
+  DEF_METHOD(vm.arrayClass, Array, next, 1);
+  DEF_METHOD(vm.arrayClass, Array, nextValue, 1);
   DEF_METHOD(vm.arrayClass, Array, putAt, 2);
 	DEF_METHOD(vm.arrayClass, Array, remove, 1);
 	DEF_METHOD(vm.arrayClass, Array, removeAt, 1);
@@ -867,6 +922,8 @@ void registerUtilPackage() {
 	DEF_METHOD(vm.dictionaryClass, Dictionary, clone, 0);
 	DEF_METHOD(vm.dictionaryClass, Dictionary, isEmpty, 0);
 	DEF_METHOD(vm.dictionaryClass, Dictionary, length, 0);
+  DEF_METHOD(vm.dictionaryClass, Dictionary, next, 1);
+  DEF_METHOD(vm.dictionaryClass, Dictionary, nextValue, 1);
 	DEF_METHOD(vm.dictionaryClass, Dictionary, put, 2);
 	DEF_METHOD(vm.dictionaryClass, Dictionary, putAll, 1);
 	DEF_METHOD(vm.dictionaryClass, Dictionary, removeAt, 1);

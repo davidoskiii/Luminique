@@ -20,6 +20,28 @@ void freeTable(Table* table) {
   initTable(table);
 }
 
+int tableFindIndex(Table* table, ObjString* key) {
+  int index = key->hash & (table->capacity - 1);
+  Entry* tombstone = NULL;
+
+  for (;;) {
+    Entry* entry = &table->entries[index];
+    if (entry->key == NULL) {
+      if (IS_NIL(entry->value)) {
+        return -1;
+      }
+      else {
+        if (tombstone == NULL) tombstone = entry;
+      }
+    }
+    else if (entry->key == key) {
+      return index;
+    }
+
+    index = (index + 1) & (table->capacity - 1);
+  }
+}
+
 static Entry* findEntry(Entry* entries, int capacity, ObjString* key) {
   uint32_t index = key->hash & (capacity - 1);
   Entry* tombstone = NULL;
