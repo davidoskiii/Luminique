@@ -10,6 +10,7 @@
 ObjString* takeString(char* chars, int length);
 ObjString* copyString(const char* chars, int length);
 ObjString* newString(const char* chars);
+ObjString* emptyString();
 ObjString* formattedString(const char* format, ...);
 ObjString* formattedLongString(const char* format, ...);
 char* createFormattedString(const char* format, ...);

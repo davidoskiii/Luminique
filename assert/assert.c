@@ -81,6 +81,13 @@ void assertArgIsException(const char* method, Value* args, int index) {
   }
 }
 
+void assertArgIsFile(const char* method, Value* args, int index) {
+  if (!IS_INSTANCE(args[index]) && !isObjInstanceOf(args[index], vm.fileClass)) {
+    runtimeError("Method %s expects argument %d to be a file.", method, index + 1);
+    exit(70);
+  }
+}
+
 void assertIntWithinRange(const char* method, int value, int min, int max, int index){
   if (value < min || value > max) {
     runtimeError("Method %s expects argument %d to be an integer within range %d to %d but got %d.", method, index + 1, min, max, value);

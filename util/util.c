@@ -929,6 +929,8 @@ void registerUtilPackage() {
 	DEF_METHOD(vm.dictionaryClass, Dictionary, removeAt, 1);
 	DEF_METHOD(vm.dictionaryClass, Dictionary, toString, 0);
 
+  vm.fileClass = defineNativeClass("File");
+  bindSuperclass(vm.fileClass, vm.objectClass);
 
 	ObjClass* randomClass = defineNativeClass("Random");
 	bindSuperclass(randomClass, vm.objectClass);

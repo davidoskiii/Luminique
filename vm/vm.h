@@ -34,6 +34,7 @@ typedef struct {
   ObjClass* numberClass;
   ObjClass* floatClass;
   ObjClass* exceptionClass;
+  ObjClass* fileClass;
   ObjClass* stringClass;
   ObjClass* arrayClass;
   ObjClass* dictionaryClass;

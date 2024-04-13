@@ -35,6 +35,15 @@ ObjBoundMethod* newBoundMethod(Value receiver, ObjClosure* method) {
   return bound;
 }
 
+
+ObjFile* newFile(ObjString* name) {
+  ObjFile* file = ALLOCATE_OBJ(ObjFile, OBJ_FILE, vm.fileClass);
+  file->name = name;
+  file->mode = emptyString();
+  file->isOpen = false;
+  return file;
+}
+
 ObjArray* newArray() {
   ObjArray* array = ALLOCATE_OBJ(ObjArray, OBJ_ARRAY, vm.arrayClass);
   initValueArray(&array->elements);

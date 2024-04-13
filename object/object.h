@@ -16,6 +16,7 @@
 #define IS_CLOSURE(value) isObjType(value, OBJ_CLOSURE)
 #define IS_FUNCTION(value) isObjType(value, OBJ_FUNCTION)
 #define IS_INSTANCE(value) isObjType(value, OBJ_INSTANCE)
+#define IS_FILE(value) isObjType(value, OBJ_FILE)
 #define IS_ARRAY(value) isObjType(value, OBJ_ARRAY)
 #define IS_NATIVE_FUNCTION(value) isObjType(value, OBJ_NATIVE_FUNCTION)
 #define IS_NATIVE_METHOD(value) isObjType(value, OBJ_NATIVE_METHOD)
@@ -28,6 +29,7 @@
 #define AS_CLOSURE(value) ((ObjClosure*)AS_OBJ(value))
 #define AS_FUNCTION(value) ((ObjFunction*)AS_OBJ(value))
 #define AS_INSTANCE(value) ((ObjInstance*)AS_OBJ(value))
+#define AS_FILE(value) ((ObjFile*)AS_OBJ(value))
 #define AS_ARRAY(value) ((ObjArray*)AS_OBJ(value))
 #define AS_NATIVE_FUNCTION(value) ((ObjNativeFunction*)AS_OBJ(value))
 #define AS_NATIVE_METHOD(value) ((ObjNativeMethod*)AS_OBJ(value))
@@ -42,6 +44,7 @@ typedef enum {
   OBJ_CLOSURE,
   OBJ_FUNCTION,
   OBJ_INSTANCE,
+  OBJ_FILE,
   OBJ_ARRAY,
   OBJ_DICTIONARY,
   OBJ_NATIVE_FUNCTION,
@@ -98,6 +101,14 @@ typedef struct ObjUpvalue {
   struct ObjUpvalue* next;
 } ObjUpvalue;
 
+typedef struct ObjFile {
+  Obj obj;
+  ObjString* name;
+  ObjString* mode;
+  bool isOpen;
+  FILE* file;
+} ObjFile;
+
 typedef struct {
   Obj obj;
   ObjFunction* function;
@@ -141,6 +152,7 @@ typedef struct ObjDictionary {
 
 Obj* allocateObject(size_t size, ObjType type, ObjClass* klass);
 ObjBoundMethod* newBoundMethod(Value receiver, ObjClosure* method);
+ObjFile* newFile(ObjString* name);
 ObjArray* newArray();
 ObjArray* copyArray(ValueArray elements, int fromIndex, int toIndex);
 ObjDictionary* newDictionary();
