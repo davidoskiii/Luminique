@@ -182,6 +182,19 @@ NATIVE_METHOD(Function, clone) {
   return receiver;
 }
 
+NATIVE_METHOD(Function, call) {
+  ObjClosure* self = AS_CLOSURE(receiver);
+  if (callClosure(self, argCount)) {
+    int i = 0;
+    while (i < argCount) {
+      push(args[i]);
+      i++;
+    }
+    RETURN_VAL(args[argCount - 1]);
+  }
+  RETURN_NIL;
+}
+
 NATIVE_METHOD(Function, isNative) {
   assertArgCount("Function::isNative()", 0, argCount);
   RETURN_BOOL(IS_NATIVE_FUNCTION(receiver));
@@ -798,6 +811,7 @@ void registerLangPackage(){
   bindSuperclass(vm.functionClass, vm.objectClass);
   DEF_METHOD(vm.functionClass, Function, __init__, 0);
   DEF_METHOD(vm.functionClass, Function, arity, 0);
+  DEF_METHOD(vm.functionClass, Function, call, -1);
   DEF_METHOD(vm.functionClass, Function, clone, 0);
   DEF_METHOD(vm.functionClass, Function, isNative, 0);
   DEF_METHOD(vm.functionClass, Function, name, 0);

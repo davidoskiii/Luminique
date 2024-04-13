@@ -73,6 +73,7 @@ void bindSuperclass(ObjClass* subclass, ObjClass* superclass);
 bool loadGlobal(ObjString* name, Value* value);
 InterpretResult interpret(const char* source);
 void runtimeError(const char* format, ...);
+bool callClosure(ObjClosure* closure, int argCount);
 ObjArray* getStackTrace();
 ObjInstance* throwException(ObjClass* exceptionClass, const char* format, ...);
 void push(Value value);

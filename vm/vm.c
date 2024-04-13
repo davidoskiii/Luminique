@@ -140,7 +140,7 @@ static bool makeDictionary(uint8_t entryCount) {
   return true;
 }
 
-static bool callClosure(ObjClosure* closure, int argCount) {
+bool callClosure(ObjClosure* closure, int argCount) {
   if (closure->function->arity > 0 && argCount != closure->function->arity) {
     runtimeError("Expected %d arguments but got %d.",
         closure->function->arity, argCount);
