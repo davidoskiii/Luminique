@@ -55,6 +55,7 @@ typedef enum {
   OP_FINALLY,
   OP_INHERIT,
   OP_RETURN,
+  OP_RETURN_NONLOCAL
 } OpCode;
 
 typedef struct {
