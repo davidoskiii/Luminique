@@ -909,6 +909,21 @@ static InterpretResult run() {
         frame = &vm.frames[vm.frameCount - 1];
         break;
       }
+      case OP_RETURN_NONLOCAL: {
+        Value result = pop();
+        int depth = READ_BYTE();
+        closeUpvalues(frame->slots);
+        vm.frameCount -= depth + 1;
+        if (vm.frameCount == 0) {
+          pop();
+          return INTERPRET_OK;
+        }
+
+        vm.stackTop = frame->slots;
+        push(result);
+        frame = &vm.frames[vm.frameCount - 1];
+        break;
+      }
     }
   }
 

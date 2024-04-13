@@ -186,14 +186,18 @@ static int emitJump(uint8_t instruction) {
   return currentChunk()->count - 2;
 }
 
-static void emitReturn() {
+static void emitReturn(uint8_t depth) {
   if (current->type == TYPE_INITIALIZER) {
     emitBytes(OP_GET_LOCAL, 0);
   } else {
     emitByte(OP_NIL);
   }
 
-  emitByte(OP_RETURN);
+  if (depth == 0) {
+    emitByte(OP_RETURN);
+  } else {
+    emitBytes(OP_RETURN_NONLOCAL, depth);
+  }
 }
 
 static void emitConstant(Value value) {
@@ -279,7 +283,7 @@ static ObjString* identifierName(uint8_t arg) {
 }
 
 static ObjFunction* endCompiler() {
-  emitReturn();
+  emitReturn(0);
   ObjFunction* function = current->function;
 
 #ifdef DEBUG_PRINT_CODE
@@ -1043,6 +1047,16 @@ static void lambdaParameters() {
   consume(TOKEN_COLON, "Expect ':' after ')'.");
 }
 
+static uint8_t lambdaDepth() {
+  uint8_t depth = 1;
+  Compiler* compiler = current->enclosing;
+  while (compiler->type == TYPE_LAMBDA) {
+    depth++;
+    compiler = compiler->enclosing;
+  }
+  return depth;
+}
+
 static void function(FunctionType type) {
   Compiler compiler;
   initCompiler(&compiler, type);
@@ -1409,8 +1423,11 @@ static void returnStatement() {
     error("Can't return from top-level code.");
   }
 
+  uint8_t depth = 0;
+  if(current->type == TYPE_LAMBDA) depth = lambdaDepth();
+
   if (match(TOKEN_SEMICOLON)) {
-    emitReturn();
+    emitReturn(depth);
   } else {
     if (current->type == TYPE_INITIALIZER) {
       error("Can't return a value from an initializer.");
@@ -1418,7 +1435,13 @@ static void returnStatement() {
 
     expression();
     consume(TOKEN_SEMICOLON, "Expect ';' after return value.");
-    emitByte(OP_RETURN);
+
+    if (current->type == TYPE_LAMBDA) {
+      emitBytes(OP_RETURN_NONLOCAL, depth);
+    }
+    else {
+      emitByte(OP_RETURN);
+    }
   }
 }
 

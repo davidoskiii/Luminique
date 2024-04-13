@@ -83,4 +83,14 @@ let lambda2 = lambda (a, b) : (
   a // No semicolon because it's the return value 
 );
 
-println("Calling 'lambda2(2, 4)': ${lambda2(2, 4)}");
+println("Calling 'lambda2(2, 4)': ${lambda2(2, 4)}\n");
+
+println("Testing nonlocal return for lambda function: ");
+
+function nonlocal(closure) {
+    println("Start closure");
+    closure();
+    println("Local return");
+}
+
+nonlocal( lambda () : (println("Nonlocal return"); return 0; ) );
