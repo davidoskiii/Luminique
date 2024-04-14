@@ -176,6 +176,8 @@ static void freeObject(Obj* object) {
       break;
     }
     case OBJ_FILE: {
+      ObjFile* file = (ObjFile*)object;
+      if (file->file != NULL && file->isOpen) fclose(file->file);
       FREE(ObjFile, object);
       break;
     }
