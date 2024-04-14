@@ -163,6 +163,7 @@ typedef struct ObjDictionary {
 Obj* allocateObject(size_t size, ObjType type, ObjClass* klass);
 ObjBoundMethod* newBoundMethod(Value receiver, ObjClosure* method);
 ObjFile* newFile(ObjString* name);
+ObjRecord* newRecord(void* data);
 ObjArray* newArray();
 ObjArray* copyArray(ValueArray elements, int fromIndex, int toIndex);
 ObjDictionary* newDictionary();

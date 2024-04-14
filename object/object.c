@@ -44,6 +44,12 @@ ObjFile* newFile(ObjString* name) {
   return file;
 }
 
+ObjRecord* newRecord(void* data) {
+  ObjRecord* record = ALLOCATE_OBJ(ObjRecord, OBJ_RECORD, NULL);
+  record->data = data;
+  return record;
+}
+
 ObjArray* newArray() {
   ObjArray* array = ALLOCATE_OBJ(ObjArray, OBJ_ARRAY, vm.arrayClass);
   initValueArray(&array->elements);
@@ -224,6 +230,9 @@ void printObject(Value value) {
       break;
     case OBJ_FILE:
       printf("<file \"%s\">", AS_FILE(value)->name->chars);
+      break;
+    case OBJ_RECORD:
+      printf("record");
       break;
     case OBJ_DICTIONARY: 
       printDictionary(AS_DICTIONARY(value));
