@@ -15,6 +15,7 @@
 #include "../lang/lang.h"
 #include "../util/util.h"
 #include "../string/string.h"
+#include "../io/io.h"
 #include "vm.h"
 
 VM vm;
@@ -77,6 +78,7 @@ void initVM() {
   vm.initString = copyString("__init__", 8);
 
   registerLangPackage();
+  registerIOPackage();
   registerUtilPackage();
   initNatives();
   initStd();

@@ -84,6 +84,12 @@ static void blackenObject(Obj* object) {
       markTable(&dictionary->table);
       break;
     }
+    case OBJ_FILE: {
+      ObjFile* file = (ObjFile*)object;
+      markObject((Obj*)file->name);
+      markObject((Obj*)file->mode);
+      break;
+    }
     case OBJ_BOUND_METHOD: {
       ObjBoundMethod* bound = (ObjBoundMethod*)object;
       markValue(bound->receiver);
@@ -163,9 +169,12 @@ static void freeObject(Obj* object) {
     } 
     case OBJ_CLOSURE: {
       ObjClosure* closure = (ObjClosure*)object;
-      FREE_ARRAY(ObjUpvalue*, closure->upvalues,
-                 closure->upvalueCount);
+      FREE_ARRAY(ObjUpvalue*, closure->upvalues, closure->upvalueCount);
       FREE(ObjClosure, object);
+      break;
+    }
+    case OBJ_FILE: {
+      FREE(ObjFile, object);
       break;
     }
     case OBJ_FUNCTION: {

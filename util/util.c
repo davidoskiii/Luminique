@@ -834,7 +834,6 @@ NATIVE_METHOD(Dictionary, next) {
   int index = 0;
   if (!IS_NIL(args[0])) {
     ObjString* key = AS_STRING(args[0]);
-    // index = AS_INT(args[0]);
     index = tableFindIndex(&self->table, key);
     if (index < 0 || index >= self->table.capacity) RETURN_FALSE;
     index++;
@@ -928,9 +927,6 @@ void registerUtilPackage() {
 	DEF_METHOD(vm.dictionaryClass, Dictionary, putAll, 1);
 	DEF_METHOD(vm.dictionaryClass, Dictionary, removeAt, 1);
 	DEF_METHOD(vm.dictionaryClass, Dictionary, toString, 0);
-
-  vm.fileClass = defineNativeClass("File");
-  bindSuperclass(vm.fileClass, vm.objectClass);
 
 	ObjClass* randomClass = defineNativeClass("Random");
 	bindSuperclass(randomClass, vm.objectClass);

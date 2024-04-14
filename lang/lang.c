@@ -577,9 +577,7 @@ NATIVE_METHOD(String, getChar) {
   int index = AS_INT(args[0]);
   assertNumberWithinRange("String::getChar(index)", index, 0, self->length, 0);
 
-  char chars[2];
-  chars[0] = self->chars[index];
-  chars[1] = '\n';
+  char chars[2] = { self->chars[index], '\0' };
   RETURN_STRING(chars, 1);
 }
 
@@ -594,6 +592,32 @@ NATIVE_METHOD(String, indexOf) {
 NATIVE_METHOD(String, length) {
   assertArgCount("String::length()", 0, argCount);
   RETURN_INT(AS_STRING(receiver)->length);
+}
+
+NATIVE_METHOD(String, next) {
+  assertArgCount("String::next(index)", 1, argCount);
+  ObjString* self = AS_STRING(receiver);
+  if (IS_NIL(args[0])) {
+    if (self->length == 0) RETURN_FALSE;
+    RETURN_INT(0);
+  }
+
+  assertArgIsInt("Stirng::next(index)", args, 0);
+  int index = AS_INT(args[0]);
+  if (index < 0 || index < self->length - 1) RETURN_INT(index + 1);
+  RETURN_NIL;
+}
+
+NATIVE_METHOD(String, nextValue) {
+  assertArgCount("String::nextValue(index)", 1, argCount);
+  assertArgIsInt("String::nextValue(index)", args, 0);
+  ObjString* self = AS_STRING(receiver);
+  int index = AS_INT(args[0]);
+  if (index > -1 && index < self->length) {
+    char chars[2] = { self->chars[index], '\0' };
+    RETURN_STRING(chars, 1);
+  }
+  RETURN_NIL;
 }
 
 
@@ -778,6 +802,8 @@ void registerLangPackage(){
   DEF_METHOD(vm.stringClass, String, getChar, 1);
   DEF_METHOD(vm.stringClass, String, indexOf, 1);
   DEF_METHOD(vm.stringClass, String, length, 0);
+  DEF_METHOD(vm.stringClass, String, next, 1);
+  DEF_METHOD(vm.stringClass, String, nextValue, 1);
   DEF_METHOD(vm.stringClass, String, replace, 2);
   DEF_METHOD(vm.stringClass, String, reverse, 0);
   DEF_METHOD(vm.stringClass, String, split, 1);

@@ -1,6 +1,8 @@
 #ifndef cluminique_object_h
 #define cluminique_object_h
 
+#include <sys/stat.h>
+
 #include "../common.h"
 #include "../table/table.h"
 #include "../chunk/chunk.h"
