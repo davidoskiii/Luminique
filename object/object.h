@@ -19,6 +19,7 @@
 #define IS_FUNCTION(value) isObjType(value, OBJ_FUNCTION)
 #define IS_INSTANCE(value) isObjType(value, OBJ_INSTANCE)
 #define IS_FILE(value) isObjType(value, OBJ_FILE)
+#define IS_RECORD(value) isObjType(value, OBJ_RECORD)
 #define IS_ARRAY(value) isObjType(value, OBJ_ARRAY)
 #define IS_NATIVE_FUNCTION(value) isObjType(value, OBJ_NATIVE_FUNCTION)
 #define IS_NATIVE_METHOD(value) isObjType(value, OBJ_NATIVE_METHOD)
@@ -32,6 +33,7 @@
 #define AS_FUNCTION(value) ((ObjFunction*)AS_OBJ(value))
 #define AS_INSTANCE(value) ((ObjInstance*)AS_OBJ(value))
 #define AS_FILE(value) ((ObjFile*)AS_OBJ(value))
+#define AS_RECORD(value) ((ObjRecord*)AS_OBJ(value))
 #define AS_ARRAY(value) ((ObjArray*)AS_OBJ(value))
 #define AS_NATIVE_FUNCTION(value) ((ObjNativeFunction*)AS_OBJ(value))
 #define AS_NATIVE_METHOD(value) ((ObjNativeMethod*)AS_OBJ(value))
@@ -47,6 +49,7 @@ typedef enum {
   OBJ_FUNCTION,
   OBJ_INSTANCE,
   OBJ_FILE,
+  OBJ_RECORD,
   OBJ_ARRAY,
   OBJ_DICTIONARY,
   OBJ_NATIVE_FUNCTION,
@@ -110,6 +113,11 @@ typedef struct ObjFile {
   bool isOpen;
   FILE* file;
 } ObjFile;
+
+typedef struct ObjRecord {
+  Obj obj;
+  void* data;
+} ObjRecord;
 
 typedef struct {
   Obj obj;
