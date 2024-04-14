@@ -21,9 +21,11 @@ println(file.isWritable());
 print("File last accessed: ");
 println(file.lastAccessed());
 
+print("File size: ");
+println(file.size());
+
 print("File last modified: ");
 println("${file.lastModified()}\n");
-
 
 let dir = File("tests/directory");
 

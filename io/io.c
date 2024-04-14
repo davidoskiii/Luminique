@@ -38,6 +38,20 @@ NATIVE_METHOD(File, __init__) {
   RETURN_OBJ(self);
 }
 
+
+NATIVE_METHOD(File, create) {
+  assertArgCount("File::create()", 0, argCount);
+  ObjFile* self = AS_FILE(receiver);
+  struct stat fileStat;
+  if (fileExists(self, &fileStat)) THROW_EXCEPTION(InstantiationError, "File or directory already exist.");
+  FILE* file = fopen(self->name->chars, "w");
+  if (file != NULL) {
+    fclose(file);
+    RETURN_TRUE;
+  }
+  RETURN_FALSE;
+}
+
 NATIVE_METHOD(File, delete) {
   assertArgCount("File::delete()", 0, argCount);
   ObjFile* self = AS_FILE(receiver);
@@ -184,6 +198,15 @@ NATIVE_METHOD(File, setWritable) {
   else RETURN_BOOL(_chmod(self->name->chars, ~S_IWRITE));
 }
 
+
+NATIVE_METHOD(File, size) {
+  assertArgCount("File::size()", 0, argCount);
+  ObjFile* self = AS_FILE(receiver);
+  struct stat fileStat;
+  if (!fileExists(self, &fileStat)) THROW_EXCEPTION(InstantiationError, "File or directory doesn't exist.");
+  RETURN_NUMBER(fileStat.st_size);
+}
+
 NATIVE_METHOD(File, toString) {
   assertArgCount("File::toString()", 0, argCount);
   RETURN_OBJ(AS_FILE(receiver)->name);
@@ -193,6 +216,7 @@ void registerIOPackage() {
   vm.fileClass = defineNativeClass("File");
   bindSuperclass(vm.fileClass, vm.objectClass);
   DEF_METHOD(vm.fileClass, File, __init__, 1);
+  DEF_METHOD(vm.fileClass, File, create, 0);
   DEF_METHOD(vm.fileClass, File, delete, 0);
   DEF_METHOD(vm.fileClass, File, exists, 0);
   DEF_METHOD(vm.fileClass, File, getAbsolutePath, 0);
@@ -210,5 +234,6 @@ void registerIOPackage() {
   DEF_METHOD(vm.fileClass, File, setExecutable, 1);
   DEF_METHOD(vm.fileClass, File, setReadable, 1);
   DEF_METHOD(vm.fileClass, File, setWritable, 1);
+  DEF_METHOD(vm.fileClass, File, size, 0);
   DEF_METHOD(vm.fileClass, File, toString, 0);
 }
