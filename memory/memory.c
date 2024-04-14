@@ -90,6 +90,8 @@ static void blackenObject(Obj* object) {
       markObject((Obj*)file->mode);
       break;
     }
+    case OBJ_RECORD:
+      break;
     case OBJ_BOUND_METHOD: {
       ObjBoundMethod* bound = (ObjBoundMethod*)object;
       markValue(bound->receiver);
@@ -175,6 +177,12 @@ static void freeObject(Obj* object) {
     }
     case OBJ_FILE: {
       FREE(ObjFile, object);
+      break;
+    }
+    case OBJ_RECORD: {
+      ObjRecord* record = (ObjRecord*)object;
+      if (record->data != NULL) free(record->data);
+      FREE(ObjRecord, object);
       break;
     }
     case OBJ_FUNCTION: {
