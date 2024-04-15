@@ -29,9 +29,28 @@ static bool fileExists(ObjFile* file, struct stat* fileStat) {
   return (stat(file->name->chars, fileStat) == 0);
 }
 
+static ObjFile* getFileArgument(Value arg) {
+  ObjFile* file = NULL;
+  if (IS_STRING(arg)) file = newFile(AS_STRING(arg));
+  else if (IS_FILE(arg)) file = AS_FILE(arg);
+  return file;
+}
 
 static ObjFile* getFileProperty(ObjInstance* object, char* field) {
   return AS_FILE(getObjProperty(object, field));
+}
+
+
+static void setFileProperty(ObjInstance* object, ObjFile* file, char* mode) {
+  file->file = fopen(file->name->chars, mode);
+
+  if (file->file == NULL) {
+    assertError("Cannot create stream object because file does not exist.");
+  }
+
+  file->isOpen = true;
+  file->mode = newString(mode);
+  setObjProperty(object, "file", OBJ_VAL(file));
 }
 
 NATIVE_METHOD(File, __init__) {
@@ -220,39 +239,10 @@ NATIVE_METHOD(File, toString) {
 NATIVE_METHOD(FileReadStream, __init__) {
   assertArgCount("FileReadStream::__init__(file)", 1, argCount);
   ObjInstance* self = AS_INSTANCE(receiver);
-  ObjFile* file = NULL;
-  if (IS_STRING(args[0])) file = newFile(AS_STRING(args[0]));
-  else if (IS_FILE(args[0])) file = AS_FILE(args[0]);
-  else assertError("method FileReadStream::__init__(file) expects argument 1 to be a string or file.");
-
-  struct stat fileStat;
-  if (!fileExists(file, &fileStat)) assertError("Cannot open stream to read file because it does not exist.");
-
-  if (file != NULL) {
-    file->isOpen = true;
-    file->mode = copyString("r", 1);
-    file->file = fopen(file->name->chars, "r");
-    setObjProperty(self, "file", OBJ_VAL(file));
-  }
-
-  RETURN_OBJ(self);
+  ObjFile* file = getFileArgument(args[0]);
+  if (file == NULL) THROW_EXCEPTION(IllegalArgumentException, "Method FileReadStream::__init__(file) expects argument 1 to be a string or file.");
+  setFileProperty(AS_INSTANCE(receiver), file, "r");  RETURN_OBJ(self);
 }
-
-NATIVE_METHOD(FileReadStream, close) {
-  assertArgCount("FileReadStream::close()", 0, argCount);
-  ObjFile* file = getFileProperty(AS_INSTANCE(receiver), "file");
-  file->isOpen = false;
-  RETURN_BOOL(fclose(file->file) == 0);
-}
-
-NATIVE_METHOD(FileReadStream, getPosition) {
-  assertArgCount("FileReadStream::getPosition()", 0, argCount);
-  ObjFile* file = getFileProperty(AS_INSTANCE(receiver), "file");
-  if (!file->isOpen) assertError("Cannot read the next char because file is already closed.");
-  if (file->file == NULL) RETURN_INT(0);
-  else RETURN_INT(ftell(file->file));
-}
-
 
 NATIVE_METHOD(FileReadStream, isAtEnd) {
   assertArgCount("FileReadStream::isAtEnd()", 0, argCount);
@@ -280,9 +270,9 @@ NATIVE_METHOD(FileReadStream, nextLine) {
   if (!file->isOpen) assertError("Cannot read the next line because file is already closed.");
   if (file->file == NULL) RETURN_NIL;
   else {
-      char line[UINT8_MAX];
-      if (fgets(line, sizeof line, file->file) == NULL) RETURN_NIL;
-      RETURN_STRING(line, (int)strlen(line));
+    char line[UINT8_MAX];
+    if (fgets(line, sizeof line, file->file) == NULL) RETURN_NIL;
+    RETURN_STRING(line, (int)strlen(line));
   }
 }
 
@@ -292,20 +282,12 @@ NATIVE_METHOD(FileReadStream, peek) {
   if (!file->isOpen) assertError("Cannot peek the next char because file is already closed.");
   if (file->file == NULL) RETURN_NIL;
   else {
-      int c = fgetc(file->file);
-      ungetc(c, file->file);
-      if (c == EOF) RETURN_NIL;
-      char ch[2] = { c, '\0' };
-      RETURN_STRING(ch, 1);
+    int c = fgetc(file->file);
+    ungetc(c, file->file);
+    if (c == EOF) RETURN_NIL;
+    char ch[2] = { c, '\0' };
+    RETURN_STRING(ch, 1);
   }
-}
-
-NATIVE_METHOD(FileReadStream, reset) {
-  assertArgCount("FileReadStream::reset()", 0, argCount);
-  ObjFile* file = getFileProperty(AS_INSTANCE(receiver), "file");
-  if (!file->isOpen) assertError("Cannot reset file stream because file is already closed.");
-  if (file->file != NULL) rewind(file->file);
-  RETURN_NIL;
 }
 
 NATIVE_METHOD(FileReadStream, skip) {
@@ -315,6 +297,96 @@ NATIVE_METHOD(FileReadStream, skip) {
   if (!file->isOpen) assertError("Cannot skip by offset because file is already closed.");
   if (file->file == NULL) RETURN_FALSE;
   RETURN_BOOL(fseek(file->file, (long)AS_INT(args[0]), SEEK_CUR));
+}
+
+
+NATIVE_METHOD(FileWriteStream, __init__) {
+  assertArgCount("FileWriteStream::__init__(file)", 1, argCount);
+  ObjInstance* self = AS_INSTANCE(receiver);
+  ObjFile* file = getFileArgument(args[0]);
+  if (file == NULL) THROW_EXCEPTION(IllegalArgumentException, "Method FileWriteStream::__init__(file) expects argument 1 to be a string or file.");
+  setFileProperty(AS_INSTANCE(receiver), file, "w");
+  RETURN_OBJ(self);
+}
+
+NATIVE_METHOD(FileWriteStream, flush) {
+  assertArgCount("FileWriteStream::flush()", 0, argCount);
+  ObjFile* file = getFileProperty(AS_INSTANCE(receiver), "file");
+  if (!file->isOpen) assertError("Cannot flush file stream because file is already closed.");
+  if (file->file == NULL) RETURN_FALSE;
+  RETURN_BOOL(fflush(file->file) == 0);
+}
+
+NATIVE_METHOD(FileWriteStream, put) {
+  assertArgCount("FileWriteStream::put(char)", 1, argCount);
+  assertArgIsString("FileWriteStream::put(char)", args, 0);
+  ObjFile* file = getFileProperty(AS_INSTANCE(receiver), "file");
+  if (!file->isOpen) assertError("Cannot write character to stream because file is already closed.");
+  if (file->file == NULL) RETURN_NIL;
+
+  ObjString* character = AS_STRING(args[0]);
+  if (character->length != 1) assertError("Method FileWriteStream::put(char) expects argument 1 to be a character(string of length 1)");
+  fputc(character->chars[0], file->file);
+  RETURN_NIL;
+}
+
+NATIVE_METHOD(FileWriteStream, putLine) {
+  assertArgCount("FileWriteStream::putLine()", 0, argCount);
+  ObjFile* file = getFileProperty(AS_INSTANCE(receiver), "file");
+  if (!file->isOpen) assertError("Cannot write new line to stream because file is already closed.");
+  if (file->file == NULL) RETURN_NIL;
+  fputc('\n', file->file);
+  RETURN_NIL;
+}
+
+NATIVE_METHOD(FileWriteStream, putSpace) {
+  assertArgCount("FileWriteStream::putSpace()", 0, argCount);
+  ObjFile* file = getFileProperty(AS_INSTANCE(receiver), "file");
+  if (!file->isOpen) assertError("Cannot write empty space to stream because file is already closed.");
+  if (file->file == NULL) RETURN_NIL;
+  fputc(' ', file->file);
+  RETURN_NIL;
+}
+
+NATIVE_METHOD(FileWriteStream, putString) {
+  assertArgCount("FileWriteStream::putString(string)", 1, argCount);
+  assertArgIsString("FileWriteStream::putString(string)", args, 0);
+  ObjFile* file = getFileProperty(AS_INSTANCE(receiver), "file");
+  if (!file->isOpen) assertError("Cannot write string to stream because file is already closed.");
+  if (file->file == NULL) RETURN_NIL;
+
+  ObjString* string = AS_STRING(args[0]);
+  fputs(string->chars, file->file);
+  RETURN_NIL;
+}
+
+
+NATIVE_METHOD(IOStream, __init__) {
+  THROW_EXCEPTION(InstantiationError, "Cannot instantiate from class IOStream.");
+  RETURN_NIL;
+}
+
+NATIVE_METHOD(IOStream, close) {
+  assertArgCount("IOStream::close()", 0, argCount);
+  ObjFile* file = getFileProperty(AS_INSTANCE(receiver), "file");
+  file->isOpen = false;
+  RETURN_BOOL(fclose(file->file) == 0);
+}
+
+NATIVE_METHOD(IOStream, getPosition) {
+  assertArgCount("IOStream::getPosition()", 0, argCount);
+  ObjFile* file = getFileProperty(AS_INSTANCE(receiver), "file");
+  if (!file->isOpen) assertError("Cannot get stream position because file is already closed.");
+  if (file->file == NULL) RETURN_INT(0);
+  else RETURN_INT(ftell(file->file));
+}
+
+NATIVE_METHOD(IOStream, reset) {
+  assertArgCount("IOStream::reset()", 0, argCount);
+  ObjFile* file = getFileProperty(AS_INSTANCE(receiver), "file");
+  if (!file->isOpen) assertError("Cannot reset stream because file is already closed.");
+  if (file->file != NULL) rewind(file->file);
+  RETURN_NIL;
 }
 
 void registerIOPackage() {
@@ -342,15 +414,30 @@ void registerIOPackage() {
   DEF_METHOD(vm.fileClass, File, size, 0);
   DEF_METHOD(vm.fileClass, File, toString, 0);
 
+
+  ObjClass* ioStreamClass = defineNativeClass("IOStream");
+  bindSuperclass(ioStreamClass, vm.objectClass);
+  DEF_METHOD(ioStreamClass, IOStream, __init__, 1);
+  DEF_METHOD(ioStreamClass, IOStream, close, 0);
+  DEF_METHOD(ioStreamClass, IOStream, getPosition, 0);
+  DEF_METHOD(ioStreamClass, IOStream, reset, 0);
+
   ObjClass* fileReadStreamClass = defineNativeClass("FileReadStream");
-  bindSuperclass(fileReadStreamClass, vm.objectClass);
+  bindSuperclass(fileReadStreamClass, ioStreamClass);
   DEF_METHOD(fileReadStreamClass, FileReadStream, __init__, 1);
-  DEF_METHOD(fileReadStreamClass, FileReadStream, close, 0);
-  DEF_METHOD(fileReadStreamClass, FileReadStream, getPosition, 0);
   DEF_METHOD(fileReadStreamClass, FileReadStream, isAtEnd, 0);
   DEF_METHOD(fileReadStreamClass, FileReadStream, next, 0);
   DEF_METHOD(fileReadStreamClass, FileReadStream, nextLine, 0);
   DEF_METHOD(fileReadStreamClass, FileReadStream, peek, 0);
-  DEF_METHOD(fileReadStreamClass, FileReadStream, reset, 0);
   DEF_METHOD(fileReadStreamClass, FileReadStream, skip, 1);
+
+
+  ObjClass* fileWriteStreamClass = defineNativeClass("FileWriteStream");
+  bindSuperclass(fileWriteStreamClass, ioStreamClass);
+  DEF_METHOD(fileWriteStreamClass, FileWriteStream, __init__, 1);
+  DEF_METHOD(fileWriteStreamClass, FileWriteStream, flush, 0);
+  DEF_METHOD(fileWriteStreamClass, FileWriteStream, put, 1);
+  DEF_METHOD(fileWriteStreamClass, FileWriteStream, putLine, 0);
+  DEF_METHOD(fileWriteStreamClass, FileWriteStream, putSpace, 0);
+  DEF_METHOD(fileWriteStreamClass, FileWriteStream, putString, 1);
 }
