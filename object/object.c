@@ -50,6 +50,18 @@ ObjRecord* newRecord(void* data) {
   return record;
 }
 
+ObjEntry* newEntry(Value key, Value value) {
+  ObjEntry* entry = ALLOCATE_OBJ(ObjEntry, OBJ_ENTRY, NULL);
+  entry->key = key;
+  entry->value = value;
+  return entry;
+}
+
+ObjMap* newMap() {
+  ObjMap* map = ALLOCATE_OBJ(ObjMap, OBJ_MAP, NULL);
+  return map;
+}
+
 ObjArray* newArray() {
   ObjArray* array = ALLOCATE_OBJ(ObjArray, OBJ_ARRAY, vm.arrayClass);
   initValueArray(&array->elements);

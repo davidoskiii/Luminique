@@ -52,6 +52,7 @@ typedef enum {
   OBJ_RECORD,
   OBJ_ARRAY,
   OBJ_MAP,
+  OBJ_ENTRY,
   OBJ_DICTIONARY,
   OBJ_NATIVE_FUNCTION,
   OBJ_NATIVE_METHOD,
@@ -178,6 +179,8 @@ Obj* allocateObject(size_t size, ObjType type, ObjClass* klass);
 ObjBoundMethod* newBoundMethod(Value receiver, ObjClosure* method);
 ObjFile* newFile(ObjString* name);
 ObjRecord* newRecord(void* data);
+ObjEntry* newEntry(Value key, Value value);
+ObjMap* newMap();
 ObjArray* newArray();
 ObjArray* copyArray(ValueArray elements, int fromIndex, int toIndex);
 ObjDictionary* newDictionary();
