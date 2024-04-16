@@ -1182,4 +1182,7 @@ void registerUtilPackage() {
 
   ObjClass* mapClass = defineNativeClass("Map");
   bindSuperclass(mapClass, collectionClass);
+
+  ObjClass* entryClass = defineNativeClass("Entry");
+  bindSuperclass(entryClass, vm.objectClass);
 }
