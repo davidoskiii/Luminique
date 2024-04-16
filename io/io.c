@@ -12,6 +12,7 @@
 
 #include <unistd.h>
 #define _chmod(path, mode) chmod(path, mode)
+#define fopen_s(fp,filename,mode) ((*(fp))=fopen((filename),(mode)))==NULL
 #define _getcwd(buffer, size) getcwd(buffer, size)
 #define _mkdir(path) mkdir(path, 777)
 #define _rmdir(path) rmdir(path)
@@ -73,7 +74,7 @@ NATIVE_METHOD(BinaryReadStream, next) {
     if (fread(&byte, sizeof(char), 1, file->file) > 0) {
       RETURN_INT((int)byte);
     }
-    else assertError("Cannot read more byte, file is already at the end.");
+    RETURN_NIL;
   }
   RETURN_NIL;
 }
@@ -472,14 +473,18 @@ NATIVE_METHOD(ReadStream, __init__) {
 }
 
 NATIVE_METHOD(ReadStream, isAtEnd) {
-  assertArgCount("ReadStream::next()", 0, argCount);
+  assertArgCount("ReadStream::isAtEnd()", 0, argCount);
   ObjFile* file = getFileProperty(AS_INSTANCE(receiver), "file");
   if (!file->isOpen || file->file == NULL) RETURN_FALSE;
-  else RETURN_BOOL(feof(file->file) != 0);
+  else {
+    int c = getc(file->file);
+    ungetc(c, file->file);
+    RETURN_BOOL(c == EOF);
+  }
 }
 
 NATIVE_METHOD(ReadStream, next) {
-  assertError("Cannot call method ReadStream::next(), it must be implemented by subclasses.");
+  THROW_EXCEPTION(CallError, "Cannot call method ReadStream::next(), it must be implemented by subclasses.");
   RETURN_NIL;
 }
 
@@ -506,7 +511,7 @@ NATIVE_METHOD(WriteStream, __init__) {
 }
 
 NATIVE_METHOD(WriteStream, put) {
-  THROW_EXCEPTION(CallError, "Cannot call method WriteStream::put(), it must be implemented by subclasses.");
+  THROW_EXCEPTION(CallError, "Cannot call method WriteStream::put(param), it must be implemented by subclasses.");
   RETURN_NIL;
 }
 

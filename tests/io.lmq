@@ -44,6 +44,26 @@ fileWriter.putString("Hello World!");
 println("Close write stream for file.");
 fileWriter.close();
 
+print("\n");
+
+let binaryFileIn = File("tests/directory/file_binary.bin");
+println(binaryFileIn);
+
+println("Creating a binary read stream.");
+println("Now read the binary file to the screen:");
+
+let binaryReader = BinaryReadStream(binaryFileIn);
+while(!binaryReader.isAtEnd()){
+  print(binaryReader.next());
+  print(" ");
+}
+
+print("\n");
+
+binaryReader.close();
+
+print("\n");
+
 let fileBinaryOut = File("tests/directory/file_binary.bin");
 println(fileBinaryOut);
 println("Creating a binary write stream.");
