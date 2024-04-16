@@ -178,6 +178,7 @@ ObjUpvalue* newUpvalue(Value* slot);
 void printObject(Value value);
 ObjClass* getObjClass(Value value);
 Value getObjProperty(ObjInstance* object, char* name);
+Value getObjMethod(Value object, char* name);
 void setObjProperty(ObjInstance* object, char* name, Value value);
 bool isObjInstanceOf(Value value, ObjClass* klass);
 bool isClassExtendingSuperclass(ObjClass* klass, ObjClass* superclass);

@@ -155,6 +155,15 @@ Value getObjProperty(ObjInstance* object, char* name) {
   return value;
 }
 
+Value getObjMethod(Value object, char* name) {
+  ObjClass* klass = getObjClass(object);
+  Value method;
+  if (!tableGet(&klass->methods, newString(name), &method)) {
+    runtimeError("Method %s::%s does not exist.", klass->name->chars, name);
+  }
+  return method;
+}
+
 void setObjProperty(ObjInstance* object, char* name, Value value) {
   tableSet(&object->fields, copyString(name, (int)strlen(name)), value);
 }

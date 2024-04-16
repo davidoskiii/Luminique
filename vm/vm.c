@@ -188,6 +188,26 @@ static bool callMethod(Value method, int argCount) {
   else return callClosure(AS_CLOSURE(method), argCount);
 }
 
+Value callReentrant(Value receiver, Value callee, ...) {
+    push(receiver);
+    int argCount = IS_NATIVE_METHOD(callee) ? AS_NATIVE_METHOD(callee)->arity : AS_CLOSURE(callee)->function->arity;
+    va_list args;
+    va_start(args, callee);
+    for (int i = 0; i < argCount; i++) {
+        push(va_arg(args, Value));
+    }
+    va_end(args);
+
+    if (IS_CLOSURE(callee)) {
+      callClosure(AS_CLOSURE(callee), argCount);
+      run();
+    }
+    else {
+      callNativeMethod(AS_NATIVE_METHOD(callee)->method, argCount);
+    }
+    return pop();
+}
+
 static bool callValue(Value callee, int argCount) {
   if (IS_OBJ(callee)) {
     switch (OBJ_TYPE(callee)) {
@@ -322,7 +342,7 @@ void bindSuperclass(ObjClass* subclass, ObjClass* superclass) {
   tableAddAll(&superclass->methods, &subclass->methods);
 }
 
-static bool isFalsey(Value value) {
+bool isFalsey(Value value) {
   return IS_NIL(value) || (IS_BOOL(value) && !AS_BOOL(value));
 }
 
@@ -419,7 +439,7 @@ ObjInstance* throwException(ObjClass* exceptionClass, const char* format, ...) {
   else return exception;
 }
 
-static InterpretResult run() {
+InterpretResult run() {
   CallFrame* frame = &vm.frames[vm.frameCount - 1];
 
 #define READ_BYTE() (*frame->ip++)

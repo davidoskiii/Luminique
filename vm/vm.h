@@ -66,10 +66,13 @@ typedef enum {
 
 extern VM vm;
 
+InterpretResult run();
 
 void initVM();
 void freeVM();
 
+Value callReentrant(Value receiver, Value callee, ...);
+bool isFalsey(Value value);
 void bindSuperclass(ObjClass* subclass, ObjClass* superclass);
 bool loadGlobal(ObjString* name, Value* value);
 InterpretResult interpret(const char* source);

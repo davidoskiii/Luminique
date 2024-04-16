@@ -234,6 +234,192 @@ static ObjString* arrayToString(ObjArray* array) {
 	}
 }
 
+Value newCollection(ObjClass* klass) {
+  switch (klass->obj.type) {
+    case OBJ_ARRAY: return OBJ_VAL(newArray());
+    case OBJ_DICTIONARY: return OBJ_VAL(newDictionary());
+    default: {
+      ObjInstance* collection = newInstance(klass);
+      Value initMethod = getObjMethod(OBJ_VAL(collection), "__init__");
+      callReentrant(OBJ_VAL(collection), initMethod);
+      return OBJ_VAL(collection);
+    }
+  }
+}
+
+NATIVE_METHOD(Collection, add) {
+    assertError("Not implemented, subclass responsibility.");
+    RETURN_NIL;
+}
+
+NATIVE_METHOD(Collection, addAll) {
+  assertArgCount("Collection::addAll(collection)", 1, argCount);
+  assertObjInstanceOfClass("Collection::addAll(collection)", args[0], "Collection",  0);
+  Value collection = args[0];
+  Value addMethod = getObjMethod(receiver, "add");
+  Value nextMethod = getObjMethod(collection, "next");
+  Value nextValueMethod = getObjMethod(collection, "nextValue");
+  Value index = callReentrant(collection, nextMethod, NIL_VAL);
+
+  while (!IS_NIL(index)) {
+    Value element = callReentrant(collection, nextValueMethod, index);
+    callReentrant(receiver, addMethod, element);
+    index = callReentrant(collection, nextMethod, index);
+  }
+
+  RETURN_NIL;
+}
+
+NATIVE_METHOD(Collection, collect) {
+  assertArgCount("Collection::collect(closure)", 1, argCount);
+  assertArgIsClosure("Collection::collect(closure)", args, 0);
+  ObjClosure* closure = AS_CLOSURE(args[0]);
+  Value addMethod = getObjMethod(receiver, "add");
+  Value nextMethod = getObjMethod(receiver, "next");
+  Value nextValueMethod = getObjMethod(receiver, "nextValue");
+  Value index = callReentrant(receiver, nextMethod, NIL_VAL);
+
+  Value collected = newCollection(getObjClass(receiver));
+  push(collected);
+  while (!IS_NIL(index)) {
+    Value element = callReentrant(receiver, nextValueMethod, index);
+    Value result = callReentrant(receiver, OBJ_VAL(closure), element);
+    callReentrant(collected, addMethod, result);
+    index = callReentrant(receiver, nextMethod, index);
+  }
+  pop(vm);
+  return collected;
+}
+
+NATIVE_METHOD(Collection, detect) {
+  assertArgCount("Collection::detect(closure)", 1, argCount);
+  assertArgIsClosure("Collection::detect(closure)", args, 0);
+  ObjClosure* closure = AS_CLOSURE(args[0]);
+  Value nextMethod = getObjMethod(receiver, "next");
+  Value nextValueMethod = getObjMethod(receiver, "nextValue");
+  Value index = callReentrant(receiver, nextMethod, NIL_VAL);
+
+  while (!IS_NIL(index)) {
+    Value element = callReentrant(receiver, nextValueMethod, index);
+    Value result = callReentrant(receiver, OBJ_VAL(closure), element);
+    if (!isFalsey(result)) RETURN_VAL(element);
+    index = callReentrant(receiver, nextMethod, index);
+  }
+
+  RETURN_NIL;
+}
+
+NATIVE_METHOD(Collection, each) {
+  assertArgCount("Collection::each(closure)", 1, argCount);
+  assertArgIsClosure("Collection::each(closure)", args, 0);
+  ObjClosure* closure = AS_CLOSURE(args[0]);
+  Value nextMethod = getObjMethod(receiver, "next");
+  Value nextValueMethod = getObjMethod(receiver, "nextValue");
+  Value index = callReentrant(receiver, nextMethod, NIL_VAL);
+
+  while (!IS_NIL(index)) {
+    Value element = callReentrant(receiver, nextValueMethod, index);
+    Value result = callReentrant(receiver, OBJ_VAL(closure), element);
+    index = callReentrant(receiver, nextMethod, index);
+  }
+
+  RETURN_NIL;
+}
+
+NATIVE_METHOD(Collection, init) {
+  assertError("Cannot instantiate from class Collection.");
+  RETURN_NIL;
+}
+
+NATIVE_METHOD(Collection, isEmpty) {
+  assertArgCount("Collection::isEmpty()", 1, argCount);
+  Value nextMethod = getObjMethod(receiver, "next");
+  Value index = callReentrant(receiver, nextMethod, NIL_VAL);
+  RETURN_BOOL(IS_NIL(index));
+}
+
+NATIVE_METHOD(Collection, length) {
+  assertArgCount("Collection::length()", 1, argCount);
+  Value nextMethod = getObjMethod(receiver, "next");
+  Value index = callReentrant(receiver, nextMethod, NIL_VAL);
+  
+  int length = 0;
+
+  while (!IS_NIL(index)) {
+    index = callReentrant(receiver, nextMethod, index);
+    length++;
+  }
+
+  RETURN_INT(length);
+}
+
+NATIVE_METHOD(Collection, reject) {
+  assertArgCount("Collection::reject(closure)", 1, argCount);
+  assertArgIsClosure("Collection::reject(closure)", args, 0);
+  ObjClosure* closure = AS_CLOSURE(args[0]);
+  Value addMethod = getObjMethod(receiver, "add");
+  Value nextMethod = getObjMethod(receiver, "next");
+  Value nextValueMethod = getObjMethod(receiver, "nextValue");
+  Value index = callReentrant(receiver, nextMethod, NIL_VAL);
+
+  Value rejected = newCollection(getObjClass(receiver));
+  push(rejected);
+
+  while (!IS_NIL(index)) {
+    Value element = callReentrant(receiver, nextValueMethod, index);
+    Value result = callReentrant(receiver, OBJ_VAL(closure), element);
+    if(isFalsey(result)) callReentrant(rejected, addMethod, element);
+    index = callReentrant(receiver, nextMethod, index);
+  }
+
+  pop();
+  return rejected;
+}
+
+NATIVE_METHOD(Collection, select) {
+  assertArgCount("Collection::select(closure)", 1, argCount);
+  assertArgIsClosure("Collection::select(closure)", args, 0);
+  ObjClosure* closure = AS_CLOSURE(args[0]);
+  Value addMethod = getObjMethod(receiver, "add");
+  Value nextMethod = getObjMethod(receiver, "next");
+  Value nextValueMethod = getObjMethod(receiver, "nextValue");
+  Value index = callReentrant(receiver, nextMethod, NIL_VAL);
+
+  Value selected = newCollection(getObjClass(receiver));
+  push(selected);
+
+  while (!IS_NIL(index)) {
+    Value element = callReentrant(receiver, nextValueMethod, index);
+    Value result = callReentrant(receiver, OBJ_VAL(closure), element);
+    if (!isFalsey(result)) callReentrant(selected, addMethod, element);
+    index = callReentrant(receiver, nextMethod, index);
+  }
+
+  pop();
+  return selected;
+}
+
+NATIVE_METHOD(Collection, toArray) {
+  assertArgCount("Collection::toArray(closure)", 1, argCount);
+  ObjClosure* closure = AS_CLOSURE(args[0]);
+  Value addMethod = getObjMethod(receiver, "add");
+  Value nextMethod = getObjMethod(receiver, "next");
+  Value nextValueMethod = getObjMethod(receiver, "nextValue");
+  Value index = callReentrant(receiver, nextMethod, NIL_VAL);
+
+  ObjArray* array = newArray(vm);
+  push(OBJ_VAL(array));
+
+  while (!IS_NIL(index)) {
+    Value element = callReentrant(receiver, nextValueMethod, index);
+    writeValueArray(&array->elements, element);
+    index = callReentrant(receiver, nextMethod, index);
+  }
+
+  pop();
+  RETURN_OBJ(array);
+}
+
 // ARRAY
 
 NATIVE_METHOD(Array, __init__) {
@@ -887,13 +1073,22 @@ NATIVE_METHOD(Dictionary, toString) {
 }
 
 void registerUtilPackage() {
-  initNativePackage("src/std/util.lox");
-
-  ObjClass* collectionClass = getNativeClass("Collection");
+  ObjClass* collectionClass = defineNativeClass("Collection");
   bindSuperclass(collectionClass, vm.objectClass);
+  DEF_METHOD(collectionClass, Collection, add, 1);
+  DEF_METHOD(collectionClass, Collection, addAll, 1);
+  DEF_METHOD(collectionClass, Collection, collect, 1);
+  DEF_METHOD(collectionClass, Collection, detect, 1);
+  DEF_METHOD(collectionClass, Collection, each, 1);
+  DEF_METHOD(collectionClass, Collection, init, 0);
+  DEF_METHOD(collectionClass, Collection, isEmpty, 0);
+  DEF_METHOD(collectionClass, Collection, length, 0);
+  DEF_METHOD(collectionClass, Collection, reject, 1);
+  DEF_METHOD(collectionClass, Collection, select, 1);
+  DEF_METHOD(collectionClass, Collection, toArray, 0);
 
 	vm.arrayClass = defineNativeClass("Array");
-	bindSuperclass(vm.arrayClass, vm.objectClass);
+	bindSuperclass(vm.arrayClass, collectionClass);
 	DEF_METHOD(vm.arrayClass, Array, __init__, 0);
 	DEF_METHOD(vm.arrayClass, Array, append, 1);
   DEF_METHOD(vm.arrayClass, Array, addAll, 1);
@@ -917,7 +1112,7 @@ void registerUtilPackage() {
 	DEF_METHOD(vm.arrayClass, Array, toString, 0);
 
 	vm.dictionaryClass = defineNativeClass("Dictionary");
-	bindSuperclass(vm.dictionaryClass, vm.objectClass);
+	bindSuperclass(vm.dictionaryClass, collectionClass);
 	DEF_METHOD(vm.dictionaryClass, Dictionary, __init__, 0);
 	DEF_METHOD(vm.dictionaryClass, Dictionary, clear, 0);
 	DEF_METHOD(vm.dictionaryClass, Dictionary, containsKey, 1);
@@ -980,4 +1175,11 @@ void registerUtilPackage() {
 	DEF_METHOD(regexClass, Regex, match, 1);
 	DEF_METHOD(regexClass, Regex, replace, 2);
 	DEF_METHOD(regexClass, Regex, toString, 0);
+
+
+  ObjClass* setClass = defineNativeClass("Set");
+  bindSuperclass(setClass, collectionClass);
+
+  ObjClass* mapClass = defineNativeClass("Map");
+  bindSuperclass(mapClass, collectionClass);
 }
