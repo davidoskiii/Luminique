@@ -120,6 +120,19 @@ typedef struct ObjRecord {
   void* data;
 } ObjRecord;
 
+typedef struct ObjEntry {
+  Obj obj;
+  Value key;
+  Value value;
+} ObjEntry;
+
+typedef struct ObjMap {
+  Obj obj;
+  int count;
+  int capacity;
+  ObjEntry* entry;
+} ObjMap;
+
 typedef struct {
   Obj obj;
   ObjFunction* function;
