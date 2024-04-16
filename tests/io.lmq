@@ -1,8 +1,8 @@
-let file = File("tests/directory/file_input.txt");
-println(file);
+let fileIn = File("tests/directory/file_input.txt");
+println(fileIn);
 
-println("Creating a read stream for file. ");
-let fileReader = FileReadStream(file);
+println("Creating a read stream for input file. ");
+let fileReader = FileReadStream(fileIn);
 
 println("The first character of the file is: " + fileReader.peek());
 println("");
@@ -21,3 +21,38 @@ println(fileReader.isAtEnd());
 
 println("Closing read stream for file.");
 fileReader.close();
+
+let fileOut = File("tests/directory/file_output.txt");
+
+println(fileOut);
+println("Creating a write stream for out file.");
+
+let fileWriter = FileWriteStream(fileOut);
+print("\n");
+
+println("Now write character 'B' to file.");
+fileWriter.put("B");
+
+println("Then write a new line, and string 'x = 32'.");
+fileWriter.putLine();
+fileWriter.putString("x = 32");
+
+println("Then write a new line, and string 'Hello World!'.");
+fileWriter.putLine();
+fileWriter.putString("Hello World!");
+
+println("Close write stream for file.");
+fileWriter.close();
+
+let fileBinaryOut = File("tests/directory/file_binary.bin");
+println(fileBinaryOut);
+println("Creating a binary write stream.");
+print("Now write to a binary file with the following bytes: ");
+
+let binaryWriter = BinaryWriteStream(fileBinaryOut);
+let bytes = [5, 37, 0, 88, 255, 12];
+
+println(bytes);
+binaryWriter.putBytes(bytes);
+println("Close binary write stream.");
+binaryWriter.close();

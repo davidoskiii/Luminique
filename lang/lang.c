@@ -729,6 +729,7 @@ void registerLangPackage(){
   defineNativeException("IndexOutOfBoundsException", runtimeExceptionClass);
   defineNativeException("UnsupportedOperationException", runtimeExceptionClass);
   defineNativeException("InstantiationError", runtimeExceptionClass);
+  defineNativeException("CallError", runtimeExceptionClass);
 
 	vm.nilClass = defineNativeClass("Nil");
 	bindSuperclass(vm.nilClass, vm.objectClass);

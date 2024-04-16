@@ -45,7 +45,7 @@ static void setFileProperty(ObjInstance* object, ObjFile* file, char* mode) {
   file->file = fopen(file->name->chars, mode);
 
   if (file->file == NULL) {
-    assertError("Cannot create stream object because file does not exist.");
+    assertError("Cannot create IOStream, file either does not exist or require additional permission to access.");
   }
 
   file->isOpen = true;
@@ -53,12 +53,107 @@ static void setFileProperty(ObjInstance* object, ObjFile* file, char* mode) {
   setObjProperty(object, "file", OBJ_VAL(file));
 }
 
+
+NATIVE_METHOD(BinaryReadStream, __init__) {
+  assertArgCount("BinaryReadStream::__init__(file)", 1, argCount);
+  ObjInstance* self = AS_INSTANCE(receiver);
+  ObjFile* file = getFileArgument(args[0]);
+  if (file == NULL) assertError("Method BinaryReadStream::__init__(file) expects argument 1 to be a string or file.");
+  setFileProperty(AS_INSTANCE(receiver), file, "rb");
+  RETURN_OBJ(self);
+}
+
+NATIVE_METHOD(BinaryReadStream, next) {
+  assertArgCount("BinaryReadStream::next()", 0, argCount);
+  ObjFile* file = getFileProperty(AS_INSTANCE(receiver), "file");
+  if (!file->isOpen) assertError("Cannot read the next byte because file is already closed.");
+  if (file->file == NULL) RETURN_NIL;
+  else {
+    unsigned char byte;
+    if (fread(&byte, sizeof(char), 1, file->file) > 0) {
+      RETURN_INT((int)byte);
+    }
+    else assertError("Cannot read more byte, file is already at the end.");
+  }
+  RETURN_NIL;
+}
+
+NATIVE_METHOD(BinaryReadStream, nextBytes) {
+  assertArgCount("BinaryReadStream::nextBytes(length)", 1, argCount);
+  assertArgIsInt("BinaryReadStream::nextBytes(length)", args, 0);
+  assertNumberPositive("BinaryReadStream::nextBytes(length)", AS_NUMBER(args[0]), 0);
+  int length = AS_INT(args[0]);
+
+  ObjFile* file = getFileProperty(AS_INSTANCE(receiver), "file");
+  if (!file->isOpen) assertError("Cannot read the next byte because file is already closed.");
+  if (file->file == NULL) RETURN_NIL;
+  else {
+    ObjArray* bytes = newArray();
+    push(OBJ_VAL(bytes));
+    for (int i = 0; i < length; i++) {
+      unsigned char byte;
+      if (fread(&byte, sizeof(char), 1, file->file) == 0) break;
+      writeValueArray(&bytes->elements, INT_VAL((int)byte));
+    }
+    pop(vm);
+    RETURN_OBJ(bytes);
+  }
+}
+
+NATIVE_METHOD(BinaryWriteStream, __init__) {
+  assertArgCount("BinaryWriteStream::__init__(file)", 1, argCount);
+  ObjInstance* self = AS_INSTANCE(receiver);
+  ObjFile* file = getFileArgument(args[0]);
+  if (file == NULL) assertError("Method BinaryWriteStream::__init__(file) expects argument 1 to be a string or file.");
+  setFileProperty(AS_INSTANCE(receiver), file, "wb");
+  RETURN_OBJ(self);
+}
+
+NATIVE_METHOD(BinaryWriteStream, put) {
+  assertArgCount("BinaryWriteStream::put(byte)", 1, argCount);
+  assertArgIsInt("BinaryWriteStream::put(bytes)", args, 0);
+  int byte = AS_INT(args[0]);
+  assertIntWithinRange("BinaryWriteStream::put(byte)", byte, 0, 255, 0);
+
+  ObjFile* file = getFileProperty(AS_INSTANCE(receiver), "file");
+  if (!file->isOpen) assertError("Cannot write byte to stream because file is already closed.");
+  if (file->file == NULL) RETURN_NIL;
+  else {
+    unsigned char bytes[1] = { (unsigned char)byte };
+    fwrite(bytes, sizeof(char), 1, file->file);
+    RETURN_NIL;
+  }
+}
+
+NATIVE_METHOD(BinaryWriteStream, putBytes) {
+  assertArgCount("BinaryWriteStream::putBytes(bytes)", 1, argCount);
+  assertArgIsArray("BinaryWriteStream::putBytes(bytes)", args, 0);
+  ObjArray* bytes = AS_ARRAY(args[0]);
+  if (bytes->elements.count == 0) assertError("Cannot write empty byte array to stream.");
+
+  ObjFile* file = getFileProperty(AS_INSTANCE(receiver), "file");
+  if (!file->isOpen) assertError("Cannot write bytes to stream because file is already closed.");
+  if (file->file == NULL) RETURN_NIL;
+  else {
+    unsigned char* byteArray = (unsigned char*)malloc(bytes->elements.count);
+    if (byteArray != NULL) {
+      for (int i = 0; i < bytes->elements.count; i++) {
+        if (!IS_INT(bytes->elements.values[i])) assertError("Cannot write bytes to stream because data is corrupted.");
+        int byte = AS_INT(bytes->elements.values[i]);
+        byteArray[i] = (unsigned char)byte;
+      }
+      fwrite(byteArray, sizeof(char), (size_t)bytes->elements.count, file->file);
+      free(byteArray);
+    }
+    RETURN_NIL;
+  }
+}
+
 NATIVE_METHOD(File, __init__) {
   assertArgCount("File::__init__(pathname)", 1, argCount);
   assertArgIsString("File::__init__(pathname)", args, 0);
   ObjFile* self = newFile(AS_STRING(args[0]));
   struct stat fileStat;
-  if (!fileExists(self, &fileStat)) THROW_EXCEPTION(InstantiationError, "File or directory doesn't exist.");
   RETURN_OBJ(self);
 }
 
@@ -244,13 +339,6 @@ NATIVE_METHOD(FileReadStream, __init__) {
   setFileProperty(AS_INSTANCE(receiver), file, "r");  RETURN_OBJ(self);
 }
 
-NATIVE_METHOD(FileReadStream, isAtEnd) {
-  assertArgCount("FileReadStream::isAtEnd()", 0, argCount);
-  ObjFile* file = getFileProperty(AS_INSTANCE(receiver), "file");
-  if (!file->isOpen || file->file == NULL) RETURN_FALSE;
-  else RETURN_BOOL(feof(file->file) != 0);
-}
-
 NATIVE_METHOD(FileReadStream, next) {
   assertArgCount("FileReadStream::next()", 0, argCount);
   ObjFile* file = getFileProperty(AS_INSTANCE(receiver), "file");
@@ -290,16 +378,6 @@ NATIVE_METHOD(FileReadStream, peek) {
   }
 }
 
-NATIVE_METHOD(FileReadStream, skip) {
-  assertArgCount("FileReadStream::skip(offset)", 1, argCount);
-  assertArgIsInt("FileReadStream::skip(offset)", args, 0);
-  ObjFile* file = getFileProperty(AS_INSTANCE(receiver), "file");
-  if (!file->isOpen) assertError("Cannot skip by offset because file is already closed.");
-  if (file->file == NULL) RETURN_FALSE;
-  RETURN_BOOL(fseek(file->file, (long)AS_INT(args[0]), SEEK_CUR));
-}
-
-
 NATIVE_METHOD(FileWriteStream, __init__) {
   assertArgCount("FileWriteStream::__init__(file)", 1, argCount);
   ObjInstance* self = AS_INSTANCE(receiver);
@@ -307,14 +385,6 @@ NATIVE_METHOD(FileWriteStream, __init__) {
   if (file == NULL) THROW_EXCEPTION(IllegalArgumentException, "Method FileWriteStream::__init__(file) expects argument 1 to be a string or file.");
   setFileProperty(AS_INSTANCE(receiver), file, "w");
   RETURN_OBJ(self);
-}
-
-NATIVE_METHOD(FileWriteStream, flush) {
-  assertArgCount("FileWriteStream::flush()", 0, argCount);
-  ObjFile* file = getFileProperty(AS_INSTANCE(receiver), "file");
-  if (!file->isOpen) assertError("Cannot flush file stream because file is already closed.");
-  if (file->file == NULL) RETURN_FALSE;
-  RETURN_BOOL(fflush(file->file) == 0);
 }
 
 NATIVE_METHOD(FileWriteStream, put) {
@@ -373,6 +443,12 @@ NATIVE_METHOD(IOStream, close) {
   RETURN_BOOL(fclose(file->file) == 0);
 }
 
+
+NATIVE_METHOD(IOStream, file) {
+  assertArgCount("IOStream::file()", 0, argCount);
+  RETURN_OBJ(getFileProperty(AS_INSTANCE(receiver), "file"));
+}
+
 NATIVE_METHOD(IOStream, getPosition) {
   assertArgCount("IOStream::getPosition()", 0, argCount);
   ObjFile* file = getFileProperty(AS_INSTANCE(receiver), "file");
@@ -386,6 +462,51 @@ NATIVE_METHOD(IOStream, reset) {
   ObjFile* file = getFileProperty(AS_INSTANCE(receiver), "file");
   if (!file->isOpen) assertError("Cannot reset stream because file is already closed.");
   if (file->file != NULL) rewind(file->file);
+  RETURN_NIL;
+}
+
+
+NATIVE_METHOD(ReadStream, __init__) {
+  THROW_EXCEPTION(InstantiationError, "Cannot instantiate from class ReadStream.");
+  RETURN_NIL;
+}
+
+NATIVE_METHOD(ReadStream, isAtEnd) {
+  assertArgCount("ReadStream::next()", 0, argCount);
+  ObjFile* file = getFileProperty(AS_INSTANCE(receiver), "file");
+  if (!file->isOpen || file->file == NULL) RETURN_FALSE;
+  else RETURN_BOOL(feof(file->file) != 0);
+}
+
+NATIVE_METHOD(ReadStream, next) {
+  assertError("Cannot call method ReadStream::next(), it must be implemented by subclasses.");
+  RETURN_NIL;
+}
+
+NATIVE_METHOD(ReadStream, skip) {
+  assertArgCount("ReadStream::skip(offset)", 1, argCount);
+  assertArgIsInt("ReadStream::skip(offset)", args, 0);
+  ObjFile* file = getFileProperty(AS_INSTANCE(receiver), "file");
+  if (!file->isOpen) assertError("Cannot skip stream by offset because file is already closed.");
+  if (file->file == NULL) RETURN_FALSE;
+  RETURN_BOOL(fseek(file->file, (long)AS_INT(args[0]), SEEK_CUR));
+}
+
+NATIVE_METHOD(WriteStream, flush) {
+  assertArgCount("WriteStream::flush()", 0, argCount);
+  ObjFile* file = getFileProperty(AS_INSTANCE(receiver), "file");
+  if (!file->isOpen) assertError("Cannot flush stream because file is already closed.");
+  if (file->file == NULL) RETURN_FALSE;
+  RETURN_BOOL(fflush(file->file) == 0);
+}
+
+NATIVE_METHOD(WriteStream, __init__) {
+  THROW_EXCEPTION(InstantiationError, "Cannot instantiate from class WriteStream.");
+  RETURN_NIL;
+}
+
+NATIVE_METHOD(WriteStream, put) {
+  THROW_EXCEPTION(CallError, "Cannot call method WriteStream::put(), it must be implemented by subclasses.");
   RETURN_NIL;
 }
 
@@ -419,23 +540,47 @@ void registerIOPackage() {
   bindSuperclass(ioStreamClass, vm.objectClass);
   DEF_METHOD(ioStreamClass, IOStream, __init__, 1);
   DEF_METHOD(ioStreamClass, IOStream, close, 0);
+  DEF_METHOD(ioStreamClass, IOStream, file, 0);
   DEF_METHOD(ioStreamClass, IOStream, getPosition, 0);
   DEF_METHOD(ioStreamClass, IOStream, reset, 0);
 
+
+  ObjClass* readStreamClass = defineNativeClass("ReadStream");
+  bindSuperclass(readStreamClass, ioStreamClass);
+  DEF_METHOD(readStreamClass, ReadStream, __init__, 1);
+  DEF_METHOD(readStreamClass, ReadStream, isAtEnd, 0);
+  DEF_METHOD(readStreamClass, ReadStream, next, 0);
+  DEF_METHOD(readStreamClass, ReadStream, skip, 1);
+
+  ObjClass* writeStreamClass = defineNativeClass("WriteStream");
+  bindSuperclass(writeStreamClass, ioStreamClass);
+  DEF_METHOD(writeStreamClass, WriteStream, __init__, 1);
+  DEF_METHOD(writeStreamClass, WriteStream, flush, 0);
+  DEF_METHOD(writeStreamClass, WriteStream, put, 1);
+
+  ObjClass* binaryReadStreamClass = defineNativeClass("BinaryReadStream");
+  bindSuperclass(binaryReadStreamClass, readStreamClass);
+  DEF_METHOD(binaryReadStreamClass, BinaryReadStream, __init__, 1);
+  DEF_METHOD(binaryReadStreamClass, BinaryReadStream, next, 0);
+  DEF_METHOD(binaryReadStreamClass, BinaryReadStream, nextBytes, 1);
+
+  ObjClass* binaryWriteStreamClass = defineNativeClass("BinaryWriteStream");
+  bindSuperclass(binaryWriteStreamClass, writeStreamClass);
+  DEF_METHOD(binaryWriteStreamClass, BinaryWriteStream, __init__, 1);
+  DEF_METHOD(binaryWriteStreamClass, BinaryWriteStream, put, 1);
+  DEF_METHOD(binaryWriteStreamClass, BinaryWriteStream, putBytes, 1);
+
   ObjClass* fileReadStreamClass = defineNativeClass("FileReadStream");
-  bindSuperclass(fileReadStreamClass, ioStreamClass);
+  bindSuperclass(fileReadStreamClass, readStreamClass);
   DEF_METHOD(fileReadStreamClass, FileReadStream, __init__, 1);
-  DEF_METHOD(fileReadStreamClass, FileReadStream, isAtEnd, 0);
   DEF_METHOD(fileReadStreamClass, FileReadStream, next, 0);
   DEF_METHOD(fileReadStreamClass, FileReadStream, nextLine, 0);
   DEF_METHOD(fileReadStreamClass, FileReadStream, peek, 0);
-  DEF_METHOD(fileReadStreamClass, FileReadStream, skip, 1);
 
 
   ObjClass* fileWriteStreamClass = defineNativeClass("FileWriteStream");
-  bindSuperclass(fileWriteStreamClass, ioStreamClass);
+  bindSuperclass(fileWriteStreamClass, writeStreamClass);
   DEF_METHOD(fileWriteStreamClass, FileWriteStream, __init__, 1);
-  DEF_METHOD(fileWriteStreamClass, FileWriteStream, flush, 0);
   DEF_METHOD(fileWriteStreamClass, FileWriteStream, put, 1);
   DEF_METHOD(fileWriteStreamClass, FileWriteStream, putLine, 0);
   DEF_METHOD(fileWriteStreamClass, FileWriteStream, putSpace, 0);
