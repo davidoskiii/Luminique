@@ -51,7 +51,6 @@ typedef enum {
   OBJ_FILE,
   OBJ_RECORD,
   OBJ_ARRAY,
-  OBJ_MAP,
   OBJ_ENTRY,
   OBJ_DICTIONARY,
   OBJ_NATIVE_FUNCTION,
@@ -127,13 +126,6 @@ typedef struct ObjEntry {
   Value value;
 } ObjEntry;
 
-typedef struct ObjMap {
-  Obj obj;
-  int count;
-  int capacity;
-  ObjEntry* entry;
-} ObjMap;
-
 typedef struct {
   Obj obj;
   ObjFunction* function;
@@ -180,7 +172,6 @@ ObjBoundMethod* newBoundMethod(Value receiver, ObjClosure* method);
 ObjFile* newFile(ObjString* name);
 ObjRecord* newRecord(void* data);
 ObjEntry* newEntry(Value key, Value value);
-ObjMap* newMap();
 ObjArray* newArray();
 ObjArray* copyArray(ValueArray elements, int fromIndex, int toIndex);
 ObjDictionary* newDictionary();

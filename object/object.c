@@ -57,14 +57,6 @@ ObjEntry* newEntry(Value key, Value value) {
   return entry;
 }
 
-ObjMap* newMap() {
-  ObjMap* map = ALLOCATE_OBJ(ObjMap, OBJ_MAP, NULL);
-  map->count = 0;
-  map->capacity = 0;
-  map->entry = NULL;
-  return map;
-}
-
 ObjArray* newArray() {
   ObjArray* array = ALLOCATE_OBJ(ObjArray, OBJ_ARRAY, vm.arrayClass);
   initValueArray(&array->elements);
