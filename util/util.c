@@ -1180,9 +1180,6 @@ void registerUtilPackage() {
   ObjClass* setClass = defineNativeClass("Set");
   bindSuperclass(setClass, collectionClass);
 
-  ObjClass* mapClass = defineNativeClass("Map");
-  bindSuperclass(mapClass, collectionClass);
-
   ObjClass* entryClass = defineNativeClass("Entry");
   bindSuperclass(entryClass, vm.objectClass);
 }
