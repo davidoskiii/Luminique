@@ -80,6 +80,13 @@ ObjClass* defineNativeException(const char* name, ObjClass* superClass) {
   return exceptionClass;
 }
 
+
+void initNativePackage(const char* filePath) {
+  char* source = readFile(filePath);
+  interpret(source);
+  free(source);
+}
+
 NATIVE_FUNCTION(clock) {
   assertArgCount("clock()", 0, argCount);
   RETURN_NUMBER((double)clock() / CLOCKS_PER_SEC);

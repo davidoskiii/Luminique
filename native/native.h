@@ -25,6 +25,7 @@
 
 
 void initNatives();
+void initNativePackage(const char* filePath);
 void loadSourceFile(const char* filePath);
 void defineNativeFunction(const char* name, int arity, NativeFunction functionion);
 void defineNativeMethod(ObjClass* klass, const char* name, int arity, NativeMethod method);

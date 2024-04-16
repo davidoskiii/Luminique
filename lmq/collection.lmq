@@ -1,0 +1,128 @@
+class Collection { 
+    function collect(closure) {
+        let collected = this.getClass()();
+        for (element : this){
+          collected.add(closure(element));
+        }
+        return collected;
+    }
+
+    function detect(closure) { 
+        for (element : this){
+            if(closure(element)) return element;
+        }
+        return nil;
+    }
+
+    function each(closure) {
+        for (element : this){ 
+            closure(element);
+        }
+    }
+
+    function isEmpty() {
+        let i = 0;
+        for (element : this) {
+            i = i + 1;
+        }
+        return (i == 0);
+    }
+
+    function length() {
+        let i = 0;
+        for (element : this) {
+            i = i + 1;
+        }
+        return i;
+    }
+
+    function next(index) { 
+        throw CallException("Not implemented, subclass responsibility.");
+    }
+
+    function nextValue(index) { 
+        throw CallException("Not implemented, subclass responsibility.");
+    }
+
+    function reject(closure) {
+        let selected = this.getClass()();
+        for (element : this) { 
+            if (!closure(element)) selected.add(element);
+        }
+        return selected;
+    }
+
+    function select(closure) { 
+        let selected = this.getClass()();
+        for (element : this) { 
+            if (closure(element)) selected.add(element);
+        }
+        return selected;
+    }
+
+    function toArray(){ 
+        let array = [];
+        for (array : this) {
+            array.add(element);
+        }
+        return array;
+    }
+}
+
+class Array : Collection { 
+    function eachIndex(closure) { 
+        for (index, element : this) { 
+            closure(index, element);
+        }
+    }
+}
+
+class Dictionary : Collection {
+    function collect(closure){
+        let collected = this.getClass()();
+        for (key, value : this){ 
+            collected[key] = closure(key, value);
+        }
+        return collected;
+    }
+
+    function detect(closure){ 
+        for (key, value : this){ 
+            if(closure(key, value)) return value;
+        }
+        return nil;
+    }
+
+    function each(closure){
+        for (key, value : this){ 
+            closure(key, value);
+        }
+    }
+
+    function eachKey(closure){ 
+        for (key, value : this){ 
+            closure(key);
+        } 
+    }
+
+    function eachValue(closure){
+        for (key, value : this){ 
+            closure(value);
+        } 
+    }
+
+    function reject(closure){
+        let selected = this.getClass()();
+        for (key, value : this){ 
+            if(!closure(key, value)) selected[key] = value;
+        }
+    }
+
+    function select(closure){ 
+        let selected = this.getClass()();
+        for (key, value : this) { 
+            if(closure(key, value)) selected[key] = value;
+        }
+        return selected;
+    }
+}

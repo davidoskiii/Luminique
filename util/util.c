@@ -887,6 +887,11 @@ NATIVE_METHOD(Dictionary, toString) {
 }
 
 void registerUtilPackage() {
+  initNativePackage("src/std/util.lox");
+
+  ObjClass* collectionClass = getNativeClass("Collection");
+  bindSuperclass(collectionClass, vm.objectClass);
+
 	vm.arrayClass = defineNativeClass("Array");
 	bindSuperclass(vm.arrayClass, vm.objectClass);
 	DEF_METHOD(vm.arrayClass, Array, __init__, 0);
