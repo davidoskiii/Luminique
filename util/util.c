@@ -11,10 +11,34 @@
 #include "../native/native.h"
 #include "../object/object.h"
 #include "../string/string.h"
+#include "../hash/hash.h"
 #include "../value/value.h"
 #include "../vm/vm.h"
 
 #define MAX_MATCHES 1
+
+static ObjEntry* dictFindEntry(ObjEntry* entries, int capacity, Value key) {
+  uint32_t hash = hashValue(key);
+  uint32_t index = hash & (capacity - 1);
+  ObjEntry* tombstone = NULL;
+
+  for (;;) {
+    ObjEntry* entry = &entries[index];
+    if (entry->key.type == VAL_NIL) {
+      if (IS_NIL(entry->value)) {
+        return tombstone != NULL ? tombstone : entry;
+      }
+      else {
+        if (tombstone == NULL) tombstone = entry;
+      }
+    }
+    else if (valuesEqual(entry->key, key)) {
+      return entry;
+    }
+
+    index = (index + 1) & (capacity - 1);
+  }
+}
 
 char *substr(const char *str, int start, int end) {
   int len = end - start;

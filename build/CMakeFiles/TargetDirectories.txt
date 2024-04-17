@@ -1,0 +1,3 @@
+/home/davide/Vs Code Projects/c/compiler/Luminique/build/CMakeFiles/luminique.dir
+/home/davide/Vs Code Projects/c/compiler/Luminique/build/CMakeFiles/edit_cache.dir
+/home/davide/Vs Code Projects/c/compiler/Luminique/build/CMakeFiles/rebuild_cache.dir
