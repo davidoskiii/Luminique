@@ -607,13 +607,20 @@ InterpretResult run() {
         break;
       }
       case OP_MODULO: {
-        if (!IS_NUMBER(peek(0)) || !IS_NUMBER(peek(1))) {
-          ObjClass* exceptionClass = getNativeClass("IllegalArgumentException"); 
-          throwException(exceptionClass, "Operands must be numbers for modulo operator.");
+        if (IS_INT(peek(0)) && IS_INT(peek(1))) {
+          int b = AS_INT(pop());
+          int a = AS_INT(pop());
+          push(INT_VAL(a % b));
         }
-        double b = AS_NUMBER(pop());
-        double a = AS_NUMBER(pop());
-        push(NUMBER_VAL(fmod(a, b)));
+        else if (IS_NUMBER(peek(0)) && IS_NUMBER(peek(1))) {
+          double b = AS_NUMBER(pop());
+          double a = AS_NUMBER(pop());
+          push(NUMBER_VAL(fmod(a, b)));
+        }
+        else {
+          ObjClass* exceptionClass = getNativeClass("IllegalArgumentException");
+          throwException(exceptionClass, "Operands must be two numbers for modulo operator.");
+        }
         break;
       }
       case OP_POWER: {
