@@ -560,30 +560,30 @@ NATIVE_METHOD(String, decapitalize) {
   RETURN_OBJ(decapitalizeString(AS_STRING(receiver)));
 }
 
-NATIVE_METHOD(String, endsWith) {
-  assertArgCount("String::endsWith(chars)", 1, argCount);
-  assertArgIsString("String::endsWith(chars)", args, 0);
+NATIVE_METHOD(String, ends) {
+  assertArgCount("String::ends(chars)", 1, argCount);
+  assertArgIsString("String::ends(chars)", args, 0);
   ObjString* haystack = AS_STRING(receiver);
   ObjString* needle = AS_STRING(args[0]);
   if (needle->length > haystack->length) RETURN_FALSE;
   RETURN_BOOL(memcmp(haystack->chars + haystack->length - needle->length, needle->chars, needle->length) == 0);
 }
 
-NATIVE_METHOD(String, getChar) {
-  assertArgCount("String::getChar(index)", 1, argCount);
-  assertArgIsInt("String::getChar(index)", args, 0);
+NATIVE_METHOD(String, subscript) {
+  assertArgCount("String::subscript(index)", 1, argCount);
+  assertArgIsInt("String::subscript(index)", args, 0);
 
   ObjString* self = AS_STRING(receiver);
   int index = AS_INT(args[0]);
-  assertNumberWithinRange("String::getChar(index)", index, 0, self->length, 0);
+  assertNumberWithinRange("String::subscript(index)", index, 0, self->length, 0);
 
   char chars[2] = { self->chars[index], '\0' };
   RETURN_STRING(chars, 1);
 }
 
-NATIVE_METHOD(String, indexOf) {
-  assertArgCount("String::indexOf(chars)", 1, argCount);
-  assertArgIsString("String::indexOf(chars)", args, 0);
+NATIVE_METHOD(String, search) {
+  assertArgCount("String::search(chars)", 1, argCount);
+  assertArgIsString("String::search(chars)", args, 0);
   ObjString* haystack = AS_STRING(receiver);
   ObjString* needle = AS_STRING(args[0]);
   RETURN_INT(searchString(haystack, needle, 0));
@@ -620,7 +620,6 @@ NATIVE_METHOD(String, nextValue) {
   RETURN_NIL;
 }
 
-
 NATIVE_METHOD(String, replace) {
   assertArgCount("String::replace(target, replacement)", 2, argCount);
   assertArgIsString("String::replace(target, replacement)", args, 0);
@@ -655,24 +654,24 @@ NATIVE_METHOD(String, split) {
   RETURN_OBJ(array);
 }
 
-NATIVE_METHOD(String, startsWith) {
-  assertArgCount("String::startsWith(chars)", 1, argCount);
-  assertArgIsString("String::startsWith(chars)", args, 0);
+NATIVE_METHOD(String, starts) {
+  assertArgCount("String::starts(chars)", 1, argCount);
+  assertArgIsString("String::starts(chars)", args, 0);
   ObjString* haystack = AS_STRING(receiver);
   ObjString* needle = AS_STRING(args[0]);
   if (needle->length > haystack->length) RETURN_FALSE;
   RETURN_BOOL(memcmp(haystack->chars, needle->chars, needle->length) == 0);
 }
 
-NATIVE_METHOD(String, subString) {
-  assertArgCount("String::subString(from, to)", 2, argCount);
-  assertArgIsInt("String::subString(from, to)", args, 0);
-  assertArgIsInt("String::subString(from, to)", args, 1);
+NATIVE_METHOD(String, cut) {
+  assertArgCount("String::cut(from, to)", 2, argCount);
+  assertArgIsInt("String::cut(from, to)", args, 0);
+  assertArgIsInt("String::cut(from, to)", args, 1);
   RETURN_OBJ(subString(AS_STRING(receiver), AS_INT(args[0]), AS_INT(args[1])));
 }
 
-NATIVE_METHOD(String, toLowercase) {
-  assertArgCount("String::toLowercase()", 0, argCount);
+NATIVE_METHOD(String, lower) {
+  assertArgCount("String::lower()", 0, argCount);
   RETURN_OBJ(toLowerString(AS_STRING(receiver)));
 }
 
@@ -681,8 +680,8 @@ NATIVE_METHOD(String, toString) {
   return receiver;
 }
 
-NATIVE_METHOD(String, toUppercase) {
-  assertArgCount("String::toLowercase()", 0, argCount);
+NATIVE_METHOD(String, upper) {
+  assertArgCount("String::upper()", 0, argCount);
   RETURN_OBJ(toUpperString(AS_STRING(receiver)));
 }
 
@@ -799,20 +798,20 @@ void registerLangPackage(){
   DEF_METHOD(vm.stringClass, String, clone, 0);
   DEF_METHOD(vm.stringClass, String, contains, 1);
   DEF_METHOD(vm.stringClass, String, decapitalize, 0);
-  DEF_METHOD(vm.stringClass, String, endsWith, 1);
-  DEF_METHOD(vm.stringClass, String, getChar, 1);
-  DEF_METHOD(vm.stringClass, String, indexOf, 1);
+  DEF_METHOD(vm.stringClass, String, ends, 1);
+  DEF_METHOD(vm.stringClass, String, subscript, 1);
+  DEF_METHOD(vm.stringClass, String, search, 1);
   DEF_METHOD(vm.stringClass, String, length, 0);
   DEF_METHOD(vm.stringClass, String, next, 1);
   DEF_METHOD(vm.stringClass, String, nextValue, 1);
   DEF_METHOD(vm.stringClass, String, replace, 2);
   DEF_METHOD(vm.stringClass, String, reverse, 0);
   DEF_METHOD(vm.stringClass, String, split, 1);
-  DEF_METHOD(vm.stringClass, String, startsWith, 1);
-  DEF_METHOD(vm.stringClass, String, subString, 2);
-  DEF_METHOD(vm.stringClass, String, toLowercase, 0);
+  DEF_METHOD(vm.stringClass, String, starts, 1);
+  DEF_METHOD(vm.stringClass, String, cut, 2);
+  DEF_METHOD(vm.stringClass, String, lower, 0);
   DEF_METHOD(vm.stringClass, String, toString, 0);
-  DEF_METHOD(vm.stringClass, String, toUppercase, 0);
+  DEF_METHOD(vm.stringClass, String, upper, 0);
   DEF_METHOD(vm.stringClass, String, trim, 0);
 
   for (int i = 0; i < vm.strings.capacity; i++) {

@@ -20,6 +20,7 @@ set(SOURCES
   std/std.c
   assert/assert.c
   util/util.c
+  collection/collection.c
   lang/lang.c
   hash/hash.c
   string/string.c

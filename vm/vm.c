@@ -16,6 +16,7 @@
 #include "../util/util.h"
 #include "../string/string.h"
 #include "../io/io.h"
+#include "../collection/collection.h"
 #include "vm.h"
 
 VM vm;
@@ -79,6 +80,7 @@ void initVM() {
 
   registerLangPackage();
   registerIOPackage();
+  registerCollectionPackage();
   registerUtilPackage();
   initNatives();
   initStd();
@@ -606,8 +608,8 @@ InterpretResult run() {
       }
       case OP_MODULO: {
         if (!IS_NUMBER(peek(0)) || !IS_NUMBER(peek(1))) {
-          runtimeError("Operands must be numbers.");
-          return INTERPRET_RUNTIME_ERROR;
+          ObjClass* exceptionClass = getNativeClass("IllegalArgumentException"); 
+          throwException(exceptionClass, "Operands must be numbers for modulo operator.");
         }
         double b = AS_NUMBER(pop());
         double a = AS_NUMBER(pop());
