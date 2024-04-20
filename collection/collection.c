@@ -193,7 +193,7 @@ static int dictFindIndex(ObjDictionary* dict, Value key) {
         if (tombstone == NULL) tombstone = entry;
       }
     } else if (valuesEqual(entry->key, key)) {
-      return entry;
+      return index;
     }
 
     index = (index + 1) & (dict->capacity - 1);
