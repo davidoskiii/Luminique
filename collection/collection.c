@@ -12,6 +12,7 @@
 #include "../string/string.h"
 #include "../hash/hash.h"
 #include "../value/value.h"
+#include "../memory/memory.h"
 #include "../vm/vm.h"
 
 static ObjEntry* dictFindEntry(ObjEntry* entries, int capacity, Value key) {
@@ -37,7 +38,6 @@ static ObjEntry* dictFindEntry(ObjEntry* entries, int capacity, Value key) {
   }
 }
 
-
 static bool dictContainsKey(ObjDictionary* dict, Value key) {
   if (dict->count == 0) return false;
   ObjEntry* entry = dictFindEntry(dict->entries, dict->capacity, key);
@@ -60,6 +60,30 @@ static bool dictGet(ObjDictionary* dict, Value key, Value* value) {
   if (IS_NIL(entry->key)) return false;
   *value = entry->value;
   return true;
+}
+
+
+static void dictAdjustCapacity(ObjDictionary* dict, int capacity) {
+  ObjEntry* entries = ALLOCATE(ObjEntry, capacity);
+  for (int i = 0; i < capacity; i++) {
+    entries[i].key = NULL;
+    entries[i].value = NIL_VAL;
+  }
+
+  dict->count = 0;
+  for (int i = 0; i < dict->capacity; i++) {
+    ObjEntry* entry = &dict->entries[i];
+    if (IS_NIL(entry->key)) continue;
+
+    ObjEntry* dest = dictFindEntry(entries, capacity, entry->key);
+    dest->key = entry->key;
+    dest->value = entry->value;
+    dict->count++;
+  }
+
+  FREE_ARRAY(ObjEntry, dict->entries, dict->capacity);
+  dict->entries = entries;
+  dict->capacity = capacity;
 }
 
 static int arrayIndexOf(ObjArray* array, Value element) {
