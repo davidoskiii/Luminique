@@ -81,13 +81,6 @@ ObjDictionary* newDictionary() {
   return dict;
 }
 
-ObjDictionary* copyDictionary(Table table) {
-  ObjDictionary* dictionary = ALLOCATE_OBJ(ObjDictionary, OBJ_DICTIONARY, vm.dictionaryClass);
-  initTable(&dictionary->table);
-  tableAddAll(&table, &dictionary->table);
-  return dictionary;
-}
-
 ObjClass* newClass(ObjString* name) {
   ObjClass* klass = ALLOCATE_OBJ(ObjClass, OBJ_CLASS, vm.classClass);
   klass->name = name;

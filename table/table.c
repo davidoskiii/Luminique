@@ -18,28 +18,6 @@ void freeTable(Table* table) {
   initTable(table);
 }
 
-int tableFindIndex(Table* table, ObjString* key) {
-  int index = key->hash & (table->capacity - 1);
-  Entry* tombstone = NULL;
-
-  for (;;) {
-    Entry* entry = &table->entries[index];
-    if (entry->key == NULL) {
-      if (IS_NIL(entry->value)) {
-        return -1;
-      }
-      else {
-        if (tombstone == NULL) tombstone = entry;
-      }
-    }
-    else if (entry->key == key) {
-      return index;
-    }
-
-    index = (index + 1) & (table->capacity - 1);
-  }
-}
-
 static Entry* findEntry(Entry* entries, int capacity, ObjString* key) {
   uint32_t index = key->hash & (capacity - 1);
   Entry* tombstone = NULL;
@@ -170,23 +148,6 @@ void markTable(Table* table) {
     markValue(entry->value);
   }
 }
-
-bool tableContainsKey(Table* table, ObjString* key) {
-  if (table->count == 0) return false;
-  Entry* entry = findEntry(table->entries, table->capacity, key);
-  return entry->key != NULL;
-}
-
-bool tableContainsValue(Table* table, Value value) {
-  if (table->count == 0) return false;
-  for (int i = 0; i < table->capacity; i++) {
-    Entry* entry = &table->entries[i];
-    if (entry->key == NULL) continue;
-    if (valuesEqual(entry->value, value)) return true;
-  }
-  return false;
-}
-
 
 ObjString* tableToString(Table* table) {
   if (table->count == 0) return copyString("{}", 2);

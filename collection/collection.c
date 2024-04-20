@@ -108,7 +108,7 @@ static bool dictDelete(ObjDictionary* dict, Value key) {
   return true;
 }
 
-static void dictAddAll(VM* vm, ObjDictionary* from, ObjDictionary* to) {
+static void dictAddAll(ObjDictionary* from, ObjDictionary* to) {
   for (int i = 0; i < from->capacity; i++) {
     ObjEntry* entry = &from->entries[i];
     if (!IS_NIL(entry->key)) {
@@ -139,6 +139,67 @@ static void dictAdjustCapacity(ObjDictionary* dict, int capacity) {
   dict->entries = entries;
   dict->capacity = capacity;
 }
+
+static ObjDictionary* dictCopy(ObjDictionary* original) {
+  ObjDictionary* copied = newDictionary(vm);
+  push(OBJ_VAL(copied));
+  dictAddAll(original, copied);
+  pop();
+  return copied;
+}
+
+
+static bool dictsEqual(ObjDictionary* aDict, ObjDictionary* dict2) {
+  for (int i = 0; i < aDict->capacity; i++) {
+    ObjEntry* entry = &aDict->entries[i];
+    if (IS_NIL(entry->key)) continue;
+    Value bValue;
+    bool keyExists = dictGet(dict2, entry->key, &bValue);
+    if (!keyExists || !valuesEqual(entry->value, bValue)) return false;
+  }
+
+  for (int i = 0; i < dict2->capacity; i++) {
+    ObjEntry* entry = &dict2->entries[i];
+    if (IS_NIL(entry->key)) continue;
+    Value aValue;
+    bool keyExists = dictGet(aDict, entry->key, &aValue);
+    if (!keyExists || !valuesEqual(entry->value, aValue)) return false;
+  }
+
+  return true;
+}
+
+static int dictLength(ObjDictionary* dict) {
+  if (dict->count == 0) return 0;
+  int length = 0;
+  for (int i = 0; i < dict->capacity; i++) {
+    ObjEntry* entry = &dict->entries[i];
+    if (!IS_NIL(entry->key)) length++;
+  }
+  return length;
+}
+
+static int dictFindIndex(ObjDictionary* dict, Value key) {
+  uint32_t hash = hashValue(key);
+  uint32_t index = hash & (dict->capacity - 1);
+  ObjEntry* tombstone = NULL;
+
+  for (;;) {
+    ObjEntry* entry = &dict->entries[index];
+    if (IS_NIL(entry->key)) {
+      if (IS_NIL(entry->value)) {
+        return -1;
+      } else {
+        if (tombstone == NULL) tombstone = entry;
+      }
+    } else if (valuesEqual(entry->key, key)) {
+      return entry;
+    }
+
+    index = (index + 1) & (dict->capacity - 1);
+  }
+}
+
 
 static int arrayIndexOf(ObjArray* array, Value element) {
 	for (int i = 0; i < array->elements.count; i++) {
@@ -601,58 +662,59 @@ NATIVE_METHOD(Dictionary, clear) {
 
 NATIVE_METHOD(Dictionary, clone) {
 	assertArgCount("Dictionary::clone()", 0, argCount);
-	ObjDictionary* self = AS_DICTIONARY(receiver);
-	RETURN_OBJ(copyDictionary(self->table));
+  RETURN_OBJ(dictCopy(AS_DICTIONARY(receiver)));
 }
 
 NATIVE_METHOD(Dictionary, containsKey) {
 	assertArgCount("Dictionary::containsKey(key)", 1, argCount);
-	assertArgIsString("Dictionary::containsKey(key)", args, 0);
-	RETURN_BOOL(tableContainsKey(&AS_DICTIONARY(receiver)->table, AS_STRING(args[0])));
+	RETURN_BOOL(dictContainsKey(AS_DICTIONARY(receiver), args[0]));
 }
 
 NATIVE_METHOD(Dictionary, containsValue) {
 	assertArgCount("Dictionary::containsValue(value)", 1, argCount);
-	RETURN_BOOL(tableContainsValue(&AS_DICTIONARY(receiver)->table, args[0]));
+	RETURN_BOOL(dictContainsValue(AS_DICTIONARY(receiver), args[0]));
+}
+
+NATIVE_METHOD(Dictionary, equals) {
+  assertArgCount("Dictionary::equals(other)", 1, argCount);
+  if (!IS_DICTIONARY(args[0])) RETURN_FALSE;
+  RETURN_BOOL(dictsEqual(AS_DICTIONARY(receiver), AS_DICTIONARY(args[0])));
 }
 
 NATIVE_METHOD(Dictionary, getAt) {
 	assertArgCount("Dictionary::getAt(key)", 1, argCount);
-	assertArgIsString("Dictionary::getAt(key)", args, 0);
 	Value value;
-	bool valueExists = tableGet(&AS_DICTIONARY(receiver)->table, AS_STRING(args[0]), &value);
+	bool valueExists = dictGet(AS_DICTIONARY(receiver), args[0], &value);
 	if (!valueExists) RETURN_NIL;
 	RETURN_VAL(value);
 }
 
 NATIVE_METHOD(Dictionary, isEmpty) {
 	assertArgCount("Dictionary::isEmpty()", 0, argCount);
-	RETURN_BOOL(AS_DICTIONARY(receiver)->table.count == 0);
+	RETURN_BOOL(AS_DICTIONARY(receiver)->count == 0);
 }
 
 NATIVE_METHOD(Dictionary, length) {
 	assertArgCount("Dictionary::length()", 0, argCount);
-	ObjDictionary* self = AS_DICTIONARY(receiver);
-	RETURN_INT(AS_DICTIONARY(receiver)->table.count);
+  RETURN_INT(dictLength(AS_DICTIONARY(receiver)));
 }
 
 NATIVE_METHOD(Dictionary, next) {
   assertArgCount("Dictionary::next(index)", 1, argCount);
   ObjDictionary* self = AS_DICTIONARY(receiver);
-  if (self->table.count == 0) RETURN_FALSE;
+  if (self->count == 0) RETURN_FALSE;
 
   int index = 0;
   if (!IS_NIL(args[0])) {
-    ObjString* key = AS_STRING(args[0]);
-    index = tableFindIndex(&self->table, key);
-    if (index < 0 || index >= self->table.capacity) RETURN_FALSE;
+    Value key = args[0];
+    index = dictFindIndex(self, key);
+    if (index < 0 || index >= self->capacity) RETURN_FALSE;
     index++;
   }
 
-  for (; index < self->table.capacity; index++) {
-    if (self->table.entries[index].key != NULL) RETURN_OBJ(self->table.entries[index].key);
+  for (; index < self->capacity; index++) {
+    if (!IS_NIL(self->entries[index].key)) RETURN_VAL(self->entries[index].key);
   }
-
   RETURN_FALSE;
 }
 
@@ -660,8 +722,8 @@ NATIVE_METHOD(Dictionary, nextValue) {
   assertArgCount("Dictionary::nextValue(key)", 1, argCount);
   assertArgIsString("Dictionary::nextValue(key)", args, 0);
   ObjDictionary* self = AS_DICTIONARY(receiver);
-  int index = tableFindIndex(&self->table, AS_STRING(args[0]));
-  RETURN_VAL(self->table.entries[index].value);
+  int index = dictFindIndex(self, args[0]);
+  RETURN_VAL(self->entries[index].value);
 }
 
 NATIVE_METHOD(Dictionary, putAll) {

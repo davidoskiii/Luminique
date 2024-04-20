@@ -38,9 +38,6 @@ println(dict.getAt("name"));
 print("Getting value at key 'age': ");
 println(dict["age"]);
 
-print("Getting a nonexistent key: ");
-println(dict["gender"]);
-
 print("Current Length of the dictionary is: ");
 println(dict.length());
 

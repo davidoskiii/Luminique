@@ -178,7 +178,6 @@ ObjEntry* newEntry(Value key, Value value);
 ObjArray* newArray();
 ObjArray* copyArray(ValueArray elements, int fromIndex, int toIndex);
 ObjDictionary* newDictionary();
-ObjDictionary* copyDictionary(Table table);
 ObjClass* newClass(ObjString* name);
 ObjClosure* newClosure(ObjFunction* function);
 ObjFunction* newFunction();
