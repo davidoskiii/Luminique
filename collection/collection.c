@@ -37,6 +37,31 @@ static ObjEntry* dictFindEntry(ObjEntry* entries, int capacity, Value key) {
   }
 }
 
+
+static bool dictContainsKey(ObjDictionary* dict, Value key) {
+  if (dict->count == 0) return false;
+  ObjEntry* entry = dictFindEntry(dict->entries, dict->capacity, key);
+  return !IS_NIL(entry->key);
+}
+
+static bool dictContainsValue(ObjDictionary* dict, Value value) {
+  if (dict->count == 0) return false;
+  for (int i = 0; i < dict->capacity; i++) {
+    ObjEntry* entry = &dict->entries[i];
+    if (IS_NIL(entry->key)) continue;
+    if (valuesEqual(entry->value, value)) return true;
+  }
+  return false;
+}
+
+static bool dictGet(ObjDictionary* dict, Value key, Value* value) {
+  if (dict->count == 0) return false;
+  ObjEntry* entry = dictFindEntry(dict->entries, dict->capacity, key);
+  if (IS_NIL(entry->key)) return false;
+  *value = entry->value;
+  return true;
+}
+
 static int arrayIndexOf(ObjArray* array, Value element) {
 	for (int i = 0; i < array->elements.count; i++) {
 		if (valuesEqual(array->elements.values[i], element)) {

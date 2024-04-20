@@ -164,6 +164,9 @@ typedef struct ObjArray {
 
 typedef struct ObjDictionary {
   Obj obj;
+  int capacity;
+  int count;
+  ObjEntry* entries;
   Table table;
 } ObjDictionary;
 
