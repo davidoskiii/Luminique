@@ -73,9 +73,12 @@ ObjArray* copyArray(ValueArray elements, int fromIndex, int toIndex) {
 }
 
 ObjDictionary* newDictionary() {
-  ObjDictionary* dictionary = ALLOCATE_OBJ(ObjDictionary, OBJ_DICTIONARY, vm.dictionaryClass);
-  initTable(&dictionary->table);
-  return dictionary;
+  ObjDictionary* dict = ALLOCATE_OBJ(ObjDictionary, OBJ_DICTIONARY, vm.dictionaryClass);
+  initTable(&dict->table);
+  dict->count = 0;
+  dict->capacity = 0;
+  dict->entries = NULL;
+  return dict;
 }
 
 ObjDictionary* copyDictionary(Table table) {
