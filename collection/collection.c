@@ -636,7 +636,11 @@ NATIVE_METHOD(Dictionary, __init__) {
 
 NATIVE_METHOD(Dictionary, clear) {
 	assertArgCount("Dictionary::clear()", 0, argCount);
-	freeTable(&AS_DICTIONARY(receiver)->table);
+  ObjDictionary* self = AS_DICTIONARY(receiver);
+  FREE_ARRAY(ObjEntry, self->entries, self->capacity);
+  self->count = 0;
+  self->capacity = 0;
+  self->entries = NULL;
 	return receiver;
 }
 
@@ -709,28 +713,28 @@ NATIVE_METHOD(Dictionary, nextValue) {
 NATIVE_METHOD(Dictionary, putAll) {
 	assertArgCount("Dictionary::putAll(dictionary)", 1, argCount);
 	assertArgIsDictionary("Dictionary::putAll(dictionary)", args, 0);
-	tableAddAll(&AS_DICTIONARY(args[0])->table, &AS_DICTIONARY(receiver)->table);
+  dictAddAll(AS_DICTIONARY(args[0]), AS_DICTIONARY(receiver));
 	return receiver;
 }
 
 NATIVE_METHOD(Dictionary, put) {
 	assertArgCount("Dictionary::put(key, value)", 2, argCount);
 	assertArgIsString("Dictionary::put(key, value)", args, 0);
-	tableSet(&AS_DICTIONARY(receiver)->table, AS_STRING(args[0]), args[1]);
+  dictSet(AS_DICTIONARY(receiver), args[0], args[1]);
 	return receiver;
 }
 
 NATIVE_METHOD(Dictionary, removeAt) {
 	assertArgCount("Dictionary::removeAt(key)", 1, argCount);
 	assertArgIsString("Dictionary::removeAt(key)", args, 0);
-	ObjDictionary* self = AS_DICTIONARY(receiver);
-	ObjString* key = AS_STRING(args[0]);
-	Value value;
+  ObjDictionary* self = AS_DICTIONARY(receiver);
+  Value key = args[0];
+  Value value;
 
-	bool keyExists = tableGet(&self->table, key, &value);
-	if (!keyExists) RETURN_NIL;
-	tableDelete(&self->table, key);
-	RETURN_VAL(value);
+  bool keyExists = dictGet(self, key, &value);
+  if (!keyExists) RETURN_NIL;
+  dictDelete(self, key);
+  RETURN_VAL(value);
 }
 
 NATIVE_METHOD(Dictionary, toString) {
