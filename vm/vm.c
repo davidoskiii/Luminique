@@ -618,15 +618,30 @@ InterpretResult run() {
           int b = AS_INT(pop());
           int a = AS_INT(pop());
           push(INT_VAL(a * b));
+        } else if (IS_NUMBER(peek(0)) && IS_NUMBER(peek(1))) {
+          BINARY_OP(NUMBER_VAL, *);
+        } else { 
+          ObjString* operator = copyString("*", 1);
+          if (!invokeOperator(operator, true)) {
+            return INTERPRET_RUNTIME_ERROR;
+          }
+          frame = &vm.frames[vm.frameCount - 1];
         }
-        else BINARY_OP(NUMBER_VAL, *); 
         break;
       }
       case OP_DIVIDE: {
         if (IS_INT(peek(0)) && AS_INT(peek(0)) == 0) {
           ObjClass* exceptionClass = getNativeClass("ArithmeticException");
           throwException(exceptionClass, "Divide by 0 is illegal.");
-        } else BINARY_OP(NUMBER_VAL, /); 
+        } else if (IS_NUMBER(peek(0)) && IS_NUMBER(peek(1))) {
+          BINARY_OP(NUMBER_VAL, /);
+        } else { 
+          ObjString* operator = copyString("/", 1);
+          if (!invokeOperator(operator, true)) {
+            return INTERPRET_RUNTIME_ERROR;
+          }
+          frame = &vm.frames[vm.frameCount - 1];
+        }
         break;
       }
       case OP_MODULO: {
