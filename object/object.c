@@ -51,7 +51,7 @@ ObjRecord* newRecord(void* data) {
 }
 
 ObjEntry* newEntry(Value key, Value value) {
-  ObjEntry* entry = ALLOCATE_OBJ(ObjEntry, OBJ_ENTRY, NULL);
+  ObjEntry* entry = ALLOCATE_OBJ(ObjEntry, OBJ_ENTRY, vm.entryClass);
   entry->key = key;
   entry->value = value;
   return entry;
@@ -74,7 +74,6 @@ ObjArray* copyArray(ValueArray elements, int fromIndex, int toIndex) {
 
 ObjDictionary* newDictionary() {
   ObjDictionary* dict = ALLOCATE_OBJ(ObjDictionary, OBJ_DICTIONARY, vm.dictionaryClass);
-  initTable(&dict->table);
   dict->count = 0;
   dict->capacity = 0;
   dict->entries = NULL;
@@ -192,36 +191,23 @@ bool isObjInstanceOf(Value value, ObjClass* klass) {
 static void printDictionary(ObjDictionary* dictionary) {
   printf("{");
   int startIndex = 0;
-  for (int i = 0; i < dictionary->table.capacity; i++) {
-    Entry* entry = &dictionary->table.entries[i];
-    if (entry->key == NULL) continue;
-
-    printf("\"%s\": ", entry->key->chars);
-
-    if (IS_STRING(entry->value)) {
-      printf("\"");
-      printValue(entry->value);
-      printf("\"");
-    } else {
-      printValue(entry->value);
-    }
-
+  for (int i = 0; i < dictionary->capacity; i++) {
+    ObjEntry* entry = &dictionary->entries[i];
+    if (IS_UNDEFINED(entry->key)) continue;
+    printValue(entry->key);
+    printf(": ");
+    printValue(entry->value);
     startIndex = i + 1;
     break;
   }
 
-  for (int i = startIndex; i < dictionary->table.capacity; i++) {
-    Entry* entry = &dictionary->table.entries[i];
-    if (entry->key == NULL) continue;
-    printf(", \"%s\": ", entry->key->chars);
-
-    if (IS_STRING(entry->value)) {
-      printf("\"");
-      printValue(entry->value);
-      printf("\"");
-    } else {
-      printValue(entry->value);
-    }
+  for (int i = startIndex; i < dictionary->capacity; i++) {
+    ObjEntry* entry = &dictionary->entries[i];
+    if (IS_UNDEFINED(entry->key)) continue;
+    printf(", ");
+    printValue(entry->key);
+    printf(": ");
+    printValue(entry->value);
   }
   printf("}");
 }

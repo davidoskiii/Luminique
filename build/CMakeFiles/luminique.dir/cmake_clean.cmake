@@ -3,6 +3,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/luminique.dir/assert/assert.c.o.d"
   "CMakeFiles/luminique.dir/chunk/chunk.c.o"
   "CMakeFiles/luminique.dir/chunk/chunk.c.o.d"
+  "CMakeFiles/luminique.dir/collection/collection.c.o"
+  "CMakeFiles/luminique.dir/collection/collection.c.o.d"
   "CMakeFiles/luminique.dir/compiler/compiler.c.o"
   "CMakeFiles/luminique.dir/compiler/compiler.c.o.d"
   "CMakeFiles/luminique.dir/debug/debug.c.o"

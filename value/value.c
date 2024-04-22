@@ -49,17 +49,48 @@ void freeValueArray(ValueArray* array) {
   initValueArray(array);
 }
 
+bool equalValueArray(ValueArray* aArray, ValueArray* bArray) {
+  if (aArray->count != bArray->count) return false;
+  for (int i = 0; i < aArray->count; i++) {
+    if (aArray->values[i] != bArray->values[i]) return false;
+  }
+  return true;
+}
+
 void printValue(Value value) {
+#ifdef NAN_BOXING
+  if (IS_BOOL(value)) {
+    printf(AS_BOOL(value) ? "true" : "false");
+  } else if (IS_NIL(value)) {
+    printf("nil");
+  } else if (IS_INT(value)) {
+    printf("%d", AS_INT(value));
+  } else if (IS_FLOAT(value)) {
+    printf("%g", AS_NUMBER(value));
+  } else if(IS_OBJ(value)) {
+    printObject(value);
+  } else {
+    printf("undefined");
+  }
+#else
   switch (value.type) {
     case VAL_BOOL: printf(AS_BOOL(value) ? "true" : "false"); break;
     case VAL_NIL: printf("nil"); break;
     case VAL_INT: printf("%d", AS_INT(value)); break;
     case VAL_FLOAT: printf("%g", AS_FLOAT(value)); break;
     case VAL_OBJ: printObject(value); break;
+    default: printf("undefined");
   }
+#endif
 }
 
 bool valuesEqual(Value a, Value b) {
+#ifdef NAN_BOXING
+  if (IS_NUMBER(a) && IS_NUMBER(b)) {
+    return AS_NUMBER(a) == AS_NUMBER(b);
+  }
+  return a == b;
+#else
   if (a.type != b.type) return false;
   switch (a.type) {
     case VAL_BOOL:   
@@ -74,6 +105,7 @@ bool valuesEqual(Value a, Value b) {
     default:         
       return false;
   }
+#endif
 }
 
 char* valueToString(Value value) {

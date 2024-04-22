@@ -167,7 +167,6 @@ typedef struct ObjDictionary {
   int capacity;
   int count;
   ObjEntry* entries;
-  Table table;
 } ObjDictionary;
 
 Obj* allocateObject(size_t size, ObjType type, ObjClass* klass);

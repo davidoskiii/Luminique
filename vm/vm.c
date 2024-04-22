@@ -124,15 +124,16 @@ static void makeArray(uint8_t elementCount) {
   push(OBJ_VAL(array));
 }
 
-static bool makeDictionary(uint8_t entryCount) {
+static void makeDictionary(uint8_t entryCount) {
   ObjDictionary* dictionary = newDictionary();
   push(OBJ_VAL(dictionary));
+
   for (int i = 1; i <= entryCount; i++) {
     Value key = peek(2 * i);
     Value value = peek(2 * i - 1);
-    if (!IS_STRING(key)) return false;
-    tableSet(&dictionary->table, AS_STRING(key), value);
+    dictSet(dictionary, key, value);
   }
+
   pop();
 
   while (entryCount > 0) {
@@ -140,8 +141,8 @@ static bool makeDictionary(uint8_t entryCount) {
     pop();
     pop();
   }
+
   push(OBJ_VAL(dictionary));
-  return true;
 }
 
 bool callClosure(ObjClosure* closure, int argCount) {
@@ -497,10 +498,7 @@ InterpretResult run() {
       }
       case OP_DICTIONARY: {
         int entryCount = READ_BYTE();
-        if (!makeDictionary(entryCount)) { 
-          runtimeError("Keys for dictionary literal must be strings.");
-          return INTERPRET_RUNTIME_ERROR;
-        }
+        makeDictionary(entryCount); 
         break;
       }
       case OP_GET_UPVALUE: {
@@ -755,23 +753,12 @@ InterpretResult run() {
             ObjClass* exceptionClass = getNativeClass("IllegalArgumentException");
             throwException(exceptionClass, "Only String or Array can have integer subscripts.");
           }
-        } else if (IS_STRING(peek(0))) {
-          ObjString* key = AS_STRING(pop());
-
-          if (!IS_DICTIONARY(peek(0))) {
-            ObjClass* exceptionClass = getNativeClass("IllegalArgumentException");
-            throwException(exceptionClass, "Only Dictionary can have string subscripts");
-          } else {
+        } else if (IS_DICTIONARY(peek(1))) {
+            Value key = pop();
             ObjDictionary* dictionary = AS_DICTIONARY(pop());
             Value value;
-
-            if (tableGet(&dictionary->table, key, &value)) {
-              push(value);
-            } else {
-              ObjClass* exceptionClass = getNativeClass("IndexOutOfBoundsException");
-              throwException(exceptionClass, "Key wasn't found in Dictionary");
-            }
-          }
+            if (dictGet(dictionary, key, &value)) push(value);
+            else push(NIL_VAL);
         } else {
           ObjClass* exceptionClass = getNativeClass("IllegalArgumentException");
           throwException(exceptionClass, "Subscript must be an integer or a string.");
@@ -803,9 +790,9 @@ InterpretResult run() {
           }
 
           Value value = pop();
-          ObjString* key = AS_STRING(pop());
+          Value key = pop();
           ObjDictionary* dictionary = AS_DICTIONARY(pop());
-          tableSet(&dictionary->table, key, value);
+          dictSet(dictionary, key, value);
           push(OBJ_VAL(dictionary));
         } else {
           ObjClass* exceptionClass = getNativeClass("IllegalArgumentException");

@@ -38,6 +38,7 @@ typedef struct {
   ObjClass* stringClass;
   ObjClass* arrayClass;
   ObjClass* dictionaryClass;
+  ObjClass* entryClass;
 
   CallFrame frames[FRAMES_MAX];
   int frameCount;

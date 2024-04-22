@@ -113,4 +113,7 @@ CMakeFiles/luminique.dir/vm/vm.c.o: \
  /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/vm/../string/string.h \
  /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/vm/../io/io.h \
  /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/vm/../io/../common.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/vm/../collection/collection.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/vm/../collection/../common.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/vm/../collection/../string/string.h \
  /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/vm/vm.h

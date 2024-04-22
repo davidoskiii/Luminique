@@ -177,6 +177,30 @@ chunk/chunk.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/luminique.dir/build.make CMakeFiles/luminique.dir/chunk/chunk.c.s
 .PHONY : chunk/chunk.c.s
 
+collection/collection.o: collection/collection.c.o
+.PHONY : collection/collection.o
+
+# target to build an object file
+collection/collection.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/luminique.dir/build.make CMakeFiles/luminique.dir/collection/collection.c.o
+.PHONY : collection/collection.c.o
+
+collection/collection.i: collection/collection.c.i
+.PHONY : collection/collection.i
+
+# target to preprocess a source file
+collection/collection.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/luminique.dir/build.make CMakeFiles/luminique.dir/collection/collection.c.i
+.PHONY : collection/collection.c.i
+
+collection/collection.s: collection/collection.c.s
+.PHONY : collection/collection.s
+
+# target to generate assembly for a file
+collection/collection.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/luminique.dir/build.make CMakeFiles/luminique.dir/collection/collection.c.s
+.PHONY : collection/collection.c.s
+
 compiler/compiler.o: compiler/compiler.c.o
 .PHONY : compiler/compiler.o
 
@@ -600,6 +624,9 @@ help:
 	@echo "... chunk/chunk.o"
 	@echo "... chunk/chunk.i"
 	@echo "... chunk/chunk.s"
+	@echo "... collection/collection.o"
+	@echo "... collection/collection.i"
+	@echo "... collection/collection.s"
 	@echo "... compiler/compiler.o"
 	@echo "... compiler/compiler.i"
 	@echo "... compiler/compiler.s"

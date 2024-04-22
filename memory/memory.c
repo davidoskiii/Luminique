@@ -68,11 +68,11 @@ static void markArray(ValueArray* array) {
 }
 
 static void blackenObject(Obj* object) {
-// #ifdef DEBUG_LOG_GC
-//  printf("%p blacken ", (void*)object);
-//  printValue(OBJ_VAL(object));
-//  printf("\n");
-// #endif
+#ifdef DEBUG_LOG_GC
+  printf("%p blacken ", (void*)object);
+  printValue(OBJ_VAL(object));
+  printf("\n");
+#endif
 
   switch (object->type) {
     case OBJ_ARRAY: {
@@ -81,12 +81,16 @@ static void blackenObject(Obj* object) {
     }
     case OBJ_DICTIONARY: {
       ObjDictionary* dict = (ObjDictionary*)object;
-      markTable(&dict->table);
       for (int i = 0; i < dict->capacity; i++) {
         ObjEntry* entry = &dict->entries[i];
-        markValue(entry->key);
-        markValue(entry->value);
+        markObject((Obj*)entry);
       }
+    }
+    case OBJ_ENTRY: {
+      ObjEntry* entry = (ObjEntry*)object;
+      markValue(entry->key);
+      markValue(entry->value);
+      break;
     }
     case OBJ_FILE: {
       ObjFile* file = (ObjFile*)object;
@@ -159,9 +163,13 @@ static void freeObject(Obj* object) {
       FREE(ObjArray, object);
       break;
     case OBJ_DICTIONARY: {
-      ObjDictionary* dictionary = (ObjDictionary*)object;
-      freeTable(&dictionary->table);
+      ObjDictionary* dict = (ObjDictionary*)object;
+      FREE_ARRAY(ObjEntry, dict->entries, dict->capacity);
       FREE(ObjDictionary, object);
+      break;
+    }
+    case OBJ_ENTRY: {
+      FREE(ObjEntry, object);
       break;
     }
     case OBJ_BOUND_METHOD:

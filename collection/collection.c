@@ -1,9 +1,4 @@
-#include <math.h>
-#include <stdlib.h>
 #include <stdio.h>
-#include <string.h>
-#include <time.h>
-#include <regex.h>
 
 #include "../pcg/pcg.h"
 #include "../assert/assert.h"
@@ -15,22 +10,21 @@
 #include "../memory/memory.h"
 #include "../vm/vm.h"
 
-static ObjEntry* dictFindEntry(ObjEntry* entries, int capacity, Value key) {
+ObjEntry* dictFindEntry(ObjEntry* entries, int capacity, Value key) {
   uint32_t hash = hashValue(key);
   uint32_t index = hash & (capacity - 1);
   ObjEntry* tombstone = NULL;
 
   for (;;) {
     ObjEntry* entry = &entries[index];
-    if (entry->key.type == VAL_NIL) {
+    if (IS_UNDEFINED(entry->key)) {
       if (IS_NIL(entry->value)) {
         return tombstone != NULL ? tombstone : entry;
       }
       else {
         if (tombstone == NULL) tombstone = entry;
       }
-    }
-    else if (valuesEqual(entry->key, key)) {
+    } else if (entry->key == key) {
       return entry;
     }
 
@@ -38,17 +32,18 @@ static ObjEntry* dictFindEntry(ObjEntry* entries, int capacity, Value key) {
   }
 }
 
+
 static void dictAdjustCapacity(ObjDictionary* dict, int capacity) {
   ObjEntry* entries = ALLOCATE(ObjEntry, capacity);
   for (int i = 0; i < capacity; i++) {
-    entries[i].key = NIL_VAL;
+    entries[i].key = UNDEFINED_VAL;
     entries[i].value = NIL_VAL;
   }
 
   dict->count = 0;
   for (int i = 0; i < dict->capacity; i++) {
     ObjEntry* entry = &dict->entries[i];
-    if (IS_NIL(entry->key)) continue;
+    if (IS_UNDEFINED(entry->key)) continue;
 
     ObjEntry* dest = dictFindEntry(entries, capacity, entry->key);
     dest->key = entry->key;
@@ -64,23 +59,23 @@ static void dictAdjustCapacity(ObjDictionary* dict, int capacity) {
 static bool dictContainsKey(ObjDictionary* dict, Value key) {
   if (dict->count == 0) return false;
   ObjEntry* entry = dictFindEntry(dict->entries, dict->capacity, key);
-  return !IS_NIL(entry->key);
+  return !IS_UNDEFINED(entry->key);
 }
 
 static bool dictContainsValue(ObjDictionary* dict, Value value) {
   if (dict->count == 0) return false;
   for (int i = 0; i < dict->capacity; i++) {
     ObjEntry* entry = &dict->entries[i];
-    if (IS_NIL(entry->key)) continue;
-    if (valuesEqual(entry->value, value)) return true;
+    if (IS_UNDEFINED(entry->key)) continue;
+    if (entry->value == value) return true;
   }
   return false;
 }
 
-static bool dictGet(ObjDictionary* dict, Value key, Value* value) {
+bool dictGet(ObjDictionary* dict, Value key, Value* value) {
   if (dict->count == 0) return false;
   ObjEntry* entry = dictFindEntry(dict->entries, dict->capacity, key);
-  if (IS_NIL(entry->key)) return false;
+  if (IS_UNDEFINED(entry->key)) return false;
   *value = entry->value;
   return true;
 }
@@ -88,11 +83,30 @@ static bool dictGet(ObjDictionary* dict, Value key, Value* value) {
 bool dictSet(ObjDictionary* dict, Value key, Value value) {
   if (dict->count + 1 > dict->capacity * TABLE_MAX_LOAD) {
     int capacity = GROW_CAPACITY(dict->capacity);
-    dictAdjustCapacity(dict, capacity);
+    ObjEntry* entries = ALLOCATE(ObjEntry, capacity);
+    for (int i = 0; i < capacity; i++) {
+      entries[i].key = UNDEFINED_VAL;
+      entries[i].value = NIL_VAL;
+    }
+
+    dict->count = 0;
+    for (int i = 0; i < dict->capacity; i++) {
+      ObjEntry* entry = &dict->entries[i];
+      if (IS_UNDEFINED(entry->key)) continue;
+
+      ObjEntry* dest = dictFindEntry(entries, capacity, entry->key);
+      dest->key = entry->key;
+      dest->value = entry->value;
+      dict->count++;
+    }
+
+    FREE_ARRAY(ObjEntry, dict->entries, dict->capacity);
+    dict->entries = entries;
+    dict->capacity = capacity;
   }
 
   ObjEntry* entry = dictFindEntry(dict->entries, dict->capacity, key);
-  bool isNewKey = IS_NIL(entry->key);
+  bool isNewKey = IS_UNDEFINED(entry->key);
   if (isNewKey && IS_NIL(entry->value)) dict->count++;
 
   entry->key = key;
@@ -104,9 +118,9 @@ static bool dictDelete(ObjDictionary* dict, Value key) {
   if (dict->count == 0) return false;
 
   ObjEntry* entry = dictFindEntry(dict->entries, dict->capacity, key);
-  if (IS_NIL(entry->key)) return false;
+  if (IS_UNDEFINED(entry->key)) return false;
 
-  entry->key = NIL_VAL;
+  entry->key = UNDEFINED_VAL;
   entry->value = BOOL_VAL(true);
   return true;
 }
@@ -114,7 +128,7 @@ static bool dictDelete(ObjDictionary* dict, Value key) {
 static void dictAddAll(ObjDictionary* from, ObjDictionary* to) {
   for (int i = 0; i < from->capacity; i++) {
     ObjEntry* entry = &from->entries[i];
-    if (!IS_NIL(entry->key)) {
+    if (!IS_UNDEFINED(entry->key)) {
       dictSet(to, entry->key, entry->value);
     }
   }
@@ -132,18 +146,18 @@ static ObjDictionary* dictCopy(ObjDictionary* original) {
 static bool dictsEqual(ObjDictionary* aDict, ObjDictionary* dict2) {
   for (int i = 0; i < aDict->capacity; i++) {
     ObjEntry* entry = &aDict->entries[i];
-    if (IS_NIL(entry->key)) continue;
+    if (IS_UNDEFINED(entry->key)) continue;
     Value bValue;
     bool keyExists = dictGet(dict2, entry->key, &bValue);
-    if (!keyExists || !valuesEqual(entry->value, bValue)) return false;
+    if (!keyExists || entry->value != bValue) return false;
   }
 
   for (int i = 0; i < dict2->capacity; i++) {
     ObjEntry* entry = &dict2->entries[i];
-    if (IS_NIL(entry->key)) continue;
+    if (IS_UNDEFINED(entry->key)) continue;
     Value aValue;
     bool keyExists = dictGet(aDict, entry->key, &aValue);
-    if (!keyExists || !valuesEqual(entry->value, aValue)) return false;
+    if (!keyExists || entry->value != aValue) return false;
   }
 
   return true;
@@ -154,7 +168,7 @@ static int dictLength(ObjDictionary* dict) {
   int length = 0;
   for (int i = 0; i < dict->capacity; i++) {
     ObjEntry* entry = &dict->entries[i];
-    if (!IS_NIL(entry->key)) length++;
+    if (!IS_UNDEFINED(entry->key)) length++;
   }
   return length;
 }
@@ -166,13 +180,13 @@ static int dictFindIndex(ObjDictionary* dict, Value key) {
 
   for (;;) {
     ObjEntry* entry = &dict->entries[index];
-    if (IS_NIL(entry->key)) {
+    if (IS_UNDEFINED(entry->key)) {
       if (IS_NIL(entry->value)) {
         return -1;
       } else {
         if (tombstone == NULL) tombstone = entry;
       }
-    } else if (valuesEqual(entry->key, key)) {
+    } else if (entry->key == key) {
       return index;
     }
 
@@ -180,6 +194,59 @@ static int dictFindIndex(ObjDictionary* dict, Value key) {
   }
 }
 
+ObjString* dictToString(ObjDictionary* dict) {
+  if (dict->count == 0) return copyString("{}", 2);
+  else {
+    char string[UINT8_MAX] = "";
+    string[0] = '{';
+    size_t offset = 1;
+    int startIndex = 0;
+
+    for (int i = 0; i < dict->capacity; i++) {
+      ObjEntry* entry = &dict->entries[i];
+      if (IS_UNDEFINED(entry->key)) continue;
+      Value key = entry->key;
+      char* keyChars = valueToString(key);
+      size_t keyLength = strlen(keyChars);
+      Value value = entry->value;
+      char* valueChars = valueToString(value);
+      size_t valueLength = strlen(valueChars);
+
+      memcpy(string + offset, keyChars, keyLength);
+      offset += keyLength;
+      memcpy(string + offset, ": ", 2);
+      offset += 2;
+      memcpy(string + offset, valueChars, valueLength);
+      offset += valueLength;
+      startIndex = i + 1;
+      break;
+    }
+
+    for (int i = startIndex; i < dict->capacity; i++) {
+      ObjEntry* entry = &dict->entries[i];
+      if (IS_UNDEFINED(entry->key)) continue;
+      Value key = entry->key;
+      char* keyChars = valueToString(key);
+      size_t keyLength = strlen(keyChars);
+      Value value = entry->value;
+      char* valueChars = valueToString(value);
+      size_t valueLength = strlen(valueChars);
+
+      memcpy(string + offset, ", ", 2);
+      offset += 2;
+      memcpy(string + offset, keyChars, keyLength);
+      offset += keyLength;
+      memcpy(string + offset, ": ", 2);
+      offset += 2;
+      memcpy(string + offset, valueChars, valueLength);
+      offset += valueLength;
+    }
+
+    string[offset] = '}';
+    string[offset + 1] = '\0';
+    return copyString(string, (int)offset + 1);
+  }
+}
 
 static int arrayIndexOf(ObjArray* array, Value element) {
 	for (int i = 0; i < array->elements.count; i++) {
@@ -195,16 +262,6 @@ static void arrayAddAll(ObjArray* from, ObjArray* to) {
 	for (int i = 0; i < from->elements.count; i++) {
 		writeValueArray(&to->elements, from->elements.values[i]);
 	}
-}
-
-static bool arrayEqual(ObjArray* array1, ObjArray* array2) {
-	if (array1->elements.count != array2->elements.count) return false;
-
-	for (int i = 0; i < array1->elements.count; i++) {
-		if (array1->elements.values[i].type != array2->elements.values[i].type) return false;
-	}
-
-	return true;
 }
 
 static void arrayInsertAt(ObjArray* array, int index, Value element) {
@@ -509,7 +566,7 @@ NATIVE_METHOD(Array, forEach) {
 NATIVE_METHOD(Array, equals) {
 	assertArgCount("Array::equals(other)", 1, argCount);
 	if (!IS_ARRAY(args[0])) RETURN_FALSE;
-	RETURN_BOOL(arrayEqual(AS_ARRAY(receiver), AS_ARRAY(args[0])));
+  RETURN_BOOL(equalValueArray(&AS_ARRAY(receiver)->elements, &AS_ARRAY(args[0])->elements));
 }
 
 NATIVE_METHOD(Array, getAt) {
@@ -656,7 +713,7 @@ NATIVE_METHOD(Dictionary, containsKey) {
 
 NATIVE_METHOD(Dictionary, containsValue) {
 	assertArgCount("Dictionary::containsValue(value)", 1, argCount);
-	RETURN_BOOL(dictContainsValue(AS_DICTIONARY(receiver), args[0]));
+  RETURN_BOOL(dictContainsValue(AS_DICTIONARY(receiver), args[0]));
 }
 
 NATIVE_METHOD(Dictionary, equals) {
@@ -704,7 +761,6 @@ NATIVE_METHOD(Dictionary, next) {
 
 NATIVE_METHOD(Dictionary, nextValue) {
   assertArgCount("Dictionary::nextValue(key)", 1, argCount);
-  assertArgIsString("Dictionary::nextValue(key)", args, 0);
   ObjDictionary* self = AS_DICTIONARY(receiver);
   int index = dictFindIndex(self, args[0]);
   RETURN_VAL(self->entries[index].value);
@@ -719,14 +775,12 @@ NATIVE_METHOD(Dictionary, putAll) {
 
 NATIVE_METHOD(Dictionary, put) {
 	assertArgCount("Dictionary::put(key, value)", 2, argCount);
-	assertArgIsString("Dictionary::put(key, value)", args, 0);
-  dictSet(AS_DICTIONARY(receiver), args[0], args[1]);
+  if (!IS_NIL(args[0])) dictSet(AS_DICTIONARY(receiver), args[0], args[1]);
 	return receiver;
 }
 
 NATIVE_METHOD(Dictionary, removeAt) {
 	assertArgCount("Dictionary::removeAt(key)", 1, argCount);
-	assertArgIsString("Dictionary::removeAt(key)", args, 0);
   ObjDictionary* self = AS_DICTIONARY(receiver);
   Value key = args[0];
   Value value;
@@ -739,7 +793,7 @@ NATIVE_METHOD(Dictionary, removeAt) {
 
 NATIVE_METHOD(Dictionary, toString) {
 	assertArgCount("Dictionary::toString()", 0, argCount);
-	RETURN_OBJ(tableToString(&AS_DICTIONARY(receiver)->table));
+	RETURN_OBJ(dictToString(AS_DICTIONARY(receiver)));
 }
 
 void registerCollectionPackage() {

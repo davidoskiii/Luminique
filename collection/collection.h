@@ -5,5 +5,7 @@
 #include "../string/string.h"
 
 void registerCollectionPackage();
+bool dictGet(ObjDictionary* dict, Value key, Value* value);
+bool dictSet(ObjDictionary* dict, Value key, Value value);
 
 #endif

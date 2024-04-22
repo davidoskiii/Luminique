@@ -10,6 +10,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "/home/davide/Vs Code Projects/c/compiler/Luminique/assert/assert.c" "CMakeFiles/luminique.dir/assert/assert.c.o" "gcc" "CMakeFiles/luminique.dir/assert/assert.c.o.d"
   "/home/davide/Vs Code Projects/c/compiler/Luminique/chunk/chunk.c" "CMakeFiles/luminique.dir/chunk/chunk.c.o" "gcc" "CMakeFiles/luminique.dir/chunk/chunk.c.o.d"
+  "/home/davide/Vs Code Projects/c/compiler/Luminique/collection/collection.c" "CMakeFiles/luminique.dir/collection/collection.c.o" "gcc" "CMakeFiles/luminique.dir/collection/collection.c.o.d"
   "/home/davide/Vs Code Projects/c/compiler/Luminique/compiler/compiler.c" "CMakeFiles/luminique.dir/compiler/compiler.c.o" "gcc" "CMakeFiles/luminique.dir/compiler/compiler.c.o.d"
   "/home/davide/Vs Code Projects/c/compiler/Luminique/debug/debug.c" "CMakeFiles/luminique.dir/debug/debug.c.o" "gcc" "CMakeFiles/luminique.dir/debug/debug.c.o.d"
   "/home/davide/Vs Code Projects/c/compiler/Luminique/hash/hash.c" "CMakeFiles/luminique.dir/hash/hash.c.o" "gcc" "CMakeFiles/luminique.dir/hash/hash.c.o.d"

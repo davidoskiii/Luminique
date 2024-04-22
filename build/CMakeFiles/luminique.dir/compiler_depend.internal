@@ -174,6 +174,125 @@ CMakeFiles/luminique.dir/chunk/chunk.c.o
  /home/davide/Vs Code Projects/c/compiler/Luminique/value/value.h
  /home/davide/Vs Code Projects/c/compiler/Luminique/vm/vm.h
 
+CMakeFiles/luminique.dir/collection/collection.c.o
+ /home/davide/Vs Code Projects/c/compiler/Luminique/collection/collection.c
+ /usr/include/stdc-predef.h
+ /usr/include/math.h
+ /usr/include/x86_64-linux-gnu/bits/libc-header-start.h
+ /usr/include/features.h
+ /usr/include/features-time64.h
+ /usr/include/x86_64-linux-gnu/bits/wordsize.h
+ /usr/include/x86_64-linux-gnu/bits/timesize.h
+ /usr/include/x86_64-linux-gnu/sys/cdefs.h
+ /usr/include/x86_64-linux-gnu/bits/long-double.h
+ /usr/include/x86_64-linux-gnu/gnu/stubs.h
+ /usr/include/x86_64-linux-gnu/gnu/stubs-64.h
+ /usr/include/x86_64-linux-gnu/bits/types.h
+ /usr/include/x86_64-linux-gnu/bits/typesizes.h
+ /usr/include/x86_64-linux-gnu/bits/time64.h
+ /usr/include/x86_64-linux-gnu/bits/math-vector.h
+ /usr/include/x86_64-linux-gnu/bits/libm-simd-decl-stubs.h
+ /usr/include/x86_64-linux-gnu/bits/floatn.h
+ /usr/include/x86_64-linux-gnu/bits/floatn-common.h
+ /usr/include/x86_64-linux-gnu/bits/flt-eval-method.h
+ /usr/include/x86_64-linux-gnu/bits/fp-logb.h
+ /usr/include/x86_64-linux-gnu/bits/fp-fast.h
+ /usr/include/x86_64-linux-gnu/bits/mathcalls-helper-functions.h
+ /usr/include/x86_64-linux-gnu/bits/mathcalls.h
+ /usr/include/stdlib.h
+ /usr/lib/gcc/x86_64-linux-gnu/11/include/stddef.h
+ /usr/include/x86_64-linux-gnu/bits/waitflags.h
+ /usr/include/x86_64-linux-gnu/bits/waitstatus.h
+ /usr/include/x86_64-linux-gnu/sys/types.h
+ /usr/include/x86_64-linux-gnu/bits/types/clock_t.h
+ /usr/include/x86_64-linux-gnu/bits/types/clockid_t.h
+ /usr/include/x86_64-linux-gnu/bits/types/time_t.h
+ /usr/include/x86_64-linux-gnu/bits/types/timer_t.h
+ /usr/include/x86_64-linux-gnu/bits/stdint-intn.h
+ /usr/include/endian.h
+ /usr/include/x86_64-linux-gnu/bits/endian.h
+ /usr/include/x86_64-linux-gnu/bits/endianness.h
+ /usr/include/x86_64-linux-gnu/bits/byteswap.h
+ /usr/include/x86_64-linux-gnu/bits/uintn-identity.h
+ /usr/include/x86_64-linux-gnu/sys/select.h
+ /usr/include/x86_64-linux-gnu/bits/select.h
+ /usr/include/x86_64-linux-gnu/bits/types/sigset_t.h
+ /usr/include/x86_64-linux-gnu/bits/types/__sigset_t.h
+ /usr/include/x86_64-linux-gnu/bits/types/struct_timeval.h
+ /usr/include/x86_64-linux-gnu/bits/types/struct_timespec.h
+ /usr/include/x86_64-linux-gnu/bits/pthreadtypes.h
+ /usr/include/x86_64-linux-gnu/bits/thread-shared-types.h
+ /usr/include/x86_64-linux-gnu/bits/pthreadtypes-arch.h
+ /usr/include/x86_64-linux-gnu/bits/atomic_wide_counter.h
+ /usr/include/x86_64-linux-gnu/bits/struct_mutex.h
+ /usr/include/x86_64-linux-gnu/bits/struct_rwlock.h
+ /usr/include/alloca.h
+ /usr/include/x86_64-linux-gnu/bits/stdlib-float.h
+ /usr/include/stdio.h
+ /usr/lib/gcc/x86_64-linux-gnu/11/include/stdarg.h
+ /usr/include/x86_64-linux-gnu/bits/types/__fpos_t.h
+ /usr/include/x86_64-linux-gnu/bits/types/__mbstate_t.h
+ /usr/include/x86_64-linux-gnu/bits/types/__fpos64_t.h
+ /usr/include/x86_64-linux-gnu/bits/types/__FILE.h
+ /usr/include/x86_64-linux-gnu/bits/types/FILE.h
+ /usr/include/x86_64-linux-gnu/bits/types/struct_FILE.h
+ /usr/include/x86_64-linux-gnu/bits/stdio_lim.h
+ /usr/include/string.h
+ /usr/include/x86_64-linux-gnu/bits/types/locale_t.h
+ /usr/include/x86_64-linux-gnu/bits/types/__locale_t.h
+ /usr/include/strings.h
+ /usr/include/time.h
+ /usr/include/x86_64-linux-gnu/bits/time.h
+ /usr/include/x86_64-linux-gnu/bits/types/struct_tm.h
+ /usr/include/x86_64-linux-gnu/bits/types/struct_itimerspec.h
+ /usr/include/regex.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/pcg/pcg.h
+ /usr/include/inttypes.h
+ /usr/lib/gcc/x86_64-linux-gnu/11/include/stdint.h
+ /usr/include/stdint.h
+ /usr/include/x86_64-linux-gnu/bits/wchar.h
+ /usr/include/x86_64-linux-gnu/bits/stdint-uintn.h
+ /usr/lib/gcc/x86_64-linux-gnu/11/include/stdbool.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/assert/assert.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/common.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/value/value.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/common.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/native/native.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/object/object.h
+ /usr/include/x86_64-linux-gnu/sys/stat.h
+ /usr/include/x86_64-linux-gnu/bits/stat.h
+ /usr/include/x86_64-linux-gnu/bits/struct_stat.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/common.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/table/table.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/common.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/value/value.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/chunk/chunk.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/common.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/value/value.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/value/value.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/vm/vm.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/object/object.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/table/table.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/value/value.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/object/object.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/string/string.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/common.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/table/table.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/chunk/chunk.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/value/value.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/object/object.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/hash/hash.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/object/object.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/common.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/value/value.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/value/value.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/memory/memory.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/common.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/object/object.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/value/value.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/vm/vm.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/vm/vm.h
+
 CMakeFiles/luminique.dir/compiler/compiler.c.o
  /home/davide/Vs Code Projects/c/compiler/Luminique/compiler/compiler.c
  /usr/include/stdc-predef.h
@@ -327,6 +446,284 @@ CMakeFiles/luminique.dir/debug/debug.c.o
  /home/davide/Vs Code Projects/c/compiler/Luminique/chunk/chunk.h
  /home/davide/Vs Code Projects/c/compiler/Luminique/value/value.h
  /home/davide/Vs Code Projects/c/compiler/Luminique/value/value.h
+
+CMakeFiles/luminique.dir/hash/hash.c.o
+ /home/davide/Vs Code Projects/c/compiler/Luminique/hash/hash.c
+ /usr/include/stdc-predef.h
+ /usr/include/string.h
+ /usr/include/x86_64-linux-gnu/bits/libc-header-start.h
+ /usr/include/features.h
+ /usr/include/features-time64.h
+ /usr/include/x86_64-linux-gnu/bits/wordsize.h
+ /usr/include/x86_64-linux-gnu/bits/timesize.h
+ /usr/include/x86_64-linux-gnu/sys/cdefs.h
+ /usr/include/x86_64-linux-gnu/bits/long-double.h
+ /usr/include/x86_64-linux-gnu/gnu/stubs.h
+ /usr/include/x86_64-linux-gnu/gnu/stubs-64.h
+ /usr/lib/gcc/x86_64-linux-gnu/11/include/stddef.h
+ /usr/include/x86_64-linux-gnu/bits/types/locale_t.h
+ /usr/include/x86_64-linux-gnu/bits/types/__locale_t.h
+ /usr/include/strings.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/hash/hash.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/object/object.h
+ /usr/include/x86_64-linux-gnu/sys/stat.h
+ /usr/include/x86_64-linux-gnu/bits/types.h
+ /usr/include/x86_64-linux-gnu/bits/typesizes.h
+ /usr/include/x86_64-linux-gnu/bits/time64.h
+ /usr/include/x86_64-linux-gnu/bits/types/struct_timespec.h
+ /usr/include/x86_64-linux-gnu/bits/endian.h
+ /usr/include/x86_64-linux-gnu/bits/endianness.h
+ /usr/include/x86_64-linux-gnu/bits/types/time_t.h
+ /usr/include/x86_64-linux-gnu/bits/stat.h
+ /usr/include/x86_64-linux-gnu/bits/struct_stat.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/common.h
+ /usr/lib/gcc/x86_64-linux-gnu/11/include/stdbool.h
+ /usr/lib/gcc/x86_64-linux-gnu/11/include/stdint.h
+ /usr/include/stdint.h
+ /usr/include/x86_64-linux-gnu/bits/wchar.h
+ /usr/include/x86_64-linux-gnu/bits/stdint-intn.h
+ /usr/include/x86_64-linux-gnu/bits/stdint-uintn.h
+ /usr/include/stdio.h
+ /usr/lib/gcc/x86_64-linux-gnu/11/include/stdarg.h
+ /usr/include/x86_64-linux-gnu/bits/types/__fpos_t.h
+ /usr/include/x86_64-linux-gnu/bits/types/__mbstate_t.h
+ /usr/include/x86_64-linux-gnu/bits/types/__fpos64_t.h
+ /usr/include/x86_64-linux-gnu/bits/types/__FILE.h
+ /usr/include/x86_64-linux-gnu/bits/types/FILE.h
+ /usr/include/x86_64-linux-gnu/bits/types/struct_FILE.h
+ /usr/include/x86_64-linux-gnu/bits/stdio_lim.h
+ /usr/include/x86_64-linux-gnu/bits/floatn.h
+ /usr/include/x86_64-linux-gnu/bits/floatn-common.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/table/table.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/common.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/value/value.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/common.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/chunk/chunk.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/common.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/value/value.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/value/value.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/common.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/value/value.h
+
+CMakeFiles/luminique.dir/io/io.c.o
+ /home/davide/Vs Code Projects/c/compiler/Luminique/io/io.c
+ /usr/include/stdc-predef.h
+ /usr/include/stdio.h
+ /usr/include/x86_64-linux-gnu/bits/libc-header-start.h
+ /usr/include/features.h
+ /usr/include/features-time64.h
+ /usr/include/x86_64-linux-gnu/bits/wordsize.h
+ /usr/include/x86_64-linux-gnu/bits/timesize.h
+ /usr/include/x86_64-linux-gnu/sys/cdefs.h
+ /usr/include/x86_64-linux-gnu/bits/long-double.h
+ /usr/include/x86_64-linux-gnu/gnu/stubs.h
+ /usr/include/x86_64-linux-gnu/gnu/stubs-64.h
+ /usr/lib/gcc/x86_64-linux-gnu/11/include/stddef.h
+ /usr/lib/gcc/x86_64-linux-gnu/11/include/stdarg.h
+ /usr/include/x86_64-linux-gnu/bits/types.h
+ /usr/include/x86_64-linux-gnu/bits/typesizes.h
+ /usr/include/x86_64-linux-gnu/bits/time64.h
+ /usr/include/x86_64-linux-gnu/bits/types/__fpos_t.h
+ /usr/include/x86_64-linux-gnu/bits/types/__mbstate_t.h
+ /usr/include/x86_64-linux-gnu/bits/types/__fpos64_t.h
+ /usr/include/x86_64-linux-gnu/bits/types/__FILE.h
+ /usr/include/x86_64-linux-gnu/bits/types/FILE.h
+ /usr/include/x86_64-linux-gnu/bits/types/struct_FILE.h
+ /usr/include/x86_64-linux-gnu/bits/stdio_lim.h
+ /usr/include/x86_64-linux-gnu/bits/floatn.h
+ /usr/include/x86_64-linux-gnu/bits/floatn-common.h
+ /usr/lib/gcc/x86_64-linux-gnu/11/include/limits.h
+ /usr/lib/gcc/x86_64-linux-gnu/11/include/syslimits.h
+ /usr/include/limits.h
+ /usr/include/x86_64-linux-gnu/bits/posix1_lim.h
+ /usr/include/x86_64-linux-gnu/bits/local_lim.h
+ /usr/include/linux/limits.h
+ /usr/include/x86_64-linux-gnu/bits/pthread_stack_min-dynamic.h
+ /usr/include/x86_64-linux-gnu/bits/pthread_stack_min.h
+ /usr/include/x86_64-linux-gnu/bits/posix2_lim.h
+ /usr/include/stdlib.h
+ /usr/include/x86_64-linux-gnu/bits/waitflags.h
+ /usr/include/x86_64-linux-gnu/bits/waitstatus.h
+ /usr/include/x86_64-linux-gnu/sys/types.h
+ /usr/include/x86_64-linux-gnu/bits/types/clock_t.h
+ /usr/include/x86_64-linux-gnu/bits/types/clockid_t.h
+ /usr/include/x86_64-linux-gnu/bits/types/time_t.h
+ /usr/include/x86_64-linux-gnu/bits/types/timer_t.h
+ /usr/include/x86_64-linux-gnu/bits/stdint-intn.h
+ /usr/include/endian.h
+ /usr/include/x86_64-linux-gnu/bits/endian.h
+ /usr/include/x86_64-linux-gnu/bits/endianness.h
+ /usr/include/x86_64-linux-gnu/bits/byteswap.h
+ /usr/include/x86_64-linux-gnu/bits/uintn-identity.h
+ /usr/include/x86_64-linux-gnu/sys/select.h
+ /usr/include/x86_64-linux-gnu/bits/select.h
+ /usr/include/x86_64-linux-gnu/bits/types/sigset_t.h
+ /usr/include/x86_64-linux-gnu/bits/types/__sigset_t.h
+ /usr/include/x86_64-linux-gnu/bits/types/struct_timeval.h
+ /usr/include/x86_64-linux-gnu/bits/types/struct_timespec.h
+ /usr/include/x86_64-linux-gnu/bits/pthreadtypes.h
+ /usr/include/x86_64-linux-gnu/bits/thread-shared-types.h
+ /usr/include/x86_64-linux-gnu/bits/pthreadtypes-arch.h
+ /usr/include/x86_64-linux-gnu/bits/atomic_wide_counter.h
+ /usr/include/x86_64-linux-gnu/bits/struct_mutex.h
+ /usr/include/x86_64-linux-gnu/bits/struct_rwlock.h
+ /usr/include/alloca.h
+ /usr/include/x86_64-linux-gnu/bits/stdlib-float.h
+ /usr/include/x86_64-linux-gnu/sys/stat.h
+ /usr/include/x86_64-linux-gnu/bits/stat.h
+ /usr/include/x86_64-linux-gnu/bits/struct_stat.h
+ /usr/include/unistd.h
+ /usr/include/x86_64-linux-gnu/bits/posix_opt.h
+ /usr/include/x86_64-linux-gnu/bits/environments.h
+ /usr/include/x86_64-linux-gnu/bits/confname.h
+ /usr/include/x86_64-linux-gnu/bits/getopt_posix.h
+ /usr/include/x86_64-linux-gnu/bits/getopt_core.h
+ /usr/include/x86_64-linux-gnu/bits/unistd_ext.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/io/io.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/common.h
+ /usr/lib/gcc/x86_64-linux-gnu/11/include/stdbool.h
+ /usr/lib/gcc/x86_64-linux-gnu/11/include/stdint.h
+ /usr/include/stdint.h
+ /usr/include/x86_64-linux-gnu/bits/wchar.h
+ /usr/include/x86_64-linux-gnu/bits/stdint-uintn.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/assert/assert.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/common.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/value/value.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/common.h
+ /usr/include/string.h
+ /usr/include/x86_64-linux-gnu/bits/types/locale_t.h
+ /usr/include/x86_64-linux-gnu/bits/types/__locale_t.h
+ /usr/include/strings.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/native/native.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/object/object.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/common.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/table/table.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/common.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/value/value.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/chunk/chunk.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/common.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/value/value.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/value/value.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/vm/vm.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/object/object.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/table/table.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/value/value.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/object/object.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/string/string.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/common.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/table/table.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/chunk/chunk.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/value/value.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/object/object.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/vm/vm.h
+
+CMakeFiles/luminique.dir/lang/lang.c.o
+ /home/davide/Vs Code Projects/c/compiler/Luminique/lang/lang.c
+ /usr/include/stdc-predef.h
+ /usr/include/stdio.h
+ /usr/include/x86_64-linux-gnu/bits/libc-header-start.h
+ /usr/include/features.h
+ /usr/include/features-time64.h
+ /usr/include/x86_64-linux-gnu/bits/wordsize.h
+ /usr/include/x86_64-linux-gnu/bits/timesize.h
+ /usr/include/x86_64-linux-gnu/sys/cdefs.h
+ /usr/include/x86_64-linux-gnu/bits/long-double.h
+ /usr/include/x86_64-linux-gnu/gnu/stubs.h
+ /usr/include/x86_64-linux-gnu/gnu/stubs-64.h
+ /usr/lib/gcc/x86_64-linux-gnu/11/include/stddef.h
+ /usr/lib/gcc/x86_64-linux-gnu/11/include/stdarg.h
+ /usr/include/x86_64-linux-gnu/bits/types.h
+ /usr/include/x86_64-linux-gnu/bits/typesizes.h
+ /usr/include/x86_64-linux-gnu/bits/time64.h
+ /usr/include/x86_64-linux-gnu/bits/types/__fpos_t.h
+ /usr/include/x86_64-linux-gnu/bits/types/__mbstate_t.h
+ /usr/include/x86_64-linux-gnu/bits/types/__fpos64_t.h
+ /usr/include/x86_64-linux-gnu/bits/types/__FILE.h
+ /usr/include/x86_64-linux-gnu/bits/types/FILE.h
+ /usr/include/x86_64-linux-gnu/bits/types/struct_FILE.h
+ /usr/include/x86_64-linux-gnu/bits/stdio_lim.h
+ /usr/include/x86_64-linux-gnu/bits/floatn.h
+ /usr/include/x86_64-linux-gnu/bits/floatn-common.h
+ /usr/include/math.h
+ /usr/include/x86_64-linux-gnu/bits/math-vector.h
+ /usr/include/x86_64-linux-gnu/bits/libm-simd-decl-stubs.h
+ /usr/include/x86_64-linux-gnu/bits/flt-eval-method.h
+ /usr/include/x86_64-linux-gnu/bits/fp-logb.h
+ /usr/include/x86_64-linux-gnu/bits/fp-fast.h
+ /usr/include/x86_64-linux-gnu/bits/mathcalls-helper-functions.h
+ /usr/include/x86_64-linux-gnu/bits/mathcalls.h
+ /usr/include/stdlib.h
+ /usr/include/x86_64-linux-gnu/bits/waitflags.h
+ /usr/include/x86_64-linux-gnu/bits/waitstatus.h
+ /usr/include/x86_64-linux-gnu/sys/types.h
+ /usr/include/x86_64-linux-gnu/bits/types/clock_t.h
+ /usr/include/x86_64-linux-gnu/bits/types/clockid_t.h
+ /usr/include/x86_64-linux-gnu/bits/types/time_t.h
+ /usr/include/x86_64-linux-gnu/bits/types/timer_t.h
+ /usr/include/x86_64-linux-gnu/bits/stdint-intn.h
+ /usr/include/endian.h
+ /usr/include/x86_64-linux-gnu/bits/endian.h
+ /usr/include/x86_64-linux-gnu/bits/endianness.h
+ /usr/include/x86_64-linux-gnu/bits/byteswap.h
+ /usr/include/x86_64-linux-gnu/bits/uintn-identity.h
+ /usr/include/x86_64-linux-gnu/sys/select.h
+ /usr/include/x86_64-linux-gnu/bits/select.h
+ /usr/include/x86_64-linux-gnu/bits/types/sigset_t.h
+ /usr/include/x86_64-linux-gnu/bits/types/__sigset_t.h
+ /usr/include/x86_64-linux-gnu/bits/types/struct_timeval.h
+ /usr/include/x86_64-linux-gnu/bits/types/struct_timespec.h
+ /usr/include/x86_64-linux-gnu/bits/pthreadtypes.h
+ /usr/include/x86_64-linux-gnu/bits/thread-shared-types.h
+ /usr/include/x86_64-linux-gnu/bits/pthreadtypes-arch.h
+ /usr/include/x86_64-linux-gnu/bits/atomic_wide_counter.h
+ /usr/include/x86_64-linux-gnu/bits/struct_mutex.h
+ /usr/include/x86_64-linux-gnu/bits/struct_rwlock.h
+ /usr/include/alloca.h
+ /usr/include/x86_64-linux-gnu/bits/stdlib-float.h
+ /usr/include/string.h
+ /usr/include/x86_64-linux-gnu/bits/types/locale_t.h
+ /usr/include/x86_64-linux-gnu/bits/types/__locale_t.h
+ /usr/include/strings.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/lang/lang.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/common.h
+ /usr/lib/gcc/x86_64-linux-gnu/11/include/stdbool.h
+ /usr/lib/gcc/x86_64-linux-gnu/11/include/stdint.h
+ /usr/include/stdint.h
+ /usr/include/x86_64-linux-gnu/bits/wchar.h
+ /usr/include/x86_64-linux-gnu/bits/stdint-uintn.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/string/string.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/common.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/table/table.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/common.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/value/value.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/common.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/chunk/chunk.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/common.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/value/value.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/value/value.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/object/object.h
+ /usr/include/x86_64-linux-gnu/sys/stat.h
+ /usr/include/x86_64-linux-gnu/bits/stat.h
+ /usr/include/x86_64-linux-gnu/bits/struct_stat.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/common.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/table/table.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/chunk/chunk.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/value/value.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/hash/hash.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/object/object.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/common.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/value/value.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/assert/assert.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/common.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/value/value.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/native/native.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/object/object.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/vm/vm.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/object/object.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/table/table.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/value/value.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/object/object.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/vm/vm.h
 
 CMakeFiles/luminique.dir/main.c.o
  /home/davide/Vs Code Projects/c/compiler/Luminique/main.c
@@ -684,6 +1081,50 @@ CMakeFiles/luminique.dir/object/object.c.o
  /home/davide/Vs Code Projects/c/compiler/Luminique/object/object.h
  /home/davide/Vs Code Projects/c/compiler/Luminique/vm/vm.h
 
+CMakeFiles/luminique.dir/pcg/pcg.c.o
+ /home/davide/Vs Code Projects/c/compiler/Luminique/pcg/pcg.c
+ /usr/include/stdc-predef.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/pcg/pcg.h
+ /usr/include/inttypes.h
+ /usr/include/features.h
+ /usr/include/features-time64.h
+ /usr/include/x86_64-linux-gnu/bits/wordsize.h
+ /usr/include/x86_64-linux-gnu/bits/timesize.h
+ /usr/include/x86_64-linux-gnu/sys/cdefs.h
+ /usr/include/x86_64-linux-gnu/bits/long-double.h
+ /usr/include/x86_64-linux-gnu/gnu/stubs.h
+ /usr/include/x86_64-linux-gnu/gnu/stubs-64.h
+ /usr/lib/gcc/x86_64-linux-gnu/11/include/stdint.h
+ /usr/include/stdint.h
+ /usr/include/x86_64-linux-gnu/bits/libc-header-start.h
+ /usr/include/x86_64-linux-gnu/bits/types.h
+ /usr/include/x86_64-linux-gnu/bits/typesizes.h
+ /usr/include/x86_64-linux-gnu/bits/time64.h
+ /usr/include/x86_64-linux-gnu/bits/wchar.h
+ /usr/include/x86_64-linux-gnu/bits/stdint-intn.h
+ /usr/include/x86_64-linux-gnu/bits/stdint-uintn.h
+ /usr/lib/gcc/x86_64-linux-gnu/11/include/stdbool.h
+ /usr/include/math.h
+ /usr/include/x86_64-linux-gnu/bits/math-vector.h
+ /usr/include/x86_64-linux-gnu/bits/libm-simd-decl-stubs.h
+ /usr/include/x86_64-linux-gnu/bits/floatn.h
+ /usr/include/x86_64-linux-gnu/bits/floatn-common.h
+ /usr/include/x86_64-linux-gnu/bits/flt-eval-method.h
+ /usr/include/x86_64-linux-gnu/bits/fp-logb.h
+ /usr/include/x86_64-linux-gnu/bits/fp-fast.h
+ /usr/include/x86_64-linux-gnu/bits/mathcalls-helper-functions.h
+ /usr/include/x86_64-linux-gnu/bits/mathcalls.h
+ /usr/include/stdio.h
+ /usr/lib/gcc/x86_64-linux-gnu/11/include/stddef.h
+ /usr/lib/gcc/x86_64-linux-gnu/11/include/stdarg.h
+ /usr/include/x86_64-linux-gnu/bits/types/__fpos_t.h
+ /usr/include/x86_64-linux-gnu/bits/types/__mbstate_t.h
+ /usr/include/x86_64-linux-gnu/bits/types/__fpos64_t.h
+ /usr/include/x86_64-linux-gnu/bits/types/__FILE.h
+ /usr/include/x86_64-linux-gnu/bits/types/FILE.h
+ /usr/include/x86_64-linux-gnu/bits/types/struct_FILE.h
+ /usr/include/x86_64-linux-gnu/bits/stdio_lim.h
+
 CMakeFiles/luminique.dir/scanner/scanner.c.o
  /home/davide/Vs Code Projects/c/compiler/Luminique/scanner/scanner.c
  /usr/include/stdc-predef.h
@@ -812,6 +1253,103 @@ CMakeFiles/luminique.dir/std/std.c.o
  /home/davide/Vs Code Projects/c/compiler/Luminique/assert/assert.h
  /home/davide/Vs Code Projects/c/compiler/Luminique/common.h
  /home/davide/Vs Code Projects/c/compiler/Luminique/value/value.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/string/string.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/common.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/table/table.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/chunk/chunk.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/value/value.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/object/object.h
+
+CMakeFiles/luminique.dir/string/string.c.o
+ /home/davide/Vs Code Projects/c/compiler/Luminique/string/string.c
+ /usr/include/stdc-predef.h
+ /usr/include/ctype.h
+ /usr/include/features.h
+ /usr/include/features-time64.h
+ /usr/include/x86_64-linux-gnu/bits/wordsize.h
+ /usr/include/x86_64-linux-gnu/bits/timesize.h
+ /usr/include/x86_64-linux-gnu/sys/cdefs.h
+ /usr/include/x86_64-linux-gnu/bits/long-double.h
+ /usr/include/x86_64-linux-gnu/gnu/stubs.h
+ /usr/include/x86_64-linux-gnu/gnu/stubs-64.h
+ /usr/include/x86_64-linux-gnu/bits/types.h
+ /usr/include/x86_64-linux-gnu/bits/typesizes.h
+ /usr/include/x86_64-linux-gnu/bits/time64.h
+ /usr/include/x86_64-linux-gnu/bits/endian.h
+ /usr/include/x86_64-linux-gnu/bits/endianness.h
+ /usr/include/x86_64-linux-gnu/bits/types/locale_t.h
+ /usr/include/x86_64-linux-gnu/bits/types/__locale_t.h
+ /usr/lib/gcc/x86_64-linux-gnu/11/include/stdarg.h
+ /usr/include/stdio.h
+ /usr/include/x86_64-linux-gnu/bits/libc-header-start.h
+ /usr/lib/gcc/x86_64-linux-gnu/11/include/stddef.h
+ /usr/include/x86_64-linux-gnu/bits/types/__fpos_t.h
+ /usr/include/x86_64-linux-gnu/bits/types/__mbstate_t.h
+ /usr/include/x86_64-linux-gnu/bits/types/__fpos64_t.h
+ /usr/include/x86_64-linux-gnu/bits/types/__FILE.h
+ /usr/include/x86_64-linux-gnu/bits/types/FILE.h
+ /usr/include/x86_64-linux-gnu/bits/types/struct_FILE.h
+ /usr/include/x86_64-linux-gnu/bits/stdio_lim.h
+ /usr/include/x86_64-linux-gnu/bits/floatn.h
+ /usr/include/x86_64-linux-gnu/bits/floatn-common.h
+ /usr/include/string.h
+ /usr/include/strings.h
+ /usr/include/stdlib.h
+ /usr/include/x86_64-linux-gnu/bits/waitflags.h
+ /usr/include/x86_64-linux-gnu/bits/waitstatus.h
+ /usr/include/x86_64-linux-gnu/sys/types.h
+ /usr/include/x86_64-linux-gnu/bits/types/clock_t.h
+ /usr/include/x86_64-linux-gnu/bits/types/clockid_t.h
+ /usr/include/x86_64-linux-gnu/bits/types/time_t.h
+ /usr/include/x86_64-linux-gnu/bits/types/timer_t.h
+ /usr/include/x86_64-linux-gnu/bits/stdint-intn.h
+ /usr/include/endian.h
+ /usr/include/x86_64-linux-gnu/bits/byteswap.h
+ /usr/include/x86_64-linux-gnu/bits/uintn-identity.h
+ /usr/include/x86_64-linux-gnu/sys/select.h
+ /usr/include/x86_64-linux-gnu/bits/select.h
+ /usr/include/x86_64-linux-gnu/bits/types/sigset_t.h
+ /usr/include/x86_64-linux-gnu/bits/types/__sigset_t.h
+ /usr/include/x86_64-linux-gnu/bits/types/struct_timeval.h
+ /usr/include/x86_64-linux-gnu/bits/types/struct_timespec.h
+ /usr/include/x86_64-linux-gnu/bits/pthreadtypes.h
+ /usr/include/x86_64-linux-gnu/bits/thread-shared-types.h
+ /usr/include/x86_64-linux-gnu/bits/pthreadtypes-arch.h
+ /usr/include/x86_64-linux-gnu/bits/atomic_wide_counter.h
+ /usr/include/x86_64-linux-gnu/bits/struct_mutex.h
+ /usr/include/x86_64-linux-gnu/bits/struct_rwlock.h
+ /usr/include/alloca.h
+ /usr/include/x86_64-linux-gnu/bits/stdlib-float.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/hash/hash.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/object/object.h
+ /usr/include/x86_64-linux-gnu/sys/stat.h
+ /usr/include/x86_64-linux-gnu/bits/stat.h
+ /usr/include/x86_64-linux-gnu/bits/struct_stat.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/common.h
+ /usr/lib/gcc/x86_64-linux-gnu/11/include/stdbool.h
+ /usr/lib/gcc/x86_64-linux-gnu/11/include/stdint.h
+ /usr/include/stdint.h
+ /usr/include/x86_64-linux-gnu/bits/wchar.h
+ /usr/include/x86_64-linux-gnu/bits/stdint-uintn.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/table/table.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/common.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/value/value.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/common.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/chunk/chunk.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/common.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/value/value.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/value/value.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/common.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/value/value.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/memory/memory.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/common.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/object/object.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/value/value.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/vm/vm.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/object/object.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/table/table.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/value/value.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/vm/vm.h
  /home/davide/Vs Code Projects/c/compiler/Luminique/string/string.h
  /home/davide/Vs Code Projects/c/compiler/Luminique/common.h
  /home/davide/Vs Code Projects/c/compiler/Luminique/table/table.h
@@ -1218,5 +1756,8 @@ CMakeFiles/luminique.dir/vm/vm.c.o
  /home/davide/Vs Code Projects/c/compiler/Luminique/string/string.h
  /home/davide/Vs Code Projects/c/compiler/Luminique/io/io.h
  /home/davide/Vs Code Projects/c/compiler/Luminique/common.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/collection/collection.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/common.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/string/string.h
  /home/davide/Vs Code Projects/c/compiler/Luminique/vm/vm.h
 
