@@ -333,6 +333,19 @@ static bool identifiersEqual(Token* a, Token* b) {
   return memcmp(a->start, b->start, a->length) == 0;
 }
 
+static uint8_t symbolConstant(const char* message) {
+  switch (parser.current.type) {
+    case TOKEN_IDENTIFIER:
+    case TOKEN_PLUS:
+    case TOKEN_MINUS:
+      advance();
+      return identifierConstant(&parser.previous);
+    default:
+      errorAtCurrent(message);
+      return -1;
+  }
+}
+
 static int resolveLocal(Compiler* compiler, Token* name) {
   for (int i = compiler->localCount - 1; i >= 0; i--) {
     Local* local = &compiler->locals[i];
