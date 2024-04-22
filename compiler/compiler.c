@@ -564,8 +564,7 @@ static void call(bool canAssign) {
 }
 
 static void dot(bool canAssign) {
-  consume(TOKEN_IDENTIFIER, "Expect property name after '.'.");
-  uint8_t name = identifierConstant(&parser.previous);
+  uint8_t name = symbolConstant("Expect property name after '.'.");
 
   if (canAssign && match(TOKEN_EQUAL)) {
     expression();
@@ -1112,8 +1111,7 @@ static void function(FunctionType type) {
 static void method() {
   consume(TOKEN_FUN, "Expect 'function' keyword");
 
-  consume(TOKEN_IDENTIFIER, "Expect method name.");
-  uint8_t constant = identifierConstant(&parser.previous);
+  uint8_t constant = symbolConstant("Expect method name.");
 
   FunctionType type = TYPE_METHOD;
   if (parser.previous.length == 8 &&

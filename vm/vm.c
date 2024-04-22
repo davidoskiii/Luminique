@@ -276,6 +276,21 @@ static bool invoke(ObjString* name, int argCount) {
 }
 
 
+static bool invokeOperator(ObjString* operator, bool isInfix) {
+  Value b = peek(0);
+  Value a = peek(1);
+  Value method;
+  ObjClass* aClass = getObjClass(a);
+  int argCount = isInfix ? 1 : 0;
+
+  if (!tableGet(&aClass->methods, operator, &method)) {
+    ObjClass* exceptionClass = getNativeClass("CallException");
+    throwException(exceptionClass, "Undefined operator method '%s' on class %s.", operator->chars, aClass->name->chars);
+    return false;
+  }
+  return invoke(operator, argCount);
+}
+
 static bool bindMethod(ObjClass* klass, ObjString* name) {
   Value method;
   if (!tableGet(&klass->methods, name, &method)) {
@@ -574,8 +589,11 @@ InterpretResult run() {
           double a = AS_NUMBER(pop());
           push(NUMBER_VAL(a + b));
         } else {
-          ObjClass* exceptionClass = getNativeClass("IllegalArgumentException");
-          throwException(exceptionClass, "Operands must be two numbers or two strings.");
+          ObjString* operator = copyString("+", 1);
+          if (!invokeOperator(operator, true)) { 
+            return INTERPRET_RUNTIME_ERROR;
+          }
+          frame = &vm.frames[vm.frameCount - 1];
         }
         break;
       }
@@ -584,8 +602,15 @@ InterpretResult run() {
           int b = AS_INT(pop());
           int a = AS_INT(pop());
           push(INT_VAL(a - b));
+        } else if (IS_NUMBER(peek(0)) && IS_NUMBER(peek(1))) {
+          BINARY_OP(NUMBER_VAL, -);
+        } else { 
+          ObjString* operator = copyString("-", 1);
+          if (!invokeOperator(operator, true)) {
+            return INTERPRET_RUNTIME_ERROR;
+          }
+          frame = &vm.frames[vm.frameCount - 1];
         }
-        else BINARY_OP(NUMBER_VAL, -);
         break;
       }
       case OP_MULTIPLY: {
