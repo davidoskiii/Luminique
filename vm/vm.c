@@ -332,8 +332,9 @@ static bool bindMethod(ObjClass* klass, ObjString* name) {
 }
 
 bool loadGlobal(ObjString* name, Value* value) {
-    if (tableGet(&vm.globalValues, name, value)) return true;
-    return tableGet(&vm.globals, name, value);
+  // if (tableGet(&vm.globalValues, name, value)) return true;
+  if (tableGet(&vm.rootNamespace->values, name, value)) return true;
+  return tableGet(&vm.globals, name, value);
 } 
 
 static ObjUpvalue* captureUpvalue(Value* local) {
@@ -615,7 +616,7 @@ InterpretResult run() {
       }
       case OP_DEFINE_CONST: {
         ObjString* name = READ_STRING();
-        tableSet(&vm.globalValues, name, peek(0));
+        tableSet(&vm.rootNamespace->values, name, peek(0));
         pop();
         break;
       }
@@ -751,22 +752,37 @@ InterpretResult run() {
         push(OBJ_VAL(newClass(READ_STRING())));
         break;
       case OP_GET_PROPERTY: {
-        if (!IS_INSTANCE(peek(0))) {
-          runtimeError("Only instances have properties.");
-          return INTERPRET_RUNTIME_ERROR;
-        }
+        Value receiver = peek(0);
+        if (IS_INSTANCE(receiver)) {
+          ObjInstance* instance = AS_INSTANCE(peek(0));
+          ObjString* name = READ_STRING();
 
-        ObjInstance* instance = AS_INSTANCE(peek(0));
-        ObjString* name = READ_STRING();
+          Value value;
+          if (tableGet(&instance->fields, name, &value)) {
+            pop(); // Instance.
+            push(value);
+            break;
+          }
 
-        Value value;
-        if (tableGet(&instance->fields, name, &value)) {
-          pop(); // Instance.
-          push(value);
-          break;
-        }
+          if (!bindMethod(instance->obj.klass, name)) {
+            return INTERPRET_RUNTIME_ERROR;
+          }
+        } else if (IS_NAMESPACE(receiver)) {
+          ObjNamespace* namespace = AS_NAMESPACE(receiver);
+          ObjString* name = READ_STRING();
+          Value value;
 
-        if (!bindMethod(instance->obj.klass, name)) {
+          if (tableGet(&namespace->values, name, &value)) {
+            pop();
+            push(value);
+            break;
+          }
+          else {
+            runtimeError("Undefined subnamespace '%s'.", name->chars);
+            return INTERPRET_RUNTIME_ERROR;
+          }
+        } else {
+          runtimeError("Only instances and namespaces have properties.");
           return INTERPRET_RUNTIME_ERROR;
         }
         break;
