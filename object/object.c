@@ -83,6 +83,7 @@ ObjDictionary* newDictionary() {
 ObjClass* newClass(ObjString* name) {
   ObjClass* klass = ALLOCATE_OBJ(ObjClass, OBJ_CLASS, vm.classClass);
   klass->name = name;
+  klass->namespace_ = vm.currentNamespace;
   klass->superclass = NULL;
   klass->isNative = false;
   initTable(&klass->methods);
@@ -93,8 +94,9 @@ ObjNamespace* newNamespace(ObjString* shortName, ObjNamespace* enclosing) {
   ObjNamespace* namespace = ALLOCATE_OBJ(ObjNamespace, OBJ_NAMESPACE, vm.namespaceClass);
   namespace->shortName = shortName;
   namespace->enclosing = enclosing;
+  namespace->isRoot = false;
 
-  if (namespace->enclosing != NULL && namespace->enclosing->shortName->length > 0) {
+  if (namespace->enclosing != NULL && !namespace->enclosing->isRoot) {
     char chars[UINT8_MAX];
     int length = snprintf(chars, UINT8_MAX, "%s.%s", namespace->enclosing->fullName->chars, shortName->chars);
     namespace->fullName = copyString(chars, length);

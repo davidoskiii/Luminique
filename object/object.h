@@ -123,6 +123,7 @@ struct ObjNamespace {
   ObjString* shortName;
   ObjString* fullName;
   struct ObjNamespace* enclosing;
+  bool isRoot;
   Table values;
 };
 
@@ -147,6 +148,7 @@ typedef struct {
 struct ObjClass {
   Obj obj;
   ObjString* name;
+  struct ObjNamespace* namespace_;
   struct ObjClass* superclass;
   Table methods;
   bool isNative;

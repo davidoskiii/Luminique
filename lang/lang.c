@@ -156,7 +156,9 @@ NATIVE_METHOD(Class, superclass) {
 
 NATIVE_METHOD(Class, toString) {
   assertArgCount("Class::toString()", 0, argCount);
-  RETURN_STRING_FMT("<class %s>", AS_CLASS(receiver)->name->chars);
+  ObjClass* self = AS_CLASS(receiver);
+  if (self->namespace_->isRoot) RETURN_STRING_FMT("<class %s>", self->name->chars);
+  else RETURN_STRING_FMT("<class %s.%s>", self->namespace_->fullName->chars, self->name->chars);
 }
 
 // FLOAT
@@ -872,6 +874,7 @@ static ObjNamespace* defineRootNamespace() {
   ObjString* name = newString("");
   push(OBJ_VAL(name));
   ObjNamespace* rootNamespace = newNamespace(name, NULL);
+  rootNamespace->isRoot = true;
   push(OBJ_VAL(rootNamespace));
   tableSet(&vm.namespaces, name, OBJ_VAL(rootNamespace));
   pop();
