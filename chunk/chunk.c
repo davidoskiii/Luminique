@@ -49,6 +49,7 @@ int opCodeOffset(Chunk* chunk, int ip) {
     case OP_POP: return 1;
     case OP_DUP: return 1;
     case OP_NAMESPACE: return 2;
+    case OP_USING: return 2;
     case OP_GET_LOCAL: return 2;
     case OP_SET_LOCAL: return 2;
     case OP_DEFINE_CONST: return 2;

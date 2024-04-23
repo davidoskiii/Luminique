@@ -927,7 +927,13 @@ static void this_(bool canAssign) {
   }
 
   variable(false);
-} 
+}
+
+static void namespace_(bool canAssign) {
+  consume(TOKEN_IDENTIFIER, "Expect Namespace identifier.");
+  ObjString* name = copyString(parser.previous.start, parser.previous.length);
+  emitConstant(OBJ_VAL(name));
+}
 
 static void super_(bool canAssign) {
   if (currentClass == NULL) {
@@ -1526,13 +1532,12 @@ static void namespaceDeclaration() {
     if (namespaceDepth > UINT4_MAX) {
       errorAtCurrent("Can't have more than 15 levels of namespace depth.");
     }
-    consume(TOKEN_IDENTIFIER, "Expect namespace name.");
-    variable(false);
+    namespace_(false);
     namespaceDepth++;
   } while (match(TOKEN_DOT));
 
   consume(TOKEN_SEMICOLON, "Expect semicolon after namespace declaration.");
-  // emitBytes(compiler, OP_NAMESPACE, namespaceDepth);
+  emitBytes(OP_NAMESPACE, namespaceDepth);
 }
 
 static void requireStatement() {

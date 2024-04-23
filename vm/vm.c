@@ -146,6 +146,24 @@ static void makeDictionary(uint8_t entryCount) {
   push(OBJ_VAL(dictionary));
 }
 
+static ObjNamespace* declareNamespace(uint8_t namespaceDepth) {
+  ObjNamespace* currentNamespace = vm.rootNamespace;
+  for (int i = namespaceDepth - 1; i >= 0; i--) {
+    ObjString* name = AS_STRING(peek(i));
+    Value value;
+    if (!tableGet(&currentNamespace->values, name, &value)) {
+      currentNamespace = defineNativeNamespace(name->chars, currentNamespace);
+    }
+    else currentNamespace = AS_NAMESPACE(value);
+  }
+
+  while (namespaceDepth > 0) {
+    pop();
+    namespaceDepth--;
+  }
+  return currentNamespace;
+}
+
 bool callClosure(ObjClosure* closure, int argCount) {
   if (closure->function->arity > 0 && argCount != closure->function->arity) {
     runtimeError("Expected %d arguments but got %d.",
@@ -537,9 +555,14 @@ InterpretResult run() {
         break;
       }
       case OP_NAMESPACE: {
-        printf("Declaring namespace: \n");
+        uint8_t namespaceDepth = READ_BYTE();
+        vm.currentNamespace = declareNamespace(namespaceDepth);
+        printf("Current namespace: %s\n", vm.currentNamespace->fullName->chars);
         break;
       }
+      case OP_USING:
+        printf("Importing namespace...\n");
+        break;
       case OP_GET_UPVALUE: {
         uint8_t slot = READ_BYTE();
         push(*frame->closure->upvalues[slot]->location);
