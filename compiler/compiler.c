@@ -1019,6 +1019,9 @@ ParseRule rules[] = {
   [TOKEN_TRY]           = {NULL,          NULL,      PREC_NONE},
   [TOKEN_CATCH]         = {NULL,          NULL,      PREC_NONE},
   [TOKEN_FINALLY]       = {NULL,          NULL,      PREC_NONE},
+  [TOKEN_AS]            = {NULL,          NULL,      PREC_NONE},
+  [TOKEN_NAMESPACE]     = {NULL,          NULL,      PREC_NONE},
+  [TOKEN_USING]         = {NULL,          NULL,      PREC_NONE},
   [TOKEN_EOF]           = {NULL,          NULL,      PREC_NONE}
 };
 
