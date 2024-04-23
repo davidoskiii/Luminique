@@ -649,13 +649,17 @@ InterpretResult run() {
         break;
       }
       case OP_POWER: {
-        if (!IS_NUMBER(peek(0)) || !IS_NUMBER(peek(1))) {
-          ObjClass* exceptionClass = getNativeClass("IllegalArgumentException"); 
-          throwException(exceptionClass, "Operands must be numbers for power operator.");
+        if (IS_NUMBER(peek(0)) || IS_NUMBER(peek(1))) {
+          double b = AS_NUMBER(pop());
+          double a = AS_NUMBER(pop());
+          push(NUMBER_VAL(pow(a, b)));
+        } else {
+          ObjString* op = newString("**");
+          if (!invokeOperator(op, 1)) {
+            return INTERPRET_RUNTIME_ERROR;
+          } 
+          frame = &vm.frames[vm.frameCount - 1];
         }
-        double b = AS_NUMBER(pop());
-        double a = AS_NUMBER(pop());
-        push(NUMBER_VAL(pow(a, b)));
         break;
       }
       case OP_NOT:

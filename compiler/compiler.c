@@ -353,6 +353,7 @@ static uint8_t propretyConstant(const char* message) {
     case TOKEN_STAR:
     case TOKEN_SLASH:
     case TOKEN_MODULO:
+    case TOKEN_POWER:
       advance();
       return identifierConstant(&parser.previous);
     case TOKEN_LEFT_BRAKE:

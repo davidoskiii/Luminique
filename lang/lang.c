@@ -444,6 +444,12 @@ NATIVE_METHOD(Number, __modulo__) {
   RETURN_NUMBER(fmod(AS_NUMBER(receiver), AS_NUMBER(args[0])));
 }
 
+NATIVE_METHOD(Number, __power__) {
+  assertArgCount("Number::**(other)", 1, argCount);
+  assertArgIsNumber("Number::**(other)", args, 0);
+  RETURN_NUMBER(pow(AS_NUMBER(receiver), AS_NUMBER(args[0])));
+}
+
 NATIVE_METHOD(Number, abs) {
 	assertArgCount("Number::abs()", 0, argCount);
 	RETURN_NUMBER(fabs(AS_NUMBER(receiver)));
@@ -907,6 +913,7 @@ void registerLangPackage(){
   DEF_OPERATOR(vm.numberClass, Number, *, __multiply__, 1);
   DEF_OPERATOR(vm.numberClass, Number, /, __divide__, 1);
   DEF_OPERATOR(vm.numberClass, Number, %, __modulo__, 1);
+  DEF_OPERATOR(vm.numberClass, Number, **, __power__, 1);
 
   vm.intClass = defineNativeClass("Int");
   bindSuperclass(vm.intClass, vm.numberClass);

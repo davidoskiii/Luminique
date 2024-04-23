@@ -310,9 +310,9 @@ Token scanToken() {
     case '+': return makeToken(
           match('+') ? TOKEN_PLUS_PLUS : TOKEN_PLUS);
     case '/': return makeToken(TOKEN_SLASH);
-    case '*': return makeToken(TOKEN_STAR); 
+    case '*': return makeToken(
+          match('*') ? TOKEN_POWER : TOKEN_STAR); 
     case '%': return makeToken(TOKEN_MODULO);
-    case '^': return makeToken(TOKEN_POWER);
     case ':': return makeToken(TOKEN_COLON);
     case '?': return makeToken(TOKEN_QUESTION);
 
