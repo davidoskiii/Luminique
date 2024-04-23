@@ -826,6 +826,24 @@ NATIVE_METHOD(String, trim) {
 }
 
 
+
+NATIVE_METHOD(Namespace, init) {
+  THROW_EXCEPTION(InstantiationException, "Cannot instantiate from class Namespace.");
+  RETURN_NIL;
+}
+
+NATIVE_METHOD(Namespace, clone) {
+  assertArgCount("Namespace::clone()", 0, argCount);
+  RETURN_OBJ(receiver);
+}
+
+NATIVE_METHOD(Namespace, toString) {
+  assertArgCount("Namespace::toString()", 0, argCount);
+  ObjNamespace* self = AS_NAMESPACE(receiver);
+  RETURN_STRING_FMT("<namespace %s.%s>", self->path->chars, self->name->chars);
+}
+
+
 void registerLangPackage(){
 	vm.objectClass = defineNativeClass("Object");
   DEF_METHOD(vm.objectClass, Object, clone, 0);
@@ -852,6 +870,13 @@ void registerLangPackage(){
   DEF_METHOD(vm.classClass, Class, toString, 0);
   DEF_OPERATOR(vm.classClass, Class, (), __invoke__, -1);
   vm.objectClass->obj.klass = vm.classClass;
+
+
+  vm.namespaceClass = defineNativeClass("Namespace");
+  bindSuperclass(vm.namespaceClass, vm.objectClass);
+  DEF_METHOD(vm.namespaceClass, Namespace, clone, 0);
+  DEF_METHOD(vm.namespaceClass, Namespace, init, 0);
+  DEF_METHOD(vm.namespaceClass, Namespace, toString, 0);
 
   vm.exceptionClass = defineNativeClass("Exception");
   bindSuperclass(vm.exceptionClass, vm.objectClass);
