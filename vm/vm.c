@@ -72,6 +72,7 @@ void initVM() {
   vm.grayCapacity = 0;
   vm.grayStack = NULL;
 
+  initTable(&vm.namespaces);
   initTable(&vm.globalValues);
   initTable(&vm.globals);
   initTable(&vm.strings);
