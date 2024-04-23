@@ -360,8 +360,7 @@ static uint8_t propretyConstant(const char* message) {
       if (match(TOKEN_RIGHT_BRAKE)) {
         Token token = syntheticToken(match(TOKEN_EQUAL) ? "[]=" : "[]");
         return identifierConstant(&token);
-      }
-      else { 
+      } else {
         errorAtCurrent(message);
         return -1;
       }
