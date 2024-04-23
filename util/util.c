@@ -167,20 +167,44 @@ NATIVE_METHOD(Date, __init__) {
 	return receiver;
 }
 
-NATIVE_METHOD(Date, minus) {
-  assertArgCount("Date::minus(duration)", 1, argCount);
-  assertObjInstanceOfClass("Date::minus(duration)", args[0], "Duration", 0);
+NATIVE_METHOD(Date, __equal__) { 
+  assertArgCount("Date::==(date)", 1, argCount);
+	assertObjInstanceOfClass("Date::==(date)", args[0], "Date", 0);
+  double timestamp = dateObjGetTimestamp(AS_INSTANCE(receiver));
+  double timestamp2 = dateObjGetTimestamp(AS_INSTANCE(args[0]));
+  RETURN_BOOL(timestamp == timestamp2);
+}
+
+NATIVE_METHOD(Date, __greater__) { 
+  assertArgCount("Date::>(date)", 1, argCount);
+	assertObjInstanceOfClass("Date::>(date)", args[0], "Date", 0);
+  double timestamp = dateObjGetTimestamp(AS_INSTANCE(receiver));
+  double timestamp2 = dateObjGetTimestamp(AS_INSTANCE(args[0]));
+  RETURN_BOOL(timestamp > timestamp2);
+}
+
+NATIVE_METHOD(Date, __less__) {
+  assertArgCount("Date::<(date)", 1, argCount);
+	assertObjInstanceOfClass("Date::<(date)", args[0], "Date", 0);
+  double timestamp = dateObjGetTimestamp(AS_INSTANCE(receiver));
+  double timestamp2 = dateObjGetTimestamp(AS_INSTANCE(args[0]));
+  RETURN_BOOL(timestamp < timestamp2);
+}
+
+NATIVE_METHOD(Date, __add__) {
+  assertArgCount("Date::+(duration)", 1, argCount);
+	assertObjInstanceOfClass("Date::+(duration)", args[0], "Duration", 0);
   ObjInstance* self = AS_INSTANCE(receiver);
-  double timestamp = dateObjGetTimestamp(self) - durationTotalSeconds(AS_INSTANCE(args[0]));
+  double timestamp = dateObjGetTimestamp(self) + durationTotalSeconds(AS_INSTANCE(args[0]));
   ObjInstance* date = dateObjFromTimestamp(self->obj.klass, timestamp);
   RETURN_OBJ(date);
 }
 
-NATIVE_METHOD(Date, plus) {
-  assertArgCount("Date::plus(duration)", 1, argCount);
-  assertObjInstanceOfClass("Date::plus(duration)", args[0], "Duration", 0);
+NATIVE_METHOD(Date, __subtract__) {
+  assertArgCount("Date::-(duration)", 1, argCount);
+	assertObjInstanceOfClass("Date::-(duration)", args[0], "Duration", 0);
   ObjInstance* self = AS_INSTANCE(receiver);
-  double timestamp = dateObjGetTimestamp(self) + durationTotalSeconds(AS_INSTANCE(args[0]));
+  double timestamp = dateObjGetTimestamp(self) - durationTotalSeconds(AS_INSTANCE(args[0]));
   ObjInstance* date = dateObjFromTimestamp(self->obj.klass, timestamp);
   RETURN_OBJ(date);
 }
@@ -207,22 +231,6 @@ NATIVE_METHOD(Date, toDateTime) {
 	setObjProperty(dateTime, "second", INT_VAL(0));
   pop();
 	RETURN_OBJ(dateTime);
-}
-
-NATIVE_METHOD(Date, after) {
-	assertArgCount("Date::after(date)", 1, argCount);
-	assertObjInstanceOfClass("Date::after(date)", args[0], "Date", 0);
-	double timestamp = dateObjGetTimestamp(AS_INSTANCE(receiver));
-	double timestamp2 = dateObjGetTimestamp(AS_INSTANCE(args[0]));
-	RETURN_BOOL(timestamp > timestamp2);
-}
-
-NATIVE_METHOD(Date, before) {
-	assertArgCount("Date::before(date)", 1, argCount);
-	assertObjInstanceOfClass("Date::before(date)", args[0], "Date", 0);
-	double timestamp = dateObjGetTimestamp(AS_INSTANCE(receiver));
-	double timestamp2 = dateObjGetTimestamp(AS_INSTANCE(args[0]));
-	RETURN_BOOL(timestamp < timestamp2);
 }
 
 NATIVE_METHOD(Date, diff) {
@@ -311,39 +319,46 @@ NATIVE_METHOD(DateTime, __init__) {
 	return receiver;
 }
 
-
-NATIVE_METHOD(DateTime, minus) {
-  assertArgCount("DateTime::minus(duration)", 1, argCount);
-  assertObjInstanceOfClass("DateTime::minus(duration)", args[0], "Duration", 0);
-  ObjInstance* self = AS_INSTANCE(receiver);
-  double timestamp = dateTimeObjGetTimestamp(self) - durationTotalSeconds(AS_INSTANCE(args[0]));
-  ObjInstance* dateTime = dateTimeObjFromTimestamp(self->obj.klass, timestamp);
-  RETURN_OBJ(dateTime);
+NATIVE_METHOD(DateTime, __equal__) {
+  assertArgCount("DateTime::==(dateTime)", 1, argCount);
+	assertObjInstanceOfClass("DateTime::==(dateTime)", args[0], "DateTime", 0);
+  double timestamp = dateTimeObjGetTimestamp(AS_INSTANCE(receiver));
+  double timestamp2 = dateTimeObjGetTimestamp(AS_INSTANCE(args[0]));
+  RETURN_BOOL(timestamp == timestamp2);
 }
 
-NATIVE_METHOD(DateTime, plus) {
-  assertArgCount("DateTime::plus(duration)", 1, argCount);
-  assertObjInstanceOfClass("DateTime::plus(duration)", args[0], "Duration", 0);
+NATIVE_METHOD(DateTime, __greater__) {
+  assertArgCount("DateTime::>(dateTime)", 1, argCount);
+	assertObjInstanceOfClass("DateTime::>(dateTime)", args[0], "DateTime", 0);
+  double timestamp = dateTimeObjGetTimestamp(AS_INSTANCE(receiver));
+  double timestamp2 = dateTimeObjGetTimestamp(AS_INSTANCE(args[0]));
+  RETURN_BOOL(timestamp > timestamp2);
+}
+
+NATIVE_METHOD(DateTime, __less__) {
+  assertArgCount("DateTime::<(dateTime)", 1, argCount);
+	assertObjInstanceOfClass("DateTime::<(dateTime)", args[0], "DateTime", 0);
+  double timestamp = dateTimeObjGetTimestamp(AS_INSTANCE(receiver));
+  double timestamp2 = dateTimeObjGetTimestamp(AS_INSTANCE(args[0]));
+  RETURN_BOOL(timestamp < timestamp2);
+}
+
+NATIVE_METHOD(DateTime, __add__) {
+  assertArgCount("DateTime::+(duration)", 1, argCount);
+	assertObjInstanceOfClass("DateTime::+(duration)", args[0], "Duration", 0);
   ObjInstance* self = AS_INSTANCE(receiver);
   double timestamp = dateTimeObjGetTimestamp(self) + durationTotalSeconds(AS_INSTANCE(args[0]));
   ObjInstance* dateTime = dateTimeObjFromTimestamp(self->obj.klass, timestamp);
   RETURN_OBJ(dateTime);
 }
 
-NATIVE_METHOD(DateTime, after) {
-	assertArgCount("DateTime::after(date)", 1, argCount);
-	assertObjInstanceOfClass("DateTime::after(date)", args[0], "DateTime", 0);
-	double timestamp = dateTimeObjGetTimestamp(AS_INSTANCE(receiver));
-	double timestamp2 = dateTimeObjGetTimestamp(AS_INSTANCE(args[0]));
-	RETURN_BOOL(timestamp > timestamp2);
-}
-
-NATIVE_METHOD(DateTime, before) {
-	assertArgCount("DateTime::before(date)", 1, argCount);
-	assertObjInstanceOfClass("DateTime::before(date)", args[0], "DateTime", 0);
-	double timestamp = dateTimeObjGetTimestamp(AS_INSTANCE(receiver));
-	double timestamp2 = dateTimeObjGetTimestamp(AS_INSTANCE(args[0]));
-	RETURN_BOOL(timestamp < timestamp2);
+NATIVE_METHOD(DateTime, __subtract__) {
+  assertArgCount("DateTime::-(duration)", 1, argCount);
+	assertObjInstanceOfClass("DateTime::-(duration)", args[0], "Duration", 0);
+  ObjInstance* self = AS_INSTANCE(receiver);
+  double timestamp = dateTimeObjGetTimestamp(self) - durationTotalSeconds(AS_INSTANCE(args[0]));
+  ObjInstance* dateTime = dateTimeObjFromTimestamp(self->obj.klass, timestamp);
+  RETURN_OBJ(dateTime);
 }
 
 NATIVE_METHOD(DateTime, diff) {
@@ -533,26 +548,28 @@ void registerUtilPackage() {
 	ObjClass* dateClass = defineNativeClass("Date");
 	bindSuperclass(dateClass, vm.objectClass);
 	DEF_METHOD(dateClass, Date, __init__, 3);
-	DEF_METHOD(dateClass, Date, after, 1);
-	DEF_METHOD(dateClass, Date, before, 1);
 	DEF_METHOD(dateClass, Date, diff, 1);
 	DEF_METHOD(dateClass, Date, getTimestamp, 0);
-	DEF_METHOD(dateClass, Date, minus, 1);
-	DEF_METHOD(dateClass, Date, plus, 1);
 	DEF_METHOD(dateClass, Date, toDateTime, 0);
 	DEF_METHOD(dateClass, Date, toString, 0);
+  DEF_OPERATOR(dateClass, Date, ==, __equal__, 1);
+  DEF_OPERATOR(dateClass, Date, >, __greater__, 1);
+  DEF_OPERATOR(dateClass, Date, <, __less__, 1);
+  DEF_OPERATOR(dateClass, Date, +, __add__, 1);
+  DEF_OPERATOR(dateClass, Date, -, __subtract__, 1);
 
 	ObjClass* dateTimeClass = defineNativeClass("DateTime");
 	bindSuperclass(dateTimeClass, dateClass);
 	DEF_METHOD(dateTimeClass, DateTime, __init__, 6);
-	DEF_METHOD(dateTimeClass, DateTime, after, 1);
-	DEF_METHOD(dateTimeClass, DateTime, before, 1);
 	DEF_METHOD(dateTimeClass, DateTime, diff, 1);
 	DEF_METHOD(dateTimeClass, DateTime, getTimestamp, 0);
-	DEF_METHOD(dateTimeClass, DateTime, minus, 1);
-	DEF_METHOD(dateTimeClass, DateTime, plus, 1);
 	DEF_METHOD(dateTimeClass, DateTime, toDate, 0);
 	DEF_METHOD(dateTimeClass, DateTime, toString, 0);
+  DEF_OPERATOR(dateTimeClass, DateTime, ==, __equal__, 1);
+  DEF_OPERATOR(dateTimeClass, DateTime, >, __greater__, 1);
+  DEF_OPERATOR(dateTimeClass, DateTime, <, __less__, 1);
+  DEF_OPERATOR(dateTimeClass, DateTime, +, __add__, 1);
+  DEF_OPERATOR(dateTimeClass, DateTime, -, __subtract__, 1);
 
 	ObjClass* durationClass = defineNativeClass("Duration");
 	bindSuperclass(durationClass, vm.objectClass);
