@@ -136,7 +136,14 @@ static TokenType checkKeyword(int start, int length,
 
 static TokenType identifierType() {
   switch (scanner.start[0]) {
-    case 'a': return checkKeyword(1, 2, "nd", TOKEN_AND);
+    case 'a':
+      if (scanner.current - scanner.start > 1) {
+        switch (scanner.start[1]) {
+          case 'n': return checkKeyword(2, 1, "d", TOKEN_AND);
+          case 's': return checkKeyword(2, 0, "", TOKEN_AS);
+        }
+      }
+      break;
     case 'b': return checkKeyword(1, 4, "reak", TOKEN_BREAK);
     case 'd': return checkKeyword(1, 6, "efault", TOKEN_DEFAULT);
     case 'c':
@@ -185,7 +192,13 @@ static TokenType identifierType() {
         }
       }
       break;
-    case 'n': return checkKeyword(1, 2, "il", TOKEN_NIL);
+    case 'n': 
+        if (scanner.current - scanner.start > 1) {
+          switch (scanner.start[1]) {
+            case 'a': return checkKeyword(2, 7, "mespace", TOKEN_NAMESPACE);
+            case 'i': return checkKeyword(2, 1, "l", TOKEN_NIL);
+          }
+        }
     case 'o': return checkKeyword(1, 1, "r", TOKEN_OR);
     case 'r': 
       if (scanner.current - scanner.start > 2) {
@@ -223,6 +236,7 @@ static TokenType identifierType() {
           }
         }
       break;
+    case 'u': return checkKeyword(1, 1, "sing", TOKEN_USING);
     case 'w': return checkKeyword(1, 4, "hile", TOKEN_WHILE);
   }
 
