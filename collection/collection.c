@@ -566,9 +566,9 @@ NATIVE_METHOD(Array, contains) {
 	RETURN_BOOL(arrayIndexOf(AS_ARRAY(receiver), args[0]) != -1);
 }
 
-NATIVE_METHOD(Array, forEach) {
-  assertArgCount("Array::forEach(closure)", 1, argCount);
-  assertArgIsClosure("Array::forEach(closure)", args, 0);
+NATIVE_METHOD(Array, each) {
+  assertArgCount("Array::each(closure)", 1, argCount);
+  assertArgIsClosure("Array::each(closure)", args, 0);
   ObjArray* self = AS_ARRAY(receiver);
   ObjClosure* closure = AS_CLOSURE(args[0]);
   for (int i = self->elements.count - 1; i >= 0; i--) {
@@ -853,7 +853,7 @@ void registerCollectionPackage() {
 	DEF_METHOD(vm.arrayClass, Array, clear, 0);
 	DEF_METHOD(vm.arrayClass, Array, clone, 0);
 	DEF_METHOD(vm.arrayClass, Array, contains, 1);
-  DEF_METHOD(vm.arrayClass, Array, forEach, 1);
+  DEF_METHOD(vm.arrayClass, Array, each, 1);
 	DEF_METHOD(vm.arrayClass, Array, equals, 1);
 	DEF_METHOD(vm.arrayClass, Array, getAt, 1);
 	DEF_METHOD(vm.arrayClass, Array, indexOf, 1);
