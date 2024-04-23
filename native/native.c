@@ -80,6 +80,16 @@ ObjNativeFunction* getNativeFunction(const char* name) {
   return AS_NATIVE_FUNCTION(function);
 }
 
+ObjNamespace* getNativeNamespace(const char* name) {
+  Value namespace;
+  tableGet(&vm.namespaces, newString(name), &namespace);
+  if (!IS_NAMESPACE(namespace)) {
+    runtimeError("Namespace %s is undefined.", name);
+    exit(70);
+  }
+  return AS_NAMESPACE(namespace);
+}
+
 ObjNativeMethod* getNativeMethod(ObjClass* klass, const char* name) {
   Value method;
   tableGet(&klass->methods, newString(name), &method);

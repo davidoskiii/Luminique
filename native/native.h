@@ -34,6 +34,7 @@ ObjNamespace* defineNativeNamespace(const char* name, ObjNamespace* enclosing);
 ObjClass* defineNativeClass(const char* name);
 ObjClass* getNativeClass(const char* name);
 ObjNativeFunction* getNativeFunction(const char* name);
+ObjNamespace* getNativeNamespace(const char* name);
 ObjNativeMethod* getNativeMethod(ObjClass* klass, const char* name);
 ObjClass* defineNativeException(const char* name, ObjClass* superClass);
 

@@ -860,6 +860,14 @@ NATIVE_METHOD(Namespace, toString) {
   RETURN_STRING_FMT("<namespace %s>", self->fullName->chars);
 }
 
+static void bindNamespaceClass() {
+  for (int i = 0; i < vm.namespaces.capacity; i++) {
+    Entry* entry = &vm.namespaces.entries[i];
+    if (entry->key == NULL) continue;
+    entry->key->obj.klass = vm.namespaceClass;
+  }
+}
+
 static ObjNamespace* defineRootNamespace() {
   ObjString* name = newString("");
   push(OBJ_VAL(name));
@@ -914,6 +922,7 @@ void registerLangPackage() {
   DEF_METHOD(vm.namespaceClass, Namespace, enclosing, 0);
   DEF_METHOD(vm.namespaceClass, Namespace, fullName, 0);
   DEF_METHOD(vm.namespaceClass, Namespace, shortName, 0);
+  bindNamespaceClass();
 
   vm.exceptionClass = defineNativeClass("Exception");
   bindSuperclass(vm.exceptionClass, vm.objectClass);
@@ -1054,4 +1063,6 @@ void registerLangPackage() {
   DEF_METHOD(vm.methodClass, Method, receiver, 0);
   DEF_METHOD(vm.methodClass, Method, toString, 0);
   DEF_METHOD(vm.methodClass, Method, upvalueCount, 0);
+
+  vm.currentNamespace = vm.rootNamespace;
 }
