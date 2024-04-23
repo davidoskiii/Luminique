@@ -41,6 +41,9 @@ typedef struct {
   ObjClass* dictionaryClass;
   ObjClass* entryClass;
 
+  ObjNamespace* defaultNamespace;
+  ObjNamespace* currentNamespace;
+
   CallFrame frames[FRAMES_MAX];
   int frameCount;
 

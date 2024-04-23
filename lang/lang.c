@@ -844,7 +844,10 @@ NATIVE_METHOD(Namespace, toString) {
 }
 
 
-void registerLangPackage(){
+void registerLangPackage() {
+  ObjNamespace* langNamespace = defineNativeNamespace("luminique.std", "lang");
+  vm.defaultNamespace = langNamespace;
+
 	vm.objectClass = defineNativeClass("Object");
   DEF_METHOD(vm.objectClass, Object, clone, 0);
   DEF_METHOD(vm.objectClass, Object, equals, 1);
