@@ -340,6 +340,10 @@ static uint8_t symbolConstant(const char* message) {
     case TOKEN_MINUS:
     case TOKEN_STAR:
     case TOKEN_SLASH:
+    case TOKEN_MODULO:
+    case TOKEN_EQUAL_EQUAL:
+    case TOKEN_GREATER:
+    case TOKEN_LESS:
       advance();
       return identifierConstant(&parser.previous);
     default:

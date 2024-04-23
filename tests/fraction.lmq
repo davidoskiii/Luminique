@@ -1,44 +1,41 @@
 class Fraction {
-    function __init__(numerator, denominator) {
-        this.validateNumbers(numerator, denominator);
-        this.numerator = numerator;
-        this.denominator = denominator;
+  function __init__(numerator, denominator) {
+    this.validateNumbers(numerator, denominator);
+    this.numerator = numerator;
+    this.denominator = denominator;
+  }
+
+  function validateNumbers(numerator, denominator) {
+    if (!numerator.instanceOf(Int) or !denominator.instanceOf(Int)) {
+      throw IllegalArgumentException("Numerator and Denominator must be integers.");
     }
 
-    function validateNumbers(numerator, denominator){
-        if (!numerator.instanceOf(Int) or !denominator.instanceOf(Int)){
-            throw Exception("Numerator and Denominator must be integers.");
-        }
+    if (denominator == 0) {
+      throw IllegalArgumentException("Denominator of a Fraction object cannot be 0.");
+    }
+  }
 
-        if (denominator == 0){
-            throw Exception("Denominator of a Fraction object cannot be 0.");
-        }
+  function reduce() {
+    let gcd = this.numerator.gcd(this.denominator);
+    let numerator = this.numerator / gcd;
+    let denominator = this.denominator / gcd;
+    return Fraction(numerator.toInt(), denominator.toInt());
+  }
+
+  function toString() {
+    return this.numerator.toString() + "/" + this.denominator.toString();
+  }
+
+  function == (that) {
+    if (!that.instanceOf(Fraction)) {
+      println("Argument must be a fraction");
+      return;
     }
 
-    function reduce() {
-        let gcd = this.numerator.gcd(this.denominator);
-        let numerator = this.numerator / gcd;
-        let denominator = this.denominator / gcd;
-        return Fraction(numerator.toInt(), denominator.toInt());
+    if (this.reduce().toString() == that.reduce().toString()) {
+      return true;
+    } else {
+      return false;
     }
-
-    function toString() {
-        return this.numerator.toString() + "/" + this.denominator.toString();
-    }
-
-    function isEqual(frac2) {
-        if (!frac2.instanceOf(Fraction)) {
-            println("Argument must be a fraction");
-            return;
-        }
-
-        let reduced1 = frac2.reduce();
-        let reduced2 = this.reduce();
-
-        if (reduced1.toString() == reduced2.toString()) {
-          return true;
-        } else {
-          return false;
-        }
-    }
+  }
 }

@@ -470,14 +470,16 @@ InterpretResult run() {
     (frame->closure->function->chunk.constants.values[READ_BYTE()])
 
 #define READ_STRING() AS_STRING(READ_CONSTANT())
-#define BINARY_OP(valueType, op) \
+
+#define BINARY_INT_OP(valueType, op) \
+    do {\
+      int b = AS_INT(pop()); \
+      int a = AS_INT(pop()); \
+      push(INT_VAL(a op b)); \
+    } while (false)
+
+#define BINARY_NUMBER_OP(valueType, op) \
     do { \
-      if (!IS_NUMBER(peek(0)) || !IS_NUMBER(peek(1))) { \
-        runtimeError("Operands must be numbers."); \
-        ObjClass* exceptionClass = getNativeClass("IllegalArgumentException"); \
-        return INTERPRET_RUNTIME_ERROR; \
-        throwException(exceptionClass, "Operands must be numbers."); \
-      } \
       double b = AS_NUMBER(pop()); \
       double a = AS_NUMBER(pop()); \
       push(valueType(a op b)); \
@@ -527,9 +529,16 @@ InterpretResult run() {
         break;
       }
       case OP_EQUAL: {
-        Value b = pop();
-        Value a = pop();
-        push(BOOL_VAL(valuesEqual(a, b)));
+        if (IS_NUMBER(peek(0)) && IS_NUMBER(peek(1))) BINARY_NUMBER_OP(BOOL_VAL, ==);
+        else { 
+          ObjString* operator = copyString("==", 2);
+          if (!invokeOperator(operator, true)) {
+            Value b = pop();
+            Value a = pop();
+            push(BOOL_VAL(a == b));
+          }
+          else frame = &vm.frames[vm.frameCount - 1];
+        }
         break;
       }
       case OP_POP: pop(); break;
@@ -574,21 +583,33 @@ InterpretResult run() {
         }
         break;
       }
-      case OP_GREATER:  BINARY_OP(BOOL_VAL, >); break;
-      case OP_LESS:     BINARY_OP(BOOL_VAL, <); break;
-
+      case OP_GREATER: 
+        if (IS_NUMBER(peek(0)) && IS_NUMBER(peek(1))) BINARY_NUMBER_OP(BOOL_VAL, >);
+        else { 
+          ObjString* operator = copyString(">", 1);
+          if (!invokeOperator(operator, true)) {
+            return INTERPRET_RUNTIME_ERROR;
+          }
+          frame = &vm.frames[vm.frameCount - 1];
+        }
+        break;
+      case OP_LESS: 
+        if (IS_NUMBER(peek(0)) && IS_NUMBER(peek(1))) BINARY_NUMBER_OP(BOOL_VAL, <);
+        else {
+          ObjString* operator = copyString("<", 1);
+          if (!invokeOperator(operator, true)) {
+            return INTERPRET_RUNTIME_ERROR;
+          }
+          frame = &vm.frames[vm.frameCount - 1];
+        }
+        break;
       case OP_ADD: {
         if (IS_STRING(peek(0)) && IS_STRING(peek(1))) {
           concatenate();
-        } else if (IS_INT(peek(0)) && IS_INT(peek(1))) {
-          int b = AS_INT(pop());
-          int a = AS_INT(pop());
-          push(INT_VAL(a + b));
-        } else if (IS_NUMBER(peek(0)) && IS_NUMBER(peek(1))) {
-          double b = AS_NUMBER(pop());
-          double a = AS_NUMBER(pop());
-          push(NUMBER_VAL(a + b));
-        } else {
+        }
+        else if (IS_INT(peek(0)) && IS_INT(peek(1))) BINARY_INT_OP(INT_VAL, +);
+        else if (IS_NUMBER(peek(0)) && IS_NUMBER(peek(1))) BINARY_NUMBER_OP(NUMBER_VAL, +);
+        else {
           ObjString* operator = copyString("+", 1);
           if (!invokeOperator(operator, true)) { 
             return INTERPRET_RUNTIME_ERROR;
@@ -598,13 +619,9 @@ InterpretResult run() {
         break;
       }
       case OP_SUBTRACT: {
-        if (IS_INT(peek(0)) && IS_INT(peek(1))) {
-          int b = AS_INT(pop());
-          int a = AS_INT(pop());
-          push(INT_VAL(a - b));
-        } else if (IS_NUMBER(peek(0)) && IS_NUMBER(peek(1))) {
-          BINARY_OP(NUMBER_VAL, -);
-        } else { 
+        if (IS_INT(peek(0)) && IS_INT(peek(1))) BINARY_INT_OP(INT_VAL, -);
+        else if (IS_NUMBER(peek(0)) && IS_NUMBER(peek(1))) BINARY_NUMBER_OP(NUMBER_VAL, -);
+        else { 
           ObjString* operator = copyString("-", 1);
           if (!invokeOperator(operator, true)) {
             return INTERPRET_RUNTIME_ERROR;
@@ -614,13 +631,9 @@ InterpretResult run() {
         break;
       }
       case OP_MULTIPLY: {
-        if (IS_INT(peek(0)) && IS_INT(peek(1))) {
-          int b = AS_INT(pop());
-          int a = AS_INT(pop());
-          push(INT_VAL(a * b));
-        } else if (IS_NUMBER(peek(0)) && IS_NUMBER(peek(1))) {
-          BINARY_OP(NUMBER_VAL, *);
-        } else { 
+        if (IS_INT(peek(0)) && IS_INT(peek(1))) BINARY_INT_OP(INT_VAL, *);
+        else if (IS_NUMBER(peek(0)) && IS_NUMBER(peek(1))) BINARY_NUMBER_OP(NUMBER_VAL, *);
+        else { 
           ObjString* operator = copyString("*", 1);
           if (!invokeOperator(operator, true)) {
             return INTERPRET_RUNTIME_ERROR;
@@ -634,7 +647,7 @@ InterpretResult run() {
           ObjClass* exceptionClass = getNativeClass("ArithmeticException");
           throwException(exceptionClass, "Divide by 0 is illegal.");
         } else if (IS_NUMBER(peek(0)) && IS_NUMBER(peek(1))) {
-          BINARY_OP(NUMBER_VAL, /);
+          BINARY_NUMBER_OP(NUMBER_VAL, /);
         } else { 
           ObjString* operator = copyString("/", 1);
           if (!invokeOperator(operator, true)) {
@@ -645,11 +658,7 @@ InterpretResult run() {
         break;
       }
       case OP_MODULO: {
-        if (IS_INT(peek(0)) && IS_INT(peek(1))) {
-          int b = AS_INT(pop());
-          int a = AS_INT(pop());
-          push(INT_VAL(a % b));
-        }
+        if (IS_INT(peek(0)) && IS_INT(peek(1))) BINARY_INT_OP(INT_VAL, %);
         else if (IS_NUMBER(peek(0)) && IS_NUMBER(peek(1))) {
           double b = AS_NUMBER(pop());
           double a = AS_NUMBER(pop());
@@ -914,7 +923,7 @@ InterpretResult run() {
 
         ObjClass* klass = AS_CLASS(value);
         if (!isClassExtendingSuperclass(klass, vm.exceptionClass)) {
-          runtimeError("Expect subclass of clox.std.lang.Exception, but got Class %s.", exceptionClass->chars);
+          runtimeError("Expect subclass of Exception, but got Class %s.", exceptionClass->chars);
           return INTERPRET_RUNTIME_ERROR;
         }
         pushExceptionHandler(klass, handlerAddress, finallyAddress);
@@ -989,7 +998,8 @@ InterpretResult run() {
 #undef READ_SHORT
 #undef READ_CONSTANT
 #undef READ_STRING
-#undef BINARY_OP
+#undef BINARY_INT_OP
+#undef BINARY_NUMBER_OP
 }
 
 InterpretResult interpret(const char* source) {

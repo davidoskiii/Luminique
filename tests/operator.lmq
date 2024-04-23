@@ -1,47 +1,59 @@
 class Complex { 
-    function __init__(real, imaginary) { 
-      this.real = real;
-      this.imaginary = imaginary;
-    }
+  function __init__(real, imaginary) { 
+    this.real = real;
+    this.imaginary = imaginary;
+  }
 
-    function isReal() { 
-      return this.imaginary == 0;
-    }
+  function isReal() { 
+    return this.imaginary == 0;
+  }
 
-    function +(that) {
-      return this.getClass()(this.real + that.real, this.imaginary + that.imaginary);
-    } 
+  function + (that) {
+    return this.getClass()(this.real + that.real, this.imaginary + that.imaginary);
+  } 
 
-    function -(that) { 
-        return this.getClass()(this.real - that.real, this.imaginary - that.imaginary);
-    }
+  function - (that) { 
+    return this.getClass()(this.real - that.real, this.imaginary - that.imaginary);
+  }
 
-    function *(that) { 
-      const real = this.real * that.real - this.imaginary * that.imaginary;
-      const imaginary = this.real * that.imaginary + this.imaginary * that.real;
-      return this.getClass()(real, imaginary);
-    }
+  function * (that) { 
+    const real = this.real * that.real - this.imaginary * that.imaginary;
+    const imaginary = this.real * that.imaginary + this.imaginary * that.real;
+    return this.getClass()(real, imaginary);
+  }
 
-    function /(that) { 
-      const denominator = that.real * that.real + that.imaginary * that.imaginary;
-      const real = (this.real * that.real + this.imaginary * that.imaginary) / denominator;
-      const imaginary = (this.real * that.imaginary - this.imaginary * that.real) / denominator;
-      return this.getClass()(real, imaginary);
-    }
+  function / (that) { 
+    const denominator = that.real * that.real + that.imaginary * that.imaginary;
+    const real = (this.real * that.real + this.imaginary * that.imaginary) / denominator;
+    const imaginary = (this.real * that.imaginary - this.imaginary * that.real) / denominator;
+    return this.getClass()(real, imaginary);
+  }
 
-    function toString() {
-      if (this.real == 0){ 
-        if (this.imaginary == 0) return "0";
-        else return this.imaginary.toString() + "i";
-      } else { 
-        if (this.imaginary == 0) return this.real.toString();
-        else { 
-          let iSign = "";
-          if (this.imaginary > 0) iSign = "+"; 
-          return this.real.toString() + iSign + this.imaginary.toString() + "i";
-        }
+  function == (that) { 
+    return (this.real == that.real) and (this.imaginary == that.imaginary);
+  }
+
+  function > (that) { 
+    return (this.real.hypot(this.imaginary)) > (that.real.hypot(that.imaginary));
+  }
+
+  function < (that) { 
+    return (this.real.hypot(this.imaginary)) < (that.real.hypot(that.imaginary));
+  }
+
+  function toString() {
+    if (this.real == 0) { 
+      if (this.imaginary == 0) return "0";
+      else return this.imaginary.toString() + "i";
+    } else { 
+      if (this.imaginary == 0) return this.real.toString();
+      else { 
+        let iSign = "";
+        if (this.imaginary > 0) iSign = "+"; 
+        return this.real.toString() + iSign + this.imaginary.toString() + "i";
       }
     }
+  }
 }
 
 const c1 = Complex(3, 6);
@@ -52,6 +64,15 @@ println(c1.toString());
 
 print("Creating complex number c2: ");
 println(c2.toString());
+
+print("Comparing c1 == c2: ");
+println(c1 == c2);
+
+print("Comparing c1 > c2: ");
+println(c1 > c2);
+
+print("Comparing c1 < c2: ");
+println(c1 < c2);
 
 print("Computing c1 + c2: ");
 println((c1 + c2).toString());
