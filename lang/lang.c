@@ -97,6 +97,20 @@ NATIVE_METHOD(Class, __init__) {
   RETURN_OBJ(klass);
 }
 
+NATIVE_METHOD(Class, __invoke__) { 
+  ObjClass* self = AS_CLASS(receiver);
+  ObjInstance* instance = newInstance(self);
+  push(OBJ_VAL(instance));
+  Value initMethod;
+
+  if (tableGet(&self->methods, vm.initString, &initMethod)) {
+    callReentrant(receiver, initMethod, args);
+  }
+
+  pop();
+  RETURN_OBJ(instance);
+}
+
 NATIVE_METHOD(Class, clone) {
   assertArgCount("Class::clone()", 0, argCount);
   return receiver;
@@ -166,6 +180,20 @@ NATIVE_METHOD(Float, toString) {
 NATIVE_METHOD(Function, __init__) {
   THROW_EXCEPTION(InstantiationException, "Cannot instantiate from class Function.");
 }
+
+NATIVE_METHOD(Function, __invoke__) {
+  ObjClosure* self = AS_CLOSURE(receiver);
+  if (callClosure(self, argCount)) {
+    int i = 0;
+    while (i < argCount) {
+      push(args[i]);
+      i++;
+    }
+    RETURN_VAL(args[argCount - 1]);
+  }
+  RETURN_NIL;
+}
+
 
 NATIVE_METHOD(Function, arity) {
   assertArgCount("Function::arity()", 0, argCount);
@@ -626,6 +654,17 @@ NATIVE_METHOD(String, __add__) {
   RETURN_STRING_FMT("%s%s", AS_CSTRING(receiver), AS_CSTRING(args[0]));
 }
 
+NATIVE_METHOD(String, __getSubscript__) {
+  assertArgCount("String::[](index)", 1, argCount);
+  assertArgIsInt("String::[getChar]](index)", args, 0);
+
+  ObjString* self = AS_STRING(receiver);
+  int index = AS_INT(args[0]);
+  assertIntWithinRange("String::[](index)", index, 0, self->length, 0);
+
+  char chars[2] = { self->chars[index], '\0' };
+  RETURN_STRING(chars, 1);
+}
 
 NATIVE_METHOD(String, capitalize) {
   assertArgCount("String::capitalize()", 0, argCount);
@@ -805,6 +844,7 @@ void registerLangPackage(){
   DEF_METHOD(vm.classClass, Class, name, 0);
   DEF_METHOD(vm.classClass, Class, superclass, 0);
   DEF_METHOD(vm.classClass, Class, toString, 0);
+  DEF_OPERATOR(vm.classClass, Class, (), __invoke__, -1);
   vm.objectClass->obj.klass = vm.classClass;
 
   vm.exceptionClass = defineNativeClass("Exception");
@@ -917,6 +957,7 @@ void registerLangPackage(){
   DEF_METHOD(vm.stringClass, String, upper, 0);
   DEF_METHOD(vm.stringClass, String, trim, 0);
   DEF_OPERATOR(vm.stringClass, String, +, __add__, 1);
+  DEF_OPERATOR(vm.stringClass, String, [], __getSubscript__, 1);
 
   for (int i = 0; i < vm.strings.capacity; i++) {
     Entry* entry = &vm.strings.entries[i];
@@ -933,6 +974,7 @@ void registerLangPackage(){
   DEF_METHOD(vm.functionClass, Function, name, 0);
   DEF_METHOD(vm.functionClass, Function, toString, 0);
   DEF_METHOD(vm.functionClass, Function, upvalueCount, 0);
+  DEF_OPERATOR(vm.functionClass, Function, (), __invoke__, -1);
 
   vm.methodClass = defineNativeClass("Method");
   bindSuperclass(vm.methodClass, vm.objectClass);

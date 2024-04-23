@@ -516,6 +516,26 @@ NATIVE_METHOD(Array, __init__) {
 	RETURN_OBJ(newArray());
 }
 
+NATIVE_METHOD(Array, __getSubscript__) {
+  assertArgCount("Array::[](index)", 1, argCount);
+  assertArgIsInt("Array::[](index)", args, 0);
+  ObjArray* self = AS_ARRAY(receiver);
+  int index = AS_INT(args[0]);
+  assertIntWithinRange("Array::[](index)", index, 0, self->elements.count - 1, 0);
+  RETURN_VAL(self->elements.values[index]);
+}
+
+NATIVE_METHOD(Array, __setSubscript__) {
+  assertArgCount("Array::[]=(index, element)", 2, argCount);
+  assertArgIsInt("Array::[]=(index, element)", args, 0);
+  ObjArray* self = AS_ARRAY(receiver);
+  int index = AS_INT(args[0]);
+  assertIntWithinRange("Array::[]=(index, element)", index, 0, self->elements.count, 0);
+  self->elements.values[index] = args[1];
+  if (index == self->elements.count) self->elements.count++;
+  RETURN_OBJ(receiver);
+}
+
 NATIVE_METHOD(Array, append) {
 	assertArgCount("Array::append(element)", 1, argCount);
 	writeValueArray(&AS_ARRAY(receiver)->elements, args[0]);
@@ -699,6 +719,12 @@ NATIVE_METHOD(Dictionary, __getSubscript__) {
   RETURN_VAL(value);
 }
 
+NATIVE_METHOD(Dictionary, __setSubscript__) {
+  assertArgCount("Dictionary::[]=(key, value)", 2, argCount);
+  if (!IS_NIL(args[0])) dictSet(AS_DICTIONARY(receiver), args[0], args[1]);
+  RETURN_OBJ(receiver);
+}
+
 NATIVE_METHOD(Dictionary, clear) {
 	assertArgCount("Dictionary::clear()", 0, argCount);
   ObjDictionary* self = AS_DICTIONARY(receiver);
@@ -842,6 +868,8 @@ void registerCollectionPackage() {
 	DEF_METHOD(vm.arrayClass, Array, removeAt, 1);
   DEF_METHOD(vm.arrayClass, Array, subArray, 2);
 	DEF_METHOD(vm.arrayClass, Array, toString, 0);
+  DEF_OPERATOR(vm.arrayClass, Array, [], __getSubscript__, 1);
+  DEF_OPERATOR(vm.arrayClass, Array, []=, __setSubscript__, 2);
 
 	vm.dictionaryClass = defineNativeClass("Dictionary");
 	bindSuperclass(vm.dictionaryClass, collectionClass);
@@ -860,6 +888,7 @@ void registerCollectionPackage() {
 	DEF_METHOD(vm.dictionaryClass, Dictionary, removeAt, 1);
 	DEF_METHOD(vm.dictionaryClass, Dictionary, toString, 0);
   DEF_OPERATOR(vm.dictionaryClass, Dictionary, [], __getSubscript__, 1);
+  DEF_OPERATOR(vm.dictionaryClass, Dictionary, []=, __setSubscript__, 2);
 
   ObjClass* setClass = defineNativeClass("Set");
   bindSuperclass(setClass, collectionClass);
