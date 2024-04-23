@@ -134,8 +134,8 @@ void assertNumberWithinRange(const char* method, double value, double min, doubl
   }
 }
 
-void assertObjInstanceOfClass(const char* method, Value arg, char* className, int index) {
-  if (!isObjInstanceOf(arg, getNativeClass(className))) {
+void assertObjInstanceOfClass(const char* method, Value arg, char* namespaceName, char* className, int index) {
+  if (!isObjInstanceOf(arg, getNativeClass(namespaceName, className))) {
     if (index < 0) {
       runtimeError("Method %s expects receiver to be an instance of class %s but got %s.", className, getObjClass(arg)->name->chars);
     } else {

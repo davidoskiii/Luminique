@@ -22,7 +22,7 @@ void assertNumberNonNegative(const char* method, double number, int index);
 void assertNumberNonZero(const char* method, double number, int index);
 void assertNumberPositive(const char* method, double number, int index);
 void assertNumberWithinRange(const char* method, double value, double min, double max, int index);
-void assertObjInstanceOfClass(const char* method, Value arg, char* className, int index);
+void assertObjInstanceOfClass(const char* method, Value arg, char* namespaceName, char* className, int index);
 void assertError(const char* message);
 
 #endif 

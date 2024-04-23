@@ -19,8 +19,8 @@
 #define RETURN_STRING(chars, length) return OBJ_VAL(copyString(chars, length))
 #define RETURN_STRING_FMT(...) return OBJ_VAL(formattedString(__VA_ARGS__))
 #define RETURN_STRING_FMTL(...) return OBJ_VAL(formattedLongString(__VA_ARGS__))
-#define THROW_EXCEPTION(klass, message) return OBJ_VAL(throwException(getNativeClass(#klass), message))
-#define THROW_EXCEPTION_FMT(klass, message, ...) return OBJ_VAL(throwException(getNativeClass(#klass), message, __VA_ARGS__))
+#define THROW_EXCEPTION(namespace_, klass, message) return OBJ_VAL(throwException(getNativeClass(#namespace_, #klass), message))
+#define THROW_EXCEPTION_FMT(namespace_, klass, message, ...) return OBJ_VAL(throwException(getNativeClass(#namespace_ #klass), message, __VA_ARGS__))
 #define RETURN_VAL(value) return value
 #define DEF_OPERATOR(klass, className, symbol, name, arity) defineNativeMethod(klass, #symbol, arity, name##NativeMethodFor##className)
 

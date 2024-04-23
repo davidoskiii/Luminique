@@ -54,7 +54,7 @@ char* intToBinary(int num, char* binaryString) {
 // BOOL
 
 NATIVE_METHOD(Bool, __init__) {
-  THROW_EXCEPTION(InstantiationException, "Cannot instantiate from class Bool.");
+  THROW_EXCEPTION(luminique.std.lang, InstantiationException, "Cannot instantiate from class Bool.");
 }
 
 NATIVE_METHOD(Bool, clone) {
@@ -162,7 +162,7 @@ NATIVE_METHOD(Class, toString) {
 // FLOAT
 
 NATIVE_METHOD(Float, __init__) {
-  THROW_EXCEPTION(InstantiationException, "Cannot instantiate from class Float.");
+  THROW_EXCEPTION(luminique.std.lang, InstantiationException, "Cannot instantiate from class Float.");
 }
 
 NATIVE_METHOD(Float, clone) {
@@ -178,7 +178,7 @@ NATIVE_METHOD(Float, toString) {
 // FUNCTION
 
 NATIVE_METHOD(Function, __init__) {
-  THROW_EXCEPTION(InstantiationException, "Cannot instantiate from class Function.");
+  THROW_EXCEPTION(luminique.std.lang, InstantiationException, "Cannot instantiate from class Function.");
 }
 
 NATIVE_METHOD(Function, __invoke__) {
@@ -242,7 +242,7 @@ NATIVE_METHOD(Function, upvalueCount) {
 
 
 NATIVE_METHOD(Method, __init__) {
-  THROW_EXCEPTION(InstantiationException, "Cannot instantiate from class Method.");
+  THROW_EXCEPTION(luminique.std.lang, InstantiationException, "Cannot instantiate from class Method.");
 }
 
 NATIVE_METHOD(Method, arity) {
@@ -280,7 +280,7 @@ NATIVE_METHOD(Method, upvalueCount) {
 // INT
 
 NATIVE_METHOD(Int, __init__) {
-  THROW_EXCEPTION(InstantiationException, "Cannot instantiate from class Int.");
+  THROW_EXCEPTION(luminique.std.lang, InstantiationException, "Cannot instantiate from class Int.");
 }
 
 NATIVE_METHOD(Int, __add__) {
@@ -377,7 +377,7 @@ NATIVE_METHOD(Int, toString) {
 // NIL
 
 NATIVE_METHOD(Nil, __init__) {
-	THROW_EXCEPTION(InstantiationException, "Cannot instantiate from class Nil.");
+	THROW_EXCEPTION(luminique.std.lang, InstantiationException, "Cannot instantiate from class Nil.");
 }
 
 NATIVE_METHOD(Nil, clone) {
@@ -393,7 +393,7 @@ NATIVE_METHOD(Nil, toString) {
 // NUMBER
 
 NATIVE_METHOD(Number, __init__) {
-  THROW_EXCEPTION(InstantiationException, "Cannot instantiate from class Number.");
+  THROW_EXCEPTION(luminique.std.lang, InstantiationException, "Cannot instantiate from class Number.");
 }
 
 NATIVE_METHOD(Number, __equal__) {
@@ -826,7 +826,7 @@ NATIVE_METHOD(String, trim) {
 }
 
 NATIVE_METHOD(Namespace, __init__) {
-  THROW_EXCEPTION(InstantiationException, "Cannot instantiate from class Namespace.");
+  THROW_EXCEPTION(luminique.std.lang, InstantiationException, "Cannot instantiate from class Namespace.");
   RETURN_NIL;
 }
 

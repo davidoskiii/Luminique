@@ -343,7 +343,7 @@ NATIVE_METHOD(Collection, append) {
 
 NATIVE_METHOD(Collection, appendCollection) {
   assertArgCount("Collection::appendCollection(collection)", 1, argCount);
-  assertObjInstanceOfClass("Collection::appendCollection(collection)", args[0], "Collection",  0);
+  assertObjInstanceOfClass("Collection::appendCollection(collection)", args[0], "luminique.std.collection", "Collection", 0);
   Value collection = args[0];
   Value addMethod = getObjMethod(receiver, "append");
   Value nextMethod = getObjMethod(collection, "next");
@@ -831,6 +831,9 @@ NATIVE_METHOD(Dictionary, toString) {
 }
 
 void registerCollectionPackage() {
+  ObjNamespace* collectionNamespace = defineNativeNamespace("collection", vm.stdNamespace);
+  vm.currentNamespace = collectionNamespace;
+
   ObjClass* collectionClass = defineNativeClass("Collection");
   bindSuperclass(collectionClass, vm.objectClass);
   DEF_METHOD(collectionClass, Collection, __init__, 0);
@@ -895,4 +898,6 @@ void registerCollectionPackage() {
 
   ObjClass* entryClass = defineNativeClass("Entry");
   bindSuperclass(entryClass, vm.objectClass);
+
+  vm.currentNamespace = vm.rootNamespace;
 }

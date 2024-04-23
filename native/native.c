@@ -128,7 +128,7 @@ NATIVE_FUNCTION(dateNow) {
   time(&nowTime);
   struct tm now;
   localtime_r(&nowTime, &now);
-  ObjInstance* date = newInstance(getNativeClass("Date"));
+  ObjInstance* date = newInstance(getNativeClass("luminique.std.util", "Date"));
   setObjProperty(date, "year", INT_VAL(1900 + now.tm_year));
   setObjProperty(date, "month", INT_VAL(1 + now.tm_mon));
   setObjProperty(date, "day", INT_VAL(now.tm_mday));
@@ -141,7 +141,7 @@ NATIVE_FUNCTION(dateTimeNow) {
   time(&nowTime);
   struct tm now;
   localtime_r(&nowTime, &now);
-  ObjInstance* date = newInstance(getNativeClass("DateTime"));
+  ObjInstance* date = newInstance(getNativeClass("luminique.std.util", "DateTime"));
   setObjProperty(date, "year", INT_VAL(1900 + now.tm_year));
   setObjProperty(date, "month", INT_VAL(1 + now.tm_mon));
   setObjProperty(date, "day", INT_VAL(now.tm_mday));
