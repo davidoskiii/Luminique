@@ -1520,6 +1520,21 @@ static void tryStatement() {
   }
 }
 
+static void namespaceDeclaration() {
+  uint8_t namespaceDepth = 0;
+  do {
+    if (namespaceDepth > UINT4_MAX) {
+      errorAtCurrent("Can't have more than 15 levels of namespace depth.");
+    }
+    consume(TOKEN_IDENTIFIER, "Expect namespace name.");
+    variable(false);
+    namespaceDepth++;
+  } while (match(TOKEN_DOT));
+
+  consume(TOKEN_SEMICOLON, "Expect semicolon after namespace declaration.");
+  // emitBytes(compiler, OP_NAMESPACE, namespaceDepth);
+}
+
 static void requireStatement() {
   if (current->type != TYPE_SCRIPT) {
     error("Can only require source files from top-level code.");
@@ -1639,6 +1654,8 @@ static void statement() {
     throwStatement();
   } else if (match(TOKEN_TRY)) {
     tryStatement();
+  } else if (match(TOKEN_NAMESPACE)) {
+    namespaceDeclaration();
   } else if (match(TOKEN_REQUIRE)) {
     requireStatement();
   } else if (match(TOKEN_RETURN)) {
