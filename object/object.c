@@ -89,10 +89,10 @@ ObjClass* newClass(ObjString* name) {
   return klass;
 }
 
-ObjNamespace* newNamespace(ObjString* name, ObjString* path) {
+ObjNamespace* newNamespace(ObjString* name, ObjNamespace* enclosing) {
   ObjNamespace* namespace = ALLOCATE_OBJ(ObjNamespace, OBJ_NAMESPACE, vm.namespaceClass);
   namespace->name = name;
-  namespace->path = path;
+  namespace->enclosing = enclosing;
   initTable(&namespace->values);
   return namespace;
 }
@@ -233,6 +233,9 @@ void printObject(Value value) {
   switch (OBJ_TYPE(value)) {
     case OBJ_ARRAY:
       printArray(AS_ARRAY(value));
+      break;
+    case OBJ_NAMESPACE:
+      printf("<namespace %s>", AS_NAMESPACE(value)->name->chars);
       break;
     case OBJ_FILE:
       printf("<file \"%s\">", AS_FILE(value)->name->chars);

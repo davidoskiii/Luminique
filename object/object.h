@@ -118,12 +118,12 @@ typedef struct ObjFile {
   FILE* file;
 } ObjFile;
 
-typedef struct {
+struct ObjNamespace {
   Obj obj;
   ObjString* name;
-  ObjString* path;
+  struct ObjNamespace* enclosing;
   Table values;
-} ObjNamespace;
+};
 
 typedef struct ObjRecord {
   Obj obj;
@@ -188,7 +188,7 @@ ObjArray* newArray();
 ObjArray* copyArray(ValueArray elements, int fromIndex, int toIndex);
 ObjDictionary* newDictionary();
 ObjClass* newClass(ObjString* name);
-ObjNamespace* newNamespace(ObjString* name, ObjString* path);
+ObjNamespace* newNamespace(ObjString* name, ObjNamespace* enclosing);
 ObjClosure* newClosure(ObjFunction* function);
 ObjFunction* newFunction();
 ObjInstance* newInstance(ObjClass* klass);
