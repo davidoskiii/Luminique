@@ -365,6 +365,15 @@ static uint8_t propretyConstant(const char* message) {
         errorAtCurrent(message);
         return -1;
       }
+    case TOKEN_LEFT_PAREN:
+      advance();
+      if (match(TOKEN_RIGHT_PAREN)) {
+        Token token = syntheticToken("()");
+        return identifierConstant(&token);
+      } else {
+        errorAtCurrent(message);
+        return -1;
+      }
     default:
       errorAtCurrent(message);
       return -1;

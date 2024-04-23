@@ -241,8 +241,17 @@ static bool callValue(Value callee, int argCount) {
         break; // Non-callable object type.
     }
   }
-  runtimeError("Can only call functions and classes.");
-  return false;
+
+  ObjClass* klass = getObjClass(callee);
+  ObjString* name = copyString("()", 2);
+  Value method;
+  if (!tableGet(&klass->methods, name, &method)) { 
+    ObjClass* exceptionClass = getNativeClass("CallException");
+    throwException(exceptionClass, "Undefined operator method '%s' on class %s.", name->chars, klass->name->chars);
+    return false;
+  }
+  int arity = IS_NATIVE_METHOD(method) ? AS_NATIVE_METHOD(method)->arity : AS_CLOSURE(method)->function->arity;
+  return callMethod(method, arity);
 }
 
 
