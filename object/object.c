@@ -89,6 +89,14 @@ ObjClass* newClass(ObjString* name) {
   return klass;
 }
 
+ObjNamespace* newNamespace(ObjString* name, ObjString* path) {
+  ObjNamespace* namespace = ALLOCATE_OBJ(ObjNamespace, OBJ_NAMESPACE, vm.namespaceClass);
+  namespace->name = name;
+  namespace->path = path;
+  initTable(&namespace->values);
+  return namespace;
+}
+
 ObjClosure* newClosure(ObjFunction* function) {
   ObjUpvalue** upvalues = ALLOCATE(ObjUpvalue*, function->upvalueCount);
   for (int i = 0; i < function->upvalueCount; i++) {
