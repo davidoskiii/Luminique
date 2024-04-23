@@ -44,6 +44,17 @@ void defineNativeMethod(ObjClass* klass, const char* name, int arity, NativeMeth
 }
 
 
+ObjNamespace* defineNativeNamespace(const char* path, const char* name) {
+  ObjString* parentPath = newString(path);
+  push(OBJ_VAL(parentPath));
+  ObjString* shortName = newString(name);
+  push(OBJ_VAL(shortName));
+  ObjNamespace* namespace = newNamespace(shortName, parentPath);
+  pop();
+  pop();
+  return namespace;
+}
+
 ObjClass* getNativeClass(const char* name) {
   Value klass;
   tableGet(&vm.globalValues, newString(name), &klass);
