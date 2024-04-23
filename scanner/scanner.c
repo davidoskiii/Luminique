@@ -236,7 +236,7 @@ static TokenType identifierType() {
           }
         }
       break;
-    case 'u': return checkKeyword(1, 1, "sing", TOKEN_USING);
+    case 'u': return checkKeyword(1, 4, "sing", TOKEN_USING);
     case 'w': return checkKeyword(1, 4, "hile", TOKEN_WHILE);
   }
 

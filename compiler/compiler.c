@@ -1540,6 +1540,12 @@ static void namespaceDeclaration() {
   emitBytes(OP_NAMESPACE, namespaceDepth);
 }
 
+static void usingStatement() {
+  expression();
+  consume(TOKEN_SEMICOLON, "Expect ';' after using statement.");
+  emitByte(OP_USING);
+}
+
 static void requireStatement() {
   if (current->type != TYPE_SCRIPT) {
     error("Can only require source files from top-level code.");
@@ -1661,6 +1667,8 @@ static void statement() {
     tryStatement();
   } else if (match(TOKEN_NAMESPACE)) {
     namespaceDeclaration();
+  } else if (match(TOKEN_USING)) {
+    usingStatement();
   } else if (match(TOKEN_REQUIRE)) {
     requireStatement();
   } else if (match(TOKEN_RETURN)) {
