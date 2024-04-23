@@ -49,6 +49,8 @@ typedef struct {
 
   Value stack[STACK_MAX];
   Value* stackTop;
+  int apiStackDepth;
+
   Table globalValues;
   Table globals;
   Table strings;

@@ -34,6 +34,7 @@ static void resetCallFrames() {
 static void resetStack() {
   vm.stackTop = vm.stack;
   vm.frameCount = 0;
+  vm.apiStackDepth = 0;
   vm.openUpvalues = NULL;
   resetCallFrames();
 }
@@ -941,6 +942,7 @@ InterpretResult run() {
 
         vm.stackTop = frame->slots;
         push(result);
+        if (vm.apiStackDepth > 0) return INTERPRET_OK;
         frame = &vm.frames[vm.frameCount - 1];
         break;
       }
@@ -956,6 +958,7 @@ InterpretResult run() {
 
         vm.stackTop = frame->slots;
         push(result);
+        if (vm.apiStackDepth > 0) return INTERPRET_OK;
         frame = &vm.frames[vm.frameCount - 1];
         break;
       }
