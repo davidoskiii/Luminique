@@ -79,6 +79,7 @@ void initVM();
 void freeVM();
 
 Value callReentrant(Value receiver, Value callee, ...);
+bool callMethod(Value method, int argCount);
 bool isFalsey(Value value);
 void bindSuperclass(ObjClass* subclass, ObjClass* superclass);
 bool loadGlobal(ObjString* name, Value* value);

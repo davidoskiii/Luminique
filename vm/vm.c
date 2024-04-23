@@ -184,7 +184,7 @@ static bool callNativeMethod(NativeMethod method, int argCount) {
   return true;
 }
 
-static bool callMethod(Value method, int argCount) {
+bool callMethod(Value method, int argCount) {
   if (IS_NATIVE_METHOD(method)) {
     return callNativeMethod(AS_NATIVE_METHOD(method)->method, argCount);
   }
