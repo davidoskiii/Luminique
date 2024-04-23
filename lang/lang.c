@@ -825,11 +825,28 @@ NATIVE_METHOD(String, trim) {
   RETURN_OBJ(trimString(AS_STRING(receiver)));
 }
 
-
-
 NATIVE_METHOD(Namespace, __init__) {
   THROW_EXCEPTION(InstantiationException, "Cannot instantiate from class Namespace.");
   RETURN_NIL;
+}
+
+NATIVE_METHOD(Namespace, enclosing) {
+  assertArgCount("Namespace::enclosing()", 0, argCount);
+  ObjNamespace* self = AS_NAMESPACE(receiver);
+  if (self->enclosing != NULL && self->enclosing->enclosing != NULL) RETURN_OBJ(self->enclosing);
+  RETURN_NIL;
+}
+
+NATIVE_METHOD(Namespace, fullName) {
+  assertArgCount("Namespace::fullName()", 0, argCount);
+  ObjNamespace* self = AS_NAMESPACE(receiver);
+  RETURN_OBJ(self->fullName);
+}
+
+NATIVE_METHOD(Namespace, shortName) {
+  assertArgCount("Namespace::shortName()", 0, argCount);
+  ObjNamespace* self = AS_NAMESPACE(receiver);
+  RETURN_OBJ(self->shortName);
 }
 
 NATIVE_METHOD(Namespace, clone) {
@@ -849,6 +866,8 @@ void registerLangPackage() {
   vm.luminiqueNamespace = defineNativeNamespace("clox", vm.rootNamespace);
   vm.stdNamespace = defineNativeNamespace("std", vm.luminiqueNamespace);
   vm.langNamespace = defineNativeNamespace("lang", vm.stdNamespace);
+
+  vm.currentNamespace = vm.rootNamespace;
 
 	vm.objectClass = defineNativeClass("Object");
   DEF_METHOD(vm.objectClass, Object, clone, 0);
@@ -882,6 +901,9 @@ void registerLangPackage() {
   DEF_METHOD(vm.namespaceClass, Namespace, __init__, 0);
   DEF_METHOD(vm.namespaceClass, Namespace, clone, 0);
   DEF_METHOD(vm.namespaceClass, Namespace, toString, 0);
+  DEF_METHOD(vm.namespaceClass, Namespace, enclosing, 0);
+  DEF_METHOD(vm.namespaceClass, Namespace, fullName, 0);
+  DEF_METHOD(vm.namespaceClass, Namespace, shortName, 0);
 
   vm.exceptionClass = defineNativeClass("Exception");
   bindSuperclass(vm.exceptionClass, vm.objectClass);
