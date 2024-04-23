@@ -16,6 +16,7 @@ void assertArgIsNumber(const char* method, Value* args, int index);
 void assertArgIsString(const char* method, Value* args, int index);
 void assertArgIsException(const char* method, Value* args, int index);
 void assertArgIsFile(const char* method, Value* args, int index);
+void assertArgIsNamespace(const char* method, Value* args, int index);
 void assertIntWithinRange(const char* method, int value, int min, int max, int index);
 void assertNumberNonNegative(const char* method, double number, int index);
 void assertNumberNonZero(const char* method, double number, int index);
