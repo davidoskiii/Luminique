@@ -691,6 +691,14 @@ NATIVE_METHOD(Dictionary, __init__) {
 	RETURN_OBJ(newDictionary(vm));
 }
 
+NATIVE_METHOD(Dictionary, __getSubscript__) {
+  assertArgCount("Dictionary::[](key)", 1, argCount);
+  Value value;
+  bool valueExists = dictGet(AS_DICTIONARY(receiver), args[0], &value);
+  if (!valueExists) RETURN_NIL;
+  RETURN_VAL(value);
+}
+
 NATIVE_METHOD(Dictionary, clear) {
 	assertArgCount("Dictionary::clear()", 0, argCount);
   ObjDictionary* self = AS_DICTIONARY(receiver);
@@ -851,6 +859,7 @@ void registerCollectionPackage() {
 	DEF_METHOD(vm.dictionaryClass, Dictionary, putAll, 1);
 	DEF_METHOD(vm.dictionaryClass, Dictionary, removeAt, 1);
 	DEF_METHOD(vm.dictionaryClass, Dictionary, toString, 0);
+  DEF_OPERATOR(vm.dictionaryClass, Dictionary, [], __getSubscript__, 1);
 
   ObjClass* setClass = defineNativeClass("Set");
   bindSuperclass(setClass, collectionClass);

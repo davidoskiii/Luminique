@@ -333,19 +333,38 @@ static bool identifiersEqual(Token* a, Token* b) {
   return memcmp(a->start, b->start, a->length) == 0;
 }
 
-static uint8_t symbolConstant(const char* message) {
+
+static Token syntheticToken(const char* text) {
+  Token token;
+  token.start = text;
+  token.length = (int)strlen(text);
+  return token;
+}
+
+
+static uint8_t propretyConstant(const char* message) {
   switch (parser.current.type) {
     case TOKEN_IDENTIFIER:
+    case TOKEN_EQUAL_EQUAL:
+    case TOKEN_GREATER:
+    case TOKEN_LESS:
     case TOKEN_PLUS:
     case TOKEN_MINUS:
     case TOKEN_STAR:
     case TOKEN_SLASH:
     case TOKEN_MODULO:
-    case TOKEN_EQUAL_EQUAL:
-    case TOKEN_GREATER:
-    case TOKEN_LESS:
       advance();
       return identifierConstant(&parser.previous);
+    case TOKEN_LEFT_BRAKE:
+      advance();
+      if (match(TOKEN_RIGHT_BRAKE)) {
+        Token token = syntheticToken(match(TOKEN_EQUAL) ? "[]=" : "[]");
+        return identifierConstant(&token);
+      }
+      else { 
+        errorAtCurrent(message);
+        return -1;
+      }
     default:
       errorAtCurrent(message);
       return -1;
@@ -570,7 +589,7 @@ static void call(bool canAssign) {
 }
 
 static void dot(bool canAssign) {
-  uint8_t name = symbolConstant("Expect property name after '.'.");
+  uint8_t name = propretyConstant("Expect property name after '.'.");
 
   if (canAssign && match(TOKEN_EQUAL)) {
     expression();
@@ -901,13 +920,6 @@ static void this_(bool canAssign) {
   variable(false);
 } 
 
-static Token syntheticToken(const char* text) {
-  Token token;
-  token.start = text;
-  token.length = (int)strlen(text);
-  return token;
-}
-
 static void super_(bool canAssign) {
   if (currentClass == NULL) {
     error("Can't use 'super' outside of a class.");
@@ -1117,7 +1129,7 @@ static void function(FunctionType type) {
 static void method() {
   consume(TOKEN_FUN, "Expect 'function' keyword");
 
-  uint8_t constant = symbolConstant("Expect method name.");
+  uint8_t constant = propretyConstant("Expect method name.");
 
   FunctionType type = TYPE_METHOD;
   if (parser.previous.length == 8 &&

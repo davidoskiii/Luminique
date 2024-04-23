@@ -1,8 +1,0 @@
-let x = {1: "uno"};
-
-try {
-  x[1];
-  println("success");
-} catch (IndexOutOfBoundsException : e) {
-  println("failed: ${e.message}");
-}
