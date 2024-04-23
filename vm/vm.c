@@ -72,7 +72,6 @@ void initVM() {
   vm.grayCapacity = 0;
   vm.grayStack = NULL;
 
-  initTable(&vm.globalValues);
   initTable(&vm.globals);
   initTable(&vm.namespaces);
   initTable(&vm.strings);
@@ -89,8 +88,8 @@ void initVM() {
 }
 
 void freeVM() {
-  freeTable(&vm.globalValues);
   freeTable(&vm.globals);
+  freeTable(&vm.namespaces);
   freeTable(&vm.strings);
   vm.initString = NULL;
 
@@ -562,7 +561,8 @@ InterpretResult run() {
         break;
       }
       case OP_USING:
-        printf("Importing namespace...\n");
+        printf("Importing namespace: %s\n", AS_NAMESPACE(peek(0))->fullName->chars);
+        pop();
         break;
       case OP_GET_UPVALUE: {
         uint8_t slot = READ_BYTE();

@@ -56,7 +56,6 @@ typedef struct {
   int apiStackDepth;
 
   Table namespaces;
-  Table globalValues;
   Table globals;
   Table strings;
 

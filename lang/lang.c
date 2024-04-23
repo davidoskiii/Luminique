@@ -860,10 +860,20 @@ NATIVE_METHOD(Namespace, toString) {
   RETURN_STRING_FMT("<namespace %s>", self->fullName->chars);
 }
 
+static ObjNamespace* defineRootNamespace() {
+  ObjString* name = newString("");
+  push(OBJ_VAL(name));
+  ObjNamespace* rootNamespace = newNamespace(name, NULL);
+  push(OBJ_VAL(rootNamespace));
+  tableSet(&vm.namespaces, name, OBJ_VAL(rootNamespace));
+  pop();
+  pop();
+  return rootNamespace;
+}
 
 void registerLangPackage() {
-  vm.rootNamespace = defineNativeNamespace("", NULL);
-  vm.luminiqueNamespace = defineNativeNamespace("clox", vm.rootNamespace);
+  vm.rootNamespace = defineRootNamespace();
+  vm.luminiqueNamespace = defineNativeNamespace("luminique", vm.rootNamespace);
   vm.stdNamespace = defineNativeNamespace("std", vm.luminiqueNamespace);
   vm.langNamespace = defineNativeNamespace("lang", vm.stdNamespace);
 

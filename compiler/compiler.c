@@ -875,7 +875,7 @@ static void checkMutability(int arg, uint8_t opCode) {
     case OP_SET_GLOBAL:
       ObjString* name = identifierName(arg);
       Value value;
-      if (tableGet(&vm.globalValues, name, &value)) { 
+      if (tableGet(&vm.rootNamespace->values, name, &value)) { 
         error("Cannot assign to immutable global variables.");
       }
       break;

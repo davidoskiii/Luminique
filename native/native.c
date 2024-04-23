@@ -16,7 +16,7 @@ void defineNativeFunction(const char* name, int arity, NativeFunction function) 
   ObjString* functionName = copyString(name, (int)strlen(name));
   push(OBJ_VAL(functionName));
   push(OBJ_VAL(newNativeFunction(functionName, arity, function)));
-  tableSet(&vm.globalValues, AS_STRING(vm.stack[0]), vm.stack[1]);
+  tableSet(&vm.rootNamespace->values, AS_STRING(vm.stack[0]), vm.stack[1]);
   pop();
   pop();
 }
@@ -27,7 +27,7 @@ ObjClass* defineNativeClass(const char* name) {
   ObjClass* nativeClass = newClass(className);
   nativeClass->isNative = true;
   push(OBJ_VAL(nativeClass));
-  tableSet(&vm.globalValues, AS_STRING(vm.stack[0]), vm.stack[1]);
+  tableSet(&vm.rootNamespace->values, AS_STRING(vm.stack[0]), vm.stack[1]);
   pop();
   pop();
   return nativeClass;
@@ -46,26 +46,33 @@ void defineNativeMethod(ObjClass* klass, const char* name, int arity, NativeMeth
 ObjNamespace* defineNativeNamespace(const char* name, ObjNamespace* enclosing) {
   ObjString* shortName = newString(name);
   push(OBJ_VAL(shortName));
-  ObjNamespace* namespace = newNamespace(shortName, enclosing);
-  tableSet(&vm.namespaces, namespace->fullName, OBJ_VAL(namespace));
-  if (enclosing != NULL) tableSet(&enclosing->values, namespace->shortName, OBJ_VAL(namespace));
+  ObjNamespace* nativeNamespace = newNamespace(shortName, enclosing);
+  push(OBJ_VAL(nativeNamespace));
+  tableSet(&vm.namespaces, nativeNamespace->fullName, OBJ_VAL(nativeNamespace));
+  tableSet(&enclosing->values, nativeNamespace->shortName, OBJ_VAL(nativeNamespace));
   pop();
-  return namespace;
+  pop();
+  return nativeNamespace;
 }
 
 ObjClass* getNativeClass(const char* name) {
+  ObjString* className = newString(name);
   Value klass;
-  tableGet(&vm.globalValues, newString(name), &klass);
-  if (!IS_CLASS(klass)) {
+  tableGet(&vm.currentNamespace->values, className, &klass);
+  if (IS_CLASS(klass)) return AS_CLASS(klass);
+
+  Value klass2;
+  tableGet(&vm.langNamespace->values, className, &klass2);
+  if (IS_CLASS(klass2)) return AS_CLASS(klass2);
+  else {
     runtimeError("Native class %s is undefined.", name);
     exit(70);
   }
-  return AS_CLASS(klass);
 }
 
 ObjNativeFunction* getNativeFunction(const char* name) {
   Value function;
-  tableGet(&vm.globalValues, newString(name), &function);
+  tableGet(&vm.rootNamespace->values, newString(name), &function);
   if (!IS_NATIVE_FUNCTION(function)) {
     runtimeError("Native function %s is undefined.", name);
     exit(70);
