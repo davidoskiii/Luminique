@@ -11,6 +11,7 @@ typedef enum {
   OP_FALSE,
   OP_ARRAY,
   OP_DICTIONARY,
+  OP_NAMESPACE,
   OP_POP,
   OP_GET_LOCAL,
   OP_SET_LOCAL,

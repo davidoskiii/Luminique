@@ -537,6 +537,10 @@ InterpretResult run() {
         makeDictionary(entryCount); 
         break;
       }
+      case OP_NAMESPACE: {
+        printf("Declaring namespace: \n");
+        break;
+      }
       case OP_GET_UPVALUE: {
         uint8_t slot = READ_BYTE();
         push(*frame->closure->upvalues[slot]->location);
