@@ -55,19 +55,15 @@ ObjNamespace* defineNativeNamespace(const char* name, ObjNamespace* enclosing) {
   return nativeNamespace;
 }
 
-ObjClass* getNativeClass(const char* name) {
-  ObjString* className = newString(name);
+ObjClass* getNativeClass(const char* namespaceName, const char* className) {
+  ObjNamespace* namespace = getNativeNamespace(namespaceName);
   Value klass;
-  tableGet(&vm.currentNamespace->values, className, &klass);
-  if (IS_CLASS(klass)) return AS_CLASS(klass);
-
-  Value klass2;
-  tableGet(&vm.langNamespace->values, className, &klass2);
-  if (IS_CLASS(klass2)) return AS_CLASS(klass2);
-  else {
-    runtimeError("Native class %s is undefined.", name);
+  tableGet(&namespace->values, newString(className), &klass);
+  if (!IS_CLASS(klass)) {
+    runtimeError("Class %s.%s is undefined.", namespaceName, className);
     exit(70);
   }
+  return AS_CLASS(klass);
 }
 
 ObjNativeFunction* getNativeFunction(const char* name) {

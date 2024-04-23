@@ -32,7 +32,7 @@ void defineNativeFunction(const char* name, int arity, NativeFunction functionio
 void defineNativeMethod(ObjClass* klass, const char* name, int arity, NativeMethod method);
 ObjNamespace* defineNativeNamespace(const char* name, ObjNamespace* enclosing);
 ObjClass* defineNativeClass(const char* name);
-ObjClass* getNativeClass(const char* name);
+ObjClass* getNativeClass(const char* namespaceName, const char* className);
 ObjNativeFunction* getNativeFunction(const char* name);
 ObjNamespace* getNativeNamespace(const char* name);
 ObjNativeMethod* getNativeMethod(ObjClass* klass, const char* name);
