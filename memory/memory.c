@@ -98,6 +98,13 @@ static void blackenObject(Obj* object) {
       markObject((Obj*)file->mode);
       break;
     }
+    case OBJ_NAMESPACE: {
+      ObjNamespace* namespace = (ObjNamespace*)object;
+      markObject((Obj*)namespace->name);
+      markObject((Obj*)namespace->path);
+      markTable(&namespace->values);
+      break;
+    }
     case OBJ_RECORD:
       break;
     case OBJ_BOUND_METHOD: {
@@ -180,7 +187,13 @@ static void freeObject(Obj* object) {
       ObjClass* klass = (ObjClass*)object;
       freeTable(&klass->methods);
       break;
-    } 
+    }
+    case OBJ_NAMESPACE: { 
+      ObjNamespace* namespace = (ObjNamespace*)object;
+      freeTable(&namespace->values);
+      FREE(ObjNamespace, object);
+      break;
+    }
     case OBJ_CLOSURE: {
       ObjClosure* closure = (ObjClosure*)object;
       FREE_ARRAY(ObjUpvalue*, closure->upvalues, closure->upvalueCount);
