@@ -47,6 +47,7 @@ ObjNamespace* defineNativeNamespace(const char* name, ObjNamespace* enclosing) {
   ObjString* shortName = newString(name);
   push(OBJ_VAL(shortName));
   ObjNamespace* namespace = newNamespace(shortName, enclosing);
+  tableSet(&vm.namespaces, namespace->fullName, namespace);
   pop();
   return namespace;
 }

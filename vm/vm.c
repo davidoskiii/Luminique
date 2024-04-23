@@ -74,6 +74,7 @@ void initVM() {
 
   initTable(&vm.globalValues);
   initTable(&vm.globals);
+  initTable(&vm.namespaces);
   initTable(&vm.strings);
 
   vm.initString = NULL;
