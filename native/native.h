@@ -22,6 +22,7 @@
 #define THROW_EXCEPTION(klass, message) return OBJ_VAL(throwException(getNativeClass(#klass), message))
 #define THROW_EXCEPTION_FMT(klass, message, ...) return OBJ_VAL(throwException(getNativeClass(#klass), message, __VA_ARGS__))
 #define RETURN_VAL(value) return value
+#define DEF_OPERATOR(klass, className, symbol, name, arity) defineNativeMethod(klass, #symbol, arity, name##NativeMethodFor##className)
 
 
 void initNatives();

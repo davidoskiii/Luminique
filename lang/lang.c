@@ -255,6 +255,34 @@ NATIVE_METHOD(Int, __init__) {
   THROW_EXCEPTION(InstantiationException, "Cannot instantiate from class Int.");
 }
 
+NATIVE_METHOD(Int, __add__) {
+  assertArgCount("Int::+(other)", 1, argCount);
+  assertArgIsNumber("Int::+(other)", args, 0);
+  if (IS_INT(args[0])) RETURN_INT((AS_INT(receiver) + AS_INT(args[0])));
+  else RETURN_NUMBER((AS_NUMBER(receiver) + AS_NUMBER(args[0])));
+}
+
+NATIVE_METHOD(Int, __subtract__) {
+  assertArgCount("Int::-(other)", 1, argCount);
+  assertArgIsNumber("Int::-(other)", args, 0);
+  if (IS_INT(args[0])) RETURN_INT((AS_INT(receiver) - AS_INT(args[0])));
+  else RETURN_NUMBER((AS_NUMBER(receiver) - AS_NUMBER(args[0])));
+}
+
+NATIVE_METHOD(Int, __multiply__) {
+  assertArgCount("Int::*(other)", 1, argCount);
+  assertArgIsNumber("Int::*(other)", args, 0);
+  if (IS_INT(args[0])) RETURN_INT((AS_INT(receiver) * AS_INT(args[0])));
+  else RETURN_NUMBER((AS_NUMBER(receiver) * AS_NUMBER(args[0])));
+}
+
+NATIVE_METHOD(Int, __modulo__) {
+  assertArgCount("Int::%(other)", 1, argCount);
+  assertArgIsNumber("Int::%(other)", args, 0);
+  if (IS_INT(args[0])) RETURN_INT((AS_INT(receiver) % AS_INT(args[0])));
+  else RETURN_NUMBER(fmod(AS_NUMBER(receiver), AS_NUMBER(args[0])));
+}
+
 NATIVE_METHOD(Int, abs) {
   assertArgCount("Int::abs()", 0, argCount);
   RETURN_INT(abs(AS_INT(receiver)));
@@ -338,6 +366,54 @@ NATIVE_METHOD(Nil, toString) {
 
 NATIVE_METHOD(Number, __init__) {
   THROW_EXCEPTION(InstantiationException, "Cannot instantiate from class Number.");
+}
+
+NATIVE_METHOD(Number, __equal__) {
+  assertArgCount("Number::==(other)", 1, argCount);
+  assertArgIsNumber("Number::==(other)", args, 0);
+  RETURN_BOOL((AS_NUMBER(receiver) == AS_NUMBER(args[0])));
+}
+
+NATIVE_METHOD(Number, __greater__) {
+  assertArgCount("Number::>(other)", 1, argCount);
+  assertArgIsNumber("Number::>(other)", args, 0);
+  RETURN_BOOL((AS_NUMBER(receiver) > AS_NUMBER(args[0])));
+}
+
+NATIVE_METHOD(Number, __less__) {
+  assertArgCount("Number::<(other)", 1, argCount);
+  assertArgIsNumber("Number::<(other)", args, 0);
+  RETURN_BOOL((AS_NUMBER(receiver) < AS_NUMBER(args[0])));
+}
+
+NATIVE_METHOD(Number, __add__) { 
+  assertArgCount("Number::+(other)", 1, argCount);
+  assertArgIsNumber("Number::+(other)", args, 0);
+  RETURN_NUMBER((AS_NUMBER(receiver) + AS_NUMBER(args[0])));
+}
+
+NATIVE_METHOD(Number, __subtract__) {
+  assertArgCount("Number::-(other)", 1, argCount);
+  assertArgIsNumber("Number::-(other)", args, 0);
+  RETURN_NUMBER((AS_NUMBER(receiver) - AS_NUMBER(args[0])));
+}
+
+NATIVE_METHOD(Number, __multiply__) {
+  assertArgCount("Number::*(other)", 1, argCount);
+  assertArgIsNumber("Number::*(other)", args, 0);
+  RETURN_NUMBER((AS_NUMBER(receiver) * AS_NUMBER(args[0])));
+}
+
+NATIVE_METHOD(Number, __divide__) { 
+  assertArgCount("Number::/(other)", 1, argCount);
+  assertArgIsNumber("Number::/(other)", args, 0);
+  RETURN_NUMBER((AS_NUMBER(receiver) / AS_NUMBER(args[0])));
+}
+
+NATIVE_METHOD(Number, __modulo__) {
+  assertArgCount("Number::%(other)", 1, argCount);
+  assertArgIsNumber("Number::%(other)", args, 0);
+  RETURN_NUMBER(fmod(AS_NUMBER(receiver), AS_NUMBER(args[0])));
 }
 
 NATIVE_METHOD(Number, abs) {
@@ -471,6 +547,12 @@ NATIVE_METHOD(Number, toString) {
 
 // OBJECT
 
+
+NATIVE_METHOD(Object, __equal__) {
+  assertArgCount("Object::==(other)", 1, argCount);
+  RETURN_BOOL(receiver == args[0]);
+}
+
 NATIVE_METHOD(Object, clone) {
 	assertArgCount("Object::clone()", 0, argCount);
 	ObjInstance* thisObject = AS_INSTANCE(receiver);
@@ -536,6 +618,14 @@ NATIVE_METHOD(String, __init__) {
   assertArgIsString("String::__init__(chars)", args, 0);
   return args[0];
 }
+
+
+NATIVE_METHOD(String, __add__) {
+  assertArgCount("String::+(other)", 1, argCount);
+  assertArgIsString("String::+(other)", args, 0);
+  RETURN_STRING_FMT("%s%s", AS_CSTRING(receiver), AS_CSTRING(args[0]));
+}
+
 
 NATIVE_METHOD(String, capitalize) {
   assertArgCount("String::capitalize()", 0, argCount);
@@ -702,6 +792,7 @@ void registerLangPackage(){
   DEF_METHOD(vm.objectClass, Object, instanceOf, 1);
   DEF_METHOD(vm.objectClass, Object, memberOf, 1);
   DEF_METHOD(vm.objectClass, Object, toString, 0);
+  DEF_OPERATOR(vm.objectClass, Object, ==, __equal__, 1);
 
   vm.classClass = defineNativeClass("Class");
   bindSuperclass(vm.classClass, vm.objectClass);
@@ -768,6 +859,14 @@ void registerLangPackage(){
   DEF_METHOD(vm.numberClass, Number, tan, 0);
   DEF_METHOD(vm.numberClass, Number, toInt, 0);
   DEF_METHOD(vm.numberClass, Number, toString, 0);
+  DEF_OPERATOR(vm.numberClass, Number, ==, __equal__, 1);
+  DEF_OPERATOR(vm.numberClass, Number, >, __greater__, 1);
+  DEF_OPERATOR(vm.numberClass, Number, <, __less__, 1);
+  DEF_OPERATOR(vm.numberClass, Number, +, __add__, 1);
+  DEF_OPERATOR(vm.numberClass, Number, -, __subtract__, 1);
+  DEF_OPERATOR(vm.numberClass, Number, *, __multiply__, 1);
+  DEF_OPERATOR(vm.numberClass, Number, /, __divide__, 1);
+  DEF_OPERATOR(vm.numberClass, Number, %, __modulo__, 1);
 
   vm.intClass = defineNativeClass("Int");
   bindSuperclass(vm.intClass, vm.numberClass);
@@ -783,6 +882,10 @@ void registerLangPackage(){
   DEF_METHOD(vm.intClass, Int, toFloat, 0);
   DEF_METHOD(vm.intClass, Int, toHexadecimal, 0);
   DEF_METHOD(vm.intClass, Int, toString, 0);
+  DEF_OPERATOR(vm.intClass, Int, +, __add__, 1);
+  DEF_OPERATOR(vm.intClass, Int, -, __subtract__, 1);
+  DEF_OPERATOR(vm.intClass, Int, *, __multiply__, 1);
+  DEF_OPERATOR(vm.intClass, Int, %, __modulo__, 1);
 
   vm.floatClass = defineNativeClass("Float");
   bindSuperclass(vm.floatClass, vm.numberClass);
@@ -813,6 +916,7 @@ void registerLangPackage(){
   DEF_METHOD(vm.stringClass, String, toString, 0);
   DEF_METHOD(vm.stringClass, String, upper, 0);
   DEF_METHOD(vm.stringClass, String, trim, 0);
+  DEF_OPERATOR(vm.stringClass, String, +, __add__, 1);
 
   for (int i = 0; i < vm.strings.capacity; i++) {
     Entry* entry = &vm.strings.entries[i];
