@@ -11,6 +11,7 @@
 #define OBJ_TYPE(value) (AS_OBJ(value)->type)
 #define OBJ_KLASS(value) (AS_OBJ(value)->klass)
 
+#define IS_NAMESPACE(value) isObjType(value, OBJ_NAMESPACE)
 #define IS_ARRAY(value) isObjType(value, OBJ_ARRAY)
 #define IS_DICTIONARY(value) isObjType(value, OBJ_DICTIONARY)
 #define IS_BOUND_METHOD(value) isObjType(value, OBJ_BOUND_METHOD)
@@ -25,6 +26,7 @@
 #define IS_NATIVE_METHOD(value) isObjType(value, OBJ_NATIVE_METHOD)
 #define IS_STRING(value) isObjType(value, OBJ_STRING)
 
+#define AS_NAMESPACE(value) ((ObjNamespace*)AS_OBJ(value))
 #define AS_ARRAY(value) ((ObjArray*)AS_OBJ(value))
 #define AS_DICTIONARY(value) ((ObjDictionary*)AS_OBJ(value))
 #define AS_BOUND_METHOD(value) ((ObjBoundMethod*)AS_OBJ(value))
