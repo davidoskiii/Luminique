@@ -43,6 +43,7 @@
 #define AS_CSTRING(value) (((ObjString*)AS_OBJ(value))->chars)
 
 typedef enum {
+  OBJ_NAMESPACE,
   OBJ_BOUND_METHOD,
   OBJ_CLASS,
   OBJ_CLOSURE,
@@ -114,6 +115,13 @@ typedef struct ObjFile {
   bool isOpen;
   FILE* file;
 } ObjFile;
+
+typedef struct {
+  Obj obj;
+  ObjString* name;
+  ObjString* path;
+  Table values;
+} ObjNamespace;
 
 typedef struct ObjRecord {
   Obj obj;
