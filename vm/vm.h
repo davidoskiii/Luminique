@@ -41,6 +41,10 @@ typedef struct {
   ObjClass* dictionaryClass;
   ObjClass* entryClass;
 
+  ObjNamespace* rootNamespace;
+  ObjNamespace* luminiqueNamespace;
+  ObjNamespace* stdNamespace;
+  ObjNamespace* langNamespace;
   ObjNamespace* defaultNamespace;
   ObjNamespace* currentNamespace;
 

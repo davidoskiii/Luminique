@@ -82,7 +82,7 @@ int disassembleInstruction(Chunk* chunk, int offset) {
     case OP_DICTIONARY:
       return byteInstruction("OP_DICTIONARY", chunk, offset);
     case OP_NAMESPACE:
-      return byteInstruction("OP_NAMESPACE", chunk, offset);
+      return constantInstruction("OP_NAMESPACE", chunk, offset);
     case OP_POP:
       return simpleInstruction("OP_POP", offset);
     case OP_GET_LOCAL:

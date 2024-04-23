@@ -89,10 +89,18 @@ ObjClass* newClass(ObjString* name) {
   return klass;
 }
 
-ObjNamespace* newNamespace(ObjString* name, ObjNamespace* enclosing) {
+ObjNamespace* newNamespace(ObjString* shortName, ObjNamespace* enclosing) {
   ObjNamespace* namespace = ALLOCATE_OBJ(ObjNamespace, OBJ_NAMESPACE, vm.namespaceClass);
-  namespace->name = name;
+  namespace->shortName = shortName;
   namespace->enclosing = enclosing;
+
+  if (namespace->enclosing != NULL && namespace->enclosing->shortName->length > 0) {
+    char chars[UINT8_MAX];
+    int length = snprintf(chars, UINT8_MAX, "%s.%s", namespace->enclosing->fullName->chars, shortName->chars);
+    namespace->fullName = copyString(chars, length);
+  }
+  else namespace->fullName = namespace->shortName;
+
   initTable(&namespace->values);
   return namespace;
 }
@@ -235,7 +243,7 @@ void printObject(Value value) {
       printArray(AS_ARRAY(value));
       break;
     case OBJ_NAMESPACE:
-      printf("<namespace %s>", AS_NAMESPACE(value)->name->chars);
+      printf("<namespace %s>", AS_NAMESPACE(value)->fullName->chars);
       break;
     case OBJ_FILE:
       printf("<file \"%s\">", AS_FILE(value)->name->chars);

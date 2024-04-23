@@ -120,7 +120,8 @@ typedef struct ObjFile {
 
 struct ObjNamespace {
   Obj obj;
-  ObjString* name;
+  ObjString* shortName;
+  ObjString* fullName;
   struct ObjNamespace* enclosing;
   Table values;
 };
@@ -188,7 +189,7 @@ ObjArray* newArray();
 ObjArray* copyArray(ValueArray elements, int fromIndex, int toIndex);
 ObjDictionary* newDictionary();
 ObjClass* newClass(ObjString* name);
-ObjNamespace* newNamespace(ObjString* name, ObjNamespace* enclosing);
+ObjNamespace* newNamespace(ObjString* shortName, ObjNamespace* enclosing);
 ObjClosure* newClosure(ObjFunction* function);
 ObjFunction* newFunction();
 ObjInstance* newInstance(ObjClass* klass);

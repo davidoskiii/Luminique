@@ -6,6 +6,7 @@
 
 typedef struct Obj Obj;
 typedef struct ObjClass ObjClass;
+typedef struct ObjNamespace ObjNamespace;
 typedef struct ObjString ObjString;
 
 #ifdef NAN_BOXING

@@ -43,14 +43,10 @@ void defineNativeMethod(ObjClass* klass, const char* name, int arity, NativeMeth
   pop();
 }
 
-
-ObjNamespace* defineNativeNamespace(const char* path, const char* name) {
-  ObjString* parentPath = newString(path);
-  push(OBJ_VAL(parentPath));
+ObjNamespace* defineNativeNamespace(const char* name, ObjNamespace* enclosing) {
   ObjString* shortName = newString(name);
   push(OBJ_VAL(shortName));
-  ObjNamespace* namespace = newNamespace(shortName, parentPath);
-  pop();
+  ObjNamespace* namespace = newNamespace(shortName, enclosing);
   pop();
   return namespace;
 }
