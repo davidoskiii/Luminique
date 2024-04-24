@@ -148,3 +148,40 @@ void markTable(Table* table) {
     markValue(entry->value);
   }
 }
+
+void printTable(Table table) {
+  printf("{");
+  int startIndex = 0;
+  for (int i = 0; i < table.capacity; i++) {
+    Entry* entry = &table.entries[i];
+    if (entry->key == NULL) continue;
+
+    printf("\"%s\": ", entry->key->chars);
+
+    if (IS_STRING(entry->value)) {
+      printf("\"");
+      printValue(entry->value);
+      printf("\"");
+    } else {
+      printValue(entry->value);
+    }
+
+    startIndex = i + 1;
+    break;
+  }
+
+  for (int i = startIndex; i < table.capacity; i++) {
+    Entry* entry = &table.entries[i];
+    if (entry->key == NULL) continue;
+    printf(", \"%s\": ", entry->key->chars);
+
+    if (IS_STRING(entry->value)) {
+      printf("\"");
+      printValue(entry->value);
+      printf("\"");
+    } else {
+      printValue(entry->value);
+    }
+  }
+  printf("}");
+}
