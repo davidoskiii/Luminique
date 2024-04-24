@@ -1182,7 +1182,6 @@ static void classDeclaration() {
   declareVariable();
 
   emitBytes(OP_CLASS, nameConstant);
-  defineVariable(nameConstant, false);
 
   ClassCompiler classCompiler;
   classCompiler.enclosing = currentClass;

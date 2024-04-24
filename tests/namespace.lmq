@@ -1,6 +1,9 @@
-namespace luminique.tests;
-using luminique.std.collection;
+namespace lmq.tests;
 
-println(collection.Array);
+using luminique.std.collection as cl;
+using tests.fraction;
+
+println(cl.Array);
+println(Fraction);
 
 // println(Date); Error!
