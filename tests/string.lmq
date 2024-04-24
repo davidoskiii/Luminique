@@ -13,22 +13,22 @@ print("String contains 'Hello': ");
 println(str.contains("Hello"));
 
 print("String index for 'Wo': ");
-println(str.indexOf("Wo"));
+println(str.search("Wo"));
 
 print("Replace 'World' in String by 'My Love': ");
 println(str.replace("World", "My Dear"));
 
 print("String starts with 'Hello': ");
-println(str.startsWith("Hello"));
+println(str.starts("Hello"));
 
 print("String ends with World: ");
-println(str.endsWith("World"));
+println(str.ends("World"));
 
 print("String char at position 4: ");
-println(str.getChar(4));
+println(str.subscript(4));
 
 print("Getting substring at index 3 and 8: ");
-println(str.subString(3, 8));
+println(str.cut(3, 8));
 
 print("Reversing String: ");
 println(str.reverse());
@@ -75,7 +75,7 @@ print("Unicode string contains letter ä: ");
 println(utf8String.contains("ä"));
 print("First index of letter ë in Unicode String: ");
 
-println(utf8String.indexOf("ë"));
+println(utf8String.search("ë"));
 
 const utf8String2 = "🙊🚀";
 println("Testing unicode string with emojis: " + utf8String2);

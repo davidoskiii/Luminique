@@ -1,7 +1,7 @@
 let x = 0;
-print("Creating global variable x");
+println("Creating global variable x");
 x = 1;
-print("Setting global variable x to");
+println("Setting global variable x to");
 
 function testLocal(){
     const y1 = 5;
@@ -10,9 +10,9 @@ function testLocal(){
     y2 = 20;
     y1 = 10; // error
 
-    print(y2);
-    print(y1);
-    print(x);
+    println(y2);
+    println(y1);
+    println(x);
 }
 
 testLocal();
@@ -23,9 +23,9 @@ function testUpvalue(){
     const x3;
 
     function testUpvalueInner(){ 
-        print(x1 + x2);
+        println(x1 + x2);
         x2 = 20;
-        print(x1 + x2);
+        println(x1 + x2);
         x1 = 10; // error       
     }
     testUpvalueInner();
@@ -34,11 +34,11 @@ function testUpvalue(){
 testUpvalue();
 
 function testParameters(const a, b){ 
-    print(a);
-    print(b);
+    println(a);
+    println(b);
     a = 5; // error
     b = 5;
 }
 testParameters(2, 3);
 
-printf = true; // error becouse it's a native function
+println = true; // error becouse it's a native function

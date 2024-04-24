@@ -3,8 +3,8 @@
 println(true || false); // true 'or' false (true)
 println(true or false); // both of them work for 'or'
 
-println(true && false) // true 'and' false (false)
-println(true and true) // true 'and' true (true)
+println(true && false); // true 'and' false (false)
+println(true and true); // true 'and' true (true)
 
 /* You can use the symbols '||' and '&&' or simply write
    'and' and 'or', here is a truth table of both of them:

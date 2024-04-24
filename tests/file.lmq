@@ -1,3 +1,5 @@
+using luminique.std.io.File;
+
 let file = File("tests/file.lmq");
 
 println("Creating new file object: ");

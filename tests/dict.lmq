@@ -1,3 +1,5 @@
+using luminique.std.collection.Dictionary;
+
 let dict = Dictionary();
 
 print("Creating empty dictionary: ");

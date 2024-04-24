@@ -45,11 +45,3 @@ let arr = [1, 2, 3, 4];
 for (value, index : arr) {
   println("value: ${value}, index: ${index}");
 }
-
-println("\nDictionary:");
-
-let dict = {"1": "one", "2": "two"};
-
-for (value, key : dict) {
-  println("value: \"${value}\", key: \"${key}\"");
-}

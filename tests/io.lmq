@@ -1,3 +1,9 @@
+using luminique.std.io.File;
+using luminique.std.io.FileReadStream;
+using luminique.std.io.FileWriteStream;
+using luminique.std.io.BinaryReadStream;
+using luminique.std.io.BinaryWriteStream;
+
 let fileIn = File("tests/directory/file_input.txt");
 println(fileIn);
 

@@ -1,3 +1,7 @@
+using luminique.std.util.Date;
+using luminique.std.util.DateTime;
+using luminique.std.util.Duration;
+
 let now = dateNow();
 
 println("Today is the ${now}.");
@@ -20,7 +24,7 @@ let datetime = dateTimeNow();
 
 println("Current DateTime is ${datetime}.");
 println("Current DateTime's timestamp is: ${datetime.getTimestamp()}.");
-println("Birthday is after current DateTime: ${birthday.toDateTime().after(datetime)}");
+println("Birthday is after current DateTime: ${birthday.toDateTime() < (datetime)}");
 println("Difference in sec(s) between current DateTime and birthday: ${datetime.diff(birthday.toDateTime())}\n");
 
 println("Current Date is instance of Date: ${now.instanceOf(Date)}.");
@@ -35,7 +39,7 @@ println("Total number of seconds in Duration: ${duration.getTotalSeconds()}.\n")
 
 let duration2 = Duration(1, 0, 0, 0);
 
-println("Tomorrow Date: ${now.plus(duration2)}.");
-println("Yesterday Date: ${now.minus(duration2)}.");
-println("Adding duration to current DateTime: ${datetime.plus(duration)}.");
-println("Subtracting duration from current DateTime: ${datetime.minus(duration)}.");
+println("Tomorrow Date: ${now + duration2}.");
+println("Yesterday Date: ${now - duration2}.");
+println("Adding duration to current DateTime: ${datetime + duration}.");
+println("Subtracting duration from current DateTime: ${datetime - duration}.");
