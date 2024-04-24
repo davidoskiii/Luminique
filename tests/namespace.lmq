@@ -6,6 +6,6 @@ using tests.fraction;
 
 println(cl::Array);
 println(std::util::Date);
-println(Fraction);
+println(fraction.Fraction);
 
 // println(Date); Error!

@@ -27,7 +27,6 @@ typedef struct Module {
   char* filePath;
   char* source;
   Table values;
-  struct Module* lastModule;
 } Module;
 
 typedef struct {

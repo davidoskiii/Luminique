@@ -1,0 +1,43 @@
+namespace tests;
+
+class Fraction {
+  function __init__(numerator, denominator) {
+    this.validateNumbers(numerator, denominator);
+    this.numerator = numerator;
+    this.denominator = denominator;
+  }
+
+  function validateNumbers(numerator, denominator) {
+    if (!numerator.instanceOf(Int) or !denominator.instanceOf(Int)) {
+      throw IllegalArgumentException("Numerator and Denominator must be integers.");
+    }
+
+    if (denominator == 0) {
+      throw IllegalArgumentException("Denominator of a Fraction object cannot be 0.");
+    }
+  }
+
+  function reduce() {
+    let gcd = this.numerator.gcd(this.denominator);
+    let numerator = this.numerator / gcd;
+    let denominator = this.denominator / gcd;
+    return Fraction(numerator.toInt(), denominator.toInt());
+  }
+
+  function toString() {
+    return this.numerator.toString() + "/" + this.denominator.toString();
+  }
+
+  function == (that) {
+    if (!that.instanceOf(Fraction)) {
+      println("Argument must be a fraction");
+      return;
+    }
+
+    if (this.reduce().toString() == that.reduce().toString()) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+}

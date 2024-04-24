@@ -70,19 +70,18 @@ void initModule(Module* module, char* filePath) {
   initTable(&module->values);
   tableAddAll(&vm.langNamespace->values, &module->values);
   tableSet(&vm.modules, newString(filePath), NIL_VAL);
-  module->lastModule = vm.currentModule;
   vm.currentModule = module;
 }
 
 void freeModule(Module* module) {
   freeTable(&module->values);
   free(module->source);
-  vm.currentModule = module->lastModule;
 }
 
 
 static bool runModule(ObjString* filePath) {
   Module module;
+  Module* lastModule = vm.currentModule;
   initModule(&module, filePath->chars);
   ObjFunction* function = compile(module.source);
   if (function == NULL) return false;
@@ -93,6 +92,7 @@ static bool runModule(ObjString* filePath) {
   push(OBJ_VAL(closure));
   callClosure(closure, 0);
   freeModule(&module);
+  vm.currentModule = lastModule;
   return true;
 }
 
@@ -202,7 +202,7 @@ static ObjNamespace* declareNamespace(uint8_t namespaceDepth) {
 
 static ObjString* resolveNamespacedFile(ObjNamespace* enclosingNamespace, ObjString* shortName) {
   int length = enclosingNamespace->fullName->length + shortName->length + 5;
-  char* heapChars = ALLOCATE(char, length);
+  char* heapChars = ALLOCATE(char, length + 1);
   int offset = 0;
   while (offset < enclosingNamespace->fullName->length) {
     char currentChar = enclosingNamespace->fullName->chars[offset];
@@ -653,7 +653,7 @@ InterpretResult run() {
         Value value;
         tableGet(&enclosingNamespace->values, shortName, &value);
         if (IS_NIL(value)) {
-          runtimeError("Undefined class/trait %s.%s", enclosingNamespace->fullName->chars, shortName->chars);
+          runtimeError("Undefined class %s.%s", enclosingNamespace->fullName->chars, shortName->chars);
           return INTERPRET_RUNTIME_ERROR;
         }
 
@@ -874,11 +874,12 @@ InterpretResult run() {
         closeUpvalues(vm.stackTop - 1);
         pop();
         break;
-      case OP_CLASS:
+      case OP_CLASS: {
         ObjString* name = READ_STRING();
         push(OBJ_VAL(newClass(name)));
         tableSet(&vm.currentNamespace->values, name, peek(0));
         break;
+      }
       case OP_GET_NAMESPACE: {
         if (!IS_NAMESPACE(peek(0))) {
           runtimeError("Only namespaces can access properties using '::'.");

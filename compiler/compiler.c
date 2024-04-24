@@ -894,13 +894,14 @@ static void checkMutability(int arg, uint8_t opCode) {
         error("Cannot assign to immutable upvalue.");
       }
       break;
-    case OP_SET_GLOBAL:
+    case OP_SET_GLOBAL: {
       ObjString* name = identifierName(arg);
       Value value;
       if (tableGet(&vm.rootNamespace->values, name, &value)) { 
         error("Cannot assign to immutable global variables.");
       }
       break;
+    }
     default:
       break;
   }
