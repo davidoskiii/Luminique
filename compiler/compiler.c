@@ -1564,7 +1564,7 @@ static void usingStatement() {
     namespaceDepth++;
   } while (match(TOKEN_DOT));
 
-  emitBytes(OP_SUBNAMESPACE, namespaceDepth);
+  emitBytes(OP_USING, namespaceDepth);
   uint8_t alias = makeConstant(OBJ_VAL(newString("")));
 
   if (match(TOKEN_AS)) {
@@ -1573,7 +1573,7 @@ static void usingStatement() {
     alias = identifierConstant(&name);
   }
   consume(TOKEN_SEMICOLON, "Expect ';' after using statement.");
-  emitBytes(OP_USING, alias);
+  emitBytes(OP_SUBNAMESPACE, alias);
 }
 
 static void requireStatement() {

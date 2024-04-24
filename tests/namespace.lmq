@@ -3,4 +3,4 @@ using luminique.std.collection;
 
 println(collection.Array);
 
-println(Exception); // Error!
+println(Date); // Error!

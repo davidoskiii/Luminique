@@ -611,7 +611,7 @@ InterpretResult run() {
         vm.currentNamespace = declareNamespace(namespaceDepth);
         break;
       }
-      case OP_USING: { 
+      case OP_SUBNAMESPACE: { 
         Value value = pop();
         ObjString* alias = READ_STRING();
 
@@ -629,7 +629,7 @@ InterpretResult run() {
         }
         break;
       }
-      case OP_SUBNAMESPACE: {
+      case OP_USING: {
         uint8_t namespaceDepth = READ_BYTE();
         Value value = usingNamespace(namespaceDepth);
         if (IS_NIL(value)) return INTERPRET_RUNTIME_ERROR;
