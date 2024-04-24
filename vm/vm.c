@@ -62,8 +62,24 @@ void runtimeError(const char* format, ...) {
   resetStack();
 }
 
+void initModule(Module* module, char* filePath) {
+  module->filePath = filePath;
+  module->source = readFile(filePath);
+  initTable(&module->values);
+  tableAddAll(&vm.langNamespace->values, &module->values);
+  tableSet(&vm.modules, newString(filePath), NIL_VAL);
+  vm.currentModule = module;
+}
+
+void freeModule(Module* module) {
+  freeTable(&module->values);
+  free(module->source);
+  vm.currentModule = module->lastModule;
+}
+
 void initVM() {
   resetStack();
+  vm.currentModule = NULL;
   vm.objects = NULL;
   vm.bytesAllocated = 0;
   vm.nextGC = (size_t)1024 * 1024;
@@ -90,6 +106,7 @@ void initVM() {
 void freeVM() {
   freeTable(&vm.globals);
   freeTable(&vm.namespaces);
+  freeTable(&vm.modules);
   freeTable(&vm.strings);
   vm.initString = NULL;
 
@@ -331,9 +348,10 @@ static bool bindMethod(ObjClass* klass, ObjString* name) {
 }
 
 bool loadGlobal(ObjString* name, Value* value) {
-  // if (tableGet(&vm.globalValues, name, value)) return true;
-  if (tableGet(&vm.rootNamespace->values, name, value)) return true;
-  return tableGet(&vm.globals, name, value);
+  if (tableGet(&vm.currentModule->values, name, value)) return true;
+  else if (tableGet(&vm.currentNamespace->values, name, value)) return true;
+  else if (tableGet(&vm.rootNamespace->values, name, value)) return true;
+  else return tableGet(&vm.globals, name, value);
 } 
 
 static ObjUpvalue* captureUpvalue(Value* local) {

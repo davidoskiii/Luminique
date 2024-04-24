@@ -50,10 +50,11 @@ char* readFile(const char* path) {
   return buffer;
 }
 
-static void runFile(const char* path) {
-  char* source = readFile(path);
-  InterpretResult result = interpret(source);
-  free(source); 
+static void runFile(char* path) {
+  Module module;
+  initModule(&module, path);
+  InterpretResult result = interpret(module.source);
+  freeModule(&module);
 
   if (result == INTERPRET_COMPILE_ERROR) exit(65);
   if (result == INTERPRET_RUNTIME_ERROR) exit(70);
