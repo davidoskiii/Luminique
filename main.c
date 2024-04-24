@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "common.h"
+#include "object/object.h"
 #include "./chunk/chunk.h"
 #include "./debug/debug.h"
 #include "./vm/vm.h"

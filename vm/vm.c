@@ -182,6 +182,29 @@ static ObjNamespace* declareNamespace(uint8_t namespaceDepth) {
   return currentNamespace;
 }
 
+static Value usingNamespace(uint8_t namespaceDepth) {
+  ObjNamespace* currentNamespace = vm.rootNamespace;
+  Value value;
+  for (int i = namespaceDepth - 1; i >= 1; i--) {
+    ObjString* name = AS_STRING(peek(i));
+    if (!tableGet(&currentNamespace->values, name, &value)) {
+      currentNamespace = defineNativeNamespace(name->chars, currentNamespace);
+    }
+    else currentNamespace = AS_NAMESPACE(value);
+  }
+
+  ObjString* shortName = AS_STRING(peek(0));
+  if (!tableGet(&currentNamespace->values, shortName, &value)) {
+    runtimeError("Undefined class %s in %s namespace.",  shortName->chars, currentNamespace->isRoot ? "<root>" : currentNamespace->fullName->chars);
+    return NIL_VAL;
+  }
+  while (namespaceDepth > 0) {
+    pop();
+    namespaceDepth--;
+  }
+  return value;
+}
+
 bool callClosure(ObjClosure* closure, int argCount) {
   if (closure->function->arity > 0 && argCount != closure->function->arity) {
     runtimeError("Expected %d arguments but got %d.",
@@ -390,6 +413,15 @@ static void closeUpvalues(Value* last) {
   }
 }
 
+static Value resolveIdentifier(ObjNamespace* namespace, ObjString* name) {
+  Value value;
+  if (tableGet(&namespace->values, name, &value)) return value;
+  else {
+    // Attempt to use autoloading mechanism for classes/traits/namespaces.
+    return NIL_VAL;
+  }
+}
+
 static void defineMethod(ObjString* name) {
   Value method = peek(0);
   ObjClass* klass = AS_CLASS(peek(1));
@@ -579,9 +611,10 @@ InterpretResult run() {
         vm.currentNamespace = declareNamespace(namespaceDepth);
         break;
       }
-      case OP_USING: {
+      case OP_USING: { 
         Value value = pop();
         ObjString* alias = READ_STRING();
+
         if (alias->length > 0) {
           tableSet(&vm.currentModule->values, alias, value);
         } else if (IS_CLASS(value)) {
@@ -591,9 +624,16 @@ InterpretResult run() {
           ObjNamespace* namespace = AS_NAMESPACE(value);
           tableSet(&vm.currentModule->values, namespace->shortName, value);
         } else {
-          runtimeError("Only classes, traits and namespaces may be imported.");
+          runtimeError("Only classes and namespaces may be imported.");
           return INTERPRET_RUNTIME_ERROR;
         }
+        break;
+      }
+      case OP_SUBNAMESPACE: {
+        uint8_t namespaceDepth = READ_BYTE();
+        Value value = usingNamespace(namespaceDepth);
+        if (IS_NIL(value)) return INTERPRET_RUNTIME_ERROR;
+        push(value);
         break;
       }
       case OP_GET_UPVALUE: {
@@ -808,8 +848,7 @@ InterpretResult run() {
             pop();
             push(value);
             break;
-          }
-          else {
+          } else {
             runtimeError("Undefined subnamespace '%s'.", name->chars);
             return INTERPRET_RUNTIME_ERROR;
           }
@@ -986,9 +1025,12 @@ InterpretResult run() {
       }
       case OP_REQUIRE: {
         Value filePath = pop();
+        Value value;
         if (!IS_STRING(filePath)) {
           runtimeError("Required file path must be a string.");
           return INTERPRET_RUNTIME_ERROR;
+        } else if (tableGet(&vm.modules, AS_STRING(filePath), &value)) {
+          break;
         }
 
         Module module;

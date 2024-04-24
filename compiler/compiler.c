@@ -216,6 +216,14 @@ static void patchJump(int offset) {
   currentChunk()->code[offset + 1] = jump & 0xff;
 }
 
+uint8_t identifierConstant(Token* name) {
+  return makeConstant(OBJ_VAL(copyString(name->start, name->length)));
+}
+
+static void emitIdentifier(Token* token) {
+  emitBytes(OP_CONSTANT, identifierConstant(token));
+}
+
 static void patchAddress(int offset) {
   currentChunk()->code[offset] = (currentChunk()->count >> 8) & 0xff;
   currentChunk()->code[offset + 1] = currentChunk()->count & 0xff;
@@ -323,10 +331,6 @@ static void statement();
 static void declaration();
 static ParseRule* getRule(TokenType type);
 static void parsePrecedence(Precedence precedence);
-
-static uint8_t identifierConstant(Token* name) {
-  return makeConstant(OBJ_VAL(copyString(name->start, name->length)));
-}
 
 static bool identifiersEqual(Token* a, Token* b) {
   if (a->length != b->length) return false;
@@ -1553,8 +1557,16 @@ static void namespaceDeclaration() {
 }
 
 static void usingStatement() {
-  expression();
+  uint8_t namespaceDepth = 0;
+  do { 
+    consume(TOKEN_IDENTIFIER, "Expect namespace identifier.");
+    emitIdentifier(&parser.previous);
+    namespaceDepth++;
+  } while (match(TOKEN_DOT));
+
+  emitBytes(OP_SUBNAMESPACE, namespaceDepth);
   uint8_t alias = makeConstant(OBJ_VAL(newString("")));
+
   if (match(TOKEN_AS)) {
     consume(TOKEN_IDENTIFIER, "Expect alias after 'as'.");
     Token name = parser.previous;

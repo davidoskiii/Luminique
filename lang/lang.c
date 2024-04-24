@@ -887,8 +887,7 @@ void registerLangPackage() {
   vm.luminiqueNamespace = defineNativeNamespace("luminique", vm.rootNamespace);
   vm.stdNamespace = defineNativeNamespace("std", vm.luminiqueNamespace);
   vm.langNamespace = defineNativeNamespace("lang", vm.stdNamespace);
-
-  vm.currentNamespace = vm.rootNamespace;
+  vm.currentNamespace = vm.langNamespace;
 
 	vm.objectClass = defineNativeClass("Object");
   DEF_METHOD(vm.objectClass, Object, clone, 0);

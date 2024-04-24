@@ -27,7 +27,7 @@ ObjClass* defineNativeClass(const char* name) {
   ObjClass* nativeClass = newClass(className);
   nativeClass->isNative = true;
   push(OBJ_VAL(nativeClass));
-  tableSet(&vm.rootNamespace->values, AS_STRING(vm.stack[0]), vm.stack[1]);
+  tableSet(&vm.currentNamespace->values, AS_STRING(vm.stack[0]), vm.stack[1]);
   pop();
   pop();
   return nativeClass;
