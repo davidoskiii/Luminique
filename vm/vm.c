@@ -221,6 +221,7 @@ static ObjString* resolveNamespacedFile(ObjNamespace* enclosingNamespace, ObjStr
   heapChars[length - 3] = 'l';
   heapChars[length - 2] = 'm';
   heapChars[length - 1] = 'q';
+  heapChars[length] = '\0';
 
   return takeString(heapChars, length);
 }
@@ -878,6 +879,26 @@ InterpretResult run() {
         push(OBJ_VAL(newClass(name)));
         tableSet(&vm.currentNamespace->values, name, peek(0));
         break;
+      case OP_GET_NAMESPACE: {
+        if (!IS_NAMESPACE(peek(0))) {
+          runtimeError("Only namespaces can access properties using '::'.");
+          return INTERPRET_RUNTIME_ERROR;
+        }
+
+        ObjNamespace* namespace = AS_NAMESPACE(peek(0));
+        ObjString* name = READ_STRING();
+        Value value;
+
+        if (tableGet(&namespace->values, name, &value)) {
+          pop();
+          push(value);
+          break;
+        } else {
+          runtimeError("Undefined subnamespace '%s'.", name->chars);
+          return INTERPRET_RUNTIME_ERROR;
+        }
+        break;
+      }
       case OP_GET_PROPERTY: {
         Value receiver = peek(0);
         if (IS_INSTANCE(receiver)) {
@@ -894,21 +915,8 @@ InterpretResult run() {
           if (!bindMethod(instance->obj.klass, name)) {
             return INTERPRET_RUNTIME_ERROR;
           }
-        } else if (IS_NAMESPACE(receiver)) {
-          ObjNamespace* namespace = AS_NAMESPACE(receiver);
-          ObjString* name = READ_STRING();
-          Value value;
-
-          if (tableGet(&namespace->values, name, &value)) {
-            pop();
-            push(value);
-            break;
-          } else {
-            runtimeError("Undefined subnamespace '%s'.", name->chars);
-            return INTERPRET_RUNTIME_ERROR;
-          }
         } else {
-          runtimeError("Only instances and namespaces have properties.");
+          runtimeError("Only instances can access properties using '.'.");
           return INTERPRET_RUNTIME_ERROR;
         }
         break;

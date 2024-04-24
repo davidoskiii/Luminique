@@ -327,7 +327,8 @@ Token scanToken() {
     case '*': return makeToken(
           match('*') ? TOKEN_POWER : TOKEN_STAR); 
     case '%': return makeToken(TOKEN_MODULO);
-    case ':': return makeToken(TOKEN_COLON);
+    case ':': return makeToken(
+          match(':') ? TOKEN_COLON_COLON : TOKEN_COLON);
     case '?': return makeToken(TOKEN_QUESTION);
 
     case '!':

@@ -628,6 +628,12 @@ static void dot(bool canAssign) {
   }
 }
 
+static void coloncolon(bool canAssign) {
+  uint8_t name = propretyConstant("Expect property name after '::'.");
+
+  emitBytes(OP_GET_NAMESPACE, name);
+}
+
 static void literal(bool canAssign) {
   switch (parser.previous.type) {
     case TOKEN_FALSE: emitByte(OP_FALSE); break;
@@ -995,6 +1001,7 @@ ParseRule rules[] = {
   [TOKEN_RIGHT_BRACE]   = {NULL,          NULL,      PREC_NONE},
   [TOKEN_COMMA]         = {NULL,          NULL,      PREC_NONE},
   [TOKEN_DOT]           = {NULL,          dot,       PREC_CALL},
+  [TOKEN_COLON_COLON]   = {NULL,          coloncolon,PREC_CALL},
   [TOKEN_DOT_DOT_DOT]   = {NULL,          binary,    PREC_NONE},
   [TOKEN_MINUS_MINUS]   = {NULL,          NULL,      PREC_CALL},
   [TOKEN_MINUS]         = {unary,         binary,    PREC_TERM},
