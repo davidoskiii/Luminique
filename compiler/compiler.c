@@ -1554,8 +1554,14 @@ static void namespaceDeclaration() {
 
 static void usingStatement() {
   expression();
+  uint8_t alias = makeConstant(OBJ_VAL(newString("")));
+  if (match(TOKEN_AS)) {
+    consume(TOKEN_IDENTIFIER, "Expect alias after 'as'.");
+    Token name = parser.previous;
+    alias = identifierConstant(&name);
+  }
   consume(TOKEN_SEMICOLON, "Expect ';' after using statement.");
-  emitByte(OP_USING);
+  emitBytes(OP_USING, alias);
 }
 
 static void requireStatement() {

@@ -68,6 +68,7 @@ void initModule(Module* module, char* filePath) {
   initTable(&module->values);
   tableAddAll(&vm.langNamespace->values, &module->values);
   tableSet(&vm.modules, newString(filePath), NIL_VAL);
+  module->lastModule = vm.currentModule;
   vm.currentModule = module;
 }
 
@@ -580,15 +581,16 @@ InterpretResult run() {
       }
       case OP_USING: {
         Value value = pop();
-        if (IS_CLASS(value)) {
+        ObjString* alias = READ_STRING();
+        if (alias->length > 0) {
+          tableSet(&vm.currentModule->values, alias, value);
+        } else if (IS_CLASS(value)) {
           ObjClass* klass = AS_CLASS(value);
           tableSet(&vm.currentModule->values, klass->name, value);
-        }
-        else if (IS_NAMESPACE(value)) {
+        } else if (IS_NAMESPACE(value)) {
           ObjNamespace* namespace = AS_NAMESPACE(value);
           tableSet(&vm.currentModule->values, namespace->shortName, value);
-        }
-        else {
+        } else {
           runtimeError("Only classes, traits and namespaces may be imported.");
           return INTERPRET_RUNTIME_ERROR;
         }
@@ -985,14 +987,20 @@ InterpretResult run() {
       case OP_REQUIRE: {
         Value filePath = pop();
         if (!IS_STRING(filePath)) {
-            runtimeError("Required file path must be a string.");
-            return INTERPRET_RUNTIME_ERROR;
+          runtimeError("Required file path must be a string.");
+          return INTERPRET_RUNTIME_ERROR;
         }
 
-        char* source = readFile(AS_CSTRING(filePath));
-        ObjFunction* function = compile(source);
-        free(source);
+        Module module;
+        initModule(&module, AS_CSTRING(filePath));
+        
+        /*
+          char* source = readFile(AS_CSTRING(filePath));
+          ObjFunction* function = compile(source);
+          free(source);
+        */
 
+        ObjFunction* function = compile(module.source);
         if (function == NULL) return INTERPRET_COMPILE_ERROR;
         push(OBJ_VAL(function));
 
@@ -1001,6 +1009,7 @@ InterpretResult run() {
 
         push(OBJ_VAL(closure));
         callClosure(closure, 0);
+        freeModule(&module);
         frame = &vm.frames[vm.frameCount - 1];
         break;
       }
