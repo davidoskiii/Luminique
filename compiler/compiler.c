@@ -517,8 +517,20 @@ static void defineVariable(uint8_t global, bool isMutable) {
     markInitialized(isMutable);
     return;
   } else {
-    uint8_t opCode = isMutable ? OP_DEFINE_GLOBAL : OP_DEFINE_CONST;
-    emitBytes(opCode, global);
+    ObjString* name = identifierName(global);
+    Value value;
+    if (tableGet(&vm.globals, name, &value)) {
+      error("Cannot redeclare global variable.");
+    }
+
+    if (isMutable) {
+      tableSet(&vm.globals, name, NIL_VAL);
+      emitBytes(OP_DEFINE_GLOBAL, global);
+    }
+    else {
+      tableSet(&vm.rootNamespace->values, name, NIL_VAL);
+      emitBytes(OP_DEFINE_CONST, global);
+    }
   }
 }
 
