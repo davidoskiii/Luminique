@@ -23,9 +23,9 @@ let flag = true;
 println("Calculator");
 
 while (flag) {
-  let n1 = System.scanln("Tell me the first number: ");
-  let n2 = System.scanln("Tell me the second number: ");
-  let op = System.scanln("Tell me the operation: ");
+  let n1 = scanln("Tell me the first number: ");
+  let n2 = scanln("Tell me the second number: ");
+  let op = scanln("Tell me the operation: ");
 
   println(calculate(num(n1), num(n2), op));
 }

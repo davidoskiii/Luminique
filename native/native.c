@@ -160,6 +160,86 @@ NATIVE_FUNCTION(println) {
   RETURN_NIL;
 }
 
+NATIVE_FUNCTION(num) {
+  assertArgCount("num(value)", 1, argCount);
+  if (!IS_STRING(args[0]) && !IS_NUMBER(args[0])) {
+    runtimeError("Method num(value) expects argument 1 to be a string or a number.", 1);
+    exit(70);
+  }
+
+  if (IS_NUMBER(args[0])) {
+    return args[0];
+  }
+
+  ObjString* stringValue = AS_STRING(args[0]);
+  const char* str = stringValue->chars;
+
+  char* endptr;
+  double value = strtod(str, &endptr);
+
+  if (endptr == str) {
+    RETURN_NIL;
+  } else {
+    RETURN_NUMBER(value);
+  }
+}
+
+NATIVE_FUNCTION(int) {
+  assertArgCount("int(value)", 1, argCount);
+  if (!IS_STRING(args[0]) && !IS_NUMBER(args[0])) {
+    runtimeError("Method int(value) expects argument 1 to be a string or a number.", 1);
+    exit(70);
+  }
+
+  if (IS_NUMBER(args[0])) {
+    RETURN_INT(AS_NUMBER(args[0]));
+  }
+
+  ObjString* stringValue = AS_STRING(args[0]);
+  const char* str = stringValue->chars;
+
+  char* endptr;
+  double value = strtod(str, &endptr);
+
+  if (endptr == str) {
+    RETURN_NIL;
+  } else {
+    RETURN_INT(value);
+  }
+}
+
+NATIVE_FUNCTION(float) {
+  assertArgCount("float(value)", 1, argCount);
+  if (!IS_STRING(args[0]) && !IS_NUMBER(args[0])) {
+    runtimeError("Method float(value) expects argument 1 to be a string or a number.", 1);
+    exit(70);
+  }
+
+  if (IS_NUMBER(args[0])) {
+    RETURN_FLOAT(AS_NUMBER(args[0]));
+  }
+
+  ObjString* stringValue = AS_STRING(args[0]);
+  const char* str = stringValue->chars;
+
+  char* endptr;
+  double value = strtod(str, &endptr);
+
+  if (endptr == str) {
+    RETURN_NIL;
+  } else {
+    RETURN_FLOAT(value);
+  }
+}
+
+NATIVE_FUNCTION(str) {
+  assertArgCount("str(value)", 1, argCount);
+  Value toStringMethod = getObjMethod(args[0], "toString");
+
+  Value str = callReentrant(args[0], toStringMethod);
+  RETURN_STRING_FMTL(AS_CSTRING(str));
+}
+
 NATIVE_FUNCTION(scanln) {
   assertArgCount("scanln(prompt)", 1, argCount);
   assertArgIsString("scanln(prompt)", args, 0);
@@ -194,5 +274,9 @@ void initNatives() {
   DEF_FUNCTION(print, 1);
   DEF_FUNCTION(println, 1);
   DEF_FUNCTION(scanln, 1);
+  DEF_FUNCTION(num, 1);
+  DEF_FUNCTION(int, 1);
+  DEF_FUNCTION(float, 1);
+  DEF_FUNCTION(str, 1);
 }
 

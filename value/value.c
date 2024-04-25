@@ -66,7 +66,7 @@ void printValue(Value value) {
   } else if (IS_INT(value)) {
     printf("%d", AS_INT(value));
   } else if (IS_FLOAT(value)) {
-    printf("%g", AS_NUMBER(value));
+    printf("%g", AS_FLOAT(value));
   } else if(IS_OBJ(value)) {
     printObject(value);
   } else {
