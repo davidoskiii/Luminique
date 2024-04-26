@@ -662,6 +662,9 @@ InterpretResult run() {
         } else if (IS_CLASS(value)) {
           ObjClass* klass = AS_CLASS(value);
           tableSet(&vm.currentModule->values, klass->name, value);
+        } else if (IS_FUNCTION(value)) {
+          ObjFunction* function = AS_FUNCTION(value);
+          tableSet(&vm.currentModule->values, function->name, value);
         } else if (IS_NAMESPACE(value)) {
           ObjNamespace* namespace = AS_NAMESPACE(value);
           tableSet(&vm.currentModule->values, namespace->shortName, value);
