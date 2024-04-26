@@ -26,6 +26,8 @@ set(SOURCES
   string/string.c
   pcg/pcg.c
   io/io.c
+  math/math.c
+  time/time.c
 )
 
 # Add an executable target

@@ -174,7 +174,7 @@ CMakeFiles/luminique.dir/chunk/chunk.c.o: ../chunk/chunk.c \
 
 CMakeFiles/luminique.dir/collection/collection.c.o: ../collection/collection.c \
   /usr/include/stdc-predef.h \
-  /usr/include/math.h \
+  /usr/include/stdio.h \
   /usr/include/x86_64-linux-gnu/bits/libc-header-start.h \
   /usr/include/features.h \
   /usr/include/features-time64.h \
@@ -184,49 +184,11 @@ CMakeFiles/luminique.dir/collection/collection.c.o: ../collection/collection.c \
   /usr/include/x86_64-linux-gnu/bits/long-double.h \
   /usr/include/x86_64-linux-gnu/gnu/stubs.h \
   /usr/include/x86_64-linux-gnu/gnu/stubs-64.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/stddef.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/stdarg.h \
   /usr/include/x86_64-linux-gnu/bits/types.h \
   /usr/include/x86_64-linux-gnu/bits/typesizes.h \
   /usr/include/x86_64-linux-gnu/bits/time64.h \
-  /usr/include/x86_64-linux-gnu/bits/math-vector.h \
-  /usr/include/x86_64-linux-gnu/bits/libm-simd-decl-stubs.h \
-  /usr/include/x86_64-linux-gnu/bits/floatn.h \
-  /usr/include/x86_64-linux-gnu/bits/floatn-common.h \
-  /usr/include/x86_64-linux-gnu/bits/flt-eval-method.h \
-  /usr/include/x86_64-linux-gnu/bits/fp-logb.h \
-  /usr/include/x86_64-linux-gnu/bits/fp-fast.h \
-  /usr/include/x86_64-linux-gnu/bits/mathcalls-helper-functions.h \
-  /usr/include/x86_64-linux-gnu/bits/mathcalls.h \
-  /usr/include/stdlib.h \
-  /usr/lib/gcc/x86_64-linux-gnu/11/include/stddef.h \
-  /usr/include/x86_64-linux-gnu/bits/waitflags.h \
-  /usr/include/x86_64-linux-gnu/bits/waitstatus.h \
-  /usr/include/x86_64-linux-gnu/sys/types.h \
-  /usr/include/x86_64-linux-gnu/bits/types/clock_t.h \
-  /usr/include/x86_64-linux-gnu/bits/types/clockid_t.h \
-  /usr/include/x86_64-linux-gnu/bits/types/time_t.h \
-  /usr/include/x86_64-linux-gnu/bits/types/timer_t.h \
-  /usr/include/x86_64-linux-gnu/bits/stdint-intn.h \
-  /usr/include/endian.h \
-  /usr/include/x86_64-linux-gnu/bits/endian.h \
-  /usr/include/x86_64-linux-gnu/bits/endianness.h \
-  /usr/include/x86_64-linux-gnu/bits/byteswap.h \
-  /usr/include/x86_64-linux-gnu/bits/uintn-identity.h \
-  /usr/include/x86_64-linux-gnu/sys/select.h \
-  /usr/include/x86_64-linux-gnu/bits/select.h \
-  /usr/include/x86_64-linux-gnu/bits/types/sigset_t.h \
-  /usr/include/x86_64-linux-gnu/bits/types/__sigset_t.h \
-  /usr/include/x86_64-linux-gnu/bits/types/struct_timeval.h \
-  /usr/include/x86_64-linux-gnu/bits/types/struct_timespec.h \
-  /usr/include/x86_64-linux-gnu/bits/pthreadtypes.h \
-  /usr/include/x86_64-linux-gnu/bits/thread-shared-types.h \
-  /usr/include/x86_64-linux-gnu/bits/pthreadtypes-arch.h \
-  /usr/include/x86_64-linux-gnu/bits/atomic_wide_counter.h \
-  /usr/include/x86_64-linux-gnu/bits/struct_mutex.h \
-  /usr/include/x86_64-linux-gnu/bits/struct_rwlock.h \
-  /usr/include/alloca.h \
-  /usr/include/x86_64-linux-gnu/bits/stdlib-float.h \
-  /usr/include/stdio.h \
-  /usr/lib/gcc/x86_64-linux-gnu/11/include/stdarg.h \
   /usr/include/x86_64-linux-gnu/bits/types/__fpos_t.h \
   /usr/include/x86_64-linux-gnu/bits/types/__mbstate_t.h \
   /usr/include/x86_64-linux-gnu/bits/types/__fpos64_t.h \
@@ -234,29 +196,31 @@ CMakeFiles/luminique.dir/collection/collection.c.o: ../collection/collection.c \
   /usr/include/x86_64-linux-gnu/bits/types/FILE.h \
   /usr/include/x86_64-linux-gnu/bits/types/struct_FILE.h \
   /usr/include/x86_64-linux-gnu/bits/stdio_lim.h \
-  /usr/include/string.h \
-  /usr/include/x86_64-linux-gnu/bits/types/locale_t.h \
-  /usr/include/x86_64-linux-gnu/bits/types/__locale_t.h \
-  /usr/include/strings.h \
-  /usr/include/time.h \
-  /usr/include/x86_64-linux-gnu/bits/time.h \
-  /usr/include/x86_64-linux-gnu/bits/types/struct_tm.h \
-  /usr/include/x86_64-linux-gnu/bits/types/struct_itimerspec.h \
-  /usr/include/regex.h \
+  /usr/include/x86_64-linux-gnu/bits/floatn.h \
+  /usr/include/x86_64-linux-gnu/bits/floatn-common.h \
   ../pcg/pcg.h \
   /usr/include/inttypes.h \
   /usr/lib/gcc/x86_64-linux-gnu/11/include/stdint.h \
   /usr/include/stdint.h \
   /usr/include/x86_64-linux-gnu/bits/wchar.h \
+  /usr/include/x86_64-linux-gnu/bits/stdint-intn.h \
   /usr/include/x86_64-linux-gnu/bits/stdint-uintn.h \
   /usr/lib/gcc/x86_64-linux-gnu/11/include/stdbool.h \
   ../assert/assert.h \
   ../common.h \
   ../value/value.h \
   ../common.h \
+  /usr/include/string.h \
+  /usr/include/x86_64-linux-gnu/bits/types/locale_t.h \
+  /usr/include/x86_64-linux-gnu/bits/types/__locale_t.h \
+  /usr/include/strings.h \
   ../native/native.h \
   ../object/object.h \
   /usr/include/x86_64-linux-gnu/sys/stat.h \
+  /usr/include/x86_64-linux-gnu/bits/types/struct_timespec.h \
+  /usr/include/x86_64-linux-gnu/bits/endian.h \
+  /usr/include/x86_64-linux-gnu/bits/endianness.h \
+  /usr/include/x86_64-linux-gnu/bits/types/time_t.h \
   /usr/include/x86_64-linux-gnu/bits/stat.h \
   /usr/include/x86_64-linux-gnu/bits/struct_stat.h \
   ../common.h \
@@ -781,13 +745,6 @@ CMakeFiles/luminique.dir/main.c.o: ../main.c \
   /usr/include/stdint.h \
   /usr/include/x86_64-linux-gnu/bits/wchar.h \
   /usr/include/x86_64-linux-gnu/bits/stdint-uintn.h \
-  ../chunk/chunk.h \
-  ../common.h \
-  ../value/value.h \
-  ../common.h \
-  ../debug/debug.h \
-  ../chunk/chunk.h \
-  ../vm/vm.h \
   ../object/object.h \
   /usr/include/x86_64-linux-gnu/sys/stat.h \
   /usr/include/x86_64-linux-gnu/bits/stat.h \
@@ -796,10 +753,126 @@ CMakeFiles/luminique.dir/main.c.o: ../main.c \
   ../table/table.h \
   ../common.h \
   ../value/value.h \
+  ../common.h \
   ../chunk/chunk.h \
+  ../common.h \
   ../value/value.h \
+  ../value/value.h \
+  ../chunk/chunk.h \
+  ../debug/debug.h \
+  ../chunk/chunk.h \
+  ../vm/vm.h \
+  ../object/object.h \
   ../table/table.h \
   ../value/value.h
+
+CMakeFiles/luminique.dir/math/math.c.o: ../math/math.c \
+  /usr/include/stdc-predef.h \
+  /usr/include/math.h \
+  /usr/include/x86_64-linux-gnu/bits/libc-header-start.h \
+  /usr/include/features.h \
+  /usr/include/features-time64.h \
+  /usr/include/x86_64-linux-gnu/bits/wordsize.h \
+  /usr/include/x86_64-linux-gnu/bits/timesize.h \
+  /usr/include/x86_64-linux-gnu/sys/cdefs.h \
+  /usr/include/x86_64-linux-gnu/bits/long-double.h \
+  /usr/include/x86_64-linux-gnu/gnu/stubs.h \
+  /usr/include/x86_64-linux-gnu/gnu/stubs-64.h \
+  /usr/include/x86_64-linux-gnu/bits/types.h \
+  /usr/include/x86_64-linux-gnu/bits/typesizes.h \
+  /usr/include/x86_64-linux-gnu/bits/time64.h \
+  /usr/include/x86_64-linux-gnu/bits/math-vector.h \
+  /usr/include/x86_64-linux-gnu/bits/libm-simd-decl-stubs.h \
+  /usr/include/x86_64-linux-gnu/bits/floatn.h \
+  /usr/include/x86_64-linux-gnu/bits/floatn-common.h \
+  /usr/include/x86_64-linux-gnu/bits/flt-eval-method.h \
+  /usr/include/x86_64-linux-gnu/bits/fp-logb.h \
+  /usr/include/x86_64-linux-gnu/bits/fp-fast.h \
+  /usr/include/x86_64-linux-gnu/bits/mathcalls-helper-functions.h \
+  /usr/include/x86_64-linux-gnu/bits/mathcalls.h \
+  /usr/include/stdlib.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/stddef.h \
+  /usr/include/x86_64-linux-gnu/bits/waitflags.h \
+  /usr/include/x86_64-linux-gnu/bits/waitstatus.h \
+  /usr/include/x86_64-linux-gnu/sys/types.h \
+  /usr/include/x86_64-linux-gnu/bits/types/clock_t.h \
+  /usr/include/x86_64-linux-gnu/bits/types/clockid_t.h \
+  /usr/include/x86_64-linux-gnu/bits/types/time_t.h \
+  /usr/include/x86_64-linux-gnu/bits/types/timer_t.h \
+  /usr/include/x86_64-linux-gnu/bits/stdint-intn.h \
+  /usr/include/endian.h \
+  /usr/include/x86_64-linux-gnu/bits/endian.h \
+  /usr/include/x86_64-linux-gnu/bits/endianness.h \
+  /usr/include/x86_64-linux-gnu/bits/byteswap.h \
+  /usr/include/x86_64-linux-gnu/bits/uintn-identity.h \
+  /usr/include/x86_64-linux-gnu/sys/select.h \
+  /usr/include/x86_64-linux-gnu/bits/select.h \
+  /usr/include/x86_64-linux-gnu/bits/types/sigset_t.h \
+  /usr/include/x86_64-linux-gnu/bits/types/__sigset_t.h \
+  /usr/include/x86_64-linux-gnu/bits/types/struct_timeval.h \
+  /usr/include/x86_64-linux-gnu/bits/types/struct_timespec.h \
+  /usr/include/x86_64-linux-gnu/bits/pthreadtypes.h \
+  /usr/include/x86_64-linux-gnu/bits/thread-shared-types.h \
+  /usr/include/x86_64-linux-gnu/bits/pthreadtypes-arch.h \
+  /usr/include/x86_64-linux-gnu/bits/atomic_wide_counter.h \
+  /usr/include/x86_64-linux-gnu/bits/struct_mutex.h \
+  /usr/include/x86_64-linux-gnu/bits/struct_rwlock.h \
+  /usr/include/alloca.h \
+  /usr/include/x86_64-linux-gnu/bits/stdlib-float.h \
+  /usr/include/stdio.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/stdarg.h \
+  /usr/include/x86_64-linux-gnu/bits/types/__fpos_t.h \
+  /usr/include/x86_64-linux-gnu/bits/types/__mbstate_t.h \
+  /usr/include/x86_64-linux-gnu/bits/types/__fpos64_t.h \
+  /usr/include/x86_64-linux-gnu/bits/types/__FILE.h \
+  /usr/include/x86_64-linux-gnu/bits/types/FILE.h \
+  /usr/include/x86_64-linux-gnu/bits/types/struct_FILE.h \
+  /usr/include/x86_64-linux-gnu/bits/stdio_lim.h \
+  /usr/include/string.h \
+  /usr/include/x86_64-linux-gnu/bits/types/locale_t.h \
+  /usr/include/x86_64-linux-gnu/bits/types/__locale_t.h \
+  /usr/include/strings.h \
+  ../math/math.h \
+  ../common.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/stdbool.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/stdint.h \
+  /usr/include/stdint.h \
+  /usr/include/x86_64-linux-gnu/bits/wchar.h \
+  /usr/include/x86_64-linux-gnu/bits/stdint-uintn.h \
+  ../string/string.h \
+  ../common.h \
+  ../table/table.h \
+  ../common.h \
+  ../value/value.h \
+  ../common.h \
+  ../chunk/chunk.h \
+  ../common.h \
+  ../value/value.h \
+  ../value/value.h \
+  ../object/object.h \
+  /usr/include/x86_64-linux-gnu/sys/stat.h \
+  /usr/include/x86_64-linux-gnu/bits/stat.h \
+  /usr/include/x86_64-linux-gnu/bits/struct_stat.h \
+  ../common.h \
+  ../table/table.h \
+  ../chunk/chunk.h \
+  ../value/value.h \
+  ../assert/assert.h \
+  ../common.h \
+  ../value/value.h \
+  ../native/native.h \
+  ../object/object.h \
+  ../vm/vm.h \
+  ../object/object.h \
+  ../table/table.h \
+  ../value/value.h \
+  ../object/object.h \
+  ../hash/hash.h \
+  ../object/object.h \
+  ../common.h \
+  ../value/value.h \
+  ../value/value.h \
+  ../vm/vm.h
 
 CMakeFiles/luminique.dir/memory/memory.c.o: ../memory/memory.c \
   /usr/include/stdc-predef.h \
@@ -1434,6 +1507,110 @@ CMakeFiles/luminique.dir/table/table.c.o: ../table/table.c \
   ../value/value.h \
   ../table/table.h
 
+CMakeFiles/luminique.dir/time/time.c.o: ../time/time.c \
+  /usr/include/stdc-predef.h \
+  /usr/include/time.h \
+  /usr/include/features.h \
+  /usr/include/features-time64.h \
+  /usr/include/x86_64-linux-gnu/bits/wordsize.h \
+  /usr/include/x86_64-linux-gnu/bits/timesize.h \
+  /usr/include/x86_64-linux-gnu/sys/cdefs.h \
+  /usr/include/x86_64-linux-gnu/bits/long-double.h \
+  /usr/include/x86_64-linux-gnu/gnu/stubs.h \
+  /usr/include/x86_64-linux-gnu/gnu/stubs-64.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/stddef.h \
+  /usr/include/x86_64-linux-gnu/bits/time.h \
+  /usr/include/x86_64-linux-gnu/bits/types.h \
+  /usr/include/x86_64-linux-gnu/bits/typesizes.h \
+  /usr/include/x86_64-linux-gnu/bits/time64.h \
+  /usr/include/x86_64-linux-gnu/bits/types/clock_t.h \
+  /usr/include/x86_64-linux-gnu/bits/types/time_t.h \
+  /usr/include/x86_64-linux-gnu/bits/types/struct_tm.h \
+  /usr/include/x86_64-linux-gnu/bits/types/struct_timespec.h \
+  /usr/include/x86_64-linux-gnu/bits/endian.h \
+  /usr/include/x86_64-linux-gnu/bits/endianness.h \
+  /usr/include/x86_64-linux-gnu/bits/types/clockid_t.h \
+  /usr/include/x86_64-linux-gnu/bits/types/timer_t.h \
+  /usr/include/x86_64-linux-gnu/bits/types/struct_itimerspec.h \
+  /usr/include/x86_64-linux-gnu/bits/types/locale_t.h \
+  /usr/include/x86_64-linux-gnu/bits/types/__locale_t.h \
+  /usr/include/stdlib.h \
+  /usr/include/x86_64-linux-gnu/bits/libc-header-start.h \
+  /usr/include/x86_64-linux-gnu/bits/waitflags.h \
+  /usr/include/x86_64-linux-gnu/bits/waitstatus.h \
+  /usr/include/x86_64-linux-gnu/bits/floatn.h \
+  /usr/include/x86_64-linux-gnu/bits/floatn-common.h \
+  /usr/include/x86_64-linux-gnu/sys/types.h \
+  /usr/include/x86_64-linux-gnu/bits/stdint-intn.h \
+  /usr/include/endian.h \
+  /usr/include/x86_64-linux-gnu/bits/byteswap.h \
+  /usr/include/x86_64-linux-gnu/bits/uintn-identity.h \
+  /usr/include/x86_64-linux-gnu/sys/select.h \
+  /usr/include/x86_64-linux-gnu/bits/select.h \
+  /usr/include/x86_64-linux-gnu/bits/types/sigset_t.h \
+  /usr/include/x86_64-linux-gnu/bits/types/__sigset_t.h \
+  /usr/include/x86_64-linux-gnu/bits/types/struct_timeval.h \
+  /usr/include/x86_64-linux-gnu/bits/pthreadtypes.h \
+  /usr/include/x86_64-linux-gnu/bits/thread-shared-types.h \
+  /usr/include/x86_64-linux-gnu/bits/pthreadtypes-arch.h \
+  /usr/include/x86_64-linux-gnu/bits/atomic_wide_counter.h \
+  /usr/include/x86_64-linux-gnu/bits/struct_mutex.h \
+  /usr/include/x86_64-linux-gnu/bits/struct_rwlock.h \
+  /usr/include/alloca.h \
+  /usr/include/x86_64-linux-gnu/bits/stdlib-float.h \
+  /usr/include/stdio.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/stdarg.h \
+  /usr/include/x86_64-linux-gnu/bits/types/__fpos_t.h \
+  /usr/include/x86_64-linux-gnu/bits/types/__mbstate_t.h \
+  /usr/include/x86_64-linux-gnu/bits/types/__fpos64_t.h \
+  /usr/include/x86_64-linux-gnu/bits/types/__FILE.h \
+  /usr/include/x86_64-linux-gnu/bits/types/FILE.h \
+  /usr/include/x86_64-linux-gnu/bits/types/struct_FILE.h \
+  /usr/include/x86_64-linux-gnu/bits/stdio_lim.h \
+  /usr/include/string.h \
+  /usr/include/strings.h \
+  ../time/time.h \
+  ../common.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/stdbool.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/stdint.h \
+  /usr/include/stdint.h \
+  /usr/include/x86_64-linux-gnu/bits/wchar.h \
+  /usr/include/x86_64-linux-gnu/bits/stdint-uintn.h \
+  ../string/string.h \
+  ../common.h \
+  ../table/table.h \
+  ../common.h \
+  ../value/value.h \
+  ../common.h \
+  ../chunk/chunk.h \
+  ../common.h \
+  ../value/value.h \
+  ../value/value.h \
+  ../object/object.h \
+  /usr/include/x86_64-linux-gnu/sys/stat.h \
+  /usr/include/x86_64-linux-gnu/bits/stat.h \
+  /usr/include/x86_64-linux-gnu/bits/struct_stat.h \
+  ../common.h \
+  ../table/table.h \
+  ../chunk/chunk.h \
+  ../value/value.h \
+  ../assert/assert.h \
+  ../common.h \
+  ../value/value.h \
+  ../native/native.h \
+  ../object/object.h \
+  ../vm/vm.h \
+  ../object/object.h \
+  ../table/table.h \
+  ../value/value.h \
+  ../object/object.h \
+  ../hash/hash.h \
+  ../object/object.h \
+  ../common.h \
+  ../value/value.h \
+  ../value/value.h \
+  ../vm/vm.h
+
 CMakeFiles/luminique.dir/util/util.c.o: ../util/util.c \
   /usr/include/stdc-predef.h \
   /usr/include/math.h \
@@ -1651,14 +1828,18 @@ CMakeFiles/luminique.dir/vm/vm.c.o: ../vm/vm.c \
   /usr/include/x86_64-linux-gnu/bits/types/locale_t.h \
   /usr/include/x86_64-linux-gnu/bits/types/__locale_t.h \
   /usr/include/strings.h \
-  /usr/include/time.h \
-  /usr/include/x86_64-linux-gnu/bits/time.h \
-  /usr/include/x86_64-linux-gnu/bits/types/clock_t.h \
-  /usr/include/x86_64-linux-gnu/bits/types/time_t.h \
-  /usr/include/x86_64-linux-gnu/bits/types/struct_tm.h \
+  /usr/include/x86_64-linux-gnu/sys/stat.h \
   /usr/include/x86_64-linux-gnu/bits/types/struct_timespec.h \
   /usr/include/x86_64-linux-gnu/bits/endian.h \
   /usr/include/x86_64-linux-gnu/bits/endianness.h \
+  /usr/include/x86_64-linux-gnu/bits/types/time_t.h \
+  /usr/include/x86_64-linux-gnu/bits/stat.h \
+  /usr/include/x86_64-linux-gnu/bits/struct_stat.h \
+  /usr/include/ctype.h \
+  /usr/include/time.h \
+  /usr/include/x86_64-linux-gnu/bits/time.h \
+  /usr/include/x86_64-linux-gnu/bits/types/clock_t.h \
+  /usr/include/x86_64-linux-gnu/bits/types/struct_tm.h \
   /usr/include/x86_64-linux-gnu/bits/types/clockid_t.h \
   /usr/include/x86_64-linux-gnu/bits/types/timer_t.h \
   /usr/include/x86_64-linux-gnu/bits/types/struct_itimerspec.h \
@@ -1685,9 +1866,6 @@ CMakeFiles/luminique.dir/vm/vm.c.o: ../vm/vm.c \
   /usr/include/x86_64-linux-gnu/bits/stdlib-float.h \
   ../native/native.h \
   ../object/object.h \
-  /usr/include/x86_64-linux-gnu/sys/stat.h \
-  /usr/include/x86_64-linux-gnu/bits/stat.h \
-  /usr/include/x86_64-linux-gnu/bits/struct_stat.h \
   ../common.h \
   /usr/lib/gcc/x86_64-linux-gnu/11/include/stdbool.h \
   /usr/lib/gcc/x86_64-linux-gnu/11/include/stdint.h \
@@ -1739,6 +1917,12 @@ CMakeFiles/luminique.dir/vm/vm.c.o: ../vm/vm.c \
   ../collection/collection.h \
   ../common.h \
   ../string/string.h \
+  ../math/math.h \
+  ../common.h \
+  ../string/string.h \
+  ../time/time.h \
+  ../common.h \
+  ../string/string.h \
   ../vm/vm.h
 
 
@@ -1748,7 +1932,15 @@ CMakeFiles/luminique.dir/vm/vm.c.o: ../vm/vm.c \
 
 ../value/value.c:
 
+../util/util.h:
+
+/usr/include/regex.h:
+
 ../util/util.c:
+
+../time/time.h:
+
+../time/time.c:
 
 ../table/table.c:
 
@@ -1757,6 +1949,8 @@ CMakeFiles/luminique.dir/vm/vm.c.o: ../vm/vm.c \
 ../string/string.c:
 
 ../std/std.h:
+
+../std/std.c:
 
 /usr/lib/gcc/x86_64-linux-gnu/11/include/stdint.h:
 
@@ -1800,9 +1994,9 @@ CMakeFiles/luminique.dir/vm/vm.c.o: ../vm/vm.c \
 
 /usr/include/x86_64-linux-gnu/bits/struct_mutex.h:
 
-/usr/include/x86_64-linux-gnu/bits/mathcalls.h:
-
 ../pcg/pcg.h:
+
+/usr/include/x86_64-linux-gnu/bits/mathcalls.h:
 
 /usr/include/x86_64-linux-gnu/bits/types/timer_t.h:
 
@@ -1942,28 +2136,6 @@ CMakeFiles/luminique.dir/vm/vm.c.o: ../vm/vm.c \
 
 /usr/include/x86_64-linux-gnu/bits/time.h:
 
-/usr/include/math.h:
-
-/usr/include/x86_64-linux-gnu/bits/math-vector.h:
-
-/usr/include/x86_64-linux-gnu/bits/flt-eval-method.h:
-
-/usr/include/time.h:
-
-/usr/include/x86_64-linux-gnu/bits/mathcalls-helper-functions.h:
-
-/usr/include/x86_64-linux-gnu/bits/types/__fpos64_t.h:
-
-../lang/lang.h:
-
-../util/util.h:
-
-/usr/include/regex.h:
-
-/usr/include/x86_64-linux-gnu/bits/atomic_wide_counter.h:
-
-../io/io.h:
-
 ../string/string.h:
 
 /usr/include/x86_64-linux-gnu/bits/types/struct_FILE.h:
@@ -1996,6 +2168,8 @@ CMakeFiles/luminique.dir/vm/vm.c.o: ../vm/vm.c \
 
 /usr/include/unistd.h:
 
+../math/math.c:
+
 /usr/include/x86_64-linux-gnu/bits/posix_opt.h:
 
 ../memory/memory.h:
@@ -2004,12 +2178,30 @@ CMakeFiles/luminique.dir/vm/vm.c.o: ../vm/vm.c \
 
 /usr/include/x86_64-linux-gnu/bits/unistd_ext.h:
 
+/usr/include/x86_64-linux-gnu/bits/atomic_wide_counter.h:
+
+../io/io.h:
+
 ../lang/lang.c:
+
+/usr/include/math.h:
+
+../math/math.h:
+
+/usr/include/x86_64-linux-gnu/bits/math-vector.h:
+
+/usr/include/x86_64-linux-gnu/bits/flt-eval-method.h:
+
+/usr/include/time.h:
+
+/usr/include/x86_64-linux-gnu/bits/mathcalls-helper-functions.h:
+
+/usr/include/x86_64-linux-gnu/bits/types/__fpos64_t.h:
+
+../lang/lang.h:
 
 /usr/include/x86_64-linux-gnu/bits/types.h:
 
 /usr/include/x86_64-linux-gnu/bits/stdint-intn.h:
 
 ../main.c:
-
-../std/std.c:

@@ -24,8 +24,8 @@ cd Luminique
 
 2. Compile the executable:
 ```
-make
-./Make/bin/luminique
+cmake --build ./build
+./build/luminique
 ```
 
 3. Try it out with the examples in the tests directory or read the documentation (dosn't exist yet :D).
