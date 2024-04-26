@@ -10,5 +10,3 @@ println(object.instanceOf(Object));
 println(object.memberOf(Object));
 
 println(object.toString());
-
-println(float("3.0"));

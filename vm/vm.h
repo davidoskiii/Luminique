@@ -53,6 +53,7 @@ typedef struct {
   ObjNamespace* langNamespace;
   ObjNamespace* defaultNamespace;
   ObjNamespace* currentNamespace;
+  bool runModule;
 
   CallFrame frames[FRAMES_MAX];
   int frameCount;

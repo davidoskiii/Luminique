@@ -196,7 +196,6 @@ NATIVE_METHOD(Function, __invoke__) {
   RETURN_NIL;
 }
 
-
 NATIVE_METHOD(Function, arity) {
   assertArgCount("Function::arity()", 0, argCount);
 

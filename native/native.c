@@ -16,7 +16,7 @@ void defineNativeFunction(const char* name, int arity, NativeFunction function) 
   ObjString* functionName = copyString(name, (int)strlen(name));
   push(OBJ_VAL(functionName));
   push(OBJ_VAL(newNativeFunction(functionName, arity, function)));
-  tableSet(&vm.rootNamespace->values, AS_STRING(vm.stack[0]), vm.stack[1]);
+  tableSet(&vm.currentNamespace->values, AS_STRING(vm.stack[0]), vm.stack[1]);
   pop();
   pop();
 }
@@ -268,6 +268,8 @@ void loadSourceFile(const char* filePath) {
 }
 
 void initNatives() {
+  vm.currentNamespace = vm.langNamespace;
+
   DEF_FUNCTION(clock, 0);
   DEF_FUNCTION(dateNow, 0);
   DEF_FUNCTION(dateTimeNow, 0);
@@ -278,5 +280,7 @@ void initNatives() {
   DEF_FUNCTION(int, 1);
   DEF_FUNCTION(float, 1);
   DEF_FUNCTION(str, 1);
+
+  vm.currentNamespace = vm.rootNamespace;
 }
 

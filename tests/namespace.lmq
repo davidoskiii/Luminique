@@ -6,6 +6,13 @@ using tests.fraction;
 
 println(cl::Array);
 println(std::util::Date);
-println(fraction.Fraction);
+println(Fraction);
+
+let frac = Fraction(3, 6);
+let frac2 = frac.reduce();
+
+println(frac.toString());
+println(frac2.toString());
+println(frac == frac2);
 
 // println(Date); Error!

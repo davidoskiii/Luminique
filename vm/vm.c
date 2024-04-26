@@ -93,6 +93,7 @@ static bool runModule(ObjString* filePath) {
   callClosure(closure, 0);
   freeModule(&module);
   vm.currentModule = lastModule;
+  vm.runModule = true;
   return true;
 }
 
@@ -648,12 +649,10 @@ InterpretResult run() {
         break;
       }
       case OP_SUBNAMESPACE: { 
-        ObjNamespace* enclosingNamespace = AS_NAMESPACE(pop());
-        ObjString* shortName = AS_STRING(pop());
-        Value value;
-        tableGet(&enclosingNamespace->values, shortName, &value);
+        Value value = pop();
+
         if (IS_NIL(value)) {
-          runtimeError("Undefined class %s.%s", enclosingNamespace->fullName->chars, shortName->chars);
+          runtimeError("Undefined class.");
           return INTERPRET_RUNTIME_ERROR;
         }
 
@@ -688,6 +687,7 @@ InterpretResult run() {
           runModule(filePath);
           frame = &vm.frames[vm.frameCount - 1];
         }
+        push(value);
         break;
       }
       case OP_GET_UPVALUE: {
@@ -1110,6 +1110,12 @@ InterpretResult run() {
         }
 
         vm.stackTop = frame->slots;
+        if (vm.runModule) {
+          vm.runModule = false;
+        } else {
+          vm.runModule = false;
+          push(result);
+        }
         if (vm.apiStackDepth > 0) return INTERPRET_OK;
         frame = &vm.frames[vm.frameCount - 1];
         break;
