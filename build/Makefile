@@ -345,6 +345,30 @@ main.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/luminique.dir/build.make CMakeFiles/luminique.dir/main.c.s
 .PHONY : main.c.s
 
+math/math.o: math/math.c.o
+.PHONY : math/math.o
+
+# target to build an object file
+math/math.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/luminique.dir/build.make CMakeFiles/luminique.dir/math/math.c.o
+.PHONY : math/math.c.o
+
+math/math.i: math/math.c.i
+.PHONY : math/math.i
+
+# target to preprocess a source file
+math/math.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/luminique.dir/build.make CMakeFiles/luminique.dir/math/math.c.i
+.PHONY : math/math.c.i
+
+math/math.s: math/math.c.s
+.PHONY : math/math.s
+
+# target to generate assembly for a file
+math/math.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/luminique.dir/build.make CMakeFiles/luminique.dir/math/math.c.s
+.PHONY : math/math.c.s
+
 memory/memory.o: memory/memory.c.o
 .PHONY : memory/memory.o
 
@@ -537,6 +561,30 @@ table/table.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/luminique.dir/build.make CMakeFiles/luminique.dir/table/table.c.s
 .PHONY : table/table.c.s
 
+time/time.o: time/time.c.o
+.PHONY : time/time.o
+
+# target to build an object file
+time/time.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/luminique.dir/build.make CMakeFiles/luminique.dir/time/time.c.o
+.PHONY : time/time.c.o
+
+time/time.i: time/time.c.i
+.PHONY : time/time.i
+
+# target to preprocess a source file
+time/time.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/luminique.dir/build.make CMakeFiles/luminique.dir/time/time.c.i
+.PHONY : time/time.c.i
+
+time/time.s: time/time.c.s
+.PHONY : time/time.s
+
+# target to generate assembly for a file
+time/time.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/luminique.dir/build.make CMakeFiles/luminique.dir/time/time.c.s
+.PHONY : time/time.c.s
+
 util/util.o: util/util.c.o
 .PHONY : util/util.o
 
@@ -645,6 +693,9 @@ help:
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
+	@echo "... math/math.o"
+	@echo "... math/math.i"
+	@echo "... math/math.s"
 	@echo "... memory/memory.o"
 	@echo "... memory/memory.i"
 	@echo "... memory/memory.s"
@@ -669,6 +720,9 @@ help:
 	@echo "... table/table.o"
 	@echo "... table/table.i"
 	@echo "... table/table.s"
+	@echo "... time/time.o"
+	@echo "... time/time.i"
+	@echo "... time/time.s"
 	@echo "... util/util.o"
 	@echo "... util/util.i"
 	@echo "... util/util.s"

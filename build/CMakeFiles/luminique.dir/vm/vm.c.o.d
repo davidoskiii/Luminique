@@ -32,14 +32,16 @@ CMakeFiles/luminique.dir/vm/vm.c.o: \
  /usr/include/x86_64-linux-gnu/bits/mathcalls.h /usr/include/string.h \
  /usr/include/x86_64-linux-gnu/bits/types/locale_t.h \
  /usr/include/x86_64-linux-gnu/bits/types/__locale_t.h \
- /usr/include/strings.h /usr/include/time.h \
- /usr/include/x86_64-linux-gnu/bits/time.h \
- /usr/include/x86_64-linux-gnu/bits/types/clock_t.h \
- /usr/include/x86_64-linux-gnu/bits/types/time_t.h \
- /usr/include/x86_64-linux-gnu/bits/types/struct_tm.h \
+ /usr/include/strings.h /usr/include/x86_64-linux-gnu/sys/stat.h \
  /usr/include/x86_64-linux-gnu/bits/types/struct_timespec.h \
  /usr/include/x86_64-linux-gnu/bits/endian.h \
  /usr/include/x86_64-linux-gnu/bits/endianness.h \
+ /usr/include/x86_64-linux-gnu/bits/types/time_t.h \
+ /usr/include/x86_64-linux-gnu/bits/stat.h \
+ /usr/include/x86_64-linux-gnu/bits/struct_stat.h /usr/include/ctype.h \
+ /usr/include/time.h /usr/include/x86_64-linux-gnu/bits/time.h \
+ /usr/include/x86_64-linux-gnu/bits/types/clock_t.h \
+ /usr/include/x86_64-linux-gnu/bits/types/struct_tm.h \
  /usr/include/x86_64-linux-gnu/bits/types/clockid_t.h \
  /usr/include/x86_64-linux-gnu/bits/types/timer_t.h \
  /usr/include/x86_64-linux-gnu/bits/types/struct_itimerspec.h \
@@ -63,9 +65,6 @@ CMakeFiles/luminique.dir/vm/vm.c.o: \
  /usr/include/x86_64-linux-gnu/bits/stdlib-float.h \
  /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/vm/../native/native.h \
  /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/vm/../native/../object/object.h \
- /usr/include/x86_64-linux-gnu/sys/stat.h \
- /usr/include/x86_64-linux-gnu/bits/stat.h \
- /usr/include/x86_64-linux-gnu/bits/struct_stat.h \
  /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/vm/../native/../object/../common.h \
  /usr/lib/gcc/x86_64-linux-gnu/11/include/stdbool.h \
  /usr/lib/gcc/x86_64-linux-gnu/11/include/stdint.h /usr/include/stdint.h \
@@ -116,4 +115,10 @@ CMakeFiles/luminique.dir/vm/vm.c.o: \
  /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/vm/../collection/collection.h \
  /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/vm/../collection/../common.h \
  /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/vm/../collection/../string/string.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/vm/../math/math.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/vm/../math/../common.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/vm/../math/../string/string.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/vm/../time/time.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/vm/../time/../common.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/vm/../time/../string/string.h \
  /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/vm/vm.h
