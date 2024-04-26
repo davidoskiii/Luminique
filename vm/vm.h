@@ -109,4 +109,9 @@ ObjInstance* throwException(ObjClass* exceptionClass, const char* format, ...);
 void push(Value value);
 Value pop();
 
+char* arrowsString(const char* input);
+char* returnSpaces(int count);
+int digitsInNumber(int number);
+char* getLine(const char* source, int argNum);
+
 #endif

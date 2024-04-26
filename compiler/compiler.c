@@ -1,3 +1,4 @@
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -96,20 +97,127 @@ static Chunk* currentChunk() {
   return &current->function->chunk;
 }
 
+char* stripSpaces(char* str) {
+  if (str == NULL) return NULL;
+
+  int left = 0;
+  while (isspace(str[left])) left++;
+
+  int right = strlen(str) - 1;
+  while (right >= 0 && isspace(str[right])) right--;
+
+  int newLength = right - left + 1;
+
+  memmove(str, str + left, newLength);
+  str[newLength] = '\0';
+
+  return str;
+}
+
+char* stringPrecision(const char* str, int precision) {
+  if (str == NULL || precision <= 0) return NULL;
+
+  size_t length = strlen(str);
+  char* newStr = (char*)malloc((precision + 1) * sizeof(char));
+  if (!newStr) return NULL;
+
+  int i;
+  for (i = 0; i < length && i < precision; i++) {
+    newStr[i] = str[i];
+  }
+  newStr[i] = '\0';
+
+  return newStr;
+}
+
+
+int findPosition(const char* haystack, const char* needle) {
+  if (haystack == NULL || needle == NULL) {
+    return -1;
+  }
+
+  char* found = strstr(haystack, needle);
+  if (found == NULL) {
+    return -1;
+  }
+
+  return found - haystack;
+}
+
+char* tokenString(const Token* token) {
+  if (token == NULL || token->length <= 0) return NULL;
+
+  char* str = (char*)malloc(token->length + 1);
+  if (!str) return NULL;
+
+  for (int i = 0; i < token->length; i++) {
+    str[i] = '~';
+  }
+
+  if (token->length > 0) str[0] = '^';
+
+  str[token->length] = '\0';
+
+  return str;
+}
+
+char* arrowsTokenString(const Token* token) {
+  if (token == NULL || token->length <= 0) {
+    return NULL;
+  }
+
+  char* stoken = stringPrecision(token->start, token->length);
+  char* line = stripSpaces(getLine(vm.currentModule->source, token->line));
+  int pos = findPosition(line, stoken);
+
+  char* spaces = returnSpaces(pos);
+
+  char* arrows = (char*)malloc((pos + token->length + 1) * sizeof(char));
+  if (!arrows) {
+    return NULL;
+  }
+
+  for (int i = 0; i < pos; i++) {
+    arrows[i] = ' ';
+  }
+
+  for (int i = pos; i < pos + token->length; i++) {
+    arrows[i] = '~';
+  }
+
+  if (token->length > 0) {
+    arrows[pos] = '^';
+  }
+
+  arrows[pos + token->length] = '\0';
+
+  free(stoken);
+  free(line);
+  free(spaces);
+
+  return arrows;
+}
+
 static void errorAt(Token* token, const char* message) {
   if (parser.panicMode) return;
   parser.panicMode = true;
-  fprintf(stderr, "[line %d] Error", token->line);
+
+  fprintf(stderr, "\n\033[1m%s:%d", vm.currentModule->filePath, token->line);
 
   if (token->type == TOKEN_EOF) {
-    fprintf(stderr, " at end");
+    fprintf(stderr, " at end: ");
+    fprintf(stderr, "%s\n", message);
   } else if (token->type == TOKEN_ERROR) {
     // Nothing.
   } else {
-    fprintf(stderr, " at '%.*s'", token->length, token->start);
+    fprintf(stderr, " at '%.*s': \033[0m", token->length, token->start);
+    fprintf(stderr, "%s\n", message);
+    char* line = stripSpaces(getLine(vm.currentModule->source, token->line));
+    char* spaces = returnSpaces(digitsInNumber(token->line));
+    char* arrows = arrowsTokenString(token);
+    fprintf(stderr, "   %d |    %s\n   %s |    \033[31;1m%s\033[0m\n   %s |\n", token->line, line, spaces, arrows, spaces);
   }
 
-  fprintf(stderr, ": %s\n", message);
   parser.hadError = true;
 }
 

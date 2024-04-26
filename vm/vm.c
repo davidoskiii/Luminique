@@ -43,24 +43,116 @@ static void resetStack() {
   resetCallFrames();
 }
 
+char* getLine(const char* source, int argNum) {
+  int lineNumber = argNum + 1;
+
+  if (!source || lineNumber <= 0) {
+    return NULL;
+  }
+
+  const char* start = source;
+  const char* end = source;
+
+  for (int i = 1; i < lineNumber; i++) {
+    start = end;
+    end = strchr(start, '\n');
+
+    if (!end) {
+      return NULL;
+    }
+
+    end++;
+  }
+
+  const char* lineEnd = strchr(start, '\n');
+  if (!lineEnd) {
+    lineEnd = start + strlen(start);
+  }
+
+  size_t lineLength = lineEnd - start;
+
+  char* line = (char*)malloc(lineLength + 1);
+  if (!line) {
+    return NULL;
+  }
+
+  strncpy(line, start, lineLength);
+  line[lineLength] = '\0';
+
+  return line;
+}
+
+int digitsInNumber(int number) {
+  int count = 0;
+  do {
+    number /= 10;
+    ++count;
+  } while (number != 0);
+
+  return count;
+}
+
+char* returnSpaces(int count) {
+  if (count <= 0) {
+    return NULL;
+  }
+
+  char* spaceString = (char*)malloc(count + 1);
+  if (!spaceString) {
+    return NULL;
+  }
+
+  for (int i = 0; i < count; i++) {
+    spaceString[i] = ' ';
+  }
+
+  spaceString[count] = '\0';
+
+  return spaceString;
+}
+
+char* arrowsString(const char* input) {
+  size_t len = strlen(input);
+  char* caretStr = (char*)malloc(len + 1);
+  if (!caretStr) return NULL;
+
+  caretStr[0] = '^';
+
+  for (size_t i = 1; i < len; i++) {
+    caretStr[i] = '~';
+  }
+
+  caretStr[len] = '\0';
+  return caretStr;
+}
+
 void runtimeError(const char* format, ...) {
   va_list args;
-  va_start(args, format);
-  vfprintf(stderr, format, args);
-  va_end(args);
-  fputs("\n", stderr);
-
+  
   for (int i = vm.frameCount - 1; i >= 0; i--) {
     CallFrame* frame = &vm.frames[i];
     ObjFunction* function = frame->closure->function;
     size_t instruction = frame->ip - function->chunk.code - 1;
-    fprintf(stderr, "[line %d] in ", 
-            function->chunk.lines[instruction]);
+    int lineNumber = function->chunk.lines[instruction];
+    fprintf(stderr, "\n\033[1m%s:%d in ", vm.currentModule->filePath, lineNumber);
     if (function->name == NULL) {
-      fprintf(stderr, "script\n");
+      fprintf(stderr, "script: \033[0m");
     } else {
-      fprintf(stderr, "%s()\n", function->name->chars);
+      fprintf(stderr, "%s(): \033[0m", function->name->chars);
     }
+
+    va_start(args, format);
+    vfprintf(stderr, format, args);
+    va_end(args);
+    fputs("\n", stderr);
+
+    char* line = getLine(vm.currentModule->source, lineNumber);
+    char* spaces = returnSpaces(digitsInNumber(lineNumber));
+    char* arrows = arrowsString(line);
+    fprintf(stderr, "   %d |    %s\n   %s |    \033[31;1m%s\033[0m\n   %s |\n", lineNumber, line, spaces, arrows, spaces);
+    free(line);
+    free(spaces);
+    free(arrows);
   }
 
   resetStack();

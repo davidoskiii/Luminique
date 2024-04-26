@@ -6,7 +6,7 @@ using tests.features.fraction;
 using tests.features.fib;
 
 println(cl::Array);
-println(std::util::Date);
+println(std::Time::Date);
 println(Fraction);
 println(fibonacci);
 

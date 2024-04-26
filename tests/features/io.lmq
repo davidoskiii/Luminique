@@ -81,4 +81,4 @@ let bytes = [5, 37, 0, 88, 255, 12];
 println(bytes);
 binaryWriter.putBytes(bytes);
 println("Close binary write stream.");
-binaryWriter.close();
+binaryWrite.close();
