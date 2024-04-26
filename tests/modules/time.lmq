@@ -1,0 +1,46 @@
+using luminique.std.Time;
+using luminique.std.Time.Date;
+using luminique.std.Time.DateTime;
+using luminique.std.Time.Duration;
+
+let now = Time::dateNow();
+
+println("Today is the ${now}.");
+println("Today timestamp: ${now.getTimestamp()}.");
+
+now.day = now.day + 1;
+
+println("Tomorrow is going to be the ${now}.");
+println("Tomorrow timestamp: ${now.getTimestamp()}.");
+
+now.day = now.day - 1;
+
+let birthday = Date(7, 8, 2010);
+
+println("I was born on the ${birthday}.");
+println("Birthday timestamp: ${birthday.getTimestamp()}.");
+println("Converting birthday to DateTime: ${birthday.toDateTime()}.\n");
+
+let datetime = Time::dateTimeNow();
+
+println("Current DateTime is ${datetime}.");
+println("Current DateTime's timestamp is: ${datetime.getTimestamp()}.");
+println("Birthday is after current DateTime: ${birthday.toDateTime() < (datetime)}");
+println("Difference in sec(s) between current DateTime and birthday: ${datetime.diff(birthday.toDateTime())}\n");
+
+println("Current Date is instance of Date: ${now.instanceOf(Date)}.");
+println("Current Date is instance of DateTime: ${now.instanceOf(DateTime)}.");
+println("Current DateTime is instance of Date: ${datetime.instanceOf(Date)}.");
+println("Current DateTime is instance of DateTime: ${datetime.instanceOf(DateTime)}.\n");
+
+let duration = Duration(1, 15, 80, 280);
+
+println("Creating Duration: ${duration}.");
+println("Total number of seconds in Duration: ${duration.getTotalSeconds()}.\n");
+
+let duration2 = Duration(1, 0, 0, 0);
+
+println("Tomorrow Date: ${now + duration2}.");
+println("Yesterday Date: ${now - duration2}.");
+println("Adding duration to current DateTime: ${datetime + duration}.");
+println("Subtracting duration from current DateTime: ${datetime - duration}.");
