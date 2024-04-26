@@ -19,6 +19,7 @@
 #include "../string/string.h"
 #include "../io/io.h"
 #include "../collection/collection.h"
+#include "../math/math.h"
 #include "vm.h"
 
 VM vm;
@@ -119,6 +120,7 @@ void initVM() {
   registerIOPackage();
   registerCollectionPackage();
   registerUtilPackage();
+  registerMathPackage();
   initNatives();
   initStd();
 }
@@ -652,7 +654,7 @@ InterpretResult run() {
         Value value = pop();
 
         if (IS_NIL(value)) {
-          runtimeError("Undefined class.");
+          runtimeError("Undefined class/function/namespace.");
           return INTERPRET_RUNTIME_ERROR;
         }
 
@@ -669,7 +671,7 @@ InterpretResult run() {
           ObjNamespace* namespace = AS_NAMESPACE(value);
           tableSet(&vm.currentModule->values, namespace->shortName, value);
         } else {
-          runtimeError("Only classes and namespaces may be imported.");
+          runtimeError("Only classes, functions and namespaces may be imported.");
           return INTERPRET_RUNTIME_ERROR;
         }
         break;
