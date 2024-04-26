@@ -4,7 +4,7 @@ using luminique.std.io.FileWriteStream;
 using luminique.std.io.BinaryReadStream;
 using luminique.std.io.BinaryWriteStream;
 
-let fileIn = File("tests/directory/file_input.txt");
+let fileIn = File("tests/io_output/file_input.txt");
 println(fileIn);
 
 println("Creating a read stream for input file. ");
@@ -28,7 +28,7 @@ println(fileReader.isAtEnd());
 println("Closing read stream for file.");
 fileReader.close();
 
-let fileOut = File("tests/directory/file_output.txt");
+let fileOut = File("tests/io_output/file_output.txt");
 
 println(fileOut);
 println("Creating a write stream for out file.");
@@ -52,7 +52,7 @@ fileWriter.close();
 
 print("\n");
 
-let binaryFileIn = File("tests/directory/file_binary.bin");
+let binaryFileIn = File("tests/io_output/file_binary.bin");
 println(binaryFileIn);
 
 println("Creating a binary read stream.");
@@ -70,7 +70,7 @@ binaryReader.close();
 
 print("\n");
 
-let fileBinaryOut = File("tests/directory/file_binary.bin");
+let fileBinaryOut = File("tests/io_output/file_binary.bin");
 println(fileBinaryOut);
 println("Creating a binary write stream.");
 print("Now write to a binary file with the following bytes: ");

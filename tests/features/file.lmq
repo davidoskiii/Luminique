@@ -1,6 +1,6 @@
 using luminique.std.io.File;
 
-let file = File("tests/file.lmq");
+let file = File("tests/features/file.lmq");
 
 println("Creating new file object: ");
 println(file);
@@ -29,7 +29,7 @@ println(file.size());
 print("File last modified: ");
 println("${file.lastModified()}\n");
 
-let dir = File("tests/directory");
+let dir = File("tests/io_output");
 
 println("Creating a file object as directory.");
 println(dir);
