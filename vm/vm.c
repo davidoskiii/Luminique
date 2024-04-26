@@ -20,6 +20,7 @@
 #include "../io/io.h"
 #include "../collection/collection.h"
 #include "../math/math.h"
+#include "../time/time.h"
 #include "vm.h"
 
 VM vm;
@@ -121,6 +122,7 @@ void initVM() {
   registerCollectionPackage();
   registerUtilPackage();
   registerMathPackage();
+  registerTimePackage();
   initNatives();
   initStd();
 }
