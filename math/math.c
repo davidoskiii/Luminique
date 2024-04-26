@@ -287,6 +287,26 @@ NATIVE_FUNCTION(fmin) {
   RETURN_NUMBER(result);
 }
 
+NATIVE_FUNCTION(rad) {
+  assertArgCount("rad(degrees)", 1, argCount);
+  assertArgIsNumber("rad(degrees)", args, 0);
+  double result = AS_NUMBER(args[0]) * (M_PI / 180.0);
+  if (isnan(result)) {
+    RETURN_NIL;
+  }
+  RETURN_NUMBER(result);
+}
+
+NATIVE_FUNCTION(deg) {
+  assertArgCount("deg(radiants)", 1, argCount);
+  assertArgIsNumber("deg(radiants)", args, 0);
+  double result = AS_NUMBER(args[0]) * (180.0 / M_PI);
+  if (isnan(result)) {
+    RETURN_NIL;
+  }
+  RETURN_NUMBER(result);
+}
+
 void registerMathPackage() {
   ObjNamespace* mathNamespace = defineNativeNamespace("Math", vm.stdNamespace);
   vm.currentNamespace = mathNamespace;
@@ -331,6 +351,10 @@ void registerMathPackage() {
   DEF_FUNCTION(remainder, 2);
   DEF_FUNCTION(fmax, 2);
   DEF_FUNCTION(fmin, 2);
+
+  // Conversion
+  DEF_FUNCTION(rad, 1);
+  DEF_FUNCTION(deg, 1);
 
   vm.currentNamespace = vm.rootNamespace;
 }

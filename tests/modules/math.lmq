@@ -11,6 +11,12 @@ println(Math::inf);
 print("Euler's number: ");
 println(Math::e);
 
+print("180 degrees to rad: ");
+println(Math::rad(180));
+
+print("pi rad to degrees: ");
+println(Math::deg(Math::pi));
+
 print("sin at '0': ");
 println(Math::sin(0));
 
