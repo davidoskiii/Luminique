@@ -667,6 +667,9 @@ InterpretResult run() {
         } else if (IS_FUNCTION(value)) {
           ObjFunction* function = AS_FUNCTION(value);
           tableSet(&vm.currentModule->values, function->name, value);
+        } else if (IS_NATIVE_FUNCTION(value)) {
+          ObjNativeFunction* function = AS_NATIVE_FUNCTION(value);
+          tableSet(&vm.currentModule->values, function->name, value);
         } else if (IS_NAMESPACE(value)) {
           ObjNamespace* namespace = AS_NAMESPACE(value);
           tableSet(&vm.currentModule->values, namespace->shortName, value);
