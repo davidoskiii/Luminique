@@ -291,6 +291,10 @@ void registerMathPackage() {
   ObjNamespace* mathNamespace = defineNativeNamespace("Math", vm.stdNamespace);
   vm.currentNamespace = mathNamespace;
 
+  defineNativeConstant("pi", NUMBER_VAL(M_PI));
+  defineNativeConstant("inf", NUMBER_VAL(INFINITY));
+  defineNativeConstant("e", NUMBER_VAL(M_E));
+
   // Trigonometric functions
   DEF_FUNCTION(sin, 1);
   DEF_FUNCTION(cos, 1);

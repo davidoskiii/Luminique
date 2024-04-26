@@ -1,6 +1,6 @@
 using luminique.std.io.File;
 
-let file = File("tests/features/file.lmq");
+let file = File("tests/io_output/file_input.txt");
 
 println("Creating new file object: ");
 println(file);

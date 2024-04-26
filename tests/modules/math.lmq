@@ -2,6 +2,15 @@ namespace tests.modules;
 
 using luminique.std.Math;
 
+print("pi constant: ");
+println(Math::pi);
+
+print("infinity constant: ");
+println(Math::inf);
+
+print("Euler's number: ");
+println(Math::e);
+
 print("sin at '0': ");
 println(Math::sin(0));
 
@@ -41,8 +50,8 @@ println(Math::atanh(0));
 print("exp at '1': ");
 println(Math::exp(1));
 
-print("ln at e: ");
-println(Math::ln(2.7182818284590452353602874713526624977572470937));
+print("ln at 'e': ");
+println(Math::ln(Math::e));
 
 print("log10 at '1000': ");
 println(Math::log10(1000));
