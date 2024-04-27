@@ -298,26 +298,38 @@ static ObjNamespace* declareNamespace(uint8_t namespaceDepth) {
 }
 
 static ObjString* resolveNamespacedFile(ObjNamespace* enclosingNamespace, ObjString* shortName) {
-  int length = enclosingNamespace->fullName->length + shortName->length + 5;
+  int fullNameLength = enclosingNamespace->fullName->length;
+  int shortNameLength = shortName->length;
+  
+  bool containsDots = false;
+  for (int i = 0; i < fullNameLength; i++) {
+    if (enclosingNamespace->fullName->chars[i] == '.') {
+      containsDots = true;
+      break;
+    }
+  }
+
+  int length = containsDots ? (fullNameLength + shortNameLength + 5) : (shortNameLength + 4);
   char* heapChars = ALLOCATE(char, length + 1);
   int offset = 0;
-  while (offset < enclosingNamespace->fullName->length) {
-    char currentChar = enclosingNamespace->fullName->chars[offset];
-    heapChars[offset] = (currentChar == '.') ? '/' : currentChar;
-    offset++;
-  }
-  heapChars[offset++] = '/';
 
-  int startIndex = offset;
-  while (offset < startIndex + shortName->length) {
-    heapChars[offset] = shortName->chars[offset - startIndex];
-    offset++;
+  if (containsDots) {
+    while (offset < fullNameLength) {
+      char currentChar = enclosingNamespace->fullName->chars[offset];
+      heapChars[offset] = (currentChar == '.') ? '/' : currentChar;
+      offset++;
+    }
+    heapChars[offset++] = '/';
+  }
+
+  for (int i = 0; i < shortNameLength; i++) {
+    heapChars[offset++] = shortName->chars[i];
   }
 
   heapChars[offset++] = '.';
-  heapChars[length - 3] = 'l';
-  heapChars[length - 2] = 'm';
-  heapChars[length - 1] = 'q';
+  heapChars[offset++] = 'l';
+  heapChars[offset++] = 'm';
+  heapChars[offset++] = 'q';
   heapChars[length] = '\0';
 
   return takeString(heapChars, length);

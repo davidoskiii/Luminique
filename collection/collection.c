@@ -686,6 +686,17 @@ NATIVE_METHOD(Array, removeAt) {
 	RETURN_VAL(element);
 }
 
+
+NATIVE_METHOD(Array, pop) {
+	assertArgCount("Array::pop()", 0, argCount);
+	ObjArray* self = AS_ARRAY(receiver);
+  if (self->elements.count == 0) {
+    THROW_EXCEPTION(luminique.std.lang, "IndexOutOfBoundsException", "Can't pop and element if the array is empty");
+  }
+	Value element = arrayRemoveAt(self, self->elements.count - 1);
+	RETURN_VAL(element);
+}
+
 NATIVE_METHOD(Array, subArray) {
 	assertArgCount("Array::subArray(from, to)", 2, argCount);
 	assertArgIsInt("Array::subArray(from, to)", args, 0);
@@ -868,6 +879,7 @@ void registerCollectionPackage() {
   DEF_METHOD(vm.arrayClass, Array, nextValue, 1);
   DEF_METHOD(vm.arrayClass, Array, putAt, 2);
 	DEF_METHOD(vm.arrayClass, Array, remove, 1);
+	DEF_METHOD(vm.arrayClass, Array, pop, 0);
 	DEF_METHOD(vm.arrayClass, Array, removeAt, 1);
   DEF_METHOD(vm.arrayClass, Array, subArray, 2);
 	DEF_METHOD(vm.arrayClass, Array, toString, 0);
