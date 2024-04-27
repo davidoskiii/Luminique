@@ -308,7 +308,7 @@ NATIVE_FUNCTION(deg) {
 }
 
 void registerMathPackage() {
-  ObjNamespace* mathNamespace = defineNativeNamespace("Math", vm.stdNamespace);
+  ObjNamespace* mathNamespace = defineNativeNamespace("math", vm.stdNamespace);
   vm.currentNamespace = mathNamespace;
 
   defineNativeConstant("pi", NUMBER_VAL(M_PI));

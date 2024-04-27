@@ -1,9 +1,9 @@
-using luminique.std.Time;
-using luminique.std.Time.Date;
-using luminique.std.Time.DateTime;
-using luminique.std.Time.Duration;
+using luminique.std.chrono;
+using luminique.std.chrono.Date;
+using luminique.std.chrono.DateTime;
+using luminique.std.chrono.Duration;
 
-let now = Time::dateNow();
+let now = chrono::dateNow();
 
 println("Today is the ${now}.");
 println("Today timestamp: ${now.getTimestamp()}.");
@@ -21,7 +21,7 @@ println("I was born on the ${birthday}.");
 println("Birthday timestamp: ${birthday.getTimestamp()}.");
 println("Converting birthday to DateTime: ${birthday.toDateTime()}.\n");
 
-let datetime = Time::dateTimeNow();
+let datetime = chrono::dateTimeNow();
 
 println("Current DateTime is ${datetime}.");
 println("Current DateTime's timestamp is: ${datetime.getTimestamp()}.");

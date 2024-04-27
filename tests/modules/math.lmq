@@ -1,99 +1,99 @@
 namespace tests.modules;
 
-using luminique.std.Math;
+using luminique.std.math;
 
 print("pi constant: ");
-println(Math::pi);
+println(math::pi);
 
 print("infinity constant: ");
-println(Math::inf);
+println(math::inf);
 
 print("Euler's number: ");
-println(Math::e);
+println(math::e);
 
 print("180 degrees to rad: ");
-println(Math::rad(180));
+println(math::rad(180));
 
 print("pi rad to degrees: ");
-println(Math::deg(Math::pi));
+println(math::deg(math::pi));
 
 print("sin at '0': ");
-println(Math::sin(0));
+println(math::sin(0));
 
 print("cos at '0': ");
-println(Math::cos(0));
+println(math::cos(0));
 
 print("tan at '0': ");
-println(Math::tan(0));
+println(math::tan(0));
 
 print("asin of '1': ");
-println(Math::asin(1));
+println(math::asin(1));
 
 print("acos of '1': ");
-println(Math::acos(1));
+println(math::acos(1));
 
 print("atan of '1': ");
-println(Math::atan(1));
+println(math::atan(1));
 
 print("sinh at '0': ");
-println(Math::sinh(0));
+println(math::sinh(0));
 
 print("cosh at '0': ");
-println(Math::cosh(0));
+println(math::cosh(0));
 
 print("tanh at '0': ");
-println(Math::tanh(0));
+println(math::tanh(0));
 
 print("asinh of '0': ");
-println(Math::asinh(0));
+println(math::asinh(0));
 
 print("acosh of '1': ");
-println(Math::acosh(1));
+println(math::acosh(1));
 
 print("atanh of '0': ");
-println(Math::atanh(0));
+println(math::atanh(0));
 
 print("exp at '1': ");
-println(Math::exp(1));
+println(math::exp(1));
 
 print("ln at 'e': ");
-println(Math::ln(Math::e));
+println(math::ln(math::e));
 
 print("log10 at '1000': ");
-println(Math::log10(1000));
+println(math::log10(1000));
 
 print("log2 at '64': ");
-println(Math::log2(64));
+println(math::log2(64));
 
 print("logb of base '2' and value '16': ");
-println(Math::logb(2, 16));
+println(math::logb(2, 16));
 
 print("pow of base '2' and exponent '4': ");
-println(Math::pow(2, 4));
+println(math::pow(2, 4));
 
 print("sqrt at '25': ");
-println(Math::sqrt(25));
+println(math::sqrt(25));
 
 print("ceil at '4.3': ");
-println(Math::ceil(4.3));
+println(math::ceil(4.3));
 
 print("floor at '4.7': ");
-println(Math::floor(4.7));
+println(math::floor(4.7));
 
 print("round at '4.5': ");
-println(Math::round(4.5));
+println(math::round(4.5));
 
 print("fabs at '-4.5': ");
-println(Math::fabs(-4.5));
+println(math::fabs(-4.5));
 
 print("fmod of '10' and '3': ");
-println(Math::fmod(10, 3));
+println(math::fmod(10, 3));
 
 print("remainder of '10' and '3': ");
-println(Math::remainder(10, 3));
+println(math::remainder(10, 3));
 
 print("fmax of '8' and '12': ");
-println(Math::fmax(8, 12));
+println(math::fmax(8, 12));
 
 print("fmin of '8' and '12': ");
-println(Math::fmin(8, 12));
+println(math::fmin(8, 12));
