@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "../pcg/pcg.h"
 #include "../assert/assert.h"
@@ -206,11 +207,31 @@ ObjString* dictToString(ObjDictionary* dict) {
       ObjEntry* entry = &dict->entries[i];
       if (IS_UNDEFINED(entry->key)) continue;
       Value key = entry->key;
-      char* keyChars = valueToString(key);
-      size_t keyLength = strlen(keyChars);
+      char* keyChars;
+      size_t keyLength;
+      if (IS_STRING(key)) {
+        keyChars = ALLOCATE(char, AS_STRING(key)->length + 3);
+        keyChars[0] = '"';
+        memcpy(keyChars + 1, AS_STRING(key)->chars, AS_STRING(key)->length);
+        keyChars[AS_STRING(key)->length + 1] = '"';
+        keyLength = AS_STRING(key)->length + 2;
+      } else {
+        keyChars = valueToString(key);
+        keyLength = strlen(keyChars);
+      }
       Value value = entry->value;
-      char* valueChars = valueToString(value);
-      size_t valueLength = strlen(valueChars);
+      char* valueChars;
+      size_t valueLength;
+      if (IS_STRING(value)) {
+        valueChars = ALLOCATE(char, AS_STRING(value)->length + 3);
+        valueChars[0] = '"';
+        memcpy(valueChars + 1, AS_STRING(value)->chars, AS_STRING(value)->length);
+        valueChars[AS_STRING(value)->length + 1] = '"';
+        valueLength = AS_STRING(value)->length + 2;
+      } else {
+        valueChars = valueToString(value);
+        valueLength = strlen(valueChars);
+      }
 
       memcpy(string + offset, keyChars, keyLength);
       offset += keyLength;
@@ -226,11 +247,31 @@ ObjString* dictToString(ObjDictionary* dict) {
       ObjEntry* entry = &dict->entries[i];
       if (IS_UNDEFINED(entry->key)) continue;
       Value key = entry->key;
-      char* keyChars = valueToString(key);
-      size_t keyLength = strlen(keyChars);
+      char* keyChars;
+      size_t keyLength;
+      if (IS_STRING(key)) {
+        keyChars = ALLOCATE(char, AS_STRING(key)->length + 3);
+        keyChars[0] = '"';
+        memcpy(keyChars + 1, AS_STRING(key)->chars, AS_STRING(key)->length);
+        keyChars[AS_STRING(key)->length + 1] = '"';
+        keyLength = AS_STRING(key)->length + 2;
+      } else {
+        keyChars = valueToString(key);
+        keyLength = strlen(keyChars);
+      }
       Value value = entry->value;
-      char* valueChars = valueToString(value);
-      size_t valueLength = strlen(valueChars);
+      char* valueChars;
+      size_t valueLength;
+      if (IS_STRING(value)) {
+        valueChars = ALLOCATE(char, AS_STRING(value)->length + 3);
+        valueChars[0] = '"';
+        memcpy(valueChars + 1, AS_STRING(value)->chars, AS_STRING(value)->length);
+        valueChars[AS_STRING(value)->length + 1] = '"';
+        valueLength = AS_STRING(value)->length + 2;
+      } else {
+        valueChars = valueToString(value);
+        valueLength = strlen(valueChars);
+      }
 
       memcpy(string + offset, ", ", 2);
       offset += 2;
@@ -240,6 +281,9 @@ ObjString* dictToString(ObjDictionary* dict) {
       offset += 2;
       memcpy(string + offset, valueChars, valueLength);
       offset += valueLength;
+
+      if (IS_STRING(key)) free(keyChars);
+      if (IS_STRING(value)) free(valueChars);
     }
 
     string[offset] = '}';
@@ -304,8 +348,19 @@ static ObjString* arrayToString(ObjArray* array) {
 		string[0] = '[';
 		size_t offset = 1;
 		for (int i = 0; i < array->elements.count; i++) {
-			char* chars = valueToString(array->elements.values[i]);
-			size_t length = strlen(chars);
+			Value value = array->elements.values[i];
+			char* chars;
+			size_t length;
+			if (IS_STRING(value)) {
+				chars = ALLOCATE(char, AS_STRING(value)->length + 3);
+				chars[0] = '"';
+				memcpy(chars + 1, AS_STRING(value)->chars, AS_STRING(value)->length);
+				chars[AS_STRING(value)->length + 1] = '"';
+				length = AS_STRING(value)->length + 2;
+			} else {
+				chars = valueToString(value);
+				length = strlen(chars);
+			}
 			memcpy(string + offset, chars, length);
 			if (i == array->elements.count - 1) {
 				offset += length;
@@ -314,6 +369,7 @@ static ObjString* arrayToString(ObjArray* array) {
 				memcpy(string + offset + length, ", ", 2);
 				offset += length + 2;
 			}
+			if (IS_STRING(value)) free(chars);
 		}
 		string[offset] = ']';
 		string[offset + 1] = '\0';

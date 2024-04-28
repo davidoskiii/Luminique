@@ -21,6 +21,7 @@
 #include "../collection/collection.h"
 #include "../math/math.h"
 #include "../time/time.h"
+#include "../sys/sys.h"
 #include "vm.h"
 
 VM vm;
@@ -191,12 +192,15 @@ static bool runModule(ObjString* filePath) {
   return true;
 }
 
-void initVM() {
+void initVM(int argc, char** argv) {
   resetStack();
   vm.currentModule = NULL;
   vm.objects = NULL;
   vm.bytesAllocated = 0;
   vm.nextGC = (size_t)1024 * 1024;
+
+  vm.argc = argc;
+  vm.argv = argv;
 
   vm.grayCount = 0;
   vm.grayCapacity = 0;
@@ -210,6 +214,7 @@ void initVM() {
   vm.initString = copyString("__init__", 8);
 
   registerLangPackage();
+  registerSysPackage();
   registerIOPackage();
   registerCollectionPackage();
   registerUtilPackage();

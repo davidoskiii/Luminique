@@ -1,37 +1,37 @@
-let str = "Hello World";
+let string = "Hello World";
 
 print("printing string 'Hello World': ");
-println(str);
+println(string);
 
 print("Class of string is: ");
-println(str.getClassName());
+println(string.getClassName());
 
 print("length of string is: ");
-println(str.length());
+println(string.length());
 
 print("String contains 'Hello': ");
-println(str.contains("Hello"));
+println(string.contains("Hello"));
 
 print("String index for 'Wo': ");
-println(str.search("Wo"));
+println(string.search("Wo"));
 
 print("Replace 'World' in String by 'My Love': ");
-println(str.replace("World", "My Dear"));
+println(string.replace("World", "My Dear"));
 
 print("String starts with 'Hello': ");
-println(str.starts("Hello"));
+println(string.starts("Hello"));
 
 print("String ends with World: ");
-println(str.ends("World"));
+println(string.ends("World"));
 
 print("String char at position 4: ");
-println(str.subscript(4));
+println(string.subscript(4));
 
 print("Getting substring at index 3 and 8: ");
-println(str.cut(3, 8));
+println(string.cut(3, 8));
 
 print("Reversing String: ");
-println(str.reverse());
+println(string.reverse());
 
 println("Testing simple string interpolation: ");
 

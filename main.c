@@ -26,6 +26,7 @@ char* readFile(const char* path) {
   FILE* file = fopen(path, "rb");
   if (file == NULL) {
     fprintf(stderr, "Could not open file \"%s\".\n", path);
+    fprintf(stderr, "Usage: luminique [path]\n");
     exit(74);
   }
 
@@ -62,15 +63,14 @@ static void runFile(char* path) {
 }
 
 int main(int argc, char *argv[]) {
-  initVM();
+  initVM(argc, argv);
 
   if (argc == 1) {
     repl();
   } else if (argc == 2) {
     runFile(argv[1]);
   } else {
-    fprintf(stderr, "Usage: luminique [path]\n");
-    exit(64);
+    runFile(argv[1]);
   }
 
   freeVM();

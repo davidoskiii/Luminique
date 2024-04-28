@@ -1,0 +1,42 @@
+using luminique.std.sys;
+
+print("Getting arg count: ");
+println(sys::argc);
+
+print("Getting args: ");
+println(sys::argv);
+
+print("Getting current directory: ");
+println(sys::getcwd());
+
+print("Setting current directory to '/': ");
+println(sys::setcwd("/"));
+
+println("Executing 'ls': ");
+sys::shell("ls");
+
+print("Getting current directory after setting: ");
+println(sys::getcwd());
+
+print("Getting value of 'PATH' environment variable: ");
+println(sys::getenv("PATH"));
+
+print("Setting 'MY_VAR' environment variable to 'value123': ");
+println(sys::setenv("MY_VAR", "value123"));
+
+print("Getting value of 'MY_VAR' environment variable: ");
+println(sys::getenv("MY_VAR"));
+
+print("Unsetting 'MY_VAR' environment variable: ");
+println(sys::unsetenv("MY_VAR"));
+
+print("Getting value of 'MY_VAR' environment variable after unsetting: ");
+println(sys::getenv("MY_VAR"));
+
+print("Getting platform: ");
+println(sys::platform());
+
+println("Quitting the program with staus '69'.");
+sys::exit(69);
+
+println("This won't print");

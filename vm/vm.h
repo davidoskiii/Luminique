@@ -61,6 +61,8 @@ typedef struct {
   Value stack[STACK_MAX];
   Value* stackTop;
   int apiStackDepth;
+  int argc;
+  char** argv;
 
   Module* currentModule;
 

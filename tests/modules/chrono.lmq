@@ -44,3 +44,5 @@ println("Tomorrow Date: ${now + duration2}.");
 println("Yesterday Date: ${now - duration2}.");
 println("Adding duration to current DateTime: ${datetime + duration}.");
 println("Subtracting duration from current DateTime: ${datetime - duration}.");
+
+chrono::sleep(2);

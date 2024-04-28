@@ -229,6 +229,10 @@ static void errorAtCurrent(const char* message) {
   errorAt(&parser.current, message);
 }
 
+static void errorAtPrevious(const char* message) {
+  errorAt(&parser.previous, message);
+}
+
 static void advance() {
   parser.previous = parser.current;
   parser.current = parser.next;
@@ -247,7 +251,7 @@ static void consume(TokenType type, const char* message) {
     return;
   }
 
-  errorAtCurrent(message);
+  errorAtPrevious(message);
 }
 
 static bool check(TokenType type) {

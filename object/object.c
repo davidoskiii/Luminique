@@ -163,7 +163,9 @@ ObjUpvalue* newUpvalue(Value* slot) {
 static void printArray(ObjArray* array) {
   printf("[");
   for (int i = 0; i < array->elements.count; i++) {
+    if (IS_STRING(array->elements.values[i])) printf("\"");
     printValue(array->elements.values[i]);
+    if (IS_STRING(array->elements.values[i])) printf("\"");
     if (i < array->elements.count - 1) printf(", ");
   }
   printf("]");
@@ -212,9 +214,13 @@ static void printDictionary(ObjDictionary* dictionary) {
   for (int i = 0; i < dictionary->capacity; i++) {
     ObjEntry* entry = &dictionary->entries[i];
     if (IS_UNDEFINED(entry->key)) continue;
+    if (IS_STRING(entry->key)) printf("\"");
     printValue(entry->key);
+    if (IS_STRING(entry->key)) printf("\"");
     printf(": ");
+    if (IS_STRING(entry->value)) printf("\"");
     printValue(entry->value);
+    if (IS_STRING(entry->value)) printf("\"");
     startIndex = i + 1;
     break;
   }
@@ -223,9 +229,13 @@ static void printDictionary(ObjDictionary* dictionary) {
     ObjEntry* entry = &dictionary->entries[i];
     if (IS_UNDEFINED(entry->key)) continue;
     printf(", ");
+    if (IS_STRING(entry->key)) printf("\"");
     printValue(entry->key);
+    if (IS_STRING(entry->key)) printf("\"");
     printf(": ");
+    if (IS_STRING(entry->value)) printf("\"");
     printValue(entry->value);
+    if (IS_STRING(entry->value)) printf("\"");
   }
   printf("}");
 }

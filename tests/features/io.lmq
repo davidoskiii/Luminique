@@ -10,17 +10,15 @@ println(fileIn);
 println("Creating a read stream for input file. ");
 let fileReader = FileReadStream(fileIn);
 
-println("The first character of the file is: " + fileReader.peek());
-println("");
+println("The first character of the file is: " + fileReader.peek() + "\n");
 
-println("Now reading the entire file:");
-print("\n");
+println("Now reading the entire file: \n");
 
 while(!fileReader.isAtEnd()){
   print(fileReader.nextLine());
 }
 
-print("\n\n");
+println("\n");
 
 print("File stream is at end: ");
 println(fileReader.isAtEnd());
@@ -81,4 +79,4 @@ let bytes = [5, 37, 0, 88, 255, 12];
 println(bytes);
 binaryWriter.putBytes(bytes);
 println("Close binary write stream.");
-binaryWrite.close();
+binaryWriter.close();

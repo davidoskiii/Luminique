@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "time.h"
 #include "../assert/assert.h"
@@ -357,8 +358,15 @@ NATIVE_METHOD(Duration, toString) {
 	RETURN_STRING_FMT("%d days, %02d hours, %02d minutes, %02d seconds", AS_INT(days), AS_INT(hours), AS_INT(minutes), AS_INT(seconds));
 }
 
-NATIVE_FUNCTION(clock) {
-  assertArgCount("clock()", 0, argCount);
+NATIVE_FUNCTION(sleep) {
+  assertArgCount("sleep(seconds)", 1, argCount);
+  assertArgIsNumber("sleep(seconds)", args, 0);
+  sleep(AS_NUMBER(args[0]));
+  RETURN_NIL;
+}
+
+NATIVE_FUNCTION(timeNow) {
+  assertArgCount("timeNow()", 0, argCount);
   RETURN_NUMBER((double)clock() / CLOCKS_PER_SEC);
 }
 
@@ -395,7 +403,8 @@ void registerTimePackage() {
   ObjNamespace* timeNamespace = defineNativeNamespace("chrono", vm.stdNamespace);
   vm.currentNamespace = timeNamespace;
 
-  DEF_FUNCTION(clock, 0);
+  DEF_FUNCTION(sleep, 0);
+  DEF_FUNCTION(timeNow, 0);
   DEF_FUNCTION(dateNow, 0);
   DEF_FUNCTION(dateTimeNow, 0);
 
