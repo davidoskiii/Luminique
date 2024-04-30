@@ -958,6 +958,16 @@ InterpretResult run() {
         else push(NUMBER_VAL(-AS_NUMBER(pop())));
 
         break;
+      case OP_AFFERM:
+        if (!IS_NUMBER(peek(0))) {
+          ObjClass* exceptionClass = getNativeClass("luminique.std.lang", "IllegalArgumentException"); 
+          throwException(exceptionClass, "Operands must be numbers for negate operator.");
+        }
+
+        if (IS_INT(peek(0))) push(INT_VAL(+AS_INT(pop())));
+        else push(NUMBER_VAL(+AS_NUMBER(pop())));
+
+        break;
       case OP_JUMP: {
         uint16_t offset = READ_SHORT();
         frame->ip += offset;

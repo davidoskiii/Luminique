@@ -1130,6 +1130,7 @@ static void unary(bool canAssign) {
   // Emit the operator instruction.
   switch (operatorType) {
     case TOKEN_BANG: emitByte(OP_NOT); break;
+    case TOKEN_PLUS: emitByte(OP_AFFERM); break;
     case TOKEN_MINUS: emitByte(OP_NEGATE); break;
     default: return; // Unreachable.
   }
@@ -1149,7 +1150,7 @@ ParseRule rules[] = {
   [TOKEN_MINUS_MINUS]   = {NULL,          NULL,      PREC_CALL},
   [TOKEN_MINUS]         = {unary,         binary,    PREC_TERM},
   [TOKEN_PLUS_PLUS]     = {NULL,          NULL,      PREC_CALL},
-  [TOKEN_PLUS]          = {NULL,          binary,    PREC_TERM},
+  [TOKEN_PLUS]          = {unary,         binary,    PREC_TERM},
   [TOKEN_SEMICOLON]     = {NULL,          NULL,      PREC_NONE},
   [TOKEN_SLASH]         = {NULL,          binary,    PREC_FACTOR},
   [TOKEN_STAR]          = {NULL,          binary,    PREC_FACTOR},
