@@ -1658,7 +1658,7 @@ static void tryStatement() {
     beginScope();
     consume(TOKEN_LEFT_PAREN, "Expect '(' after catch");
     consume(TOKEN_IDENTIFIER, "Expect type name to catch");
-    uint16_t name = identifierConstant(&parser.previous);
+    uint8_t name = identifierConstant(&parser.previous);
     currentChunk()->code[exceptionType] = name;
     patchAddress(handlerAddress);
 
@@ -1668,9 +1668,8 @@ static void tryStatement() {
       consume(TOKEN_IDENTIFIER, "Expect identifier after exception type.");
       addLocal(parser.previous);
       markInitialized(false);
-      uint16_t variable = resolveLocal(current, &parser.previous);
-      emitByte(OP_SET_LOCAL);
-      emitShort(variable);
+      uint8_t variable = resolveLocal(current, &parser.previous);
+      emitBytes(OP_SET_LOCAL, variable);
     }
 
     consume(TOKEN_RIGHT_PAREN, "Expect ')' after catch statement");

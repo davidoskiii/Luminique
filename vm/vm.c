@@ -1183,7 +1183,7 @@ InterpretResult run() {
         return INTERPRET_RUNTIME_ERROR;
       }
       case OP_TRY: {
-        ObjString* exceptionClass = READ_STRING();
+        ObjString* exceptionClass = AS_STRING(READ_CONSTANT());
         uint16_t handlerAddress = READ_SHORT();
         uint16_t finallyAddress = READ_SHORT();
         Value value;
