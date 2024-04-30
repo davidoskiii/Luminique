@@ -118,5 +118,8 @@ println(math::even(2));
 print("odd at '3': ");
 println(math::odd(3));
 
-print("gcd of '25' and '53");
+print("gcd of '25' and '53': ");
 println(math::gcd(25, 53));
+
+print("lcm '25' and '53': ");
+println(math::lcm(25, 53));
