@@ -113,17 +113,21 @@ char* returnSpaces(int count) {
 }
 
 char* arrowsString(const char* input) {
+  if (input == NULL) {
+    return NULL;
+  }
+
   size_t len = strlen(input);
-  char* caretStr = (char*)malloc(len + 1);
+  char* caretStr = (char*)malloc(len + 2);
   if (!caretStr) return NULL;
 
   caretStr[0] = '^';
 
-  for (size_t i = 1; i < len; i++) {
+  for (size_t i = 1; i <= len; i++) {
     caretStr[i] = '~';
   }
 
-  caretStr[len] = '\0';
+  caretStr[len + 1] = '\0';
   return caretStr;
 }
 

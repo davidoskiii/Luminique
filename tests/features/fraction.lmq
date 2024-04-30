@@ -1,4 +1,4 @@
-namespace tests;
+using luminique.std.math;
 
 class Fraction {
   function __init__(numerator, denominator) {
@@ -18,10 +18,10 @@ class Fraction {
   }
 
   function reduce() {
-    let gcd = this.numerator.gcd(this.denominator);
+    let gcd = math::gcd(this.numerator, this.denominator);
     let numerator = this.numerator / gcd;
     let denominator = this.denominator / gcd;
-    return Fraction(numerator.toInt(), denominator.toInt());
+    return Fraction(int(numerator), int(denominator));
   }
 
   function toString() {

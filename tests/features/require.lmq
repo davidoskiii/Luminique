@@ -1,4 +1,4 @@
-require "tests/fratures/fraction.lmq";
+require "tests/features/fraction.lmq";
 
 println("Created class Fraction...");
 
