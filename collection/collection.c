@@ -33,30 +33,6 @@ ObjEntry* dictFindEntry(ObjEntry* entries, int capacity, Value key) {
   }
 }
 
-
-static void dictAdjustCapacity(ObjDictionary* dict, int capacity) {
-  ObjEntry* entries = ALLOCATE(ObjEntry, capacity);
-  for (int i = 0; i < capacity; i++) {
-    entries[i].key = UNDEFINED_VAL;
-    entries[i].value = NIL_VAL;
-  }
-
-  dict->count = 0;
-  for (int i = 0; i < dict->capacity; i++) {
-    ObjEntry* entry = &dict->entries[i];
-    if (IS_UNDEFINED(entry->key)) continue;
-
-    ObjEntry* dest = dictFindEntry(entries, capacity, entry->key);
-    dest->key = entry->key;
-    dest->value = entry->value;
-    dict->count++;
-  }
-
-  FREE_ARRAY(ObjEntry, dict->entries, dict->capacity);
-  dict->entries = entries;
-  dict->capacity = capacity;
-}
-
 static bool dictContainsKey(ObjDictionary* dict, Value key) {
   if (dict->count == 0) return false;
   ObjEntry* entry = dictFindEntry(dict->entries, dict->capacity, key);
@@ -899,7 +875,7 @@ NATIVE_METHOD(Dictionary, toString) {
 
 void registerCollectionPackage() {
   ObjNamespace* collectionNamespace = defineNativeNamespace("collection", vm.stdNamespace);
-  vm.currentNamespace = collectionNamespace;
+  vm.currentNamespace = vm.langNamespace;
 
   ObjClass* collectionClass = defineNativeClass("Collection");
   bindSuperclass(collectionClass, vm.objectClass);
@@ -948,6 +924,7 @@ void registerCollectionPackage() {
 	DEF_METHOD(vm.dictionaryClass, Dictionary, clear, 0);
 	DEF_METHOD(vm.dictionaryClass, Dictionary, containsKey, 1);
 	DEF_METHOD(vm.dictionaryClass, Dictionary, containsValue, 1);
+	DEF_METHOD(vm.dictionaryClass, Dictionary, equals, 1);
 	DEF_METHOD(vm.dictionaryClass, Dictionary, getAt, 1);
 	DEF_METHOD(vm.dictionaryClass, Dictionary, clone, 0);
 	DEF_METHOD(vm.dictionaryClass, Dictionary, isEmpty, 0);
@@ -960,6 +937,8 @@ void registerCollectionPackage() {
 	DEF_METHOD(vm.dictionaryClass, Dictionary, toString, 0);
   DEF_OPERATOR(vm.dictionaryClass, Dictionary, [], __getSubscript__, 1);
   DEF_OPERATOR(vm.dictionaryClass, Dictionary, []=, __setSubscript__, 2);
+
+  vm.currentNamespace = collectionNamespace;
 
   ObjClass* setClass = defineNativeClass("Set");
   bindSuperclass(setClass, collectionClass);

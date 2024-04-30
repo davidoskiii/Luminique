@@ -4,7 +4,7 @@
 #include "../common.h"
 #include "../value/value.h"
 
-void assertArgCount(const char* method, int expectedCount, int actualCount);
+void assertArgCount(const char* method, uint16_t expectedCount, uint16_t actualCount);
 void assertArgIsBool(const char* method, Value* args, int index);
 void assertArgIsClass(const char* method, Value* args, int index);
 void assertArgIsDictionary(const char* method, Value* args, int index);

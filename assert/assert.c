@@ -4,7 +4,7 @@
 #include "assert.h"
 #include "../native/native.h"
 
-void assertArgCount(const char* method, int expectedCount, int actualCount) {
+void assertArgCount(const char* method, uint16_t expectedCount, uint16_t actualCount) {
   if (expectedCount != actualCount) {
     runtimeError("Method %s expects %d argument(s) but got %d instead.", method, expectedCount, actualCount);
     exit(70);

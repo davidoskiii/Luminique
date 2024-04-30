@@ -53,6 +53,9 @@ println(math::acosh(1));
 print("atanh of '0': ");
 println(math::atanh(0));
 
+print("hypot of '3' and '4': ");
+println(math::hypot(3, 4));
+
 print("exp at '1': ");
 println(math::exp(1));
 
@@ -73,6 +76,12 @@ println(math::pow(2, 4));
 
 print("sqrt at '25': ");
 println(math::sqrt(25));
+
+print("cbrt at '125': ");
+println(math::cbrt(125));
+
+print("nthrt at '625' and '4': ");
+println(math::nthrt(625, 4));
 
 print("ceil at '4.3': ");
 println(math::ceil(4.3));
@@ -97,3 +106,17 @@ println(math::fmax(8, 12));
 
 print("fmin of '8' and '12': ");
 println(math::fmin(8, 12));
+
+let i = 1024 * 1024 + 125 * 25;
+
+println("i to binary: " + math::bin(i));
+println("i to hex: " + math::hex(i));
+
+print("even at '2': ");
+println(math::even(2));
+
+print("odd at '3': ");
+println(math::odd(3));
+
+print("gcd of '25' and '53");
+println(math::gcd(25, 53));

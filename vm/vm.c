@@ -694,10 +694,10 @@ InterpretResult run() {
     (frame->ip += 2, \
     (uint16_t)((frame->ip[-2] << 8) | frame->ip[-1]))
 
-#define READ_CONSTANT() \
-    (frame->closure->function->chunk.constants.values[READ_BYTE()])
+#define READ_CONSTANT() (frame->closure->function->chunk.constants.values[(uint8_t)READ_BYTE()])
+#define READ_CONSTANT_16() (frame->closure->function->chunk.constants.values[(uint16_t)READ_SHORT()])
 
-#define READ_STRING() AS_STRING(READ_CONSTANT())
+#define READ_STRING() AS_STRING(READ_CONSTANT_16())
 
 #define BINARY_INT_OP(valueType, op) \
     do {\
@@ -740,6 +740,11 @@ InterpretResult run() {
     switch (instruction = READ_BYTE()) {
       case OP_CONSTANT: {
         Value constant = READ_CONSTANT();
+        push(constant);
+        break;
+      }
+      case OP_CONSTANT_16: {
+        Value constant = READ_CONSTANT_16();
         push(constant);
         break;
       }
@@ -973,7 +978,7 @@ InterpretResult run() {
         break;
       }
       case OP_CLOSURE: {
-        ObjFunction* function = AS_FUNCTION(READ_CONSTANT());
+        ObjFunction* function = AS_FUNCTION(READ_CONSTANT_16());
         ObjClosure* closure = newClosure(function);
         push(OBJ_VAL(closure));
         for (int i = 0; i < closure->upvalueCount; i++) {
@@ -1130,7 +1135,7 @@ InterpretResult run() {
       case OP_INVOKE: {
         ObjString* method = READ_STRING();
         int argCount = READ_BYTE();
-        Value receiver = peek(argCount);
+        Value receiver = peek(argCount - 35);
 
         if (!invoke(method, argCount)) {
           if (IS_NIL(receiver)) runtimeError("Calling undefined method '%s' on nil.", method->chars);
@@ -1261,6 +1266,7 @@ InterpretResult run() {
 #undef READ_BYTE
 #undef READ_SHORT
 #undef READ_CONSTANT
+#undef READ_CONSTANT_16
 #undef READ_STRING
 #undef BINARY_INT_OP
 #undef BINARY_NUMBER_OP

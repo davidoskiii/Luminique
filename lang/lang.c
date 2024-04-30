@@ -12,45 +12,6 @@
 
 #define MAX_BUFFER_SIZE 32
 
-static int factorial(int self) {
-  int result = 1;
-  for (int i = 1; i <= self; i++) {
-    result *= i;
-  }
-  return result;
-}
-
-static int gcd(int self, int other) {
-  while (self != other) {
-    if (self > other) self -= other;
-    else other -= self;
-  }
-  return self;
-}
-
-static int lcm(int self, int other) {
-  return (self * other) / gcd(self, other);
-}
-
-char* intToBinary(int num, char* binaryString) {
-  int index = 0;
-  while (num > 0) {
-    binaryString[index++] = (num % 2) + '0';
-    num /= 2;
-  }
-  
-  binaryString[index] = '\0';
-  
-  int i, j;
-  for (i = 0, j = index - 1; i < j; i++, j--) {
-    char temp = binaryString[i];
-    binaryString[i] = binaryString[j];
-    binaryString[j] = temp;
-  }
-  
-  return binaryString;
-}
-
 // BOOL
 
 NATIVE_METHOD(Bool, __init__) {
@@ -312,62 +273,9 @@ NATIVE_METHOD(Int, __modulo__) {
   else RETURN_NUMBER(fmod(AS_NUMBER(receiver), AS_NUMBER(args[0])));
 }
 
-NATIVE_METHOD(Int, abs) {
-  assertArgCount("Int::abs()", 0, argCount);
-  RETURN_INT(abs(AS_INT(receiver)));
-}
-
 NATIVE_METHOD(Int, clone) {
   assertArgCount("Int::clone()", 0, argCount);
   return receiver;
-}
-
-NATIVE_METHOD(Int, factorial) {
-  assertArgCount("Int::factorial()", 0, argCount);
-  int self = AS_INT(receiver);
-  assertNumberNonNegative("Int::factorial()", self, -1);
-  RETURN_INT(factorial(self));
-}
-
-NATIVE_METHOD(Int, gcd) {
-  assertArgCount("Int::gcd(other)", 1, argCount);
-  assertArgIsInt("Int::gcd(other)", args, 0);
-  RETURN_INT(gcd(abs(AS_INT(receiver)), abs(AS_INT(args[0]))));
-}
-
-NATIVE_METHOD(Int, isEven) {
-  assertArgCount("Int::isEven()", 0, argCount);
-  RETURN_BOOL(AS_INT(receiver) % 2 == 0);
-}
-
-NATIVE_METHOD(Int, isOdd) {
-  assertArgCount("Int::isOdd()", 0, argCount);
-  RETURN_BOOL(AS_INT(receiver) % 2 != 0);
-}
-
-NATIVE_METHOD(Int, lcm) {
-  assertArgCount("Int::lcm(other)", 1, argCount);
-  assertArgIsInt("Int::lcm(other)", args, 0);
-  RETURN_INT(lcm(abs(AS_INT(receiver)), abs(AS_INT(args[0]))));
-}
-
-NATIVE_METHOD(Int, toFloat) {
-  assertArgCount("Int::toFloat()", 0, argCount);
-  RETURN_NUMBER((double)AS_INT(receiver));
-}
-
-NATIVE_METHOD(Int, toBinary) {
-  assertArgCount("Int::toBinary()", 0, argCount);
-  char buffer[MAX_BUFFER_SIZE];
-  intToBinary(AS_INT(receiver), buffer);
-  RETURN_STRING(buffer, strlen(buffer));
-}
-
-NATIVE_METHOD(Int, toHexadecimal) {
-  assertArgCount("Int::toHexadecimal()", 0, argCount);
-  char buffer[MAX_BUFFER_SIZE];
-  sprintf(buffer, "%x", AS_INT(receiver));
-  RETURN_STRING(buffer, strlen(buffer));
 }
 
 NATIVE_METHOD(Int, toString) {
@@ -450,127 +358,9 @@ NATIVE_METHOD(Number, __power__) {
   assertArgIsNumber("Number::**(other)", args, 0);
   RETURN_NUMBER(pow(AS_NUMBER(receiver), AS_NUMBER(args[0])));
 }
-
-NATIVE_METHOD(Number, abs) {
-	assertArgCount("Number::abs()", 0, argCount);
-	RETURN_NUMBER(fabs(AS_NUMBER(receiver)));
-}
-
-NATIVE_METHOD(Number, arccos) {
-  assertArgCount("Number::acos()", 0, argCount);
-  RETURN_NUMBER(acos(AS_NUMBER(receiver)));
-}
-
-NATIVE_METHOD(Number, arcsin) {
-  assertArgCount("Number::asin()", 0, argCount);
-  RETURN_NUMBER(asin(AS_NUMBER(receiver)));
-}
-
-NATIVE_METHOD(Number, arctan) {
-  assertArgCount("Number::atan()", 0, argCount);
-  RETURN_NUMBER(atan(AS_NUMBER(receiver)));
-}
-
-NATIVE_METHOD(Number, cbrt) {
-	assertArgCount("Number::cbrt()", 0, argCount);
-	RETURN_NUMBER(cbrt(AS_NUMBER(receiver)));
-}
-
-NATIVE_METHOD(Number, ceil) {
-	assertArgCount("Number::ceil()", 0, argCount);
-	RETURN_NUMBER(ceil(AS_NUMBER(receiver)));
-}
-
 NATIVE_METHOD(Number, clone) {
 	assertArgCount("Number::clone()", 0, argCount);
 	return receiver;
-}
-
-NATIVE_METHOD(Number, cos) {
-  assertArgCount("Number::cos()", 0, argCount);
-  RETURN_NUMBER(cos(AS_NUMBER(receiver)));
-}
-
-NATIVE_METHOD(Number, exp) {
-	assertArgCount("Number::exp()", 0, argCount);
-	RETURN_NUMBER(exp(AS_NUMBER(receiver)));
-}
-
-NATIVE_METHOD(Number, floor) {
-	assertArgCount("Number::floor()", 0, argCount);
-	RETURN_NUMBER(floor(AS_NUMBER(receiver)));
-}
-
-NATIVE_METHOD(Number, hypot) {
-  assertArgCount("Number::hypot(other)", 1, argCount);
-  assertArgIsNumber("Number::hypot(other)", args, 0);
-  RETURN_NUMBER(hypot(AS_NUMBER(receiver), AS_NUMBER(args[0])));
-}
-
-NATIVE_METHOD(Number, log) {
-	assertArgCount("Number::log()", 0, argCount);
-	double self = AS_NUMBER(receiver);
-	assertNumberPositive("Number::log2()", self, -1);
-	RETURN_NUMBER(log(self));
-}
-
-NATIVE_METHOD(Number, log10) {
-	assertArgCount("Number::log10()", 0, argCount);
-	double self = AS_NUMBER(receiver);
-	assertNumberPositive("Number::log10()", self, -1);
-	RETURN_NUMBER(log10(self));
-}
-
-NATIVE_METHOD(Number, log2) {
-	assertArgCount("Number::log2()", 0, argCount);
-	double self = AS_NUMBER(receiver);
-	assertNumberPositive("Number::log2()", self, -1);
-	RETURN_NUMBER(log2(self));
-}
-
-NATIVE_METHOD(Number, max) {
-	assertArgCount("Number::max(other)", 1, argCount);
-	assertArgIsNumber("Number::max(other)", args, 0);
-	RETURN_NUMBER(fmax(AS_NUMBER(receiver), AS_NUMBER(args[0])));
-}
-
-NATIVE_METHOD(Number, min) {
-	assertArgCount("Number::min(other)", 1, argCount);
-	assertArgIsNumber("Number::min(other)", args, 0);
-	RETURN_NUMBER(fmin(AS_NUMBER(receiver), AS_NUMBER(args[0])));
-}
-
-NATIVE_METHOD(Number, pow) {
-	assertArgCount("Number::pow(exponent)", 1, argCount);
-	assertArgIsNumber("Number::pow(exponent)", args, 0);
-	RETURN_NUMBER(pow(AS_NUMBER(receiver), AS_NUMBER(args[0])));
-}
-
-NATIVE_METHOD(Number, round) {
-	assertArgCount("Number::round()", 0, argCount);
-	RETURN_NUMBER(round(AS_NUMBER(receiver)));
-}
-
-NATIVE_METHOD(Number, sin) {
-  assertArgCount("Number::sin()", 0, argCount);
-  RETURN_NUMBER(sin(AS_NUMBER(receiver)));
-}
-
-NATIVE_METHOD(Number, sqrt) {
-	assertArgCount("Number::sqrt()", 0, argCount);
-	double self = AS_NUMBER(receiver);
-	assertNumberPositive("Number::sqrt()", self, -1);
-	RETURN_NUMBER(sqrt(self));
-}
-
-NATIVE_METHOD(Number, tan) {
-  assertArgCount("Number::tan()", 0, argCount);
-  RETURN_NUMBER(tan(AS_NUMBER(receiver)));
-}
-
-NATIVE_METHOD(Number, toInt) {
-  assertArgCount("Number::toInt()", 0, argCount);
-  RETURN_INT(AS_NUMBER(receiver));
 }
 
 NATIVE_METHOD(Number, toString) {
@@ -954,28 +744,7 @@ void registerLangPackage() {
 	vm.numberClass = defineNativeClass("Number");
 	bindSuperclass(vm.numberClass, vm.objectClass);
   DEF_METHOD(vm.numberClass, Number, __init__, 0);
-  DEF_METHOD(vm.numberClass, Number, abs, 0);
-  DEF_METHOD(vm.numberClass, Number, arccos, 0);
-  DEF_METHOD(vm.numberClass, Number, arcsin, 0);
-  DEF_METHOD(vm.numberClass, Number, arctan, 0);
-  DEF_METHOD(vm.numberClass, Number, cbrt, 0);
-  DEF_METHOD(vm.numberClass, Number, ceil, 0);
   DEF_METHOD(vm.numberClass, Number, clone, 0);
-  DEF_METHOD(vm.numberClass, Number, cos, 0);
-  DEF_METHOD(vm.numberClass, Number, exp, 1);
-  DEF_METHOD(vm.numberClass, Number, floor, 0);
-  DEF_METHOD(vm.numberClass, Number, hypot, 1);
-  DEF_METHOD(vm.numberClass, Number, log, 0);
-  DEF_METHOD(vm.numberClass, Number, log2, 0);
-  DEF_METHOD(vm.numberClass, Number, log10, 0);
-  DEF_METHOD(vm.numberClass, Number, max, 1);
-  DEF_METHOD(vm.numberClass, Number, min, 1);
-  DEF_METHOD(vm.numberClass, Number, pow, 1);
-  DEF_METHOD(vm.numberClass, Number, round, 0);
-  DEF_METHOD(vm.numberClass, Number, sin, 0);
-  DEF_METHOD(vm.numberClass, Number, sqrt, 0);
-  DEF_METHOD(vm.numberClass, Number, tan, 0);
-  DEF_METHOD(vm.numberClass, Number, toInt, 0);
   DEF_METHOD(vm.numberClass, Number, toString, 0);
   DEF_OPERATOR(vm.numberClass, Number, ==, __equal__, 1);
   DEF_OPERATOR(vm.numberClass, Number, >, __greater__, 1);
@@ -990,16 +759,7 @@ void registerLangPackage() {
   vm.intClass = defineNativeClass("Int");
   bindSuperclass(vm.intClass, vm.numberClass);
   DEF_METHOD(vm.intClass, Int, __init__, 0);
-  DEF_METHOD(vm.intClass, Int, abs, 0);
   DEF_METHOD(vm.intClass, Int, clone, 0);
-  DEF_METHOD(vm.intClass, Int, factorial, 0);
-  DEF_METHOD(vm.intClass, Int, gcd, 1);
-  DEF_METHOD(vm.intClass, Int, isEven, 0);
-  DEF_METHOD(vm.intClass, Int, isOdd, 0);
-  DEF_METHOD(vm.intClass, Int, lcm, 1);
-  DEF_METHOD(vm.intClass, Int, toBinary, 0);
-  DEF_METHOD(vm.intClass, Int, toFloat, 0);
-  DEF_METHOD(vm.intClass, Int, toHexadecimal, 0);
   DEF_METHOD(vm.intClass, Int, toString, 0);
   DEF_OPERATOR(vm.intClass, Int, +, __add__, 1);
   DEF_OPERATOR(vm.intClass, Int, -, __subtract__, 1);

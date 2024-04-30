@@ -79,7 +79,6 @@ typedef struct {
 
 typedef Value (*NativeFunction)(int argCount, Value* args);
 typedef Value (*NativeMethod)(Value receiver, int argCount, Value* args);
-typedef Value (*NativeInstance)(Value receiver, int argCount, Value* args);
 
 typedef struct {
   Obj obj;
@@ -158,11 +157,6 @@ typedef struct {
   Obj obj;
   Table fields;
 } ObjInstance;
-
-typedef struct {
-  Obj obj;
-  NativeInstance instance;
-} ObjNativeInstance;
 
 typedef struct {
   Obj obj;

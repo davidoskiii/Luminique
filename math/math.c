@@ -12,6 +12,45 @@
 #include "../value/value.h"
 #include "../vm/vm.h"
 
+static int factorial(int self) {
+  int result = 1;
+  for (int i = 1; i <= self; i++) {
+    result *= i;
+  }
+  return result;
+}
+
+static int gcd(int self, int other) {
+  while (self != other) {
+    if (self > other) self -= other;
+    else other -= self;
+  }
+  return self;
+}
+
+static int lcm(int self, int other) {
+  return (self * other) / gcd(self, other);
+}
+
+char* intToBinary(int num, char* binaryString) {
+  int index = 0;
+  while (num > 0) {
+    binaryString[index++] = (num % 2) + '0';
+    num /= 2;
+  }
+  
+  binaryString[index] = '\0';
+  
+  int i, j;
+  for (i = 0, j = index - 1; i < j; i++, j--) {
+    char temp = binaryString[i];
+    binaryString[i] = binaryString[j];
+    binaryString[j] = temp;
+  }
+  
+  return binaryString;
+}
+
 NATIVE_FUNCTION(sin) {
   assertArgCount("sin(radiants)", 1, argCount);
   assertArgIsNumber("sin(radiants)", args, 0);
@@ -66,6 +105,17 @@ NATIVE_FUNCTION(atan) {
   assertArgCount("atan(value)", 1, argCount);
   assertArgIsNumber("atan(value)", args, 0);
   double result = atan(AS_NUMBER(args[0]));
+  if (isnan(result)) {
+    RETURN_NIL;
+  }
+  RETURN_NUMBER(result);
+}
+
+NATIVE_FUNCTION(hypot) {
+  assertArgCount("hypot(a, b)", 2, argCount);
+  assertArgIsNumber("hypot(a, b)", args, 0);
+  assertArgIsNumber("hypot(a, b)", args, 1);
+  double result = hypot(AS_NUMBER(args[0]), AS_NUMBER(args[1]));
   if (isnan(result)) {
     RETURN_NIL;
   }
@@ -131,6 +181,31 @@ NATIVE_FUNCTION(sqrt) {
     RETURN_NIL;
   }
   RETURN_NUMBER(result);
+}
+
+NATIVE_FUNCTION(cbrt) {
+  assertArgCount("cbrt(value)", 1, argCount);
+  assertArgIsNumber("cbrt(value)", args, 0);
+  double result = cbrt(AS_NUMBER(args[0]));
+  if (isnan(result)) {
+    RETURN_NIL;
+  }
+  RETURN_NUMBER(result);
+}
+
+NATIVE_FUNCTION(nthrt) {
+  assertArgCount("nthrt(value, n)", 2, argCount);
+  assertArgIsNumber("nthrt(value, n)", args, 0);
+  assertArgIsNumber("nthrt(value, n)", args, 1);
+  
+  double value = AS_NUMBER(args[0]);
+  double n = AS_NUMBER(args[1]);
+  
+  if (n == 0.0) {
+    runtimeError("Invalid root degree: n cannot be zero");
+  }
+  
+  RETURN_NUMBER(pow(value, 1.0 / n));
 }
 
 NATIVE_FUNCTION(logb) {
@@ -307,6 +382,56 @@ NATIVE_FUNCTION(deg) {
   RETURN_NUMBER(result);
 }
 
+NATIVE_FUNCTION(bin) {
+  assertArgCount("bin(value)", 1, argCount);
+  assertArgIsInt("bin(value)", args, 0);
+  char buffer[32];
+  intToBinary(AS_INT(args[0]), buffer);
+  RETURN_STRING(buffer, strlen(buffer));
+}
+
+NATIVE_FUNCTION(hex) {
+  assertArgCount("hex(value)", 1, argCount);
+  assertArgIsInt("hex(value)", args, 0);
+  char buffer[32];
+  sprintf(buffer, "%x", AS_INT(args[0]));
+  RETURN_STRING(buffer, strlen(buffer));
+}
+
+NATIVE_FUNCTION(factorial) {
+  assertArgCount("factorial(value)", 1, argCount);
+  assertArgIsInt("factorial(value)", args, 0);
+  int self = AS_INT(args[0]);
+  assertNumberNonNegative("factorial(value)", self, -1);
+  RETURN_INT(factorial(self));
+}
+
+NATIVE_FUNCTION(gcd) {
+  assertArgCount("gcd(value1, value2)", 2, argCount);
+  assertArgIsInt("gcd(value1, value2)", args, 0);
+  assertArgIsInt("gcd(value1, value2)", args, 1);
+  RETURN_INT(gcd(abs(AS_INT(args[0])), abs(AS_INT(args[1]))));
+}
+
+NATIVE_FUNCTION(lcm) {
+  assertArgCount("lcm(value1, value2)", 2, argCount);
+  assertArgIsInt("lcm(value1, value2)", args, 0);
+  assertArgIsInt("lcm(value1, value2)", args, 1);
+  RETURN_INT(lcm(abs(AS_INT(args[0])), abs(AS_INT(args[1]))));
+}
+
+NATIVE_FUNCTION(even) {
+  assertArgCount("even(value)", 1, argCount);
+  assertArgIsInt("even(value)", args, 0);
+  RETURN_BOOL(AS_INT(args[0]) % 2 == 0);
+}
+
+NATIVE_FUNCTION(odd) {
+  assertArgCount("odd(value)", 1, argCount);
+  assertArgIsInt("odd(value)", args, 0);
+  RETURN_BOOL(AS_INT(args[0]) % 2 != 0);
+}
+
 void registerMathPackage() {
   ObjNamespace* mathNamespace = defineNativeNamespace("math", vm.stdNamespace);
   vm.currentNamespace = mathNamespace;
@@ -322,6 +447,8 @@ void registerMathPackage() {
   DEF_FUNCTION(asin, 1);
   DEF_FUNCTION(acos, 1);
   DEF_FUNCTION(atan, 1);
+
+  DEF_FUNCTION(hypot, 2);
 
   // Hyperbolic functions
   DEF_FUNCTION(sinh, 1);
@@ -339,6 +466,8 @@ void registerMathPackage() {
   DEF_FUNCTION(logb, 2);
   DEF_FUNCTION(pow, 2);
   DEF_FUNCTION(sqrt, 1);
+  DEF_FUNCTION(cbrt, 1);
+  DEF_FUNCTION(nthrt, 2);
 
   // Rounding and absolute functions
   DEF_FUNCTION(ceil, 1);
@@ -355,6 +484,15 @@ void registerMathPackage() {
   // Conversion
   DEF_FUNCTION(rad, 1);
   DEF_FUNCTION(deg, 1);
+  DEF_FUNCTION(bin, 1);
+  DEF_FUNCTION(hex, 1);
+
+  // Others
+  DEF_FUNCTION(factorial, 1);
+  DEF_FUNCTION(gcd, 1);
+  DEF_FUNCTION(lcm, 1);
+  DEF_FUNCTION(even, 1);
+  DEF_FUNCTION(odd, 1);
 
   vm.currentNamespace = vm.rootNamespace;
 }

@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 #include "../object/object.h"
 #include "../common.h"
@@ -91,7 +92,7 @@ Compiler* current = NULL;
 ClassCompiler* currentClass = NULL;
 
 static void emitConstant(Value value);
-static uint8_t makeConstant(Value value);
+static uint16_t makeConstant(Value value);
 
 static Chunk* currentChunk() {
   return &current->function->chunk;
@@ -281,20 +282,22 @@ static void emitBytes(uint8_t byte1, uint8_t byte2) {
   emitByte(byte2);
 }
 
+static void emitShort(uint16_t s) {
+  emitByte((s >> 8) & 0xff);
+  emitByte(s & 0xff);
+}
+
 static void emitLoop(int loopStart) {
   emitByte(OP_LOOP);
-
   int offset = currentChunk()->count - loopStart + 2;
   if (offset > UINT16_MAX) error("Loop body too large.");
 
-  emitByte((offset >> 8) & 0xff);
-  emitByte(offset & 0xff);
+  emitShort(offset);
 }
 
 static int emitJump(uint8_t instruction) {
   emitByte(instruction);
-  emitByte(0xff);
-  emitByte(0xff);
+  emitShort(0xffff);
   return currentChunk()->count - 2;
 }
 
@@ -313,7 +316,15 @@ static void emitReturn(uint8_t depth) {
 }
 
 static void emitConstant(Value value) {
-  emitBytes(OP_CONSTANT, makeConstant(value));
+  uint16_t constant = makeConstant(value);
+
+  if (constant < UINT8_MAX) {
+    emitByte(OP_CONSTANT);
+    emitByte((uint8_t)constant);
+  } else if (constant < UINT16_MAX) {
+    emitByte(OP_CONSTANT_16);
+    emitShort(constant);
+  }
 }
 
 static void patchJump(int offset) {
@@ -328,7 +339,7 @@ static void patchJump(int offset) {
   currentChunk()->code[offset + 1] = jump & 0xff;
 }
 
-uint8_t identifierConstant(Token* name) {
+uint16_t identifierConstant(Token* name) {
   return makeConstant(OBJ_VAL(copyString(name->start, name->length)));
 }
 
@@ -387,14 +398,14 @@ static void initCompiler(Compiler* compiler, FunctionType type) {
   }
 }
 
-static uint8_t makeConstant(Value value) {
-  int constant = addConstant(currentChunk(), value);
-  if (constant > UINT8_MAX) {
+static uint16_t makeConstant(Value value) {
+  uint16_t constant = addConstant(currentChunk(), value);
+  if (constant > UINT16_MAX) {
     error("Too many constants in one chunk.");
     return 0;
   }
 
-  return (uint8_t)constant;
+  return (uint16_t)constant;
 }
 
 
@@ -458,7 +469,7 @@ static Token syntheticToken(const char* text) {
 }
 
 
-static uint8_t propretyConstant(const char* message) {
+static uint16_t propretyConstant(const char* message) {
   switch (parser.current.type) {
     case TOKEN_IDENTIFIER:
     case TOKEN_EQUAL_EQUAL:
@@ -588,9 +599,9 @@ static int discardLocals() {
 }
 
 static void invokeMethod(int args, const char* name, int length) {
-  int slot = makeConstant(OBJ_VAL(copyString(name, length)));
+  uint16_t slot = makeConstant(OBJ_VAL(copyString(name, length)));
   emitByte(OP_INVOKE);
-  emitByte(slot);
+  emitShort(slot);
   emitByte(args);
 }
 
@@ -613,7 +624,7 @@ static void declareVariable() {
   addLocal(*name);
 }
 
-static uint8_t parseVariable(const char* errorMessage) {
+static uint16_t parseVariable(const char* errorMessage) {
   consume(TOKEN_IDENTIFIER, errorMessage);
 
   declareVariable();
@@ -628,7 +639,7 @@ static void markInitialized(bool isMutable) {
   current->locals[current->localCount - 1].isMutable = isMutable;
 }
 
-static void defineVariable(uint8_t global, bool isMutable) {
+static void defineVariable(uint16_t global, bool isMutable) {
   if (current->scopeDepth > 0) {
     markInitialized(isMutable);
     return;
@@ -641,17 +652,19 @@ static void defineVariable(uint8_t global, bool isMutable) {
 
     if (isMutable) {
       tableSet(&vm.globals, name, NIL_VAL);
-      emitBytes(OP_DEFINE_GLOBAL, global);
+      emitByte(OP_DEFINE_GLOBAL);
+      emitShort(global);
     }
     else {
       tableSet(&vm.rootNamespace->values, name, NIL_VAL);
-      emitBytes(OP_DEFINE_CONST, global);
+      emitByte(OP_DEFINE_CONST);
+      emitShort(global);
     }
   }
 }
 
-static uint8_t argumentList() {
-  uint8_t argCount = 0;
+static int argumentList() {
+  int argCount = 0;
   if (!check(TOKEN_RIGHT_PAREN)) {
     do {
       expression();
@@ -668,7 +681,7 @@ static uint8_t argumentList() {
 static void parameterList() {
   if (match(TOKEN_DOT_DOT_DOT)) {
     current->function->arity = -1;
-    uint8_t constant = parseVariable("Expect variadic parameter name.");
+    uint16_t constant = parseVariable("Expect variadic parameter name.");
     defineVariable(constant, false);
     return;
   }
@@ -680,10 +693,10 @@ static void parameterList() {
     }
 
     if (match(TOKEN_CONST)) {
-      uint8_t constant = parseVariable("Expect parameter name.");
+      uint16_t constant = parseVariable("Expect parameter name.");
       defineVariable(constant, false);
     } else {
-      uint8_t constant = parseVariable("Expect parameter name.");
+      uint16_t constant = parseVariable("Expect parameter name.");
       defineVariable(constant, true);
     }
   } while (match(TOKEN_COMMA));
@@ -721,29 +734,33 @@ static void binary(bool canAssign) {
 }
 
 static void call(bool canAssign) {
-  uint8_t argCount = argumentList();
+  int argCount = argumentList();
   emitBytes(OP_CALL, argCount);
 }
 
 static void dot(bool canAssign) {
-  uint8_t name = propretyConstant("Expect property name after '.'.");
+  uint16_t name = propretyConstant("Expect property name after '.'.");
 
   if (canAssign && match(TOKEN_EQUAL)) {
     expression();
-    emitBytes(OP_SET_PROPERTY, name);
+    emitByte(OP_SET_PROPERTY);
+    emitShort(name);
   } else if (match(TOKEN_LEFT_PAREN)) {
-    uint8_t argCount = argumentList();
-    emitBytes(OP_INVOKE, name);
+    int argCount = argumentList();
+    emitByte(OP_INVOKE);
+    emitShort(name);
     emitByte(argCount);
   } else {
-    emitBytes(OP_GET_PROPERTY, name);
+    emitByte(OP_GET_PROPERTY);
+    emitShort(name);
   }
 }
 
 static void coloncolon(bool canAssign) {
-  uint8_t name = propretyConstant("Expect property name after '::'.");
+  uint16_t name = propretyConstant("Expect property name after '::'.");
 
-  emitBytes(OP_GET_NAMESPACE, name);
+  emitByte(OP_GET_NAMESPACE);
+  emitShort(name);
 }
 
 static void literal(bool canAssign) {
@@ -1029,6 +1046,7 @@ static void lambda(bool canAssign) {
 
 static void namedVariable(Token name, bool canAssign) {
   uint8_t getOp, setOp;
+  bool isConstant = false;
   int arg = resolveLocal(current, &name);
   if (arg != -1) {
     getOp = OP_GET_LOCAL;
@@ -1037,6 +1055,7 @@ static void namedVariable(Token name, bool canAssign) {
     getOp = OP_GET_UPVALUE;
     setOp = OP_SET_UPVALUE;
   } else {
+    isConstant = true;
     arg = identifierConstant(&name);
     getOp = OP_GET_GLOBAL;
     setOp = OP_SET_GLOBAL;
@@ -1045,9 +1064,19 @@ static void namedVariable(Token name, bool canAssign) {
   if (canAssign && match(TOKEN_EQUAL)) {
     checkMutability(arg, setOp);
     expression();
-    emitBytes(setOp, (uint8_t)arg);
+    emitByte(setOp);
+    if (isConstant) {
+      emitShort((uint16_t)arg);
+    } else {
+      emitByte((uint8_t) arg);
+    }
   } else {
-    emitBytes(getOp, (uint8_t)arg);
+    emitByte(getOp);
+    if (isConstant) {
+      emitShort((uint16_t)arg);
+    } else {
+      emitByte((uint8_t) arg);
+    }
   }
 }
 
@@ -1077,17 +1106,19 @@ static void super_(bool canAssign) {
 
   consume(TOKEN_DOT, "Expect '.' after 'super'.");
   consume(TOKEN_IDENTIFIER, "Expect superclass method name.");
-  uint8_t name = identifierConstant(&parser.previous);
+  uint16_t name = identifierConstant(&parser.previous);
 
   namedVariable(syntheticToken("this"), false);
   if (match(TOKEN_LEFT_PAREN)) {
-    uint8_t argCount = argumentList();
+    int argCount = argumentList();
     namedVariable(syntheticToken("super"), false);
-    emitBytes(OP_SUPER_INVOKE, name);
+    emitByte(OP_SUPER_INVOKE);
+    emitShort(name);
     emitByte(argCount);
   } else {
     namedVariable(syntheticToken("super"), false);
-    emitBytes(OP_GET_SUPER, name);
+    emitByte(OP_GET_SUPER);
+    emitShort(name);
   }
 }
 
@@ -1272,7 +1303,9 @@ static void function(FunctionType type) {
   }
 
   ObjFunction* function = endCompiler();
-  emitBytes(OP_CLOSURE, makeConstant(OBJ_VAL(function)));
+  uint16_t constant = makeConstant(OBJ_VAL(function));
+  emitByte(OP_CLOSURE);
+  emitShort(constant);
 
   for (int i = 0; i < function->upvalueCount; i++) {
     emitByte(compiler.upvalues[i].isLocal ? 1 : 0);
@@ -1283,7 +1316,7 @@ static void function(FunctionType type) {
 static void method() {
   consume(TOKEN_FUN, "Expect 'function' keyword");
 
-  uint8_t constant = propretyConstant("Expect method name.");
+  uint16_t constant = propretyConstant("Expect method name.");
 
   FunctionType type = TYPE_METHOD;
   if (parser.previous.length == 8 &&
@@ -1292,16 +1325,18 @@ static void method() {
   }
 
   function(type);
-  emitBytes(OP_METHOD, constant);
+  emitByte(OP_METHOD);
+  emitShort(constant);
 }
 
 static void classDeclaration() {
   consume(TOKEN_IDENTIFIER, "Expect class name.");
   Token className = parser.previous;
-  uint8_t nameConstant = identifierConstant(&parser.previous);
+  uint16_t nameConstant = identifierConstant(&parser.previous);
   declareVariable();
 
-  emitBytes(OP_CLASS, nameConstant);
+  emitByte(OP_CLASS);
+  emitShort(nameConstant);
 
   ClassCompiler classCompiler;
   classCompiler.enclosing = currentClass;
@@ -1343,7 +1378,7 @@ static void classDeclaration() {
 }
 
 static void varDeclaration(bool isMutable) {
-  uint8_t global = parseVariable("Expect variable name.");
+  uint16_t global = parseVariable("Expect variable name.");
 
   if (!isMutable && !check(TOKEN_EQUAL)) {
     error("Const variable must be initialized upon declaration.");
@@ -1358,7 +1393,7 @@ static void varDeclaration(bool isMutable) {
 }
 
 static void funDeclaration() {
-  uint8_t global = parseVariable("Expect function name.");
+  uint16_t global = parseVariable("Expect function name.");
   markInitialized(false);
   function(TYPE_FUNCTION);
   defineVariable(global, false);
@@ -1623,7 +1658,7 @@ static void tryStatement() {
     beginScope();
     consume(TOKEN_LEFT_PAREN, "Expect '(' after catch");
     consume(TOKEN_IDENTIFIER, "Expect type name to catch");
-    uint8_t name = identifierConstant(&parser.previous);
+    uint16_t name = identifierConstant(&parser.previous);
     currentChunk()->code[exceptionType] = name;
     patchAddress(handlerAddress);
 
@@ -1633,8 +1668,9 @@ static void tryStatement() {
       consume(TOKEN_IDENTIFIER, "Expect identifier after exception type.");
       addLocal(parser.previous);
       markInitialized(false);
-      uint8_t variable = resolveLocal(current, &parser.previous);
-      emitBytes(OP_SET_LOCAL, variable);
+      uint16_t variable = resolveLocal(current, &parser.previous);
+      emitByte(OP_SET_LOCAL);
+      emitShort(variable);
     }
 
     consume(TOKEN_RIGHT_PAREN, "Expect ')' after catch statement");
@@ -1684,7 +1720,7 @@ static void usingStatement() {
   } while (match(TOKEN_DOT));
 
   emitBytes(OP_USING, namespaceDepth);
-  uint8_t alias = makeConstant(OBJ_VAL(newString("")));
+  uint16_t alias = makeConstant(OBJ_VAL(newString("")));
 
   if (match(TOKEN_AS)) {
     consume(TOKEN_IDENTIFIER, "Expect alias after 'as'.");
@@ -1692,7 +1728,8 @@ static void usingStatement() {
     alias = identifierConstant(&name);
   }
   consume(TOKEN_SEMICOLON, "Expect ';' after using statement.");
-  emitBytes(OP_SUBNAMESPACE, alias);
+  emitByte(OP_SUBNAMESPACE);
+  emitShort(alias);
 }
 
 static void requireStatement() {

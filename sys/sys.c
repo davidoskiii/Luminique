@@ -38,7 +38,7 @@ NATIVE_FUNCTION(shell) {
   assertArgCount("shell(command)", 1, argCount);
   
   ObjString* command = AS_STRING(args[0]);
-  int result = system(command->chars);
+  system(command->chars);
   RETURN_NIL;
 }
 

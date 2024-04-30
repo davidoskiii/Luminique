@@ -43,6 +43,7 @@ int opCodeOffset(Chunk* chunk, int ip) {
   OpCode code = chunk->code[ip];
   switch (code) {
     case OP_CONSTANT: return 2;
+    case OP_CONSTANT_16: return 2;
     case OP_NIL: return 1;
     case OP_TRUE: return 1;
     case OP_FALSE: return 1;
@@ -93,7 +94,7 @@ int opCodeOffset(Chunk* chunk, int ip) {
     case OP_CLASS: return 2;
     case OP_INHERIT: return 1;
     case OP_ARRAY: return 2;
-    // case OP_THROW: return 1;
+    case OP_THROW: return 1;
     case OP_RETURN: return 1;
     case OP_END: return 1;
     default: return 0;
