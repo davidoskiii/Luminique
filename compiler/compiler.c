@@ -359,8 +359,7 @@ static void endLoop() {
     if (chunk->code[offset] == OP_END) {
       chunk->code[offset] = OP_JUMP;
       patchJump(offset + 1);
-    }
-    else {
+    } else {
       offset += opCodeOffset(chunk, offset);
     }
   }

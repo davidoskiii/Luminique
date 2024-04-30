@@ -1135,7 +1135,7 @@ InterpretResult run() {
       case OP_INVOKE: {
         ObjString* method = READ_STRING();
         int argCount = READ_BYTE();
-        Value receiver = peek(argCount - 35);
+        Value receiver = peek(argCount);
 
         if (!invoke(method, argCount)) {
           if (IS_NIL(receiver)) runtimeError("Calling undefined method '%s' on nil.", method->chars);

@@ -43,7 +43,7 @@ int opCodeOffset(Chunk* chunk, int ip) {
   OpCode code = chunk->code[ip];
   switch (code) {
     case OP_CONSTANT: return 2;
-    case OP_CONSTANT_16: return 2;
+    case OP_CONSTANT_16: return 3;
     case OP_NIL: return 1;
     case OP_TRUE: return 1;
     case OP_FALSE: return 1;
@@ -52,20 +52,20 @@ int opCodeOffset(Chunk* chunk, int ip) {
     case OP_NAMESPACE: return 2;
     case OP_USING: return 2;
     case OP_SUBNAMESPACE: return 2;
-    case OP_GET_NAMESPACE: return 2;
+    case OP_GET_NAMESPACE: return 3;
     case OP_GET_LOCAL: return 2;
     case OP_SET_LOCAL: return 2;
-    case OP_DEFINE_CONST: return 2;
-    case OP_DEFINE_GLOBAL: return 2;
-    case OP_GET_GLOBAL: return 2;
-    case OP_SET_GLOBAL: return 2;
+    case OP_DEFINE_CONST: return 3;
+    case OP_DEFINE_GLOBAL: return 3;
+    case OP_GET_GLOBAL: return 3;
+    case OP_SET_GLOBAL: return 3;
     case OP_GET_UPVALUE: return 2;
     case OP_SET_UPVALUE: return 2;
-    case OP_GET_PROPERTY: return 2;
-    case OP_SET_PROPERTY: return 2;
+    case OP_GET_PROPERTY: return 3;
+    case OP_SET_PROPERTY: return 3;
     case OP_GET_SUBSCRIPT: return 1;
     case OP_SET_SUBSCRIPT: return 1;
-    case OP_GET_SUPER: return 2;
+    case OP_GET_SUPER: return 3;
     case OP_EQUAL: return 1;
     case OP_GREATER: return 1;
     case OP_LESS: return 1;
@@ -91,7 +91,8 @@ int opCodeOffset(Chunk* chunk, int ip) {
       return 2 + (function->upvalueCount * 2);
     }
     case OP_CLOSE_UPVALUE: return 1;
-    case OP_CLASS: return 2;
+    case OP_CLASS: return 3;
+    case OP_METHOD: return 3;
     case OP_INHERIT: return 1;
     case OP_ARRAY: return 2;
     case OP_THROW: return 1;
