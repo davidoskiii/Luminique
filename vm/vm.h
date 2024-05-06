@@ -95,7 +95,7 @@ InterpretResult run();
 void initModule(Module* module, char* filePath);
 void freeModule(Module* module);
 
-void initVM();
+void initVM(int argc, char** argv);
 void freeVM();
 
 Value callReentrant(Value receiver, Value callee, ...);

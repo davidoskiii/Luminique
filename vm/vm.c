@@ -3,14 +3,12 @@
 #include <math.h>
 #include <string.h>
 #include <sys/stat.h>
-#include <ctype.h>
 #include <time.h>
 #include <stdlib.h>
 
 #include "../native/native.h"
 #include "../common.h"
 #include "../compiler/compiler.h"
-#include "../debug/debug.h"
 #include "../object/object.h"
 #include "../memory/memory.h"
 #include "../std/std.h"
@@ -20,8 +18,9 @@
 #include "../io/io.h"
 #include "../collection/collection.h"
 #include "../math/math.h"
-#include "../time/time.h"
+#include "../chrono/chrono.h"
 #include "../sys/sys.h"
+#include "../graphics/graphics.h"
 #include "vm.h"
 
 VM vm;
@@ -219,6 +218,7 @@ void initVM(int argc, char** argv) {
 
   registerLangPackage();
   registerSysPackage();
+  registerGraphicsPackage();
   registerIOPackage();
   registerCollectionPackage();
   registerUtilPackage();

@@ -1,0 +1,3 @@
+using luminique.std.graphics;
+
+graphics::createWindow("walla", 500, 400);

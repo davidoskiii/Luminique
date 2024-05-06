@@ -59,6 +59,7 @@ typedef enum {
   OBJ_NATIVE_FUNCTION,
   OBJ_NATIVE_METHOD,
   OBJ_STRING,
+  OBJ_WINDOW,
   OBJ_UPVALUE
 } ObjType;
 

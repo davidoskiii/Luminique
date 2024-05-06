@@ -1,7 +1,4 @@
 #include <time.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
 #include <unistd.h>
 
 #include "time.h"
@@ -9,7 +6,6 @@
 #include "../native/native.h"
 #include "../object/object.h"
 #include "../string/string.h"
-#include "../hash/hash.h"
 #include "../value/value.h"
 #include "../vm/vm.h"
 
