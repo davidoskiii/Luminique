@@ -63,6 +63,15 @@ ObjArray* newArray() {
   return array;
 }
 
+ObjWindow* newWindow(const char* title, int width, int height) {
+  ObjWindow* window = ALLOCATE_OBJ(ObjWindow, OBJ_WINDOW, vm.windowClass);
+  window->window = SDL_CreateWindow(title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_HIDDEN);
+  window->title = strdup(title);
+  window->width = width;
+  window->height = height;
+  return window;
+}
+
 ObjArray* copyArray(ValueArray elements, int fromIndex, int toIndex) {
   ObjArray* array = ALLOCATE_OBJ(ObjArray, OBJ_ARRAY, vm.arrayClass);
   initValueArray(&array->elements);
@@ -256,6 +265,9 @@ void printObject(Value value) {
       break;
     case OBJ_NAMESPACE:
       printf("<namespace %s>", AS_NAMESPACE(value)->fullName->chars);
+      break;
+    case OBJ_WINDOW:
+      printf("<%s window>", AS_WINDOW(value)->title);
       break;
     case OBJ_FILE:
       printf("<file \"%s\">", AS_FILE(value)->name->chars);

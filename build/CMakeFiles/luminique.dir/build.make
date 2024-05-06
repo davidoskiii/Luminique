@@ -363,19 +363,47 @@ CMakeFiles/luminique.dir/math/math.c.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/luminique.dir/math/math.c.s"
 	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S "/home/davide/Vs Code Projects/c/compiler/Luminique/math/math.c" -o CMakeFiles/luminique.dir/math/math.c.s
 
-CMakeFiles/luminique.dir/time/time.c.o: CMakeFiles/luminique.dir/flags.make
-CMakeFiles/luminique.dir/time/time.c.o: ../time/time.c
-CMakeFiles/luminique.dir/time/time.c.o: CMakeFiles/luminique.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir="/home/davide/Vs Code Projects/c/compiler/Luminique/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_22) "Building C object CMakeFiles/luminique.dir/time/time.c.o"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/luminique.dir/time/time.c.o -MF CMakeFiles/luminique.dir/time/time.c.o.d -o CMakeFiles/luminique.dir/time/time.c.o -c "/home/davide/Vs Code Projects/c/compiler/Luminique/time/time.c"
+CMakeFiles/luminique.dir/sys/sys.c.o: CMakeFiles/luminique.dir/flags.make
+CMakeFiles/luminique.dir/sys/sys.c.o: ../sys/sys.c
+CMakeFiles/luminique.dir/sys/sys.c.o: CMakeFiles/luminique.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir="/home/davide/Vs Code Projects/c/compiler/Luminique/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_22) "Building C object CMakeFiles/luminique.dir/sys/sys.c.o"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/luminique.dir/sys/sys.c.o -MF CMakeFiles/luminique.dir/sys/sys.c.o.d -o CMakeFiles/luminique.dir/sys/sys.c.o -c "/home/davide/Vs Code Projects/c/compiler/Luminique/sys/sys.c"
 
-CMakeFiles/luminique.dir/time/time.c.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/luminique.dir/time/time.c.i"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E "/home/davide/Vs Code Projects/c/compiler/Luminique/time/time.c" > CMakeFiles/luminique.dir/time/time.c.i
+CMakeFiles/luminique.dir/sys/sys.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/luminique.dir/sys/sys.c.i"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E "/home/davide/Vs Code Projects/c/compiler/Luminique/sys/sys.c" > CMakeFiles/luminique.dir/sys/sys.c.i
 
-CMakeFiles/luminique.dir/time/time.c.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/luminique.dir/time/time.c.s"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S "/home/davide/Vs Code Projects/c/compiler/Luminique/time/time.c" -o CMakeFiles/luminique.dir/time/time.c.s
+CMakeFiles/luminique.dir/sys/sys.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/luminique.dir/sys/sys.c.s"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S "/home/davide/Vs Code Projects/c/compiler/Luminique/sys/sys.c" -o CMakeFiles/luminique.dir/sys/sys.c.s
+
+CMakeFiles/luminique.dir/chrono/chrono.c.o: CMakeFiles/luminique.dir/flags.make
+CMakeFiles/luminique.dir/chrono/chrono.c.o: ../chrono/chrono.c
+CMakeFiles/luminique.dir/chrono/chrono.c.o: CMakeFiles/luminique.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir="/home/davide/Vs Code Projects/c/compiler/Luminique/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_23) "Building C object CMakeFiles/luminique.dir/chrono/chrono.c.o"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/luminique.dir/chrono/chrono.c.o -MF CMakeFiles/luminique.dir/chrono/chrono.c.o.d -o CMakeFiles/luminique.dir/chrono/chrono.c.o -c "/home/davide/Vs Code Projects/c/compiler/Luminique/chrono/chrono.c"
+
+CMakeFiles/luminique.dir/chrono/chrono.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/luminique.dir/chrono/chrono.c.i"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E "/home/davide/Vs Code Projects/c/compiler/Luminique/chrono/chrono.c" > CMakeFiles/luminique.dir/chrono/chrono.c.i
+
+CMakeFiles/luminique.dir/chrono/chrono.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/luminique.dir/chrono/chrono.c.s"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S "/home/davide/Vs Code Projects/c/compiler/Luminique/chrono/chrono.c" -o CMakeFiles/luminique.dir/chrono/chrono.c.s
+
+CMakeFiles/luminique.dir/graphics/graphics.c.o: CMakeFiles/luminique.dir/flags.make
+CMakeFiles/luminique.dir/graphics/graphics.c.o: ../graphics/graphics.c
+CMakeFiles/luminique.dir/graphics/graphics.c.o: CMakeFiles/luminique.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir="/home/davide/Vs Code Projects/c/compiler/Luminique/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_24) "Building C object CMakeFiles/luminique.dir/graphics/graphics.c.o"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/luminique.dir/graphics/graphics.c.o -MF CMakeFiles/luminique.dir/graphics/graphics.c.o.d -o CMakeFiles/luminique.dir/graphics/graphics.c.o -c "/home/davide/Vs Code Projects/c/compiler/Luminique/graphics/graphics.c"
+
+CMakeFiles/luminique.dir/graphics/graphics.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/luminique.dir/graphics/graphics.c.i"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E "/home/davide/Vs Code Projects/c/compiler/Luminique/graphics/graphics.c" > CMakeFiles/luminique.dir/graphics/graphics.c.i
+
+CMakeFiles/luminique.dir/graphics/graphics.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/luminique.dir/graphics/graphics.c.s"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S "/home/davide/Vs Code Projects/c/compiler/Luminique/graphics/graphics.c" -o CMakeFiles/luminique.dir/graphics/graphics.c.s
 
 # Object files for target luminique
 luminique_OBJECTS = \
@@ -400,7 +428,9 @@ luminique_OBJECTS = \
 "CMakeFiles/luminique.dir/pcg/pcg.c.o" \
 "CMakeFiles/luminique.dir/io/io.c.o" \
 "CMakeFiles/luminique.dir/math/math.c.o" \
-"CMakeFiles/luminique.dir/time/time.c.o"
+"CMakeFiles/luminique.dir/sys/sys.c.o" \
+"CMakeFiles/luminique.dir/chrono/chrono.c.o" \
+"CMakeFiles/luminique.dir/graphics/graphics.c.o"
 
 # External object files for target luminique
 luminique_EXTERNAL_OBJECTS =
@@ -426,10 +456,12 @@ luminique: CMakeFiles/luminique.dir/string/string.c.o
 luminique: CMakeFiles/luminique.dir/pcg/pcg.c.o
 luminique: CMakeFiles/luminique.dir/io/io.c.o
 luminique: CMakeFiles/luminique.dir/math/math.c.o
-luminique: CMakeFiles/luminique.dir/time/time.c.o
+luminique: CMakeFiles/luminique.dir/sys/sys.c.o
+luminique: CMakeFiles/luminique.dir/chrono/chrono.c.o
+luminique: CMakeFiles/luminique.dir/graphics/graphics.c.o
 luminique: CMakeFiles/luminique.dir/build.make
 luminique: CMakeFiles/luminique.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir="/home/davide/Vs Code Projects/c/compiler/Luminique/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_23) "Linking C executable luminique"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir="/home/davide/Vs Code Projects/c/compiler/Luminique/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_25) "Linking C executable luminique"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/luminique.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

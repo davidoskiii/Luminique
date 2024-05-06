@@ -153,6 +153,30 @@ assert/assert.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/luminique.dir/build.make CMakeFiles/luminique.dir/assert/assert.c.s
 .PHONY : assert/assert.c.s
 
+chrono/chrono.o: chrono/chrono.c.o
+.PHONY : chrono/chrono.o
+
+# target to build an object file
+chrono/chrono.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/luminique.dir/build.make CMakeFiles/luminique.dir/chrono/chrono.c.o
+.PHONY : chrono/chrono.c.o
+
+chrono/chrono.i: chrono/chrono.c.i
+.PHONY : chrono/chrono.i
+
+# target to preprocess a source file
+chrono/chrono.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/luminique.dir/build.make CMakeFiles/luminique.dir/chrono/chrono.c.i
+.PHONY : chrono/chrono.c.i
+
+chrono/chrono.s: chrono/chrono.c.s
+.PHONY : chrono/chrono.s
+
+# target to generate assembly for a file
+chrono/chrono.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/luminique.dir/build.make CMakeFiles/luminique.dir/chrono/chrono.c.s
+.PHONY : chrono/chrono.c.s
+
 chunk/chunk.o: chunk/chunk.c.o
 .PHONY : chunk/chunk.o
 
@@ -248,6 +272,30 @@ debug/debug.s: debug/debug.c.s
 debug/debug.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/luminique.dir/build.make CMakeFiles/luminique.dir/debug/debug.c.s
 .PHONY : debug/debug.c.s
+
+graphics/graphics.o: graphics/graphics.c.o
+.PHONY : graphics/graphics.o
+
+# target to build an object file
+graphics/graphics.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/luminique.dir/build.make CMakeFiles/luminique.dir/graphics/graphics.c.o
+.PHONY : graphics/graphics.c.o
+
+graphics/graphics.i: graphics/graphics.c.i
+.PHONY : graphics/graphics.i
+
+# target to preprocess a source file
+graphics/graphics.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/luminique.dir/build.make CMakeFiles/luminique.dir/graphics/graphics.c.i
+.PHONY : graphics/graphics.c.i
+
+graphics/graphics.s: graphics/graphics.c.s
+.PHONY : graphics/graphics.s
+
+# target to generate assembly for a file
+graphics/graphics.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/luminique.dir/build.make CMakeFiles/luminique.dir/graphics/graphics.c.s
+.PHONY : graphics/graphics.c.s
 
 hash/hash.o: hash/hash.c.o
 .PHONY : hash/hash.o
@@ -537,6 +585,30 @@ string/string.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/luminique.dir/build.make CMakeFiles/luminique.dir/string/string.c.s
 .PHONY : string/string.c.s
 
+sys/sys.o: sys/sys.c.o
+.PHONY : sys/sys.o
+
+# target to build an object file
+sys/sys.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/luminique.dir/build.make CMakeFiles/luminique.dir/sys/sys.c.o
+.PHONY : sys/sys.c.o
+
+sys/sys.i: sys/sys.c.i
+.PHONY : sys/sys.i
+
+# target to preprocess a source file
+sys/sys.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/luminique.dir/build.make CMakeFiles/luminique.dir/sys/sys.c.i
+.PHONY : sys/sys.c.i
+
+sys/sys.s: sys/sys.c.s
+.PHONY : sys/sys.s
+
+# target to generate assembly for a file
+sys/sys.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/luminique.dir/build.make CMakeFiles/luminique.dir/sys/sys.c.s
+.PHONY : sys/sys.c.s
+
 table/table.o: table/table.c.o
 .PHONY : table/table.o
 
@@ -560,30 +632,6 @@ table/table.s: table/table.c.s
 table/table.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/luminique.dir/build.make CMakeFiles/luminique.dir/table/table.c.s
 .PHONY : table/table.c.s
-
-time/time.o: time/time.c.o
-.PHONY : time/time.o
-
-# target to build an object file
-time/time.c.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/luminique.dir/build.make CMakeFiles/luminique.dir/time/time.c.o
-.PHONY : time/time.c.o
-
-time/time.i: time/time.c.i
-.PHONY : time/time.i
-
-# target to preprocess a source file
-time/time.c.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/luminique.dir/build.make CMakeFiles/luminique.dir/time/time.c.i
-.PHONY : time/time.c.i
-
-time/time.s: time/time.c.s
-.PHONY : time/time.s
-
-# target to generate assembly for a file
-time/time.c.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/luminique.dir/build.make CMakeFiles/luminique.dir/time/time.c.s
-.PHONY : time/time.c.s
 
 util/util.o: util/util.c.o
 .PHONY : util/util.o
@@ -669,6 +717,9 @@ help:
 	@echo "... assert/assert.o"
 	@echo "... assert/assert.i"
 	@echo "... assert/assert.s"
+	@echo "... chrono/chrono.o"
+	@echo "... chrono/chrono.i"
+	@echo "... chrono/chrono.s"
 	@echo "... chunk/chunk.o"
 	@echo "... chunk/chunk.i"
 	@echo "... chunk/chunk.s"
@@ -681,6 +732,9 @@ help:
 	@echo "... debug/debug.o"
 	@echo "... debug/debug.i"
 	@echo "... debug/debug.s"
+	@echo "... graphics/graphics.o"
+	@echo "... graphics/graphics.i"
+	@echo "... graphics/graphics.s"
 	@echo "... hash/hash.o"
 	@echo "... hash/hash.i"
 	@echo "... hash/hash.s"
@@ -717,12 +771,12 @@ help:
 	@echo "... string/string.o"
 	@echo "... string/string.i"
 	@echo "... string/string.s"
+	@echo "... sys/sys.o"
+	@echo "... sys/sys.i"
+	@echo "... sys/sys.s"
 	@echo "... table/table.o"
 	@echo "... table/table.i"
 	@echo "... table/table.s"
-	@echo "... time/time.o"
-	@echo "... time/time.i"
-	@echo "... time/time.s"
 	@echo "... util/util.o"
 	@echo "... util/util.i"
 	@echo "... util/util.s"

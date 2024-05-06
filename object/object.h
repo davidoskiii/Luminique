@@ -3,6 +3,7 @@
 
 #include <sys/stat.h>
 
+#include <SDL2/SDL.h>
 #include "../common.h"
 #include "../table/table.h"
 #include "../chunk/chunk.h"
@@ -22,6 +23,7 @@
 #define IS_FILE(value) isObjType(value, OBJ_FILE)
 #define IS_RECORD(value) isObjType(value, OBJ_RECORD)
 #define IS_ARRAY(value) isObjType(value, OBJ_ARRAY)
+#define IS_WINDOW(value) isObjType(value, OBJ_WINDOW)
 #define IS_NATIVE_FUNCTION(value) isObjType(value, OBJ_NATIVE_FUNCTION)
 #define IS_NATIVE_METHOD(value) isObjType(value, OBJ_NATIVE_METHOD)
 #define IS_STRING(value) isObjType(value, OBJ_STRING)
@@ -37,6 +39,7 @@
 #define AS_FILE(value) ((ObjFile*)AS_OBJ(value))
 #define AS_RECORD(value) ((ObjRecord*)AS_OBJ(value))
 #define AS_ARRAY(value) ((ObjArray*)AS_OBJ(value))
+#define AS_WINDOW(value) ((ObjWindow*)AS_OBJ(value))
 #define AS_NATIVE_FUNCTION(value) ((ObjNativeFunction*)AS_OBJ(value))
 #define AS_NATIVE_METHOD(value) ((ObjNativeMethod*)AS_OBJ(value))
 #define AS_STRING(value) ((ObjString*)AS_OBJ(value))
@@ -177,6 +180,14 @@ typedef struct ObjDictionary {
   ObjEntry* entries;
 } ObjDictionary;
 
+typedef struct {
+  Obj obj;
+  SDL_Window* window;
+  char* title;
+  int width;
+  int height;
+} ObjWindow;
+
 Obj* allocateObject(size_t size, ObjType type, ObjClass* klass);
 ObjBoundMethod* newBoundMethod(Value receiver, ObjClosure* method);
 ObjFile* newFile(ObjString* name);
@@ -187,6 +198,7 @@ ObjArray* copyArray(ValueArray elements, int fromIndex, int toIndex);
 ObjDictionary* newDictionary();
 ObjClass* newClass(ObjString* name);
 ObjNamespace* newNamespace(ObjString* shortName, ObjNamespace* enclosing);
+ObjWindow* newWindow(const char* title, int width, int height);
 ObjClosure* newClosure(ObjFunction* function);
 ObjFunction* newFunction();
 ObjInstance* newInstance(ObjClass* klass);

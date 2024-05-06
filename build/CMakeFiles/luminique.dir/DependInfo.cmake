@@ -9,10 +9,12 @@ set(CMAKE_DEPENDS_LANGUAGES
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "/home/davide/Vs Code Projects/c/compiler/Luminique/assert/assert.c" "CMakeFiles/luminique.dir/assert/assert.c.o" "gcc" "CMakeFiles/luminique.dir/assert/assert.c.o.d"
+  "/home/davide/Vs Code Projects/c/compiler/Luminique/chrono/chrono.c" "CMakeFiles/luminique.dir/chrono/chrono.c.o" "gcc" "CMakeFiles/luminique.dir/chrono/chrono.c.o.d"
   "/home/davide/Vs Code Projects/c/compiler/Luminique/chunk/chunk.c" "CMakeFiles/luminique.dir/chunk/chunk.c.o" "gcc" "CMakeFiles/luminique.dir/chunk/chunk.c.o.d"
   "/home/davide/Vs Code Projects/c/compiler/Luminique/collection/collection.c" "CMakeFiles/luminique.dir/collection/collection.c.o" "gcc" "CMakeFiles/luminique.dir/collection/collection.c.o.d"
   "/home/davide/Vs Code Projects/c/compiler/Luminique/compiler/compiler.c" "CMakeFiles/luminique.dir/compiler/compiler.c.o" "gcc" "CMakeFiles/luminique.dir/compiler/compiler.c.o.d"
   "/home/davide/Vs Code Projects/c/compiler/Luminique/debug/debug.c" "CMakeFiles/luminique.dir/debug/debug.c.o" "gcc" "CMakeFiles/luminique.dir/debug/debug.c.o.d"
+  "/home/davide/Vs Code Projects/c/compiler/Luminique/graphics/graphics.c" "CMakeFiles/luminique.dir/graphics/graphics.c.o" "gcc" "CMakeFiles/luminique.dir/graphics/graphics.c.o.d"
   "/home/davide/Vs Code Projects/c/compiler/Luminique/hash/hash.c" "CMakeFiles/luminique.dir/hash/hash.c.o" "gcc" "CMakeFiles/luminique.dir/hash/hash.c.o.d"
   "/home/davide/Vs Code Projects/c/compiler/Luminique/io/io.c" "CMakeFiles/luminique.dir/io/io.c.o" "gcc" "CMakeFiles/luminique.dir/io/io.c.o.d"
   "/home/davide/Vs Code Projects/c/compiler/Luminique/lang/lang.c" "CMakeFiles/luminique.dir/lang/lang.c.o" "gcc" "CMakeFiles/luminique.dir/lang/lang.c.o.d"
@@ -25,8 +27,8 @@ set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "/home/davide/Vs Code Projects/c/compiler/Luminique/scanner/scanner.c" "CMakeFiles/luminique.dir/scanner/scanner.c.o" "gcc" "CMakeFiles/luminique.dir/scanner/scanner.c.o.d"
   "/home/davide/Vs Code Projects/c/compiler/Luminique/std/std.c" "CMakeFiles/luminique.dir/std/std.c.o" "gcc" "CMakeFiles/luminique.dir/std/std.c.o.d"
   "/home/davide/Vs Code Projects/c/compiler/Luminique/string/string.c" "CMakeFiles/luminique.dir/string/string.c.o" "gcc" "CMakeFiles/luminique.dir/string/string.c.o.d"
+  "/home/davide/Vs Code Projects/c/compiler/Luminique/sys/sys.c" "CMakeFiles/luminique.dir/sys/sys.c.o" "gcc" "CMakeFiles/luminique.dir/sys/sys.c.o.d"
   "/home/davide/Vs Code Projects/c/compiler/Luminique/table/table.c" "CMakeFiles/luminique.dir/table/table.c.o" "gcc" "CMakeFiles/luminique.dir/table/table.c.o.d"
-  "/home/davide/Vs Code Projects/c/compiler/Luminique/time/time.c" "CMakeFiles/luminique.dir/time/time.c.o" "gcc" "CMakeFiles/luminique.dir/time/time.c.o.d"
   "/home/davide/Vs Code Projects/c/compiler/Luminique/util/util.c" "CMakeFiles/luminique.dir/util/util.c.o" "gcc" "CMakeFiles/luminique.dir/util/util.c.o.d"
   "/home/davide/Vs Code Projects/c/compiler/Luminique/value/value.c" "CMakeFiles/luminique.dir/value/value.c.o" "gcc" "CMakeFiles/luminique.dir/value/value.c.o.d"
   "/home/davide/Vs Code Projects/c/compiler/Luminique/vm/vm.c" "CMakeFiles/luminique.dir/vm/vm.c.o" "gcc" "CMakeFiles/luminique.dir/vm/vm.c.o.d"

@@ -46,6 +46,7 @@ typedef struct {
   ObjClass* arrayClass;
   ObjClass* dictionaryClass;
   ObjClass* entryClass;
+  ObjClass* windowClass;
 
   ObjNamespace* rootNamespace;
   ObjNamespace* luminiqueNamespace;

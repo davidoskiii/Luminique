@@ -27,11 +27,13 @@ set(SOURCES
   pcg/pcg.c
   io/io.c
   math/math.c
-  time/time.c
+  sys/sys.c
+  chrono/chrono.c
+  graphics/graphics.c
 )
 
 # Add an executable target
 add_executable(luminique ${SOURCES})
 
 # Link libraries
-target_link_libraries(luminique m)
+target_link_libraries(luminique m SDL2)

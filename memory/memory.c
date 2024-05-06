@@ -86,6 +86,12 @@ static void blackenObject(Obj* object) {
         markObject((Obj*)entry);
       }
     }
+    case OBJ_WINDOW: {
+      ObjWindow* window = (ObjWindow*)object;
+      if (window->window != NULL) markValue(OBJ_VAL(window->window));
+      markObject((Obj*)window->title);
+      break;
+    }
     case OBJ_ENTRY: {
       ObjEntry* entry = (ObjEntry*)object;
       markValue(entry->key);
@@ -178,6 +184,13 @@ static void freeObject(Obj* object) {
     }
     case OBJ_ENTRY: {
       FREE(ObjEntry, object);
+      break;
+    }
+    case OBJ_WINDOW: {
+      ObjWindow* window = (ObjWindow*)object;
+      if (window->window != NULL) SDL_DestroyWindow(window->window);
+      FREE_ARRAY(char, window->title, strlen(window->title));
+      FREE(ObjWindow, object);
       break;
     }
     case OBJ_BOUND_METHOD:

@@ -1,3 +1,6 @@
 using luminique.std.graphics;
 
-graphics::createWindow("walla", 500, 400);
+let window1 = graphics::createWindow("walla1", 500, 400);
+let window2 = graphics::Window("walla2", 500, 400);
+
+window1.show();
