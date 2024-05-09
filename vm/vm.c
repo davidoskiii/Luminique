@@ -150,7 +150,7 @@ void runtimeError(const char* format, ...) {
     va_end(args);
     fputs("\n", stderr);
 
-    char* line = getLine(vm.source, lineNumber);
+    char* line = getLine(vm.currentModule->source, lineNumber);
     char* spaces = returnSpaces(digitsInNumber(lineNumber));
     char* arrows = arrowsString(line);
     fprintf(stderr, "   %d |    %s\n   %s |    \033[31;1m%s\033[0m\n   %s |\n", lineNumber, line, spaces, arrows, spaces);
@@ -168,7 +168,7 @@ static bool loadModule(ObjString* filePath) {
   vm.currentModule = newModule(filePath);
 
   char* source = readFile(filePath->chars);
-  vm.source = source;
+  vm.currentModule->source = source;
   ObjFunction* function = compile(source);
   if (function == NULL) return false;
   push(OBJ_VAL(function));

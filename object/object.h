@@ -127,6 +127,7 @@ typedef struct {
   ObjString* path;
   bool isNative;
   Table values;
+  char* source;
 } ObjModule;
 
 struct ObjNamespace {

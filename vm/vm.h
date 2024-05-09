@@ -60,7 +60,6 @@ typedef struct {
   char** argv;
 
   ObjModule* currentModule;
-  char* source;
 
   Table modules;
   Table namespaces;

@@ -55,6 +55,7 @@ static void runFile(const char* filePath) {
   vm.currentModule = newModule(path);
 
   char* source = readFile(filePath);
+  vm.currentModule->source = source;
   InterpretResult result = interpret(source);
   free(source);
 

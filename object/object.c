@@ -103,6 +103,7 @@ ObjModule* newModule(ObjString* path) {
   ObjModule* module = ALLOCATE_OBJ(ObjModule, OBJ_MODULE, NULL);
   module->path = path;
   module->isNative = false;
+  module->source = NULL;
   initTable(&module->values);
   tableAddAll(&vm.langNamespace->values, &module->values);
   tableSet(&vm.modules, path, NIL_VAL);

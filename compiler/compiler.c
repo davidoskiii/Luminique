@@ -167,7 +167,7 @@ char* arrowsTokenString(const Token* token) {
   }
 
   char* stoken = stringPrecision(token->start, token->length);
-  char* line = stripSpaces(getLine(vm.source, token->line));
+  char* line = stripSpaces(getLine(vm.currentModule->source, token->line));
   int pos = findPosition(line, stoken);
 
   char* spaces = returnSpaces(pos);
@@ -212,7 +212,7 @@ static void errorAt(Token* token, const char* message) {
   } else {
     fprintf(stderr, " at '%.*s': \033[0m", token->length, token->start);
     fprintf(stderr, "%s\n", message);
-    char* line = stripSpaces(getLine(vm.source, token->line));
+    char* line = stripSpaces(getLine(vm.currentModule->source, token->line));
     char* spaces = returnSpaces(digitsInNumber(token->line));
     char* arrows = arrowsTokenString(token);
     fprintf(stderr, "   %d |    %s\n   %s |    \033[31;1m%s\033[0m\n   %s |\n", token->line, line, spaces, arrows, spaces);
