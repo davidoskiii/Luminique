@@ -96,6 +96,13 @@ void assertArgIsNamespace(const char* method, Value* args, int index) {
   }
 }
 
+void assertArgIsMethod(const char* method, Value* args, int index) { 
+  if (!IS_NAMESPACE(args[index]) && !isObjInstanceOf(args[index], vm.methodClass)) {
+    runtimeError("method %s expects argument %d to be a method.", method, index + 1);
+    exit(70);
+  }
+}
+
 void assertIntWithinRange(const char* method, int value, int min, int max, int index){
   if (value < min || value > max) {
     runtimeError("Method %s expects argument %d to be an integer within range %d to %d but got %d.", method, index + 1, min, max, value);
