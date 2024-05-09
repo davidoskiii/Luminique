@@ -99,6 +99,16 @@ ObjClass* newClass(ObjString* name) {
   return klass;
 }
 
+ObjModule* newModule(ObjString* name, ObjString* path) {
+  ObjModule* module = ALLOCATE_OBJ(ObjModule, OBJ_MODULE, NULL);
+  module->name = name;
+  module->path = path;
+  module->isNative = false;
+  initTable(&module->values);
+  initTable(&module->proxy);
+  return module;
+}
+
 ObjNamespace* newNamespace(ObjString* shortName, ObjNamespace* enclosing) {
   ObjNamespace* namespace = ALLOCATE_OBJ(ObjNamespace, OBJ_NAMESPACE, vm.namespaceClass);
   namespace->shortName = shortName;

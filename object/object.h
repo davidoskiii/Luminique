@@ -49,6 +49,7 @@
 
 typedef enum {
   OBJ_NAMESPACE,
+  OBJ_MODULE,
   OBJ_BOUND_METHOD,
   OBJ_CLASS,
   OBJ_CLOSURE,
@@ -120,6 +121,15 @@ typedef struct ObjFile {
   bool isOpen;
   FILE* file;
 } ObjFile;
+
+typedef struct {
+  Obj obj;
+  ObjString* name;
+  ObjString* path;
+  bool isNative;
+  Table values;
+  Table proxy;
+} ObjModule;
 
 struct ObjNamespace {
   Obj obj;
@@ -197,6 +207,7 @@ ObjArray* newArray();
 ObjArray* copyArray(ValueArray elements, int fromIndex, int toIndex);
 ObjDictionary* newDictionary();
 ObjClass* newClass(ObjString* name);
+ObjModule* newModule(ObjString* name, ObjString* path);
 ObjNamespace* newNamespace(ObjString* shortName, ObjNamespace* enclosing);
 ObjWindow* newWindow(const char* title, int width, int height);
 ObjClosure* newClosure(ObjFunction* function);
