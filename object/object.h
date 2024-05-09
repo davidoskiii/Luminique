@@ -124,11 +124,9 @@ typedef struct ObjFile {
 
 typedef struct {
   Obj obj;
-  ObjString* name;
   ObjString* path;
   bool isNative;
   Table values;
-  Table proxy;
 } ObjModule;
 
 struct ObjNamespace {
@@ -207,7 +205,7 @@ ObjArray* newArray();
 ObjArray* copyArray(ValueArray elements, int fromIndex, int toIndex);
 ObjDictionary* newDictionary();
 ObjClass* newClass(ObjString* name);
-ObjModule* newModule(ObjString* name, ObjString* path);
+ObjModule* newModule(ObjString* path);
 ObjNamespace* newNamespace(ObjString* shortName, ObjNamespace* enclosing);
 ObjWindow* newWindow(const char* title, int width, int height);
 ObjClosure* newClosure(ObjFunction* function);

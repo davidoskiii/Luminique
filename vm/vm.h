@@ -23,12 +23,6 @@ typedef struct {
   ExceptionHandler handlerStack[UINT4_MAX];
 } CallFrame;
 
-typedef struct Module {
-  char* filePath;
-  char* source;
-  Table values;
-} Module;
-
 typedef struct {
   ObjClass* objectClass;
   ObjClass* classClass;
@@ -65,7 +59,8 @@ typedef struct {
   int argc;
   char** argv;
 
-  Module* currentModule;
+  ObjModule* currentModule;
+  char* source;
 
   Table modules;
   Table namespaces;
@@ -92,9 +87,6 @@ typedef enum {
 extern VM vm;
 
 InterpretResult run();
-
-void initModule(Module* module, char* filePath);
-void freeModule(Module* module);
 
 void initVM(int argc, char** argv);
 void freeVM();

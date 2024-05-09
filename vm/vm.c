@@ -138,7 +138,7 @@ void runtimeError(const char* format, ...) {
     ObjFunction* function = frame->closure->function;
     size_t instruction = frame->ip - function->chunk.code - 1;
     int lineNumber = function->chunk.lines[instruction];
-    fprintf(stderr, "\n\033[1m%s:%d in ", vm.currentModule->filePath, lineNumber);
+    fprintf(stderr, "\n\033[1m%s:%d in ", vm.currentModule->path->chars, lineNumber);
     if (function->name == NULL) {
       fprintf(stderr, "script: \033[0m");
     } else {
@@ -150,7 +150,7 @@ void runtimeError(const char* format, ...) {
     va_end(args);
     fputs("\n", stderr);
 
-    char* line = getLine(vm.currentModule->source, lineNumber);
+    char* line = getLine(vm.source, lineNumber);
     char* spaces = returnSpaces(digitsInNumber(lineNumber));
     char* arrows = arrowsString(line);
     fprintf(stderr, "   %d |    %s\n   %s |    \033[31;1m%s\033[0m\n   %s |\n", lineNumber, line, spaces, arrows, spaces);
@@ -162,26 +162,14 @@ void runtimeError(const char* format, ...) {
   resetStack();
 }
 
-void initModule(Module* module, char* filePath) {
-  module->filePath = filePath;
-  module->source = readFile(filePath);
-  initTable(&module->values);
-  tableAddAll(&vm.langNamespace->values, &module->values);
-  tableSet(&vm.modules, newString(filePath), NIL_VAL);
-  vm.currentModule = module;
-}
 
-void freeModule(Module* module) {
-  freeTable(&module->values);
-  free(module->source);
-}
+static bool loadModule(ObjString* filePath) {
+  ObjModule* lastModule = vm.currentModule;
+  vm.currentModule = newModule(filePath);
 
-
-static bool runModule(ObjString* filePath) {
-  Module module;
-  Module* lastModule = vm.currentModule;
-  initModule(&module, filePath->chars);
-  ObjFunction* function = compile(module.source);
+  char* source = readFile(filePath->chars);
+  vm.source = source;
+  ObjFunction* function = compile(source);
   if (function == NULL) return false;
   push(OBJ_VAL(function));
 
@@ -189,8 +177,8 @@ static bool runModule(ObjString* filePath) {
   pop();
   push(OBJ_VAL(closure));
   callClosure(closure, 0);
-  freeModule(&module);
   vm.currentModule = lastModule;
+  free(source);
   vm.runModule = true;
   return true;
 }
@@ -812,7 +800,7 @@ InterpretResult run() {
             runtimeError("Failed to load source file %s\n", filePath->chars);
             return INTERPRET_RUNTIME_ERROR;
           }
-          runModule(filePath);
+          loadModule(filePath);
           frame = &vm.frames[vm.frameCount - 1];
         }
         push(value);
@@ -1225,7 +1213,7 @@ InterpretResult run() {
         } else if (tableGet(&vm.modules, AS_STRING(filePath), &value)) {
           break;
         }
-        runModule(AS_STRING(filePath));
+        loadModule(AS_STRING(filePath));
         frame = &vm.frames[vm.frameCount - 1];
         break;
       }

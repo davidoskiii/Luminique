@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "common.h"
+#include "string/string.h"
 #include "./vm/vm.h"
 
 static void repl() {
@@ -49,11 +50,13 @@ char* readFile(const char* path) {
   return buffer;
 }
 
-static void runFile(char* path) {
-  Module module;
-  initModule(&module, path);
-  InterpretResult result = interpret(module.source);
-  freeModule(&module);
+static void runFile(const char* filePath) {
+  ObjString* path = newString(filePath);
+  vm.currentModule = newModule(path);
+
+  char* source = readFile(filePath);
+  InterpretResult result = interpret(source);
+  free(source);
 
   if (result == INTERPRET_COMPILE_ERROR) exit(65);
   if (result == INTERPRET_RUNTIME_ERROR) exit(70);

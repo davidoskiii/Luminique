@@ -99,13 +99,13 @@ ObjClass* newClass(ObjString* name) {
   return klass;
 }
 
-ObjModule* newModule(ObjString* name, ObjString* path) {
+ObjModule* newModule(ObjString* path) {
   ObjModule* module = ALLOCATE_OBJ(ObjModule, OBJ_MODULE, NULL);
-  module->name = name;
   module->path = path;
   module->isNative = false;
   initTable(&module->values);
-  initTable(&module->proxy);
+  tableAddAll(&vm.langNamespace->values, &module->values);
+  tableSet(&vm.modules, path, NIL_VAL);
   return module;
 }
 
