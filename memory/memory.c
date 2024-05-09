@@ -285,6 +285,7 @@ static void markRoots() {
 
   markTable(&vm.globals);
   markTable(&vm.namespaces);
+  markTable(&vm.modules);
   markCompilerRoots();
   markObject((Obj*)vm.initString);
 }

@@ -490,6 +490,12 @@ static bool invoke(ObjString* name, int argCount) {
       vm.stackTop[-argCount - 1] = value;
       return callValue(value, argCount);
     }
+  } else if (IS_NAMESPACE(receiver)) { 
+    ObjNamespace* namespace = AS_NAMESPACE(receiver);
+    Value value;
+    if (tableGet(&namespace->values, name, &value)) { 
+      return callValue(value, argCount);
+    }
   }
 
   return invokeFromClass(getObjClass(receiver), name, argCount);
@@ -1128,10 +1134,8 @@ InterpretResult run() {
       case OP_INVOKE: {
         ObjString* method = READ_STRING();
         int argCount = READ_BYTE();
-        Value receiver = peek(argCount);
 
         if (!invoke(method, argCount)) {
-          if (IS_NIL(receiver)) runtimeError("Calling undefined method '%s' on nil.", method->chars);
           return INTERPRET_RUNTIME_ERROR;
         }
         
