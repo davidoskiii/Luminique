@@ -1,12 +1,10 @@
 namespace lmq.tests;
 
-using luminique.std.collection as cl;
 using luminique.std;
 using tests.features.fraction;
 using tests.features.fib;
 
-println(cl::Array);
-println(std::Time::Date);
+println(std::chrono::Date);
 println(Fraction);
 println(fibonacci);
 
