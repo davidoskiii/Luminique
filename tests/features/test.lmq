@@ -1,0 +1,2 @@
+let dict3 =  {1: "one", 2: "two"};
+println(dict3[1]);

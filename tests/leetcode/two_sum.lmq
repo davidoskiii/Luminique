@@ -1,0 +1,15 @@
+function twoSum(nums, target) {
+  const seen = {};
+  for (let i = 0; i < nums.length(); i = i + 1) {
+    const complement = target - nums[i];
+    if (seen[complement]) {
+      return [seen[complement], i];
+    }
+    seen[nums[i]] = i;
+  }
+  return nil;
+}
+
+const nums = [2, 7, 11, 15];
+const target = 9;
+println(twoSum(nums, target));  // Output: [0, 1] (because nums[0] + nums[1] = 2 + 7 = 9)

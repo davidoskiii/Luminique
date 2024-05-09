@@ -1100,15 +1100,6 @@ InterpretResult run() {
               push(element);
             }
           } else OVERLOAD_OP([], 1);
-        } else if (IS_DICTIONARY(peek(1))) {
-          Value key = pop();
-          ObjDictionary* dictionary = AS_DICTIONARY(pop());
-          Value value;
-          if (dictGet(dictionary, key, &value)) push(value);
-          else {
-            ObjClass* exceptionClass = getNativeClass("luminique.std.lang", "IndexOutOfBoundsException");
-            throwException(exceptionClass, "Key wasn't found in Dictionary");
-          }
         } else OVERLOAD_OP([], 1);
         break;
       }

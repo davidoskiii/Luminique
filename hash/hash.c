@@ -84,5 +84,5 @@ uint32_t hashObject(Obj* object) {
 
 uint32_t hashValue(Value value) {
   if (IS_OBJ(value)) return hashObject(AS_OBJ(value));
-  return hash64To32Bits((uint64_t)&value);
+  return hash64To32Bits(value);
 }

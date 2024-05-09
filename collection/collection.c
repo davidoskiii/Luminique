@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "../pcg/pcg.h"
 #include "../assert/assert.h"
 #include "../native/native.h"
 #include "../object/object.h"
@@ -57,29 +56,33 @@ bool dictGet(ObjDictionary* dict, Value key, Value* value) {
   return true;
 }
 
+void dictAdjustCapacity(ObjDictionary* dict, int capacity) {
+  ObjEntry* entries = ALLOCATE(ObjEntry, capacity);
+  for (int i = 0; i < capacity; i++) {
+    entries[i].key = UNDEFINED_VAL;
+    entries[i].value = NIL_VAL;
+  }
+
+  dict->count = 0;
+  for (int i = 0; i < dict->capacity; i++) {
+    ObjEntry* entry = &dict->entries[i];
+    if (IS_UNDEFINED(entry->key)) continue;
+
+    ObjEntry* dest = dictFindEntry(entries, capacity, entry->key);
+    dest->key = entry->key;
+    dest->value = entry->value;
+    dict->count++;
+  }
+
+  FREE_ARRAY(ObjEntry, dict->entries, dict->capacity);
+  dict->entries = entries;
+  dict->capacity = capacity;
+}
+
 bool dictSet(ObjDictionary* dict, Value key, Value value) {
   if (dict->count + 1 > dict->capacity * TABLE_MAX_LOAD) {
     int capacity = GROW_CAPACITY(dict->capacity);
-    ObjEntry* entries = ALLOCATE(ObjEntry, capacity);
-    for (int i = 0; i < capacity; i++) {
-      entries[i].key = UNDEFINED_VAL;
-      entries[i].value = NIL_VAL;
-    }
-
-    dict->count = 0;
-    for (int i = 0; i < dict->capacity; i++) {
-      ObjEntry* entry = &dict->entries[i];
-      if (IS_UNDEFINED(entry->key)) continue;
-
-      ObjEntry* dest = dictFindEntry(entries, capacity, entry->key);
-      dest->key = entry->key;
-      dest->value = entry->value;
-      dict->count++;
-    }
-
-    FREE_ARRAY(ObjEntry, dict->entries, dict->capacity);
-    dict->entries = entries;
-    dict->capacity = capacity;
+    dictAdjustCapacity(dict, capacity);
   }
 
   ObjEntry* entry = dictFindEntry(dict->entries, dict->capacity, key);
@@ -112,7 +115,7 @@ static void dictAddAll(ObjDictionary* from, ObjDictionary* to) {
 }
 
 static ObjDictionary* dictCopy(ObjDictionary* original) {
-  ObjDictionary* copied = newDictionary(vm);
+  ObjDictionary* copied = newDictionary();
   push(OBJ_VAL(copied));
   dictAddAll(original, copied);
   pop();
@@ -287,7 +290,7 @@ static void arrayAddAll(ObjArray* from, ObjArray* to) {
 static void arrayInsertAt(ObjArray* array, int index, Value element) {
 	if (IS_OBJ(element)) push(element);
 	writeValueArray(&array->elements, NIL_VAL);
-	if (IS_OBJ(element)) pop(vm);
+	if (IS_OBJ(element)) pop();
 
 	for (int i = array->elements.count - 1; i > index; i--) {
 		array->elements.values[i] = array->elements.values[i - 1];
@@ -313,7 +316,7 @@ static Value arrayRemoveAt(ObjArray* array, int index) {
 	}
 	array->elements.count--;
 
-	if (IS_OBJ(element)) pop(vm);
+	if (IS_OBJ(element)) pop();
 	return element;
 }
 
@@ -408,7 +411,7 @@ NATIVE_METHOD(Collection, collect) {
     callReentrant(collected, addMethod, result);
     index = callReentrant(receiver, nextMethod, index);
   }
-  pop(vm);
+  pop();
   return collected;
 }
 
@@ -528,7 +531,7 @@ NATIVE_METHOD(Collection, toArray) {
   Value nextValueMethod = getObjMethod(receiver, "nextValue");
   Value index = callReentrant(receiver, nextMethod, NIL_VAL);
 
-  ObjArray* array = newArray(vm);
+  ObjArray* array = newArray();
   push(OBJ_VAL(array));
 
   while (!IS_NIL(index)) {
@@ -751,7 +754,7 @@ NATIVE_METHOD(Array, toString) {
 
 NATIVE_METHOD(Dictionary, __init__) {
 	assertArgCount("Dictionary::__init__()", 0, argCount);
-	RETURN_OBJ(newDictionary(vm));
+	RETURN_OBJ(newDictionary());
 }
 
 NATIVE_METHOD(Dictionary, __getSubscript__) {

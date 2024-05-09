@@ -8,7 +8,7 @@ println("Current seed is ${rand.getSeed()}");
 let i = 0;
 
 while (i < 100) { 
-    i = i + 1;
-    print("Random number ${i}: ");
-    println(rand.nextIntBounded(10000));
+  i = i + 1;
+  print("Random number ${i}: ");
+  println(rand.nextIntBounded(10000));
 }
