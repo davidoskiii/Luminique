@@ -1,0 +1,18 @@
+using luminique.std.random;
+
+println("Generating random numbers between 0 to 10000: ");
+println(random::getseed());
+
+let i = 0;
+
+while (i < 100) { 
+  i = i + 1;
+  print("Random number ${i}: ");
+  println(random::randbint(10000));
+}
+
+random::setseed(1);
+
+println(random::getseed());
+
+println(random::randbint(10));

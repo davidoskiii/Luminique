@@ -20,6 +20,7 @@
 #include "../math/math.h"
 #include "../chrono/chrono.h"
 #include "../sys/sys.h"
+#include "../random/random.h"
 #include "../graphics/graphics.h"
 #include "vm.h"
 
@@ -206,6 +207,7 @@ void initVM(int argc, char** argv) {
 
   registerLangPackage();
   registerSysPackage();
+  registerRandomPackage();
   registerGraphicsPackage();
   registerIOPackage();
   registerCollectionPackage();

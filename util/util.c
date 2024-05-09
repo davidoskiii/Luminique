@@ -1,4 +1,3 @@
-#include <math.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -11,7 +10,6 @@
 #include "../native/native.h"
 #include "../object/object.h"
 #include "../string/string.h"
-#include "../hash/hash.h"
 #include "../value/value.h"
 #include "../vm/vm.h"
 
@@ -38,58 +36,6 @@ char *concat(const char *s1, const char *s2) {
   strcpy(result, s1);
   strcat(result, s2);
   return result;
-}
-
-// RANDOM
-
-NATIVE_METHOD(Random, __init__) {
-	assertArgCount("Random::__init__()", 0, argCount);
-	ObjInstance* self = AS_INSTANCE(receiver);
-	uint64_t seed = (uint64_t)time(NULL);
-	pcg32_seed(seed);
-	setObjProperty(self, "seed", INT_VAL(abs((int)seed)));
-	return receiver;
-}
-
-NATIVE_METHOD(Random, getSeed) {
-	assertArgCount("Random::getSeed()", 0, argCount);
-	Value seed = getObjProperty(AS_INSTANCE(receiver), "seed");
-	RETURN_VAL(seed);
-}
-
-NATIVE_METHOD(Random, nextBool) {
-	assertArgCount("Random::nextBool()", 0, argCount);
-	bool value = pcg32_random_bool();
-	RETURN_BOOL(value);
-}
-
-NATIVE_METHOD(Random, nextFloat) {
-	assertArgCount("Random::nextFloat()", 0, argCount);
-	double value = pcg32_random_double();
-	RETURN_NUMBER(value);
-}
-
-NATIVE_METHOD(Random, nextInt) {
-	assertArgCount("Random::nextInt()", 0, argCount);
-	uint32_t value = pcg32_random_int();
-	RETURN_INT((int)value);
-}
-
-NATIVE_METHOD(Random, nextIntBounded) {
-	assertArgCount("Random::nextIntBounded(bound)", 1, argCount);
-	assertArgIsInt("Random::nextIntBounded(bound)", args, 0);
-	assertNumberNonNegative("Random::nextIntBounded(bound)", AS_NUMBER(args[0]), 0);
-	uint32_t value = pcg32_random_int_bounded((uint32_t)AS_INT(args[0]));
-	RETURN_INT((int)value);
-}
-
-NATIVE_METHOD(Random, setSeed) {
-	assertArgCount("Random::setSeed(seed)", 1, argCount);
-	assertArgIsInt("Random::setSeed(seed)", args, 0);
-	assertNumberNonNegative("Random::setSeed(seed)", AS_NUMBER(args[0]), 0);
-	pcg32_seed((uint64_t)AS_INT(args[0]));
-	setObjProperty(AS_INSTANCE(receiver), "seed", args[0]);
-	RETURN_NIL;
 }
 
 // REGEX 
@@ -192,16 +138,6 @@ NATIVE_METHOD(Regex, toString) {
 void registerUtilPackage() {
   ObjNamespace* utilNamespace = defineNativeNamespace("util", vm.stdNamespace);
   vm.currentNamespace = utilNamespace;
-
-	ObjClass* randomClass = defineNativeClass("Random");
-	bindSuperclass(randomClass, vm.objectClass);
-	DEF_METHOD(randomClass, Random, getSeed, 0);
-	DEF_METHOD(randomClass, Random, __init__, 0);
-	DEF_METHOD(randomClass, Random, nextBool, 0);
-	DEF_METHOD(randomClass, Random, nextFloat, 0);
-	DEF_METHOD(randomClass, Random, nextInt, 0);
-	DEF_METHOD(randomClass, Random, nextIntBounded, 1);
-	DEF_METHOD(randomClass, Random, setSeed, 1);
 
 	ObjClass* regexClass = defineNativeClass("Regex");
 	bindSuperclass(regexClass, vm.objectClass);

@@ -6,9 +6,6 @@
 #include "math.h"
 #include "../assert/assert.h"
 #include "../native/native.h"
-#include "../object/object.h"
-#include "../string/string.h"
-#include "../hash/hash.h"
 #include "../value/value.h"
 #include "../vm/vm.h"
 
