@@ -8,6 +8,8 @@
 
 static void repl() {
   char line[1024];
+  vm.currentModule = newModule(newString("<repl>"));
+
   for (;;) {
     printf("> ");
 
@@ -16,6 +18,7 @@ static void repl() {
       break;
     }
 
+    vm.currentModule->source = line;
     interpret(line);
   }
 }
