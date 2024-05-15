@@ -31,6 +31,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/luminique.dir/object/object.c.o.d"
   "CMakeFiles/luminique.dir/pcg/pcg.c.o"
   "CMakeFiles/luminique.dir/pcg/pcg.c.o.d"
+  "CMakeFiles/luminique.dir/random/random.c.o"
+  "CMakeFiles/luminique.dir/random/random.c.o.d"
   "CMakeFiles/luminique.dir/scanner/scanner.c.o"
   "CMakeFiles/luminique.dir/scanner/scanner.c.o.d"
   "CMakeFiles/luminique.dir/std/std.c.o"

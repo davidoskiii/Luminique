@@ -30,6 +30,7 @@ set(SOURCES
   sys/sys.c
   chrono/chrono.c
   graphics/graphics.c
+  random/random.c
 )
 
 # Add an executable target

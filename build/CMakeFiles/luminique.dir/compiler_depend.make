@@ -778,15 +778,13 @@ CMakeFiles/luminique.dir/collection/collection.c.o: ../collection/collection.c \
   /usr/include/x86_64-linux-gnu/bits/struct_rwlock.h \
   /usr/include/alloca.h \
   /usr/include/x86_64-linux-gnu/bits/stdlib-float.h \
-  ../pcg/pcg.h \
-  /usr/include/inttypes.h \
+  ../assert/assert.h \
+  ../common.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/stdbool.h \
   /usr/lib/gcc/x86_64-linux-gnu/11/include/stdint.h \
   /usr/include/stdint.h \
   /usr/include/x86_64-linux-gnu/bits/wchar.h \
   /usr/include/x86_64-linux-gnu/bits/stdint-uintn.h \
-  /usr/lib/gcc/x86_64-linux-gnu/11/include/stdbool.h \
-  ../assert/assert.h \
-  ../common.h \
   ../value/value.h \
   ../common.h \
   /usr/include/string.h \
@@ -809,6 +807,7 @@ CMakeFiles/luminique.dir/collection/collection.c.o: ../collection/collection.c \
   /usr/include/wchar.h \
   /usr/include/x86_64-linux-gnu/bits/types/wint_t.h \
   /usr/include/x86_64-linux-gnu/bits/types/mbstate_t.h \
+  /usr/include/inttypes.h \
   /usr/include/ctype.h \
   /usr/include/math.h \
   /usr/include/x86_64-linux-gnu/bits/math-vector.h \
@@ -1661,6 +1660,7 @@ CMakeFiles/luminique.dir/graphics/graphics.c.o: ../graphics/graphics.c \
   /usr/include/SDL2/SDL_version.h \
   /usr/include/SDL2/SDL_locale.h \
   /usr/include/SDL2/SDL_misc.h \
+  /usr/include/SDL2/SDL_events.h \
   ../graphics/graphics.h \
   ../common.h \
   /usr/lib/gcc/x86_64-linux-gnu/11/include/stdbool.h \
@@ -2496,7 +2496,16 @@ CMakeFiles/luminique.dir/main.c.o: ../main.c \
   /usr/include/stdint.h \
   /usr/include/x86_64-linux-gnu/bits/wchar.h \
   /usr/include/x86_64-linux-gnu/bits/stdint-uintn.h \
-  ../vm/vm.h \
+  ../string/string.h \
+  ../common.h \
+  ../table/table.h \
+  ../common.h \
+  ../value/value.h \
+  ../common.h \
+  ../chunk/chunk.h \
+  ../common.h \
+  ../value/value.h \
+  ../value/value.h \
   ../object/object.h \
   /usr/include/x86_64-linux-gnu/sys/stat.h \
   /usr/include/x86_64-linux-gnu/bits/stat.h \
@@ -2652,13 +2661,10 @@ CMakeFiles/luminique.dir/main.c.o: ../main.c \
   /usr/include/SDL2/SDL_misc.h \
   ../common.h \
   ../table/table.h \
-  ../common.h \
-  ../value/value.h \
-  ../common.h \
   ../chunk/chunk.h \
-  ../common.h \
   ../value/value.h \
-  ../value/value.h \
+  ../vm/vm.h \
+  ../object/object.h \
   ../table/table.h \
   ../value/value.h
 
@@ -2902,11 +2908,6 @@ CMakeFiles/luminique.dir/math/math.c.o: ../math/math.c \
   ../vm/vm.h \
   ../object/object.h \
   ../table/table.h \
-  ../value/value.h \
-  ../object/object.h \
-  ../hash/hash.h \
-  ../object/object.h \
-  ../common.h \
   ../value/value.h \
   ../value/value.h \
   ../vm/vm.h
@@ -3620,10 +3621,6 @@ CMakeFiles/luminique.dir/object/object.c.o: ../object/object.c \
   ../chunk/chunk.h \
   ../common.h \
   ../value/value.h \
-  ../value/value.h \
-  ../hash/hash.h \
-  ../object/object.h \
-  ../common.h \
   ../value/value.h \
   ../memory/memory.h \
   ../common.h \
@@ -4454,9 +4451,6 @@ CMakeFiles/luminique.dir/sys/sys.c.o: ../sys/sys.c \
   ../assert/assert.h \
   ../common.h \
   ../value/value.h \
-  ../collection/collection.h \
-  ../common.h \
-  ../string/string.h \
   ../native/native.h \
   ../object/object.h \
   ../vm/vm.h \
@@ -4464,10 +4458,6 @@ CMakeFiles/luminique.dir/sys/sys.c.o: ../sys/sys.c \
   ../table/table.h \
   ../value/value.h \
   ../object/object.h \
-  ../hash/hash.h \
-  ../object/object.h \
-  ../common.h \
-  ../value/value.h \
   ../value/value.h \
   ../vm/vm.h
 
@@ -4715,7 +4705,7 @@ CMakeFiles/luminique.dir/table/table.c.o: ../table/table.c \
 
 CMakeFiles/luminique.dir/util/util.c.o: ../util/util.c \
   /usr/include/stdc-predef.h \
-  /usr/include/math.h \
+  /usr/include/stdlib.h \
   /usr/include/x86_64-linux-gnu/bits/libc-header-start.h \
   /usr/include/features.h \
   /usr/include/features-time64.h \
@@ -4725,23 +4715,15 @@ CMakeFiles/luminique.dir/util/util.c.o: ../util/util.c \
   /usr/include/x86_64-linux-gnu/bits/long-double.h \
   /usr/include/x86_64-linux-gnu/gnu/stubs.h \
   /usr/include/x86_64-linux-gnu/gnu/stubs-64.h \
-  /usr/include/x86_64-linux-gnu/bits/types.h \
-  /usr/include/x86_64-linux-gnu/bits/typesizes.h \
-  /usr/include/x86_64-linux-gnu/bits/time64.h \
-  /usr/include/x86_64-linux-gnu/bits/math-vector.h \
-  /usr/include/x86_64-linux-gnu/bits/libm-simd-decl-stubs.h \
-  /usr/include/x86_64-linux-gnu/bits/floatn.h \
-  /usr/include/x86_64-linux-gnu/bits/floatn-common.h \
-  /usr/include/x86_64-linux-gnu/bits/flt-eval-method.h \
-  /usr/include/x86_64-linux-gnu/bits/fp-logb.h \
-  /usr/include/x86_64-linux-gnu/bits/fp-fast.h \
-  /usr/include/x86_64-linux-gnu/bits/mathcalls-helper-functions.h \
-  /usr/include/x86_64-linux-gnu/bits/mathcalls.h \
-  /usr/include/stdlib.h \
   /usr/lib/gcc/x86_64-linux-gnu/11/include/stddef.h \
   /usr/include/x86_64-linux-gnu/bits/waitflags.h \
   /usr/include/x86_64-linux-gnu/bits/waitstatus.h \
+  /usr/include/x86_64-linux-gnu/bits/floatn.h \
+  /usr/include/x86_64-linux-gnu/bits/floatn-common.h \
   /usr/include/x86_64-linux-gnu/sys/types.h \
+  /usr/include/x86_64-linux-gnu/bits/types.h \
+  /usr/include/x86_64-linux-gnu/bits/typesizes.h \
+  /usr/include/x86_64-linux-gnu/bits/time64.h \
   /usr/include/x86_64-linux-gnu/bits/types/clock_t.h \
   /usr/include/x86_64-linux-gnu/bits/types/clockid_t.h \
   /usr/include/x86_64-linux-gnu/bits/types/time_t.h \
@@ -4818,6 +4800,14 @@ CMakeFiles/luminique.dir/util/util.c.o: ../util/util.c \
   /usr/include/x86_64-linux-gnu/bits/types/mbstate_t.h \
   /usr/include/inttypes.h \
   /usr/include/ctype.h \
+  /usr/include/math.h \
+  /usr/include/x86_64-linux-gnu/bits/math-vector.h \
+  /usr/include/x86_64-linux-gnu/bits/libm-simd-decl-stubs.h \
+  /usr/include/x86_64-linux-gnu/bits/flt-eval-method.h \
+  /usr/include/x86_64-linux-gnu/bits/fp-logb.h \
+  /usr/include/x86_64-linux-gnu/bits/fp-fast.h \
+  /usr/include/x86_64-linux-gnu/bits/mathcalls-helper-functions.h \
+  /usr/include/x86_64-linux-gnu/bits/mathcalls.h \
   /usr/lib/gcc/x86_64-linux-gnu/11/include/float.h \
   /usr/include/SDL2/SDL_assert.h \
   /usr/include/SDL2/SDL_atomic.h \
@@ -4961,10 +4951,6 @@ CMakeFiles/luminique.dir/util/util.c.o: ../util/util.c \
   ../table/table.h \
   ../value/value.h \
   ../object/object.h \
-  ../hash/hash.h \
-  ../object/object.h \
-  ../common.h \
-  ../value/value.h \
   ../value/value.h \
   ../vm/vm.h
 
@@ -5478,11 +5464,16 @@ CMakeFiles/luminique.dir/vm/vm.c.o: ../vm/vm.c \
   ../sys/sys.h \
   ../common.h \
   ../string/string.h \
+  ../random/random.h \
+  ../common.h \
+  ../string/string.h \
   ../graphics/graphics.h \
   ../common.h \
   ../string/string.h \
   ../vm/vm.h
 
+
+../random/random.h:
 
 ../value/value.c:
 
@@ -5511,8 +5502,6 @@ CMakeFiles/luminique.dir/vm/vm.c.o: ../vm/vm.c \
 ../math/math.h:
 
 ../lang/lang.c:
-
-/usr/include/x86_64-linux-gnu/bits/posix2_lim.h:
 
 /usr/lib/gcc/x86_64-linux-gnu/11/include/rtmintrin.h:
 
@@ -5551,6 +5540,10 @@ CMakeFiles/luminique.dir/vm/vm.c.o: ../vm/vm.c \
 /usr/include/SDL2/SDL_error.h:
 
 /usr/include/SDL2/SDL_audio.h:
+
+../pcg/pcg.h:
+
+/usr/lib/gcc/x86_64-linux-gnu/11/include/rdseedintrin.h:
 
 /usr/include/SDL2/SDL_hints.h:
 
@@ -5711,6 +5704,8 @@ CMakeFiles/luminique.dir/vm/vm.c.o: ../vm/vm.c \
 /usr/include/x86_64-linux-gnu/bits/fp-fast.h:
 
 /usr/include/linux/limits.h:
+
+/usr/include/x86_64-linux-gnu/bits/posix2_lim.h:
 
 /usr/include/x86_64-linux-gnu/bits/types/__locale_t.h:
 
@@ -6033,10 +6028,6 @@ CMakeFiles/luminique.dir/vm/vm.c.o: ../vm/vm.c \
 ../chunk/chunk.c:
 
 ../collection/collection.c:
-
-/usr/lib/gcc/x86_64-linux-gnu/11/include/rdseedintrin.h:
-
-../pcg/pcg.h:
 
 /usr/lib/gcc/x86_64-linux-gnu/11/include/fmaintrin.h:
 

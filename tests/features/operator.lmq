@@ -1,3 +1,5 @@
+using luminique::std::math;
+
 class Complex { 
   function __init__(real, imaginary) { 
     this.real = real;
@@ -34,11 +36,11 @@ class Complex {
   }
 
   function > (that) { 
-    return (this.real.hypot(this.imaginary)) > (that.real.hypot(that.imaginary));
+    return (math::hypot(this.real, this.imaginary)) > (math::hypot(this.real, this.imaginary));
   }
 
   function < (that) { 
-    return (this.real.hypot(this.imaginary)) < (that.real.hypot(that.imaginary));
+    return (math::hypot(this.real, this.imaginary)) < (math::hypot(this.real, this.imaginary));
   }
 
   function toString() {

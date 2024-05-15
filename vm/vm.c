@@ -22,6 +22,7 @@
 #include "../sys/sys.h"
 #include "../random/random.h"
 #include "../graphics/graphics.h"
+#include "../debug/debug.h"
 #include "vm.h"
 
 VM vm;

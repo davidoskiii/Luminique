@@ -1709,7 +1709,7 @@ static void namespaceDeclaration() {
     }
     namespace_(false);
     namespaceDepth++;
-  } while (match(TOKEN_DOT));
+  } while (match(TOKEN_COLON_COLON));
 
   consume(TOKEN_SEMICOLON, "Expect semicolon after namespace declaration.");
   emitBytes(OP_NAMESPACE, namespaceDepth);

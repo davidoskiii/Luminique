@@ -782,15 +782,13 @@ CMakeFiles/luminique.dir/collection/collection.c.o
  /usr/include/x86_64-linux-gnu/bits/struct_rwlock.h
  /usr/include/alloca.h
  /usr/include/x86_64-linux-gnu/bits/stdlib-float.h
- /home/davide/Vs Code Projects/c/compiler/Luminique/pcg/pcg.h
- /usr/include/inttypes.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/assert/assert.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/common.h
+ /usr/lib/gcc/x86_64-linux-gnu/11/include/stdbool.h
  /usr/lib/gcc/x86_64-linux-gnu/11/include/stdint.h
  /usr/include/stdint.h
  /usr/include/x86_64-linux-gnu/bits/wchar.h
  /usr/include/x86_64-linux-gnu/bits/stdint-uintn.h
- /usr/lib/gcc/x86_64-linux-gnu/11/include/stdbool.h
- /home/davide/Vs Code Projects/c/compiler/Luminique/assert/assert.h
- /home/davide/Vs Code Projects/c/compiler/Luminique/common.h
  /home/davide/Vs Code Projects/c/compiler/Luminique/value/value.h
  /home/davide/Vs Code Projects/c/compiler/Luminique/common.h
  /usr/include/string.h
@@ -813,6 +811,7 @@ CMakeFiles/luminique.dir/collection/collection.c.o
  /usr/include/wchar.h
  /usr/include/x86_64-linux-gnu/bits/types/wint_t.h
  /usr/include/x86_64-linux-gnu/bits/types/mbstate_t.h
+ /usr/include/inttypes.h
  /usr/include/ctype.h
  /usr/include/math.h
  /usr/include/x86_64-linux-gnu/bits/math-vector.h
@@ -1668,6 +1667,7 @@ CMakeFiles/luminique.dir/graphics/graphics.c.o
  /usr/include/SDL2/SDL_version.h
  /usr/include/SDL2/SDL_locale.h
  /usr/include/SDL2/SDL_misc.h
+ /usr/include/SDL2/SDL_events.h
  /home/davide/Vs Code Projects/c/compiler/Luminique/graphics/graphics.h
  /home/davide/Vs Code Projects/c/compiler/Luminique/common.h
  /usr/lib/gcc/x86_64-linux-gnu/11/include/stdbool.h
@@ -2507,7 +2507,16 @@ CMakeFiles/luminique.dir/main.c.o
  /usr/include/stdint.h
  /usr/include/x86_64-linux-gnu/bits/wchar.h
  /usr/include/x86_64-linux-gnu/bits/stdint-uintn.h
- /home/davide/Vs Code Projects/c/compiler/Luminique/vm/vm.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/string/string.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/common.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/table/table.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/common.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/value/value.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/common.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/chunk/chunk.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/common.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/value/value.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/value/value.h
  /home/davide/Vs Code Projects/c/compiler/Luminique/object/object.h
  /usr/include/x86_64-linux-gnu/sys/stat.h
  /usr/include/x86_64-linux-gnu/bits/stat.h
@@ -2663,13 +2672,10 @@ CMakeFiles/luminique.dir/main.c.o
  /usr/include/SDL2/SDL_misc.h
  /home/davide/Vs Code Projects/c/compiler/Luminique/common.h
  /home/davide/Vs Code Projects/c/compiler/Luminique/table/table.h
- /home/davide/Vs Code Projects/c/compiler/Luminique/common.h
- /home/davide/Vs Code Projects/c/compiler/Luminique/value/value.h
- /home/davide/Vs Code Projects/c/compiler/Luminique/common.h
  /home/davide/Vs Code Projects/c/compiler/Luminique/chunk/chunk.h
- /home/davide/Vs Code Projects/c/compiler/Luminique/common.h
  /home/davide/Vs Code Projects/c/compiler/Luminique/value/value.h
- /home/davide/Vs Code Projects/c/compiler/Luminique/value/value.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/vm/vm.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/object/object.h
  /home/davide/Vs Code Projects/c/compiler/Luminique/table/table.h
  /home/davide/Vs Code Projects/c/compiler/Luminique/value/value.h
 
@@ -2914,11 +2920,6 @@ CMakeFiles/luminique.dir/math/math.c.o
  /home/davide/Vs Code Projects/c/compiler/Luminique/vm/vm.h
  /home/davide/Vs Code Projects/c/compiler/Luminique/object/object.h
  /home/davide/Vs Code Projects/c/compiler/Luminique/table/table.h
- /home/davide/Vs Code Projects/c/compiler/Luminique/value/value.h
- /home/davide/Vs Code Projects/c/compiler/Luminique/object/object.h
- /home/davide/Vs Code Projects/c/compiler/Luminique/hash/hash.h
- /home/davide/Vs Code Projects/c/compiler/Luminique/object/object.h
- /home/davide/Vs Code Projects/c/compiler/Luminique/common.h
  /home/davide/Vs Code Projects/c/compiler/Luminique/value/value.h
  /home/davide/Vs Code Projects/c/compiler/Luminique/value/value.h
  /home/davide/Vs Code Projects/c/compiler/Luminique/vm/vm.h
@@ -3635,10 +3636,6 @@ CMakeFiles/luminique.dir/object/object.c.o
  /home/davide/Vs Code Projects/c/compiler/Luminique/chunk/chunk.h
  /home/davide/Vs Code Projects/c/compiler/Luminique/common.h
  /home/davide/Vs Code Projects/c/compiler/Luminique/value/value.h
- /home/davide/Vs Code Projects/c/compiler/Luminique/value/value.h
- /home/davide/Vs Code Projects/c/compiler/Luminique/hash/hash.h
- /home/davide/Vs Code Projects/c/compiler/Luminique/object/object.h
- /home/davide/Vs Code Projects/c/compiler/Luminique/common.h
  /home/davide/Vs Code Projects/c/compiler/Luminique/value/value.h
  /home/davide/Vs Code Projects/c/compiler/Luminique/memory/memory.h
  /home/davide/Vs Code Projects/c/compiler/Luminique/common.h
@@ -4474,9 +4471,6 @@ CMakeFiles/luminique.dir/sys/sys.c.o
  /home/davide/Vs Code Projects/c/compiler/Luminique/assert/assert.h
  /home/davide/Vs Code Projects/c/compiler/Luminique/common.h
  /home/davide/Vs Code Projects/c/compiler/Luminique/value/value.h
- /home/davide/Vs Code Projects/c/compiler/Luminique/collection/collection.h
- /home/davide/Vs Code Projects/c/compiler/Luminique/common.h
- /home/davide/Vs Code Projects/c/compiler/Luminique/string/string.h
  /home/davide/Vs Code Projects/c/compiler/Luminique/native/native.h
  /home/davide/Vs Code Projects/c/compiler/Luminique/object/object.h
  /home/davide/Vs Code Projects/c/compiler/Luminique/vm/vm.h
@@ -4484,10 +4478,6 @@ CMakeFiles/luminique.dir/sys/sys.c.o
  /home/davide/Vs Code Projects/c/compiler/Luminique/table/table.h
  /home/davide/Vs Code Projects/c/compiler/Luminique/value/value.h
  /home/davide/Vs Code Projects/c/compiler/Luminique/object/object.h
- /home/davide/Vs Code Projects/c/compiler/Luminique/hash/hash.h
- /home/davide/Vs Code Projects/c/compiler/Luminique/object/object.h
- /home/davide/Vs Code Projects/c/compiler/Luminique/common.h
- /home/davide/Vs Code Projects/c/compiler/Luminique/value/value.h
  /home/davide/Vs Code Projects/c/compiler/Luminique/value/value.h
  /home/davide/Vs Code Projects/c/compiler/Luminique/vm/vm.h
 
@@ -4737,7 +4727,7 @@ CMakeFiles/luminique.dir/table/table.c.o
 CMakeFiles/luminique.dir/util/util.c.o
  /home/davide/Vs Code Projects/c/compiler/Luminique/util/util.c
  /usr/include/stdc-predef.h
- /usr/include/math.h
+ /usr/include/stdlib.h
  /usr/include/x86_64-linux-gnu/bits/libc-header-start.h
  /usr/include/features.h
  /usr/include/features-time64.h
@@ -4747,23 +4737,15 @@ CMakeFiles/luminique.dir/util/util.c.o
  /usr/include/x86_64-linux-gnu/bits/long-double.h
  /usr/include/x86_64-linux-gnu/gnu/stubs.h
  /usr/include/x86_64-linux-gnu/gnu/stubs-64.h
- /usr/include/x86_64-linux-gnu/bits/types.h
- /usr/include/x86_64-linux-gnu/bits/typesizes.h
- /usr/include/x86_64-linux-gnu/bits/time64.h
- /usr/include/x86_64-linux-gnu/bits/math-vector.h
- /usr/include/x86_64-linux-gnu/bits/libm-simd-decl-stubs.h
- /usr/include/x86_64-linux-gnu/bits/floatn.h
- /usr/include/x86_64-linux-gnu/bits/floatn-common.h
- /usr/include/x86_64-linux-gnu/bits/flt-eval-method.h
- /usr/include/x86_64-linux-gnu/bits/fp-logb.h
- /usr/include/x86_64-linux-gnu/bits/fp-fast.h
- /usr/include/x86_64-linux-gnu/bits/mathcalls-helper-functions.h
- /usr/include/x86_64-linux-gnu/bits/mathcalls.h
- /usr/include/stdlib.h
  /usr/lib/gcc/x86_64-linux-gnu/11/include/stddef.h
  /usr/include/x86_64-linux-gnu/bits/waitflags.h
  /usr/include/x86_64-linux-gnu/bits/waitstatus.h
+ /usr/include/x86_64-linux-gnu/bits/floatn.h
+ /usr/include/x86_64-linux-gnu/bits/floatn-common.h
  /usr/include/x86_64-linux-gnu/sys/types.h
+ /usr/include/x86_64-linux-gnu/bits/types.h
+ /usr/include/x86_64-linux-gnu/bits/typesizes.h
+ /usr/include/x86_64-linux-gnu/bits/time64.h
  /usr/include/x86_64-linux-gnu/bits/types/clock_t.h
  /usr/include/x86_64-linux-gnu/bits/types/clockid_t.h
  /usr/include/x86_64-linux-gnu/bits/types/time_t.h
@@ -4840,6 +4822,14 @@ CMakeFiles/luminique.dir/util/util.c.o
  /usr/include/x86_64-linux-gnu/bits/types/mbstate_t.h
  /usr/include/inttypes.h
  /usr/include/ctype.h
+ /usr/include/math.h
+ /usr/include/x86_64-linux-gnu/bits/math-vector.h
+ /usr/include/x86_64-linux-gnu/bits/libm-simd-decl-stubs.h
+ /usr/include/x86_64-linux-gnu/bits/flt-eval-method.h
+ /usr/include/x86_64-linux-gnu/bits/fp-logb.h
+ /usr/include/x86_64-linux-gnu/bits/fp-fast.h
+ /usr/include/x86_64-linux-gnu/bits/mathcalls-helper-functions.h
+ /usr/include/x86_64-linux-gnu/bits/mathcalls.h
  /usr/lib/gcc/x86_64-linux-gnu/11/include/float.h
  /usr/include/SDL2/SDL_assert.h
  /usr/include/SDL2/SDL_atomic.h
@@ -4983,10 +4973,6 @@ CMakeFiles/luminique.dir/util/util.c.o
  /home/davide/Vs Code Projects/c/compiler/Luminique/table/table.h
  /home/davide/Vs Code Projects/c/compiler/Luminique/value/value.h
  /home/davide/Vs Code Projects/c/compiler/Luminique/object/object.h
- /home/davide/Vs Code Projects/c/compiler/Luminique/hash/hash.h
- /home/davide/Vs Code Projects/c/compiler/Luminique/object/object.h
- /home/davide/Vs Code Projects/c/compiler/Luminique/common.h
- /home/davide/Vs Code Projects/c/compiler/Luminique/value/value.h
  /home/davide/Vs Code Projects/c/compiler/Luminique/value/value.h
  /home/davide/Vs Code Projects/c/compiler/Luminique/vm/vm.h
 
@@ -5500,6 +5486,9 @@ CMakeFiles/luminique.dir/vm/vm.c.o
  /home/davide/Vs Code Projects/c/compiler/Luminique/common.h
  /home/davide/Vs Code Projects/c/compiler/Luminique/string/string.h
  /home/davide/Vs Code Projects/c/compiler/Luminique/sys/sys.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/common.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/string/string.h
+ /home/davide/Vs Code Projects/c/compiler/Luminique/random/random.h
  /home/davide/Vs Code Projects/c/compiler/Luminique/common.h
  /home/davide/Vs Code Projects/c/compiler/Luminique/string/string.h
  /home/davide/Vs Code Projects/c/compiler/Luminique/graphics/graphics.h

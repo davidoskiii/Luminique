@@ -24,6 +24,7 @@ set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "/home/davide/Vs Code Projects/c/compiler/Luminique/native/native.c" "CMakeFiles/luminique.dir/native/native.c.o" "gcc" "CMakeFiles/luminique.dir/native/native.c.o.d"
   "/home/davide/Vs Code Projects/c/compiler/Luminique/object/object.c" "CMakeFiles/luminique.dir/object/object.c.o" "gcc" "CMakeFiles/luminique.dir/object/object.c.o.d"
   "/home/davide/Vs Code Projects/c/compiler/Luminique/pcg/pcg.c" "CMakeFiles/luminique.dir/pcg/pcg.c.o" "gcc" "CMakeFiles/luminique.dir/pcg/pcg.c.o.d"
+  "/home/davide/Vs Code Projects/c/compiler/Luminique/random/random.c" "CMakeFiles/luminique.dir/random/random.c.o" "gcc" "CMakeFiles/luminique.dir/random/random.c.o.d"
   "/home/davide/Vs Code Projects/c/compiler/Luminique/scanner/scanner.c" "CMakeFiles/luminique.dir/scanner/scanner.c.o" "gcc" "CMakeFiles/luminique.dir/scanner/scanner.c.o.d"
   "/home/davide/Vs Code Projects/c/compiler/Luminique/std/std.c" "CMakeFiles/luminique.dir/std/std.c.o" "gcc" "CMakeFiles/luminique.dir/std/std.c.o.d"
   "/home/davide/Vs Code Projects/c/compiler/Luminique/string/string.c" "CMakeFiles/luminique.dir/string/string.c.o" "gcc" "CMakeFiles/luminique.dir/string/string.c.o.d"

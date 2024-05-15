@@ -1,4 +1,4 @@
-using luminique.std.math;
+using luminique::std::math;
 
 class Fraction {
   function __init__(numerator, denominator) {

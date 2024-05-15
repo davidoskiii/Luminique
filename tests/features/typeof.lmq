@@ -1,0 +1,8 @@
+using luminique::std::math;
+
+println("Type of 5: ${typeof 5}");
+println("Type of \"string\": ${typeof "string"}");
+println("Type of nil: ${typeof nil}");
+println("Type of 10.2: ${typeof 10.2}");
+
+println("Type of math: ${typeof math}");

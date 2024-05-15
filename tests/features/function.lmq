@@ -1,4 +1,4 @@
-using luminique.std.chrono;
+using luminique::std::chrono;
 
 // 'normal' function
 

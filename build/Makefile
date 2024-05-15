@@ -513,6 +513,30 @@ pcg/pcg.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/luminique.dir/build.make CMakeFiles/luminique.dir/pcg/pcg.c.s
 .PHONY : pcg/pcg.c.s
 
+random/random.o: random/random.c.o
+.PHONY : random/random.o
+
+# target to build an object file
+random/random.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/luminique.dir/build.make CMakeFiles/luminique.dir/random/random.c.o
+.PHONY : random/random.c.o
+
+random/random.i: random/random.c.i
+.PHONY : random/random.i
+
+# target to preprocess a source file
+random/random.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/luminique.dir/build.make CMakeFiles/luminique.dir/random/random.c.i
+.PHONY : random/random.c.i
+
+random/random.s: random/random.c.s
+.PHONY : random/random.s
+
+# target to generate assembly for a file
+random/random.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/luminique.dir/build.make CMakeFiles/luminique.dir/random/random.c.s
+.PHONY : random/random.c.s
+
 scanner/scanner.o: scanner/scanner.c.o
 .PHONY : scanner/scanner.o
 
@@ -762,6 +786,9 @@ help:
 	@echo "... pcg/pcg.o"
 	@echo "... pcg/pcg.i"
 	@echo "... pcg/pcg.s"
+	@echo "... random/random.o"
+	@echo "... random/random.i"
+	@echo "... random/random.s"
 	@echo "... scanner/scanner.o"
 	@echo "... scanner/scanner.i"
 	@echo "... scanner/scanner.s"

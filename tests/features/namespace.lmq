@@ -1,8 +1,8 @@
-namespace lmq.tests;
+namespace lmq::tests;
 
-using luminique.std;
-using tests.features.fraction;
-using tests.features.fib;
+using luminique::std;
+using tests::features::fraction;
+using tests::features::fib;
 
 println(std::chrono::Date);
 println(Fraction);
