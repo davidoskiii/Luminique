@@ -167,6 +167,8 @@ int disassembleInstruction(Chunk* chunk, int offset) {
       return simpleInstruction("OP_SET_SUBSCRIPT", offset);
     case OP_REQUIRE:
       return simpleInstruction("OP_REQUIRE", offset);
+    case OP_TYPEOF:
+      return simpleInstruction("OP_TYPEOF", offset);
     case OP_GET_SUPER:
       return constantValueInstruction16("OP_GET_SUPER", chunk, offset);
     case OP_CLOSURE: {

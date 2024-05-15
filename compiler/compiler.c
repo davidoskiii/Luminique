@@ -709,6 +709,11 @@ static void and_(bool canAssign) {
   patchJump(endJump);
 }
 
+static void typeof_(bool canAssign) {
+  expression();
+  emitByte(OP_TYPEOF);
+}
+
 static void binary(bool canAssign) {
   TokenType operatorType = parser.previous.type;
   ParseRule* rule = getRule(operatorType);
@@ -1163,6 +1168,7 @@ ParseRule rules[] = {
   [TOKEN_GREATER_EQUAL] = {NULL,          binary,    PREC_COMPARISON},
   [TOKEN_LESS]          = {NULL,          binary,    PREC_COMPARISON},
   [TOKEN_LESS_EQUAL]    = {NULL,          binary,    PREC_COMPARISON},
+  [TOKEN_TYPEOF]        = {typeof_,       NULL,      PREC_NONE},
   [TOKEN_IDENTIFIER]    = {variable,      NULL,      PREC_NONE},
   [TOKEN_STRING]        = {string,        NULL,      PREC_NONE},
   [TOKEN_INTERPOLATION] = {interpolation, NULL,      PREC_NONE},
@@ -1715,7 +1721,7 @@ static void usingStatement() {
     consume(TOKEN_IDENTIFIER, "Expect namespace identifier.");
     emitIdentifier(&parser.previous);
     namespaceDepth++;
-  } while (match(TOKEN_DOT));
+  } while (match(TOKEN_COLON_COLON));
 
   emitBytes(OP_USING, namespaceDepth);
   uint16_t alias = makeConstant(OBJ_VAL(newString("")));

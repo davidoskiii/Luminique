@@ -1223,6 +1223,11 @@ InterpretResult run() {
         frame = &vm.frames[vm.frameCount - 1];
         break;
       }
+      case OP_TYPEOF: {
+        Value value = pop();
+        push(OBJ_VAL(getObjClass(value)));
+        break;
+      }
       case OP_RETURN: {
         Value result = pop();
         closeUpvalues(frame->slots);
