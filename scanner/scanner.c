@@ -219,6 +219,7 @@ static TokenType identifierType() {
     case 't':
       if (scanner.current - scanner.start > 1) {
         switch (scanner.start[1]) {
+          case 'y': return checkKeyword(2, 4, "peof", TOKEN_TYPEOF);
           case 'h':
             if (scanner.current - scanner.start > 2) {
               switch (scanner.start[2]) {

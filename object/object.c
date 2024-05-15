@@ -3,7 +3,6 @@
 #include <stdarg.h>
 
 #include "object.h"
-#include "../hash/hash.h"
 #include "../memory/memory.h"
 #include "../table/table.h"
 #include "../value/value.h"
@@ -276,6 +275,9 @@ void printObject(Value value) {
       break;
     case OBJ_NAMESPACE:
       printf("<namespace %s>", AS_NAMESPACE(value)->fullName->chars);
+      break;
+    case OBJ_MODULE:
+      printf("<module %s>", AS_MODULE(value)->path->chars);
       break;
     case OBJ_WINDOW:
       printf("<%s window>", AS_WINDOW(value)->title);
