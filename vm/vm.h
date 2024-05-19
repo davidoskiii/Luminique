@@ -58,6 +58,7 @@ typedef struct {
   int apiStackDepth;
   int argc;
   char** argv;
+  bool repl;
 
   ObjModule* currentModule;
 

@@ -1,5 +1,5 @@
 CMakeFiles/luminique.dir/native/native.c.o: \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/native/native.c \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/native/native.c \
  /usr/include/stdc-predef.h \
  /usr/lib/gcc/x86_64-linux-gnu/11/include/stdarg.h /usr/include/stdio.h \
  /usr/include/x86_64-linux-gnu/bits/libc-header-start.h \
@@ -61,8 +61,8 @@ CMakeFiles/luminique.dir/native/native.c.o: \
  /usr/include/x86_64-linux-gnu/bits/struct_mutex.h \
  /usr/include/x86_64-linux-gnu/bits/struct_rwlock.h /usr/include/alloca.h \
  /usr/include/x86_64-linux-gnu/bits/stdlib-float.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/native/native.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/native/../object/object.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/native/native.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/native/../object/object.h \
  /usr/include/x86_64-linux-gnu/sys/stat.h \
  /usr/include/x86_64-linux-gnu/bits/stat.h \
  /usr/include/x86_64-linux-gnu/bits/struct_stat.h /usr/include/SDL2/SDL.h \
@@ -184,31 +184,31 @@ CMakeFiles/luminique.dir/native/native.c.o: \
  /usr/include/SDL2/SDL_shape.h /usr/include/SDL2/SDL_system.h \
  /usr/include/SDL2/SDL_timer.h /usr/include/SDL2/SDL_version.h \
  /usr/include/SDL2/SDL_locale.h /usr/include/SDL2/SDL_misc.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/native/../object/../common.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/native/../object/../common.h \
  /usr/lib/gcc/x86_64-linux-gnu/11/include/stdbool.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/native/../object/../table/table.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/native/../object/../table/../common.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/native/../object/../table/../value/value.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/native/../object/../table/../value/../common.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/native/../object/../chunk/chunk.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/native/../object/../chunk/../common.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/native/../object/../chunk/../value/value.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/native/../object/../value/value.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/native/../vm/vm.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/native/../vm/../object/object.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/native/../vm/../table/table.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/native/../vm/../value/value.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/native/../assert/assert.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/native/../assert/../common.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/native/../assert/../value/value.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/native/../memory/memory.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/native/../memory/../common.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/native/../memory/../object/object.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/native/../memory/../value/value.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/native/../memory/../vm/vm.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/native/../string/string.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/native/../string/../common.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/native/../string/../table/table.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/native/../string/../chunk/chunk.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/native/../string/../value/value.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/native/../string/../object/object.h
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/native/../object/../table/table.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/native/../object/../table/../common.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/native/../object/../table/../value/value.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/native/../object/../table/../value/../common.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/native/../object/../chunk/chunk.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/native/../object/../chunk/../common.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/native/../object/../chunk/../value/value.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/native/../object/../value/value.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/native/../vm/vm.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/native/../vm/../object/object.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/native/../vm/../table/table.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/native/../vm/../value/value.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/native/../assert/assert.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/native/../assert/../common.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/native/../assert/../value/value.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/native/../memory/memory.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/native/../memory/../common.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/native/../memory/../object/object.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/native/../memory/../value/value.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/native/../memory/../vm/vm.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/native/../string/string.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/native/../string/../common.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/native/../string/../table/table.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/native/../string/../chunk/chunk.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/native/../string/../value/value.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/native/../string/../object/object.h

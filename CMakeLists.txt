@@ -37,4 +37,4 @@ set(SOURCES
 add_executable(luminique ${SOURCES})
 
 # Link libraries
-target_link_libraries(luminique m SDL2)
+target_link_libraries(luminique m SDL2 readline)

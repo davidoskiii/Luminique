@@ -4,7 +4,7 @@
 # compile C with /usr/bin/cc
 C_DEFINES = 
 
-C_INCLUDES = -I"/home/davide/Vs Code Projects/c/compiler/Luminique"
+C_INCLUDES = -I"/home/davide/Vs Code Projects/c/compiler/luminique"
 
 C_FLAGS = 
 

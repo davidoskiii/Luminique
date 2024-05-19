@@ -1,25 +1,30 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <readline/readline.h>
+#include <readline/history.h>
 
 #include "common.h"
 #include "string/string.h"
 #include "./vm/vm.h"
 
 static void repl() {
-  char line[1024];
+  char *line;
   vm.currentModule = newModule(newString("<repl>"));
+  vm.repl = true;
 
   for (;;) {
-    printf("> ");
+    line = readline("> ");
 
-    if (!fgets(line, sizeof(line), stdin)) {
+    if (!line) {
       printf("\n");
       break;
     }
 
+    if (*line) add_history(line);
+
     vm.currentModule->source = line;
-    interpret(line);
+    interpret(vm.currentModule->source);
   }
 }
 

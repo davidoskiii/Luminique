@@ -152,11 +152,17 @@ void runtimeError(const char* format, ...) {
     va_end(args);
     fputs("\n", stderr);
 
-    char* line = getLine(vm.currentModule->source, lineNumber);
+    char* line;
+    if (vm.repl) {
+      line = vm.currentModule->source;
+    } else {
+      line = getLine(vm.currentModule->source, lineNumber);
+    }
+
     char* spaces = returnSpaces(digitsInNumber(lineNumber));
     char* arrows = arrowsString(line);
     fprintf(stderr, "   %d |    %s\n   %s |    \033[31;1m%s\033[0m\n   %s |\n", lineNumber, line, spaces, arrows, spaces);
-    free(line);
+    if (vm.repl) free(line);
     free(spaces);
     free(arrows);
   }
@@ -194,6 +200,7 @@ void initVM(int argc, char** argv) {
 
   vm.argc = argc;
   vm.argv = argv;
+  vm.repl = false;
 
   vm.grayCount = 0;
   vm.grayCapacity = 0;

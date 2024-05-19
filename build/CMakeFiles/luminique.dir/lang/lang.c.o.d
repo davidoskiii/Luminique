@@ -1,5 +1,5 @@
 CMakeFiles/luminique.dir/lang/lang.c.o: \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/lang/lang.c \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/lang/lang.c \
  /usr/include/stdc-predef.h /usr/include/stdio.h \
  /usr/include/x86_64-linux-gnu/bits/libc-header-start.h \
  /usr/include/features.h /usr/include/features-time64.h \
@@ -58,23 +58,23 @@ CMakeFiles/luminique.dir/lang/lang.c.o: \
  /usr/include/x86_64-linux-gnu/bits/types/locale_t.h \
  /usr/include/x86_64-linux-gnu/bits/types/__locale_t.h \
  /usr/include/strings.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/lang/lang.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/lang/../common.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/lang/lang.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/lang/../common.h \
  /usr/lib/gcc/x86_64-linux-gnu/11/include/stdbool.h \
  /usr/lib/gcc/x86_64-linux-gnu/11/include/stdint.h /usr/include/stdint.h \
  /usr/include/x86_64-linux-gnu/bits/wchar.h \
  /usr/include/x86_64-linux-gnu/bits/stdint-uintn.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/lang/../string/string.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/lang/../string/../common.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/lang/../string/../table/table.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/lang/../string/../table/../common.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/lang/../string/../table/../value/value.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/lang/../string/../table/../value/../common.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/lang/../string/../chunk/chunk.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/lang/../string/../chunk/../common.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/lang/../string/../chunk/../value/value.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/lang/../string/../value/value.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/lang/../string/../object/object.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/lang/../string/string.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/lang/../string/../common.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/lang/../string/../table/table.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/lang/../string/../table/../common.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/lang/../string/../table/../value/value.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/lang/../string/../table/../value/../common.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/lang/../string/../chunk/chunk.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/lang/../string/../chunk/../common.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/lang/../string/../chunk/../value/value.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/lang/../string/../value/value.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/lang/../string/../object/object.h \
  /usr/include/x86_64-linux-gnu/sys/stat.h \
  /usr/include/x86_64-linux-gnu/bits/stat.h \
  /usr/include/x86_64-linux-gnu/bits/struct_stat.h /usr/include/SDL2/SDL.h \
@@ -193,22 +193,22 @@ CMakeFiles/luminique.dir/lang/lang.c.o: \
  /usr/include/SDL2/SDL_shape.h /usr/include/SDL2/SDL_system.h \
  /usr/include/SDL2/SDL_timer.h /usr/include/SDL2/SDL_version.h \
  /usr/include/SDL2/SDL_locale.h /usr/include/SDL2/SDL_misc.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/lang/../string/../object/../common.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/lang/../string/../object/../table/table.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/lang/../string/../object/../chunk/chunk.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/lang/../string/../object/../value/value.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/lang/../hash/hash.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/lang/../hash/../object/object.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/lang/../hash/../common.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/lang/../hash/../value/value.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/lang/../assert/assert.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/lang/../assert/../common.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/lang/../assert/../value/value.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/lang/../native/native.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/lang/../native/../object/object.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/lang/../native/../vm/vm.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/lang/../native/../vm/../object/object.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/lang/../native/../vm/../table/table.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/lang/../native/../vm/../value/value.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/lang/../object/object.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/lang/../vm/vm.h
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/lang/../string/../object/../common.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/lang/../string/../object/../table/table.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/lang/../string/../object/../chunk/chunk.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/lang/../string/../object/../value/value.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/lang/../hash/hash.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/lang/../hash/../object/object.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/lang/../hash/../common.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/lang/../hash/../value/value.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/lang/../assert/assert.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/lang/../assert/../common.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/lang/../assert/../value/value.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/lang/../native/native.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/lang/../native/../object/object.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/lang/../native/../vm/vm.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/lang/../native/../vm/../object/object.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/lang/../native/../vm/../table/table.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/lang/../native/../vm/../value/value.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/lang/../object/object.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/lang/../vm/vm.h

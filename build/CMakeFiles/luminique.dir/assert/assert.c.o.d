@@ -1,5 +1,5 @@
 CMakeFiles/luminique.dir/assert/assert.c.o: \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/assert/assert.c \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/assert/assert.c \
  /usr/include/stdc-predef.h /usr/include/stdio.h \
  /usr/include/x86_64-linux-gnu/bits/libc-header-start.h \
  /usr/include/features.h /usr/include/features-time64.h \
@@ -48,20 +48,20 @@ CMakeFiles/luminique.dir/assert/assert.c.o: \
  /usr/include/x86_64-linux-gnu/bits/struct_mutex.h \
  /usr/include/x86_64-linux-gnu/bits/struct_rwlock.h /usr/include/alloca.h \
  /usr/include/x86_64-linux-gnu/bits/stdlib-float.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/assert/assert.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/assert/../common.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/assert/assert.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/assert/../common.h \
  /usr/lib/gcc/x86_64-linux-gnu/11/include/stdbool.h \
  /usr/lib/gcc/x86_64-linux-gnu/11/include/stdint.h /usr/include/stdint.h \
  /usr/include/x86_64-linux-gnu/bits/wchar.h \
  /usr/include/x86_64-linux-gnu/bits/stdint-uintn.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/assert/../value/value.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/assert/../value/../common.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/assert/../value/value.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/assert/../value/../common.h \
  /usr/include/string.h \
  /usr/include/x86_64-linux-gnu/bits/types/locale_t.h \
  /usr/include/x86_64-linux-gnu/bits/types/__locale_t.h \
  /usr/include/strings.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/assert/../native/native.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/assert/../native/../object/object.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/assert/../native/native.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/assert/../native/../object/object.h \
  /usr/include/x86_64-linux-gnu/sys/stat.h \
  /usr/include/x86_64-linux-gnu/bits/stat.h \
  /usr/include/x86_64-linux-gnu/bits/struct_stat.h /usr/include/SDL2/SDL.h \
@@ -187,15 +187,15 @@ CMakeFiles/luminique.dir/assert/assert.c.o: \
  /usr/include/SDL2/SDL_shape.h /usr/include/SDL2/SDL_system.h \
  /usr/include/SDL2/SDL_timer.h /usr/include/SDL2/SDL_version.h \
  /usr/include/SDL2/SDL_locale.h /usr/include/SDL2/SDL_misc.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/assert/../native/../object/../common.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/assert/../native/../object/../table/table.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/assert/../native/../object/../table/../common.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/assert/../native/../object/../table/../value/value.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/assert/../native/../object/../chunk/chunk.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/assert/../native/../object/../chunk/../common.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/assert/../native/../object/../chunk/../value/value.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/assert/../native/../object/../value/value.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/assert/../native/../vm/vm.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/assert/../native/../vm/../object/object.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/assert/../native/../vm/../table/table.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/assert/../native/../vm/../value/value.h
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/assert/../native/../object/../common.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/assert/../native/../object/../table/table.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/assert/../native/../object/../table/../common.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/assert/../native/../object/../table/../value/value.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/assert/../native/../object/../chunk/chunk.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/assert/../native/../object/../chunk/../common.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/assert/../native/../object/../chunk/../value/value.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/assert/../native/../object/../value/value.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/assert/../native/../vm/vm.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/assert/../native/../vm/../object/object.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/assert/../native/../vm/../table/table.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/assert/../native/../vm/../value/value.h

@@ -1,7 +1,7 @@
 CMakeFiles/luminique.dir/pcg/pcg.c.o: \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/pcg/pcg.c \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/pcg/pcg.c \
  /usr/include/stdc-predef.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/pcg/pcg.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/pcg/pcg.h \
  /usr/include/inttypes.h /usr/include/features.h \
  /usr/include/features-time64.h \
  /usr/include/x86_64-linux-gnu/bits/wordsize.h \

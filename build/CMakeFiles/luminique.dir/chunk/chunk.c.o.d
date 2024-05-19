@@ -1,5 +1,5 @@
 CMakeFiles/luminique.dir/chunk/chunk.c.o: \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/chunk/chunk.c \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/chunk/chunk.c \
  /usr/include/stdc-predef.h /usr/include/stdlib.h \
  /usr/include/x86_64-linux-gnu/bits/libc-header-start.h \
  /usr/include/features.h /usr/include/features-time64.h \
@@ -40,8 +40,8 @@ CMakeFiles/luminique.dir/chunk/chunk.c.o: \
  /usr/include/x86_64-linux-gnu/bits/struct_mutex.h \
  /usr/include/x86_64-linux-gnu/bits/struct_rwlock.h /usr/include/alloca.h \
  /usr/include/x86_64-linux-gnu/bits/stdlib-float.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/chunk/chunk.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/chunk/../common.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/chunk/chunk.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/chunk/../common.h \
  /usr/lib/gcc/x86_64-linux-gnu/11/include/stdbool.h \
  /usr/lib/gcc/x86_64-linux-gnu/11/include/stdint.h /usr/include/stdint.h \
  /usr/include/x86_64-linux-gnu/bits/wchar.h \
@@ -54,15 +54,15 @@ CMakeFiles/luminique.dir/chunk/chunk.c.o: \
  /usr/include/x86_64-linux-gnu/bits/types/FILE.h \
  /usr/include/x86_64-linux-gnu/bits/types/struct_FILE.h \
  /usr/include/x86_64-linux-gnu/bits/stdio_lim.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/chunk/../value/value.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/chunk/../value/../common.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/chunk/../value/value.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/chunk/../value/../common.h \
  /usr/include/string.h \
  /usr/include/x86_64-linux-gnu/bits/types/locale_t.h \
  /usr/include/x86_64-linux-gnu/bits/types/__locale_t.h \
  /usr/include/strings.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/chunk/../memory/memory.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/chunk/../memory/../common.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/chunk/../memory/../object/object.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/chunk/../memory/memory.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/chunk/../memory/../common.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/chunk/../memory/../object/object.h \
  /usr/include/x86_64-linux-gnu/sys/stat.h \
  /usr/include/x86_64-linux-gnu/bits/stat.h \
  /usr/include/x86_64-linux-gnu/bits/struct_stat.h /usr/include/SDL2/SDL.h \
@@ -188,15 +188,15 @@ CMakeFiles/luminique.dir/chunk/chunk.c.o: \
  /usr/include/SDL2/SDL_shape.h /usr/include/SDL2/SDL_system.h \
  /usr/include/SDL2/SDL_timer.h /usr/include/SDL2/SDL_version.h \
  /usr/include/SDL2/SDL_locale.h /usr/include/SDL2/SDL_misc.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/chunk/../memory/../object/../common.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/chunk/../memory/../object/../table/table.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/chunk/../memory/../object/../table/../common.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/chunk/../memory/../object/../table/../value/value.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/chunk/../memory/../object/../chunk/chunk.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/chunk/../memory/../object/../value/value.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/chunk/../memory/../value/value.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/chunk/../memory/../vm/vm.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/chunk/../memory/../vm/../object/object.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/chunk/../memory/../vm/../table/table.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/chunk/../memory/../vm/../value/value.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/chunk/../vm/vm.h
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/chunk/../memory/../object/../common.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/chunk/../memory/../object/../table/table.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/chunk/../memory/../object/../table/../common.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/chunk/../memory/../object/../table/../value/value.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/chunk/../memory/../object/../chunk/chunk.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/chunk/../memory/../object/../value/value.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/chunk/../memory/../value/value.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/chunk/../memory/../vm/vm.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/chunk/../memory/../vm/../object/object.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/chunk/../memory/../vm/../table/table.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/chunk/../memory/../vm/../value/value.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/chunk/../vm/vm.h

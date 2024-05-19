@@ -1,5 +1,5 @@
 CMakeFiles/luminique.dir/table/table.c.o: \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/table/table.c \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/table/table.c \
  /usr/include/stdc-predef.h /usr/include/stdlib.h \
  /usr/include/x86_64-linux-gnu/bits/libc-header-start.h \
  /usr/include/features.h /usr/include/features-time64.h \
@@ -43,8 +43,8 @@ CMakeFiles/luminique.dir/table/table.c.o: \
  /usr/include/x86_64-linux-gnu/bits/types/locale_t.h \
  /usr/include/x86_64-linux-gnu/bits/types/__locale_t.h \
  /usr/include/strings.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/table/../memory/memory.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/table/../memory/../common.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/table/../memory/memory.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/table/../memory/../common.h \
  /usr/lib/gcc/x86_64-linux-gnu/11/include/stdbool.h \
  /usr/lib/gcc/x86_64-linux-gnu/11/include/stdint.h /usr/include/stdint.h \
  /usr/include/x86_64-linux-gnu/bits/wchar.h \
@@ -57,7 +57,7 @@ CMakeFiles/luminique.dir/table/table.c.o: \
  /usr/include/x86_64-linux-gnu/bits/types/FILE.h \
  /usr/include/x86_64-linux-gnu/bits/types/struct_FILE.h \
  /usr/include/x86_64-linux-gnu/bits/stdio_lim.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/table/../memory/../object/object.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/table/../memory/../object/object.h \
  /usr/include/x86_64-linux-gnu/sys/stat.h \
  /usr/include/x86_64-linux-gnu/bits/stat.h \
  /usr/include/x86_64-linux-gnu/bits/struct_stat.h /usr/include/SDL2/SDL.h \
@@ -183,26 +183,26 @@ CMakeFiles/luminique.dir/table/table.c.o: \
  /usr/include/SDL2/SDL_shape.h /usr/include/SDL2/SDL_system.h \
  /usr/include/SDL2/SDL_timer.h /usr/include/SDL2/SDL_version.h \
  /usr/include/SDL2/SDL_locale.h /usr/include/SDL2/SDL_misc.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/table/../memory/../object/../common.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/table/../memory/../object/../table/table.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/table/../memory/../object/../table/../common.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/table/../memory/../object/../table/../value/value.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/table/../memory/../object/../table/../value/../common.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/table/../memory/../object/../chunk/chunk.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/table/../memory/../object/../chunk/../common.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/table/../memory/../object/../chunk/../value/value.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/table/../memory/../object/../value/value.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/table/../memory/../value/value.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/table/../memory/../vm/vm.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/table/../memory/../vm/../object/object.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/table/../memory/../vm/../table/table.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/table/../memory/../vm/../value/value.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/table/../object/object.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/table/../string/string.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/table/../string/../common.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/table/../string/../table/table.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/table/../string/../chunk/chunk.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/table/../string/../value/value.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/table/../string/../object/object.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/table/../value/value.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/table/table.h
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/table/../memory/../object/../common.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/table/../memory/../object/../table/table.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/table/../memory/../object/../table/../common.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/table/../memory/../object/../table/../value/value.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/table/../memory/../object/../table/../value/../common.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/table/../memory/../object/../chunk/chunk.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/table/../memory/../object/../chunk/../common.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/table/../memory/../object/../chunk/../value/value.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/table/../memory/../object/../value/value.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/table/../memory/../value/value.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/table/../memory/../vm/vm.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/table/../memory/../vm/../object/object.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/table/../memory/../vm/../table/table.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/table/../memory/../vm/../value/value.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/table/../object/object.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/table/../string/string.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/table/../string/../common.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/table/../string/../table/table.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/table/../string/../chunk/chunk.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/table/../string/../value/value.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/table/../string/../object/object.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/table/../value/value.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/table/table.h

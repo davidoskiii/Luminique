@@ -1,5 +1,5 @@
 CMakeFiles/luminique.dir/scanner/scanner.c.o: \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/scanner/scanner.c \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/scanner/scanner.c \
  /usr/include/stdc-predef.h /usr/include/stdio.h \
  /usr/include/x86_64-linux-gnu/bits/libc-header-start.h \
  /usr/include/features.h /usr/include/features-time64.h \
@@ -25,11 +25,13 @@ CMakeFiles/luminique.dir/scanner/scanner.c.o: \
  /usr/include/x86_64-linux-gnu/bits/floatn-common.h /usr/include/string.h \
  /usr/include/x86_64-linux-gnu/bits/types/locale_t.h \
  /usr/include/x86_64-linux-gnu/bits/types/__locale_t.h \
- /usr/include/strings.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/scanner/../common.h \
+ /usr/include/strings.h /usr/include/ctype.h \
+ /usr/include/x86_64-linux-gnu/bits/endian.h \
+ /usr/include/x86_64-linux-gnu/bits/endianness.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/scanner/../common.h \
  /usr/lib/gcc/x86_64-linux-gnu/11/include/stdbool.h \
  /usr/lib/gcc/x86_64-linux-gnu/11/include/stdint.h /usr/include/stdint.h \
  /usr/include/x86_64-linux-gnu/bits/wchar.h \
  /usr/include/x86_64-linux-gnu/bits/stdint-intn.h \
  /usr/include/x86_64-linux-gnu/bits/stdint-uintn.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/scanner/scanner.h
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/scanner/scanner.h

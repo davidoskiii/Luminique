@@ -1,5 +1,5 @@
 CMakeFiles/luminique.dir/hash/hash.c.o: \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/hash/hash.c \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/hash/hash.c \
  /usr/include/stdc-predef.h /usr/include/string.h \
  /usr/include/x86_64-linux-gnu/bits/libc-header-start.h \
  /usr/include/features.h /usr/include/features-time64.h \
@@ -13,8 +13,8 @@ CMakeFiles/luminique.dir/hash/hash.c.o: \
  /usr/include/x86_64-linux-gnu/bits/types/locale_t.h \
  /usr/include/x86_64-linux-gnu/bits/types/__locale_t.h \
  /usr/include/strings.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/hash/hash.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/hash/../object/object.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/hash/hash.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/hash/../object/object.h \
  /usr/include/x86_64-linux-gnu/sys/stat.h \
  /usr/include/x86_64-linux-gnu/bits/types.h \
  /usr/include/x86_64-linux-gnu/bits/typesizes.h \
@@ -180,15 +180,15 @@ CMakeFiles/luminique.dir/hash/hash.c.o: \
  /usr/include/SDL2/SDL_shape.h /usr/include/SDL2/SDL_system.h \
  /usr/include/SDL2/SDL_timer.h /usr/include/SDL2/SDL_version.h \
  /usr/include/SDL2/SDL_locale.h /usr/include/SDL2/SDL_misc.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/hash/../object/../common.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/hash/../object/../common.h \
  /usr/lib/gcc/x86_64-linux-gnu/11/include/stdbool.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/hash/../object/../table/table.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/hash/../object/../table/../common.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/hash/../object/../table/../value/value.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/hash/../object/../table/../value/../common.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/hash/../object/../chunk/chunk.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/hash/../object/../chunk/../common.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/hash/../object/../chunk/../value/value.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/hash/../object/../value/value.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/hash/../common.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/hash/../value/value.h
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/hash/../object/../table/table.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/hash/../object/../table/../common.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/hash/../object/../table/../value/value.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/hash/../object/../table/../value/../common.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/hash/../object/../chunk/chunk.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/hash/../object/../chunk/../common.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/hash/../object/../chunk/../value/value.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/hash/../object/../value/value.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/hash/../common.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/hash/../value/value.h

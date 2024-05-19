@@ -1,5 +1,5 @@
 CMakeFiles/luminique.dir/graphics/graphics.c.o: \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/graphics/graphics.c \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/graphics/graphics.c \
  /usr/include/stdc-predef.h /usr/include/SDL2/SDL.h \
  /usr/include/SDL2/SDL_main.h /usr/include/SDL2/SDL_stdinc.h \
  /usr/include/SDL2/SDL_config.h \
@@ -176,36 +176,36 @@ CMakeFiles/luminique.dir/graphics/graphics.c.o: \
  /usr/include/SDL2/SDL_timer.h /usr/include/SDL2/SDL_version.h \
  /usr/include/SDL2/SDL_locale.h /usr/include/SDL2/SDL_misc.h \
  /usr/include/SDL2/SDL_events.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/graphics/graphics.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/graphics/../common.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/graphics/graphics.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/graphics/../common.h \
  /usr/lib/gcc/x86_64-linux-gnu/11/include/stdbool.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/graphics/../string/string.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/graphics/../string/../common.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/graphics/../string/../table/table.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/graphics/../string/../table/../common.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/graphics/../string/../table/../value/value.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/graphics/../string/../table/../value/../common.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/graphics/../string/../chunk/chunk.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/graphics/../string/../chunk/../common.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/graphics/../string/../chunk/../value/value.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/graphics/../string/../value/value.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/graphics/../string/../object/object.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/graphics/../string/string.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/graphics/../string/../common.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/graphics/../string/../table/table.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/graphics/../string/../table/../common.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/graphics/../string/../table/../value/value.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/graphics/../string/../table/../value/../common.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/graphics/../string/../chunk/chunk.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/graphics/../string/../chunk/../common.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/graphics/../string/../chunk/../value/value.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/graphics/../string/../value/value.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/graphics/../string/../object/object.h \
  /usr/include/x86_64-linux-gnu/sys/stat.h \
  /usr/include/x86_64-linux-gnu/bits/stat.h \
  /usr/include/x86_64-linux-gnu/bits/struct_stat.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/graphics/../string/../object/../common.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/graphics/../string/../object/../table/table.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/graphics/../string/../object/../chunk/chunk.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/graphics/../string/../object/../value/value.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/graphics/../assert/assert.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/graphics/../assert/../common.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/graphics/../assert/../value/value.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/graphics/../native/native.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/graphics/../native/../object/object.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/graphics/../native/../vm/vm.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/graphics/../native/../vm/../object/object.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/graphics/../native/../vm/../table/table.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/graphics/../native/../vm/../value/value.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/graphics/../object/object.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/graphics/../value/value.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/graphics/../vm/vm.h
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/graphics/../string/../object/../common.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/graphics/../string/../object/../table/table.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/graphics/../string/../object/../chunk/chunk.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/graphics/../string/../object/../value/value.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/graphics/../assert/assert.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/graphics/../assert/../common.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/graphics/../assert/../value/value.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/graphics/../native/native.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/graphics/../native/../object/object.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/graphics/../native/../vm/vm.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/graphics/../native/../vm/../object/object.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/graphics/../native/../vm/../table/table.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/graphics/../native/../vm/../value/value.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/graphics/../object/object.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/graphics/../value/value.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/graphics/../vm/vm.h

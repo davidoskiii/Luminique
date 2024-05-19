@@ -1,5 +1,5 @@
 CMakeFiles/luminique.dir/debug/debug.c.o: \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/debug/debug.c \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/debug/debug.c \
  /usr/include/stdc-predef.h /usr/include/stdio.h \
  /usr/include/x86_64-linux-gnu/bits/libc-header-start.h \
  /usr/include/features.h /usr/include/features-time64.h \
@@ -23,21 +23,21 @@ CMakeFiles/luminique.dir/debug/debug.c.o: \
  /usr/include/x86_64-linux-gnu/bits/stdio_lim.h \
  /usr/include/x86_64-linux-gnu/bits/floatn.h \
  /usr/include/x86_64-linux-gnu/bits/floatn-common.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/debug/debug.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/debug/../chunk/chunk.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/debug/../chunk/../common.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/debug/debug.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/debug/../chunk/chunk.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/debug/../chunk/../common.h \
  /usr/lib/gcc/x86_64-linux-gnu/11/include/stdbool.h \
  /usr/lib/gcc/x86_64-linux-gnu/11/include/stdint.h /usr/include/stdint.h \
  /usr/include/x86_64-linux-gnu/bits/wchar.h \
  /usr/include/x86_64-linux-gnu/bits/stdint-intn.h \
  /usr/include/x86_64-linux-gnu/bits/stdint-uintn.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/debug/../chunk/../value/value.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/debug/../chunk/../value/../common.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/debug/../chunk/../value/value.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/debug/../chunk/../value/../common.h \
  /usr/include/string.h \
  /usr/include/x86_64-linux-gnu/bits/types/locale_t.h \
  /usr/include/x86_64-linux-gnu/bits/types/__locale_t.h \
  /usr/include/strings.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/debug/../object/object.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/debug/../object/object.h \
  /usr/include/x86_64-linux-gnu/sys/stat.h \
  /usr/include/x86_64-linux-gnu/bits/types/struct_timespec.h \
  /usr/include/x86_64-linux-gnu/bits/endian.h \
@@ -186,10 +186,10 @@ CMakeFiles/luminique.dir/debug/debug.c.o: \
  /usr/include/SDL2/SDL_shape.h /usr/include/SDL2/SDL_system.h \
  /usr/include/SDL2/SDL_timer.h /usr/include/SDL2/SDL_version.h \
  /usr/include/SDL2/SDL_locale.h /usr/include/SDL2/SDL_misc.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/debug/../object/../common.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/debug/../object/../table/table.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/debug/../object/../table/../common.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/debug/../object/../table/../value/value.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/debug/../object/../chunk/chunk.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/debug/../object/../value/value.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/debug/../value/value.h
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/debug/../object/../common.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/debug/../object/../table/table.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/debug/../object/../table/../common.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/debug/../object/../table/../value/value.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/debug/../object/../chunk/chunk.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/debug/../object/../value/value.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/debug/../value/value.h

@@ -1,5 +1,5 @@
 CMakeFiles/luminique.dir/compiler/compiler.c.o: \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/compiler/compiler.c \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/compiler/compiler.c \
  /usr/include/stdc-predef.h /usr/include/ctype.h /usr/include/features.h \
  /usr/include/features-time64.h \
  /usr/include/x86_64-linux-gnu/bits/wordsize.h \
@@ -52,7 +52,7 @@ CMakeFiles/luminique.dir/compiler/compiler.c.o: \
  /usr/include/x86_64-linux-gnu/bits/struct_rwlock.h /usr/include/alloca.h \
  /usr/include/x86_64-linux-gnu/bits/stdlib-float.h /usr/include/string.h \
  /usr/include/strings.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/compiler/../object/object.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/compiler/../object/object.h \
  /usr/include/x86_64-linux-gnu/sys/stat.h \
  /usr/include/x86_64-linux-gnu/bits/stat.h \
  /usr/include/x86_64-linux-gnu/bits/struct_stat.h /usr/include/SDL2/SDL.h \
@@ -181,31 +181,31 @@ CMakeFiles/luminique.dir/compiler/compiler.c.o: \
  /usr/include/SDL2/SDL_shape.h /usr/include/SDL2/SDL_system.h \
  /usr/include/SDL2/SDL_timer.h /usr/include/SDL2/SDL_version.h \
  /usr/include/SDL2/SDL_locale.h /usr/include/SDL2/SDL_misc.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/compiler/../object/../common.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/compiler/../object/../common.h \
  /usr/lib/gcc/x86_64-linux-gnu/11/include/stdbool.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/compiler/../object/../table/table.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/compiler/../object/../table/../common.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/compiler/../object/../table/../value/value.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/compiler/../object/../table/../value/../common.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/compiler/../object/../chunk/chunk.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/compiler/../object/../chunk/../common.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/compiler/../object/../chunk/../value/value.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/compiler/../object/../value/value.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/compiler/../common.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/compiler/compiler.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/compiler/../vm/vm.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/compiler/../vm/../object/object.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/compiler/../vm/../table/table.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/compiler/../vm/../value/value.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/compiler/../memory/memory.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/compiler/../memory/../common.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/compiler/../memory/../object/object.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/compiler/../memory/../value/value.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/compiler/../memory/../vm/vm.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/compiler/../scanner/scanner.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/compiler/../string/string.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/compiler/../string/../common.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/compiler/../string/../table/table.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/compiler/../string/../chunk/chunk.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/compiler/../string/../value/value.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/compiler/../string/../object/object.h
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/compiler/../object/../table/table.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/compiler/../object/../table/../common.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/compiler/../object/../table/../value/value.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/compiler/../object/../table/../value/../common.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/compiler/../object/../chunk/chunk.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/compiler/../object/../chunk/../common.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/compiler/../object/../chunk/../value/value.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/compiler/../object/../value/value.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/compiler/../common.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/compiler/compiler.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/compiler/../vm/vm.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/compiler/../vm/../object/object.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/compiler/../vm/../table/table.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/compiler/../vm/../value/value.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/compiler/../memory/memory.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/compiler/../memory/../common.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/compiler/../memory/../object/object.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/compiler/../memory/../value/value.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/compiler/../memory/../vm/vm.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/compiler/../scanner/scanner.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/compiler/../string/string.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/compiler/../string/../common.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/compiler/../string/../table/table.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/compiler/../string/../chunk/chunk.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/compiler/../string/../value/value.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/compiler/../string/../object/object.h

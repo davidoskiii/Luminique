@@ -1,5 +1,5 @@
 CMakeFiles/luminique.dir/chrono/chrono.c.o: \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/chrono/chrono.c \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/chrono/chrono.c \
  /usr/include/stdc-predef.h /usr/include/time.h /usr/include/features.h \
  /usr/include/features-time64.h \
  /usr/include/x86_64-linux-gnu/bits/wordsize.h \
@@ -30,8 +30,8 @@ CMakeFiles/luminique.dir/chrono/chrono.c.o: \
  /usr/include/x86_64-linux-gnu/bits/getopt_posix.h \
  /usr/include/x86_64-linux-gnu/bits/getopt_core.h \
  /usr/include/x86_64-linux-gnu/bits/unistd_ext.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/chrono/../assert/assert.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/chrono/../assert/../common.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/chrono/../assert/assert.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/chrono/../assert/../common.h \
  /usr/lib/gcc/x86_64-linux-gnu/11/include/stdbool.h \
  /usr/lib/gcc/x86_64-linux-gnu/11/include/stdint.h /usr/include/stdint.h \
  /usr/include/x86_64-linux-gnu/bits/libc-header-start.h \
@@ -48,11 +48,11 @@ CMakeFiles/luminique.dir/chrono/chrono.c.o: \
  /usr/include/x86_64-linux-gnu/bits/stdio_lim.h \
  /usr/include/x86_64-linux-gnu/bits/floatn.h \
  /usr/include/x86_64-linux-gnu/bits/floatn-common.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/chrono/../assert/../value/value.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/chrono/../assert/../value/../common.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/chrono/../assert/../value/value.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/chrono/../assert/../value/../common.h \
  /usr/include/string.h /usr/include/strings.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/chrono/../native/native.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/chrono/../native/../object/object.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/chrono/../native/native.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/chrono/../native/../object/object.h \
  /usr/include/x86_64-linux-gnu/sys/stat.h \
  /usr/include/x86_64-linux-gnu/bits/stat.h \
  /usr/include/x86_64-linux-gnu/bits/struct_stat.h /usr/include/SDL2/SDL.h \
@@ -194,24 +194,24 @@ CMakeFiles/luminique.dir/chrono/chrono.c.o: \
  /usr/include/SDL2/SDL_shape.h /usr/include/SDL2/SDL_system.h \
  /usr/include/SDL2/SDL_timer.h /usr/include/SDL2/SDL_version.h \
  /usr/include/SDL2/SDL_locale.h /usr/include/SDL2/SDL_misc.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/chrono/../native/../object/../common.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/chrono/../native/../object/../table/table.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/chrono/../native/../object/../table/../common.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/chrono/../native/../object/../table/../value/value.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/chrono/../native/../object/../chunk/chunk.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/chrono/../native/../object/../chunk/../common.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/chrono/../native/../object/../chunk/../value/value.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/chrono/../native/../object/../value/value.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/chrono/../native/../vm/vm.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/chrono/../native/../vm/../object/object.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/chrono/../native/../vm/../table/table.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/chrono/../native/../vm/../value/value.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/chrono/../object/object.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/chrono/../string/string.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/chrono/../string/../common.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/chrono/../string/../table/table.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/chrono/../string/../chunk/chunk.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/chrono/../string/../value/value.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/chrono/../string/../object/object.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/chrono/../value/value.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/Luminique/chrono/../vm/vm.h
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/chrono/../native/../object/../common.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/chrono/../native/../object/../table/table.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/chrono/../native/../object/../table/../common.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/chrono/../native/../object/../table/../value/value.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/chrono/../native/../object/../chunk/chunk.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/chrono/../native/../object/../chunk/../common.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/chrono/../native/../object/../chunk/../value/value.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/chrono/../native/../object/../value/value.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/chrono/../native/../vm/vm.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/chrono/../native/../vm/../object/object.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/chrono/../native/../vm/../table/table.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/chrono/../native/../vm/../value/value.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/chrono/../object/object.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/chrono/../string/string.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/chrono/../string/../common.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/chrono/../string/../table/table.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/chrono/../string/../chunk/chunk.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/chrono/../string/../value/value.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/chrono/../string/../object/object.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/chrono/../value/value.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/chrono/../vm/vm.h
