@@ -1,0 +1,11 @@
+let decimal = 10;
+println("10 in decimal: ${decimal}");
+
+let binary = 0b1010;
+println("10 in binary: ${binary}");
+
+let octal = 0c12;
+println("10 in octal: ${octal}");
+
+let hex = 0xa;
+println("10 in hex: ${hex}");
