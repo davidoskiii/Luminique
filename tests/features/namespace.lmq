@@ -1,11 +1,11 @@
-namespace lmq::tests;
-
-using luminique::std;
 using tests::features::fraction;
 using tests::features::fib;
+using luminique::std;
+
+namespace tests;
 
 println(std::chrono::Date);
-println(Fraction);
+println(frac::Fraction);
 println(fibonacci);
 
 let frac = Fraction(3, 6);

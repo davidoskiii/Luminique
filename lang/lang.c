@@ -119,7 +119,7 @@ NATIVE_METHOD(Class, toString) {
   assertArgCount("Class::toString()", 0, argCount);
   ObjClass* self = AS_CLASS(receiver);
   if (self->namespace_->isRoot) RETURN_STRING_FMT("<class %s>", self->name->chars);
-  else RETURN_STRING_FMT("<class %s.%s>", self->namespace_->fullName->chars, self->name->chars);
+  else RETURN_STRING_FMT("<class %s::%s>", self->namespace_->fullName->chars, self->name->chars);
 }
 
 // FLOAT

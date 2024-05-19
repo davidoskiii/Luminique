@@ -117,7 +117,7 @@ ObjNamespace* newNamespace(ObjString* shortName, ObjNamespace* enclosing) {
 
   if (namespace->enclosing != NULL && !namespace->enclosing->isRoot) {
     char chars[UINT8_MAX];
-    int length = snprintf(chars, UINT8_MAX, "%s.%s", namespace->enclosing->fullName->chars, shortName->chars);
+    int length = snprintf(chars, UINT8_MAX, "%s::%s", namespace->enclosing->fullName->chars, shortName->chars);
     namespace->fullName = copyString(chars, length);
   }
   else namespace->fullName = namespace->shortName;

@@ -300,24 +300,28 @@ static ObjNamespace* declareNamespace(uint8_t namespaceDepth) {
 static ObjString* resolveNamespacedFile(ObjNamespace* enclosingNamespace, ObjString* shortName) {
   int fullNameLength = enclosingNamespace->fullName->length;
   int shortNameLength = shortName->length;
-  
-  bool containsDots = false;
-  for (int i = 0; i < fullNameLength; i++) {
-    if (enclosingNamespace->fullName->chars[i] == '.') {
-      containsDots = true;
+
+  bool containsColons = false;
+  for (int i = 0; i < fullNameLength - 1; i++) {
+    if (enclosingNamespace->fullName->chars[i] == ':' && enclosingNamespace->fullName->chars[i + 1] == ':') {
+      containsColons = true;
       break;
     }
   }
 
-  int length = containsDots ? (fullNameLength + shortNameLength + 5) : (shortNameLength + 4);
+  int length = containsColons ? (fullNameLength + shortNameLength + 5) : (shortNameLength + 4);
   char* heapChars = ALLOCATE(char, length + 1);
   int offset = 0;
 
-  if (containsDots) {
-    while (offset < fullNameLength) {
-      char currentChar = enclosingNamespace->fullName->chars[offset];
-      heapChars[offset] = (currentChar == '.') ? '/' : currentChar;
-      offset++;
+  if (containsColons) {
+    for (int i = 0; i < fullNameLength; i++) {
+      char currentChar = enclosingNamespace->fullName->chars[i];
+      if (currentChar == ':' && i + 1 < fullNameLength && enclosingNamespace->fullName->chars[i + 1] == ':') {
+        heapChars[offset++] = '/';
+        i++;
+      } else {
+        heapChars[offset++] = currentChar;
+      }
     }
     heapChars[offset++] = '/';
   }
@@ -806,7 +810,7 @@ InterpretResult run() {
           ObjString* filePath = resolveNamespacedFile(enclosingNamespace, shortName);
           struct stat fileStat;
           if (stat(filePath->chars, &fileStat) == -1) {
-            runtimeError("Failed to load source file %s\n", filePath->chars);
+            runtimeError("Failed to load source file %s", filePath->chars);
             return INTERPRET_RUNTIME_ERROR;
           }
           loadModule(filePath);
@@ -1226,7 +1230,12 @@ InterpretResult run() {
       }
       case OP_TYPEOF: {
         Value value = pop();
-        push(OBJ_VAL(getObjClass(value)));
+
+        if (IS_CLASS(value)) {
+          push(value);
+        } else {
+          push(OBJ_VAL(getObjClass(value)));
+        }
         break;
       }
       case OP_RETURN: {
