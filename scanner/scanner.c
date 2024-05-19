@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 
 #include "../common.h"
 #include "scanner.h"
@@ -27,6 +28,19 @@ static bool isAlpha(char c) {
 
 static bool isDigit(char c) {
   return c >= '0' && c <= '9';
+}
+
+static bool isHex(char c) {
+  return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') ||
+    (c >= 'A' && c <= 'F');
+}
+
+static bool isBinary(char c) {
+  return (c == '0' || c == '1');
+}
+
+static bool isOct(char c) {
+  return (c >= '0' && c <= '7');
 }
 
 static bool isAtEnd() {
@@ -249,19 +263,31 @@ static Token identifier() {
   return makeToken(identifierType());
 }
 
-static Token number() {
-  while (isDigit(peek())) advance();
-
-  // Look for a fractional part.
-  if (peek() == '.' && isDigit(peekNext())) {
-    // Consume the ".".
+static Token number(char cur) {
+  if (cur == '0' && (peek() == 'c' || peek() == 'C')) {
     advance();
-
+    while (isOct(peek())) advance();
+    return makeToken(TOKEN_OCT);
+  } else if (cur == '0' && (peek() == 'x' || peek() == 'X')) {
+    advance();
+    while (isHex(peek())) advance();
+    return makeToken(TOKEN_HEX);
+  } else if (cur == '0' && (peek() == 'b' || peek() == 'B')) {
+    advance();
+    while (isBinary(peek())) advance();
+    return makeToken(TOKEN_BIN);
+  } else {
     while (isDigit(peek())) advance();
-    return makeToken(TOKEN_NUMBER);
-  }
 
-  return makeToken(TOKEN_INT);
+    if (peek() == '.' && isDigit(peekNext())) {
+      advance();
+
+      while (isDigit(peek())) advance();
+      return makeToken(TOKEN_NUMBER);
+    }
+
+    return makeToken(TOKEN_INT);
+  }
 }
 
 static Token string() {
@@ -293,7 +319,7 @@ Token scanToken() {
 
   char c = advance();
   if (isAlpha(c)) return identifier();
-  if (isDigit(c)) return number();
+  if (isDigit(c)) return number(c);
 
   switch (c) {
     case '(': return makeToken(TOKEN_LEFT_PAREN);

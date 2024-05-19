@@ -781,12 +781,30 @@ static void grouping(bool canAssign) {
 }
 
 static void integer(bool canAssign) {
-  int value = strtol(parser.previous.start, NULL, 10);
+  long long int value = strtoll(parser.previous.start, NULL, 10);
+  emitConstant(INT_VAL(value));
+}
+
+static void hex(bool canAssign) {
+  char* endptr;
+  long long int value = strtoll(parser.previous.start + 2, &endptr, 16);
+  emitConstant(INT_VAL(value));
+}
+
+static void bin(bool canAssign) {
+  char* endptr;
+  long long int value = strtoll(parser.previous.start + 2, &endptr, 2);
+  emitConstant(INT_VAL(value));
+}
+
+static void octal(bool canAssign) {
+  char* endptr;
+  long long int value = strtoll(parser.previous.start + 2, &endptr, 8);
   emitConstant(INT_VAL(value));
 }
 
 static void number(bool canAssign) {
-  double value = strtod(parser.previous.start, NULL);
+  long double value = strtold(parser.previous.start, NULL);
   emitConstant(NUMBER_VAL(value));
 }
 
@@ -1174,6 +1192,9 @@ ParseRule rules[] = {
   [TOKEN_INTERPOLATION] = {interpolation, NULL,      PREC_NONE},
   [TOKEN_NUMBER]        = {number,        NULL,      PREC_NONE},
   [TOKEN_INT]           = {integer,       NULL,      PREC_NONE},
+  [TOKEN_HEX]           = {hex,           NULL,      PREC_NONE},
+  [TOKEN_BIN]           = {bin,           NULL,      PREC_NONE},
+  [TOKEN_OCT]           = {octal,         NULL,      PREC_NONE},
   [TOKEN_AND]           = {NULL,          and_,      PREC_AND},
   [TOKEN_CLASS]         = {NULL,          NULL,      PREC_NONE},
   [TOKEN_ELSE]          = {NULL,          NULL,      PREC_NONE},
