@@ -1,4 +1,4 @@
-using luminique.std.graphics;
+using luminique::std::graphics;
 
 let window1 = graphics::createWindow("walla1", 500, 400);
 let window2 = graphics::Window("walla2", 500, 400);

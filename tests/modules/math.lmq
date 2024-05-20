@@ -1,6 +1,6 @@
-namespace tests.modules;
+namespace tests::modules;
 
-using luminique.std.math;
+using luminique::std::math;
 
 print("pi constant: ");
 println(math::pi);

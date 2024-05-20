@@ -471,7 +471,7 @@ static bool callValue(Value callee, int argCount) {
   ObjString* name = copyString("()", 2);
   Value method;
   if (!tableGet(&klass->methods, name, &method)) { 
-    ObjClass* exceptionClass = getNativeClass("luminique.std.lang", "CallException");
+    ObjClass* exceptionClass = getNativeClass("luminique::std::lang", "CallException");
     throwException(exceptionClass, "Undefined operator method '%s' on class %s.", name->chars, klass->name->chars);
     return false;
   }
@@ -522,7 +522,7 @@ static bool invokeOperator(ObjString* op, int arity) {
   Value method;
 
   if (!tableGet(&klass->methods, op, &method)) {
-    ObjClass* exceptionClass = getNativeClass("luminique.std.lang", "CallException");
+    ObjClass* exceptionClass = getNativeClass("luminique::std::lang", "CallException");
     throwException(exceptionClass, "Undefined operator method '%s' on class %s.", op->chars, klass->name->chars);
     return false;
   }
@@ -922,7 +922,7 @@ InterpretResult run() {
       }
       case OP_DIVIDE: {
         if (IS_INT(peek(0)) && AS_INT(peek(0)) == 0) {
-          ObjClass* exceptionClass = getNativeClass("luminique.std.lang", "ArithmeticException");
+          ObjClass* exceptionClass = getNativeClass("luminique::std::lang", "ArithmeticException");
           throwException(exceptionClass, "Divide by 0 is illegal.");
         } else if (IS_NUMBER(peek(0)) && IS_NUMBER(peek(1))) {
           BINARY_NUMBER_OP(NUMBER_VAL, /);
@@ -958,7 +958,7 @@ InterpretResult run() {
         break;
       case OP_NEGATE:
         if (!IS_NUMBER(peek(0))) {
-          ObjClass* exceptionClass = getNativeClass("luminique.std.lang", "IllegalArgumentException"); 
+          ObjClass* exceptionClass = getNativeClass("luminique::std::lang", "IllegalArgumentException"); 
           throwException(exceptionClass, "Operands must be numbers for negate operator.");
         }
 
@@ -968,7 +968,7 @@ InterpretResult run() {
         break;
       case OP_AFFERM:
         if (!IS_NUMBER(peek(0))) {
-          ObjClass* exceptionClass = getNativeClass("luminique.std.lang", "IllegalArgumentException"); 
+          ObjClass* exceptionClass = getNativeClass("luminique::std::lang", "IllegalArgumentException"); 
           throwException(exceptionClass, "Operands must be numbers for negate operator.");
         }
 
@@ -1089,7 +1089,7 @@ InterpretResult run() {
             pop();
             ObjString* string = AS_STRING(pop());
             if (index < 0 || index >= string->length) {
-              ObjClass* exceptionClass = getNativeClass("luminique.std.lang", "IndexOutOfBoundsException");
+              ObjClass* exceptionClass = getNativeClass("luminique::std::lang", "IndexOutOfBoundsException");
               throwException(exceptionClass, "String index is out of bound: %d.", index);
             } else {
               char chars[2] = { string->chars[index], '\0' };
@@ -1101,7 +1101,7 @@ InterpretResult run() {
             ObjArray* array = AS_ARRAY(pop());
 
             if (index < 0 || index >= array->elements.count) {
-              ObjClass* exceptionClass = getNativeClass("luminique.std.lang", "IndexOutOfBoundsException");
+              ObjClass* exceptionClass = getNativeClass("luminique::std::lang", "IndexOutOfBoundsException");
               throwException(exceptionClass, "Array index is out of bound: %d.", index);
             } else {
               Value element = array->elements.values[index];
@@ -1118,7 +1118,7 @@ InterpretResult run() {
           ObjArray* array = AS_ARRAY(pop());
 
           if (index < 0 || index >= array->elements.count) {
-            ObjClass* exceptionClass = getNativeClass("luminique.std.lang", "IndexOutOfBoundsException");
+            ObjClass* exceptionClass = getNativeClass("luminique::std::lang", "IndexOutOfBoundsException");
             throwException(exceptionClass, "Array index is out of bound.");
           } else {
             replaceValueArray(&array->elements, index, element);

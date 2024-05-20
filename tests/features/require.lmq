@@ -7,6 +7,6 @@ println("Created class Fraction...");
 let frac = Fraction(3, 6);
 let frac2 = frac.reduce();
 
-println(frac.toString());
-println(frac2.toString());
+println(str(frac));
+println(str(frac2));
 println(frac == frac2);

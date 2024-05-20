@@ -23,8 +23,8 @@ NATIVE_METHOD(Window, __init__) {
   RETURN_OBJ(window);
 }
 
-NATIVE_METHOD(Window, toString) {
-  assertArgCount("Window::toString()", 0, argCount);
+NATIVE_METHOD(Window, __str__) {
+  assertArgCount("Window::__str__()", 0, argCount);
   RETURN_STRING_FMT("<%s window>", AS_WINDOW(receiver)->title);
 }
 
@@ -78,7 +78,7 @@ void registerGraphicsPackage() {
 	vm.windowClass = defineNativeClass("Window");
 	bindSuperclass(vm.windowClass, vm.objectClass);
 	DEF_METHOD(vm.windowClass, Window, __init__, 3);
-	DEF_METHOD(vm.windowClass, Window, toString, 0);
+	DEF_METHOD(vm.windowClass, Window, __str__, 0);
   DEF_METHOD(vm.windowClass, Window, show, 0);
 
   DEF_FUNCTION(createWindow, 3);

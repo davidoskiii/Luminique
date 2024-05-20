@@ -163,7 +163,7 @@ NATIVE_METHOD(File, create) {
   assertArgCount("File::create()", 0, argCount);
   ObjFile* self = AS_FILE(receiver);
   struct stat fileStat;
-  if (fileExists(self, &fileStat)) THROW_EXCEPTION(luminique.std.lang, InstantiationException, "File or directory already exist.");
+  if (fileExists(self, &fileStat)) THROW_EXCEPTION(luminique::std::lang, InstantiationException, "File or directory already exist.");
   FILE* file = fopen(self->name->chars, "w");
   if (file != NULL) {
     fclose(file);
@@ -323,12 +323,12 @@ NATIVE_METHOD(File, size) {
   assertArgCount("File::size()", 0, argCount);
   ObjFile* self = AS_FILE(receiver);
   struct stat fileStat;
-  if (!fileExists(self, &fileStat)) THROW_EXCEPTION(luminique.std.lang, InstantiationException, "File or directory doesn't exist.");
+  if (!fileExists(self, &fileStat)) THROW_EXCEPTION(luminique::std::lang, InstantiationException, "File or directory doesn't exist.");
   RETURN_NUMBER(fileStat.st_size);
 }
 
-NATIVE_METHOD(File, toString) {
-  assertArgCount("File::toString()", 0, argCount);
+NATIVE_METHOD(File, __str__) {
+  assertArgCount("File::__str__()", 0, argCount);
   RETURN_OBJ(AS_FILE(receiver)->name);
 }
 
@@ -336,7 +336,7 @@ NATIVE_METHOD(FileReadStream, __init__) {
   assertArgCount("FileReadStream::__init__(file)", 1, argCount);
   ObjInstance* self = AS_INSTANCE(receiver);
   ObjFile* file = getFileArgument(args[0]);
-  if (file == NULL) THROW_EXCEPTION(luminique.std.lang, IllegalArgumentException, "Method FileReadStream::__init__(file) expects argument 1 to be a string or file.");
+  if (file == NULL) THROW_EXCEPTION(luminique::std::lang, IllegalArgumentException, "Method FileReadStream::__init__(file) expects argument 1 to be a string or file.");
   setFileProperty(AS_INSTANCE(receiver), file, "r");  RETURN_OBJ(self);
 }
 
@@ -383,7 +383,7 @@ NATIVE_METHOD(FileWriteStream, __init__) {
   assertArgCount("FileWriteStream::__init__(file)", 1, argCount);
   ObjInstance* self = AS_INSTANCE(receiver);
   ObjFile* file = getFileArgument(args[0]);
-  if (file == NULL) THROW_EXCEPTION(luminique.std.lang, IllegalArgumentException, "Method FileWriteStream::__init__(file) expects argument 1 to be a string or file.");
+  if (file == NULL) THROW_EXCEPTION(luminique::std::lang, IllegalArgumentException, "Method FileWriteStream::__init__(file) expects argument 1 to be a string or file.");
   setFileProperty(AS_INSTANCE(receiver), file, "w");
   RETURN_OBJ(self);
 }
@@ -433,7 +433,7 @@ NATIVE_METHOD(FileWriteStream, putString) {
 
 
 NATIVE_METHOD(IOStream, __init__) {
-  THROW_EXCEPTION(luminique.std.lang, InstantiationException, "Cannot instantiate from class IOStream.");
+  THROW_EXCEPTION(luminique::std::lang, InstantiationException, "Cannot instantiate from class IOStream.");
   RETURN_NIL;
 }
 
@@ -468,7 +468,7 @@ NATIVE_METHOD(IOStream, reset) {
 
 
 NATIVE_METHOD(ReadStream, __init__) {
-  THROW_EXCEPTION(luminique.std.lang, InstantiationException, "Cannot instantiate from class ReadStream.");
+  THROW_EXCEPTION(luminique::std::lang, InstantiationException, "Cannot instantiate from class ReadStream.");
   RETURN_NIL;
 }
 
@@ -484,7 +484,7 @@ NATIVE_METHOD(ReadStream, isAtEnd) {
 }
 
 NATIVE_METHOD(ReadStream, next) {
-  THROW_EXCEPTION(luminique.std.lang, CallException, "Cannot call method ReadStream::next(), it must be implemented by subclasses.");
+  THROW_EXCEPTION(luminique::std::lang, CallException, "Cannot call method ReadStream::next(), it must be implemented by subclasses.");
   RETURN_NIL;
 }
 
@@ -506,12 +506,12 @@ NATIVE_METHOD(WriteStream, flush) {
 }
 
 NATIVE_METHOD(WriteStream, __init__) {
-  THROW_EXCEPTION(luminique.std.lang, InstantiationException, "Cannot instantiate from class WriteStream.");
+  THROW_EXCEPTION(luminique::std::lang, InstantiationException, "Cannot instantiate from class WriteStream.");
   RETURN_NIL;
 }
 
 NATIVE_METHOD(WriteStream, put) {
-  THROW_EXCEPTION(luminique.std.lang, CallException, "Cannot call method WriteStream::put(param), it must be implemented by subclasses.");
+  THROW_EXCEPTION(luminique::std::lang, CallException, "Cannot call method WriteStream::put(param), it must be implemented by subclasses.");
   RETURN_NIL;
 }
 
@@ -541,7 +541,7 @@ void registerIOPackage() {
   DEF_METHOD(vm.fileClass, File, setReadable, 1);
   DEF_METHOD(vm.fileClass, File, setWritable, 1);
   DEF_METHOD(vm.fileClass, File, size, 0);
-  DEF_METHOD(vm.fileClass, File, toString, 0);
+  DEF_METHOD(vm.fileClass, File, __str__, 0);
 
 
   ObjClass* ioStreamClass = defineNativeClass("IOStream");

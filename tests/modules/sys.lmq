@@ -1,4 +1,4 @@
-using luminique.std.sys;
+using luminique::std::sys;
 
 print("Getting arg count: ");
 println(sys::argc);

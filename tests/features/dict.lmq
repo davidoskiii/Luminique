@@ -23,7 +23,7 @@ dict.put("age", 40);
 
 dict["isAdmin"] = false;
 
-println(dict.toString());
+println("${dict}");
 print("Dictionary contains key 'age': ");
 
 println(dict.containsKey("age"));
@@ -56,7 +56,8 @@ print("Clearing dictionary: ");
 
 dict.clear();
 
-println(dict.toString());
+println("${dict}");
 
 let dict3 =  {1: "one", 2: "two"};
-println(dict3[1]);
+println("dict3: ${dict3}");
+println("Getting dict3 at '1': ${dict3[1]}");

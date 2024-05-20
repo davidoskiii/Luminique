@@ -1,7 +1,7 @@
-using luminique.std.chrono;
-using luminique.std.chrono.Date;
-using luminique.std.chrono.DateTime;
-using luminique.std.chrono.Duration;
+using luminique::std::chrono;
+using luminique::std::chrono::Date;
+using luminique::std::chrono::DateTime;
+using luminique::std::chrono::Duration;
 
 let now = chrono::dateNow();
 
@@ -45,4 +45,6 @@ println("Yesterday Date: ${now - duration2}.");
 println("Adding duration to current DateTime: ${datetime + duration}.");
 println("Subtracting duration from current DateTime: ${datetime - duration}.");
 
+
+println("Waiting 2 seconds.");
 chrono::sleep(2);

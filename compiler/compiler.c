@@ -1020,7 +1020,7 @@ static void interpolation(bool canAssign) {
     }
 
     expression();
-    invokeMethod(0, "toString", 8);
+    invokeMethod(0, "__str__", 7);
 
     if (concatenate || (count >= 1 && !isString)) {
       emitByte(OP_ADD);

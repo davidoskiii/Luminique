@@ -6,7 +6,7 @@ print("Class name for nil: ");
 println(nil.getClassName());
 
 print("Convert nil to string: ");
-println(nil.toString());
+println("${nil}");
 
 print("hashcode for nil is: ");
 println(nil.hashCode());
@@ -26,7 +26,7 @@ println(false.getClassName());
 let bool = 3 > 2;
 
 print("Evaluating '3 > 2' as string: ");
-println(bool.toString());
+println("${bool}");
 
 print("hashcode for true is: ");
 println(true.hashCode());
@@ -47,4 +47,4 @@ print("Class name for float 3.5: ");
 println(3.5.getClassName());
 
 print("Convert number -2.5 to string: ");
-println((-2.5).toString());
+println("${(-2.5)}");

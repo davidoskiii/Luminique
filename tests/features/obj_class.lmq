@@ -9,4 +9,4 @@ println(object.getClass());
 println(object.instanceOf(Object));
 println(object.memberOf(Object));
 
-println(object.toString());
+println("${object}");

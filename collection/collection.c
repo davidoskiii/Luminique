@@ -378,7 +378,7 @@ NATIVE_METHOD(Collection, append) {
 
 NATIVE_METHOD(Collection, appendCollection) {
   assertArgCount("Collection::appendCollection(collection)", 1, argCount);
-  assertObjInstanceOfClass("Collection::appendCollection(collection)", args[0], "luminique.std.collection", "Collection", 0);
+  assertObjInstanceOfClass("Collection::appendCollection(collection)", args[0], "luminique::std::collection", "Collection", 0);
   Value collection = args[0];
   Value addMethod = getObjMethod(receiver, "append");
   Value nextMethod = getObjMethod(collection, "next");
@@ -726,7 +726,7 @@ NATIVE_METHOD(Array, pop) {
 	assertArgCount("Array::pop()", 0, argCount);
 	ObjArray* self = AS_ARRAY(receiver);
   if (self->elements.count == 0) {
-    THROW_EXCEPTION(luminique.std.lang, "IndexOutOfBoundsException", "Can't pop and element if the array is empty");
+    THROW_EXCEPTION(luminique::std::lang, "IndexOutOfBoundsException", "Can't pop and element if the array is empty");
   }
 	Value element = arrayRemoveAt(self, self->elements.count - 1);
 	RETURN_VAL(element);
@@ -745,8 +745,8 @@ NATIVE_METHOD(Array, subArray) {
 	RETURN_OBJ(copyArray(self->elements, fromIndex, toIndex));
 }
 
-NATIVE_METHOD(Array, toString) {
-	assertArgCount("Array::toString()", 0, argCount);
+NATIVE_METHOD(Array, __str__) {
+	assertArgCount("Array::__str__()", 0, argCount);
 	RETURN_OBJ(arrayToString(AS_ARRAY(receiver)));
 }
 
@@ -823,20 +823,20 @@ NATIVE_METHOD(Dictionary, length) {
 NATIVE_METHOD(Dictionary, next) {
   assertArgCount("Dictionary::next(index)", 1, argCount);
   ObjDictionary* self = AS_DICTIONARY(receiver);
-  if (self->count == 0) RETURN_FALSE;
+  if (self->count == 0) RETURN_NIL;
 
   int index = 0;
   if (!IS_NIL(args[0])) {
     Value key = args[0];
     index = dictFindIndex(self, key);
-    if (index < 0 || index >= self->capacity) RETURN_FALSE;
+    if (index < 0 || index >= self->capacity) RETURN_NIL;
     index++;
   }
 
   for (; index < self->capacity; index++) {
-    if (!IS_NIL(self->entries[index].key)) RETURN_VAL(self->entries[index].key);
+    if (!IS_UNDEFINED(self->entries[index].key)) RETURN_VAL(self->entries[index].key);
   }
-  RETURN_FALSE;
+  RETURN_NIL;
 }
 
 NATIVE_METHOD(Dictionary, nextValue) {
@@ -871,8 +871,8 @@ NATIVE_METHOD(Dictionary, removeAt) {
   RETURN_VAL(value);
 }
 
-NATIVE_METHOD(Dictionary, toString) {
-	assertArgCount("Dictionary::toString()", 0, argCount);
+NATIVE_METHOD(Dictionary, __str__) {
+	assertArgCount("Dictionary::__str__()", 0, argCount);
 	RETURN_OBJ(dictToString(AS_DICTIONARY(receiver)));
 }
 
@@ -917,7 +917,7 @@ void registerCollectionPackage() {
 	DEF_METHOD(vm.arrayClass, Array, pop, 0);
 	DEF_METHOD(vm.arrayClass, Array, removeAt, 1);
   DEF_METHOD(vm.arrayClass, Array, subArray, 2);
-	DEF_METHOD(vm.arrayClass, Array, toString, 0);
+	DEF_METHOD(vm.arrayClass, Array, __str__, 0);
   DEF_OPERATOR(vm.arrayClass, Array, [], __getSubscript__, 1);
   DEF_OPERATOR(vm.arrayClass, Array, []=, __setSubscript__, 2);
 
@@ -937,7 +937,7 @@ void registerCollectionPackage() {
 	DEF_METHOD(vm.dictionaryClass, Dictionary, put, 2);
 	DEF_METHOD(vm.dictionaryClass, Dictionary, putAll, 1);
 	DEF_METHOD(vm.dictionaryClass, Dictionary, removeAt, 1);
-	DEF_METHOD(vm.dictionaryClass, Dictionary, toString, 0);
+	DEF_METHOD(vm.dictionaryClass, Dictionary, __str__, 0);
   DEF_OPERATOR(vm.dictionaryClass, Dictionary, [], __getSubscript__, 1);
   DEF_OPERATOR(vm.dictionaryClass, Dictionary, []=, __setSubscript__, 2);
 

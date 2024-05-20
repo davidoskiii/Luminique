@@ -205,7 +205,7 @@ NATIVE_FUNCTION(float) {
 
 NATIVE_FUNCTION(str) {
   assertArgCount("str(value)", 1, argCount);
-  Value toStringMethod = getObjMethod(args[0], "toString");
+  Value toStringMethod = getObjMethod(args[0], "__str__");
 
   Value str = callReentrant(args[0], toStringMethod);
   RETURN_STRING_FMTL(AS_CSTRING(str));

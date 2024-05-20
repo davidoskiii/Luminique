@@ -43,16 +43,16 @@ class Complex {
     return (math::hypot(this.real, this.imaginary)) < (math::hypot(this.real, this.imaginary));
   }
 
-  function toString() {
+  function __str__() {
     if (this.real == 0) { 
       if (this.imaginary == 0) return "0";
-      else return this.imaginary.toString() + "i";
+      else return str(this.imaginary) + "i";
     } else { 
-      if (this.imaginary == 0) return this.real.toString();
+      if (this.imaginary == 0) return str(this.real);
       else { 
         let iSign = "";
         if (this.imaginary > 0) iSign = "+"; 
-        return this.real.toString() + iSign + this.imaginary.toString() + "i";
+        return str(this.real) + iSign + str(this.imaginary) + "i";
       }
     }
   }
@@ -62,10 +62,10 @@ const c1 = Complex(3, 6);
 const c2 = Complex(1, 2);
 
 print("Creating complex number c1: ");
-println(c1.toString());
+println("${c1}");
 
 print("Creating complex number c2: ");
-println(c2.toString());
+println("${c2}");
 
 print("Comparing c1 == c2: ");
 println(c1 == c2);
@@ -77,13 +77,13 @@ print("Comparing c1 < c2: ");
 println(c1 < c2);
 
 print("Computing c1 + c2: ");
-println((c1 + c2).toString());
+println("${c1 + c2}");
 
 print("Computing c1 - c2: ");
-println((c1 - c2).toString());
+println("${c1 - c2}");
 
 print("Computing c1 * c2: ");
-println((c1 * c2).toString());
+println("${c1 * c2}");
 
 print("Computing c1 / c2: ");
-println((c1 / c2).toString());
+println("${c1 / c2}");

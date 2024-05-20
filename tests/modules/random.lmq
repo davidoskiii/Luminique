@@ -1,4 +1,4 @@
-using luminique.std.random;
+using luminique::std::random;
 
 println("Generating random numbers between 0 to 10000: ");
 println(random::getseed());

@@ -24,8 +24,8 @@ class Fraction {
     return Fraction(numerator.toInt(), denominator.toInt());
   }
 
-  function toString() {
-    return this.numerator.toString() + "/" + this.denominator.toString();
+  function __str__() {
+    return str(this.numerator) + "/" + str(this.denominator);
   }
 
   function == (that) {
@@ -34,7 +34,7 @@ class Fraction {
       return;
     }
 
-    if (this.reduce().toString() == that.reduce().toString()) {
+    if (str(this.reduce()) == str(that.reduce())) {
       return true;
     } else {
       return false;

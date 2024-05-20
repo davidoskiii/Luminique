@@ -138,7 +138,7 @@ NATIVE_METHOD(Date, __init__) {
 
 NATIVE_METHOD(Date, __equal__) { 
   assertArgCount("Date::==(date)", 1, argCount);
-	assertObjInstanceOfClass("Date::==(date)", args[0], "luminique.std.chrono", "Date", 0);
+	assertObjInstanceOfClass("Date::==(date)", args[0], "luminique::std::chrono", "Date", 0);
   double timestamp = dateObjGetTimestamp(AS_INSTANCE(receiver));
   double timestamp2 = dateObjGetTimestamp(AS_INSTANCE(args[0]));
   RETURN_BOOL(timestamp == timestamp2);
@@ -146,7 +146,7 @@ NATIVE_METHOD(Date, __equal__) {
 
 NATIVE_METHOD(Date, __greater__) { 
   assertArgCount("Date::>(date)", 1, argCount);
-	assertObjInstanceOfClass("Date::>(date)", args[0], "luminique.std.chrono", "Date", 0);
+	assertObjInstanceOfClass("Date::>(date)", args[0], "luminique::std::chrono", "Date", 0);
   double timestamp = dateObjGetTimestamp(AS_INSTANCE(receiver));
   double timestamp2 = dateObjGetTimestamp(AS_INSTANCE(args[0]));
   RETURN_BOOL(timestamp > timestamp2);
@@ -154,7 +154,7 @@ NATIVE_METHOD(Date, __greater__) {
 
 NATIVE_METHOD(Date, __less__) {
   assertArgCount("Date::<(date)", 1, argCount);
-	assertObjInstanceOfClass("Date::<(date)", args[0], "luminique.std.chrono", "Date", 0);
+	assertObjInstanceOfClass("Date::<(date)", args[0], "luminique::std::chrono", "Date", 0);
   double timestamp = dateObjGetTimestamp(AS_INSTANCE(receiver));
   double timestamp2 = dateObjGetTimestamp(AS_INSTANCE(args[0]));
   RETURN_BOOL(timestamp < timestamp2);
@@ -162,7 +162,7 @@ NATIVE_METHOD(Date, __less__) {
 
 NATIVE_METHOD(Date, __add__) {
   assertArgCount("Date::+(duration)", 1, argCount);
-	assertObjInstanceOfClass("Date::+(duration)", args[0], "luminique.std.chrono", "Duration", 0);
+	assertObjInstanceOfClass("Date::+(duration)", args[0], "luminique::std::chrono", "Duration", 0);
   ObjInstance* self = AS_INSTANCE(receiver);
   double timestamp = dateObjGetTimestamp(self) + durationTotalSeconds(AS_INSTANCE(args[0]));
   ObjInstance* date = dateObjFromTimestamp(self->obj.klass, timestamp);
@@ -171,15 +171,15 @@ NATIVE_METHOD(Date, __add__) {
 
 NATIVE_METHOD(Date, __subtract__) {
   assertArgCount("Date::-(duration)", 1, argCount);
-	assertObjInstanceOfClass("Date::-(duration)", args[0], "luminique.std.chrono", "Duration", 0);
+	assertObjInstanceOfClass("Date::-(duration)", args[0], "luminique::std::chrono", "Duration", 0);
   ObjInstance* self = AS_INSTANCE(receiver);
   double timestamp = dateObjGetTimestamp(self) - durationTotalSeconds(AS_INSTANCE(args[0]));
   ObjInstance* date = dateObjFromTimestamp(self->obj.klass, timestamp);
   RETURN_OBJ(date);
 }
 
-NATIVE_METHOD(Date, toString) {
-	assertArgCount("Date::toString()", 0, argCount);
+NATIVE_METHOD(Date, __str__) {
+	assertArgCount("Date::__str__()", 0, argCount);
 	ObjInstance* self = AS_INSTANCE(receiver);
 	Value year = getObjProperty(self, "year");
 	Value month = getObjProperty(self, "month");
@@ -190,7 +190,7 @@ NATIVE_METHOD(Date, toString) {
 NATIVE_METHOD(Date, toDateTime) {
 	assertArgCount("Date::toDateTime()", 0, argCount);
 	ObjInstance* self = AS_INSTANCE(receiver);
-	ObjInstance* dateTime = newInstance(getNativeClass("luminique.std.chrono", "DateTime"));
+	ObjInstance* dateTime = newInstance(getNativeClass("luminique::std::chrono", "DateTime"));
   push(OBJ_VAL(dateTime));
 	setObjProperty(dateTime, "year", getObjProperty(self, "year"));
 	setObjProperty(dateTime, "month", getObjProperty(self, "month"));
@@ -204,7 +204,7 @@ NATIVE_METHOD(Date, toDateTime) {
 
 NATIVE_METHOD(Date, diff) {
 	assertArgCount("Date::diff(date)", 1, argCount);
-	assertObjInstanceOfClass("Date::diff(date)", args[0], "luminique.std.chrono", "Date", 0);
+	assertObjInstanceOfClass("Date::diff(date)", args[0], "luminique::std::chrono", "Date", 0);
 	double timestamp = dateObjGetTimestamp(AS_INSTANCE(receiver));
 	double timestamp2 = dateObjGetTimestamp(AS_INSTANCE(args[0]));
 	RETURN_NUMBER(timestamp - timestamp2);
@@ -238,7 +238,7 @@ NATIVE_METHOD(DateTime, __init__) {
 
 NATIVE_METHOD(DateTime, __equal__) {
   assertArgCount("DateTime::==(dateTime)", 1, argCount);
-	assertObjInstanceOfClass("DateTime::==(dateTime)", args[0], "luminique.std.chrono", "DateTime", 0);
+	assertObjInstanceOfClass("DateTime::==(dateTime)", args[0], "luminique::std::chrono", "DateTime", 0);
   double timestamp = dateTimeObjGetTimestamp(AS_INSTANCE(receiver));
   double timestamp2 = dateTimeObjGetTimestamp(AS_INSTANCE(args[0]));
   RETURN_BOOL(timestamp == timestamp2);
@@ -246,7 +246,7 @@ NATIVE_METHOD(DateTime, __equal__) {
 
 NATIVE_METHOD(DateTime, __greater__) {
   assertArgCount("DateTime::>(dateTime)", 1, argCount);
-	assertObjInstanceOfClass("DateTime::>(dateTime)", args[0], "luminique.std.chrono", "DateTime", 0);
+	assertObjInstanceOfClass("DateTime::>(dateTime)", args[0], "luminique::std::chrono", "DateTime", 0);
   double timestamp = dateTimeObjGetTimestamp(AS_INSTANCE(receiver));
   double timestamp2 = dateTimeObjGetTimestamp(AS_INSTANCE(args[0]));
   RETURN_BOOL(timestamp > timestamp2);
@@ -254,7 +254,7 @@ NATIVE_METHOD(DateTime, __greater__) {
 
 NATIVE_METHOD(DateTime, __less__) {
   assertArgCount("DateTime::<(dateTime)", 1, argCount);
-	assertObjInstanceOfClass("DateTime::<(dateTime)", args[0], "luminique.std.chrono", "DateTime", 0);
+	assertObjInstanceOfClass("DateTime::<(dateTime)", args[0], "luminique::std::chrono", "DateTime", 0);
   double timestamp = dateTimeObjGetTimestamp(AS_INSTANCE(receiver));
   double timestamp2 = dateTimeObjGetTimestamp(AS_INSTANCE(args[0]));
   RETURN_BOOL(timestamp < timestamp2);
@@ -262,7 +262,7 @@ NATIVE_METHOD(DateTime, __less__) {
 
 NATIVE_METHOD(DateTime, __add__) {
   assertArgCount("DateTime::+(duration)", 1, argCount);
-	assertObjInstanceOfClass("DateTime::+(duration)", args[0], "luminique.std.chrono", "Duration", 0);
+	assertObjInstanceOfClass("DateTime::+(duration)", args[0], "luminique::std::chrono", "Duration", 0);
   ObjInstance* self = AS_INSTANCE(receiver);
   double timestamp = dateTimeObjGetTimestamp(self) + durationTotalSeconds(AS_INSTANCE(args[0]));
   ObjInstance* dateTime = dateTimeObjFromTimestamp(self->obj.klass, timestamp);
@@ -271,7 +271,7 @@ NATIVE_METHOD(DateTime, __add__) {
 
 NATIVE_METHOD(DateTime, __subtract__) {
   assertArgCount("DateTime::-(duration)", 1, argCount);
-	assertObjInstanceOfClass("DateTime::-(duration)", args[0], "luminique.std.chrono", "Duration", 0);
+	assertObjInstanceOfClass("DateTime::-(duration)", args[0], "luminique::std::chrono", "Duration", 0);
   ObjInstance* self = AS_INSTANCE(receiver);
   double timestamp = dateTimeObjGetTimestamp(self) - durationTotalSeconds(AS_INSTANCE(args[0]));
   ObjInstance* dateTime = dateTimeObjFromTimestamp(self->obj.klass, timestamp);
@@ -280,7 +280,7 @@ NATIVE_METHOD(DateTime, __subtract__) {
 
 NATIVE_METHOD(DateTime, diff) {
 	assertArgCount("DateTime::diff(date)", 1, argCount);
-	assertObjInstanceOfClass("DateTime::diff(date)", args[0], "luminique.std.chrono", "DateTime", 0);
+	assertObjInstanceOfClass("DateTime::diff(date)", args[0], "luminique::std::chrono", "DateTime", 0);
 	double timestamp = dateTimeObjGetTimestamp(AS_INSTANCE(receiver));
 	double timestamp2 = dateTimeObjGetTimestamp(AS_INSTANCE(args[0]));
 	RETURN_NUMBER(timestamp - timestamp2);
@@ -294,7 +294,7 @@ NATIVE_METHOD(DateTime, getTimestamp) {
 NATIVE_METHOD(DateTime, toDate) {
 	assertArgCount("DateTime::toDate()", 0, argCount);
 	ObjInstance* self = AS_INSTANCE(receiver);
-	ObjInstance* date = newInstance(getNativeClass("luminique.std.chrono", "Date"));
+	ObjInstance* date = newInstance(getNativeClass("luminique::std::chrono", "Date"));
   push(OBJ_VAL(date));
 	setObjProperty(date, "day", getObjProperty(self, "day"));
 	setObjProperty(date, "month", getObjProperty(self, "month"));
@@ -303,8 +303,8 @@ NATIVE_METHOD(DateTime, toDate) {
 	RETURN_OBJ(date);
 }
 
-NATIVE_METHOD(DateTime, toString) {
-	assertArgCount("DateTime::toString()", 0, argCount);
+NATIVE_METHOD(DateTime, __str__) {
+	assertArgCount("DateTime::__str__()", 0, argCount);
 	ObjInstance* self = AS_INSTANCE(receiver);
 	Value year = getObjProperty(self, "year");
 	Value month = getObjProperty(self, "month");
@@ -344,8 +344,8 @@ NATIVE_METHOD(Duration, getTotalSeconds) {
 	RETURN_NUMBER(durationTotalSeconds(AS_INSTANCE(receiver)));
 }
 
-NATIVE_METHOD(Duration, toString) {
-	assertArgCount("Duration::toString()", 0, argCount);
+NATIVE_METHOD(Duration, __str__) {
+	assertArgCount("Duration::__str__()", 0, argCount);
 	ObjInstance* self = AS_INSTANCE(receiver);
 	Value days = getObjProperty(self, "days");
 	Value hours = getObjProperty(self, "hours");
@@ -372,7 +372,7 @@ NATIVE_FUNCTION(dateNow) {
   time(&nowTime);
   struct tm now;
   localtime_r(&nowTime, &now);
-  ObjInstance* date = newInstance(getNativeClass("luminique.std.chrono", "Date"));
+  ObjInstance* date = newInstance(getNativeClass("luminique::std::chrono", "Date"));
   setObjProperty(date, "year", INT_VAL(1900 + now.tm_year));
   setObjProperty(date, "month", INT_VAL(1 + now.tm_mon));
   setObjProperty(date, "day", INT_VAL(now.tm_mday));
@@ -385,7 +385,7 @@ NATIVE_FUNCTION(dateTimeNow) {
   time(&nowTime);
   struct tm now;
   localtime_r(&nowTime, &now);
-  ObjInstance* date = newInstance(getNativeClass("luminique.std.chrono", "DateTime"));
+  ObjInstance* date = newInstance(getNativeClass("luminique::std::chrono", "DateTime"));
   setObjProperty(date, "year", INT_VAL(1900 + now.tm_year));
   setObjProperty(date, "month", INT_VAL(1 + now.tm_mon));
   setObjProperty(date, "day", INT_VAL(now.tm_mday));
@@ -411,7 +411,7 @@ void registerTimePackage() {
 	DEF_METHOD(dateClass, Date, diff, 1);
 	DEF_METHOD(dateClass, Date, getTimestamp, 0);
 	DEF_METHOD(dateClass, Date, toDateTime, 0);
-	DEF_METHOD(dateClass, Date, toString, 0);
+	DEF_METHOD(dateClass, Date, __str__, 0);
   DEF_OPERATOR(dateClass, Date, ==, __equal__, 1);
   DEF_OPERATOR(dateClass, Date, >, __greater__, 1);
   DEF_OPERATOR(dateClass, Date, <, __less__, 1);
@@ -424,7 +424,7 @@ void registerTimePackage() {
 	DEF_METHOD(dateTimeClass, DateTime, diff, 1);
 	DEF_METHOD(dateTimeClass, DateTime, getTimestamp, 0);
 	DEF_METHOD(dateTimeClass, DateTime, toDate, 0);
-	DEF_METHOD(dateTimeClass, DateTime, toString, 0);
+	DEF_METHOD(dateTimeClass, DateTime, __str__, 0);
   DEF_OPERATOR(dateTimeClass, DateTime, ==, __equal__, 1);
   DEF_OPERATOR(dateTimeClass, DateTime, >, __greater__, 1);
   DEF_OPERATOR(dateTimeClass, DateTime, <, __less__, 1);
@@ -435,7 +435,7 @@ void registerTimePackage() {
 	bindSuperclass(durationClass, vm.objectClass);
   DEF_METHOD(durationClass, Duration, __init__, 4);
 	DEF_METHOD(durationClass, Duration, getTotalSeconds, 0);
-	DEF_METHOD(durationClass, Duration, toString, 0);
+	DEF_METHOD(durationClass, Duration, __str__, 0);
 
   vm.currentNamespace = vm.rootNamespace;
 }

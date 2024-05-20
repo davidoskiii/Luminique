@@ -15,7 +15,7 @@
 // BOOL
 
 NATIVE_METHOD(Bool, __init__) {
-  THROW_EXCEPTION(luminique.std.lang, InstantiationException, "Cannot instantiate from class Bool.");
+  THROW_EXCEPTION(luminique::std::lang, InstantiationException, "Cannot instantiate from class Bool.");
 }
 
 NATIVE_METHOD(Bool, clone) {
@@ -23,8 +23,8 @@ NATIVE_METHOD(Bool, clone) {
 	return receiver;
 }
 
-NATIVE_METHOD(Bool, toString) {
-	assertArgCount("Bool::toString()", 0, argCount);
+NATIVE_METHOD(Bool, __str__) {
+	assertArgCount("Bool::__str__()", 0, argCount);
 	if (AS_BOOL(receiver)) RETURN_STRING("true", 4);
 	else RETURN_STRING("false", 5);
 }
@@ -40,8 +40,8 @@ NATIVE_METHOD(Exception, __init__) {
   RETURN_OBJ(exception);
 }
 
-NATIVE_METHOD(Exception, toString) {
-  assertArgCount("Exception::toString()", 0, argCount);
+NATIVE_METHOD(Exception, __str__) {
+  assertArgCount("Exception::__str__()", 0, argCount);
   ObjInstance* self = AS_INSTANCE(receiver);
   Value message = getObjProperty(self, "message");
   RETURN_STRING_FMT("<Exception %s - %s>", self->obj.klass->name->chars, AS_CSTRING(message));
@@ -115,8 +115,8 @@ NATIVE_METHOD(Class, superclass) {
   RETURN_OBJ(klass->superclass);
 }
 
-NATIVE_METHOD(Class, toString) {
-  assertArgCount("Class::toString()", 0, argCount);
+NATIVE_METHOD(Class, __str__) {
+  assertArgCount("Class::__str__()", 0, argCount);
   ObjClass* self = AS_CLASS(receiver);
   if (self->namespace_->isRoot) RETURN_STRING_FMT("<class %s>", self->name->chars);
   else RETURN_STRING_FMT("<class %s::%s>", self->namespace_->fullName->chars, self->name->chars);
@@ -125,7 +125,7 @@ NATIVE_METHOD(Class, toString) {
 // FLOAT
 
 NATIVE_METHOD(Float, __init__) {
-  THROW_EXCEPTION(luminique.std.lang, InstantiationException, "Cannot instantiate from class Float.");
+  THROW_EXCEPTION(luminique::std::lang, InstantiationException, "Cannot instantiate from class Float.");
 }
 
 NATIVE_METHOD(Float, clone) {
@@ -133,15 +133,15 @@ NATIVE_METHOD(Float, clone) {
   return receiver;
 }
 
-NATIVE_METHOD(Float, toString) {
-  assertArgCount("Float::toString()", 0, argCount);
+NATIVE_METHOD(Float, __str__) {
+  assertArgCount("Float::__str__()", 0, argCount);
   RETURN_STRING_FMT("%g", AS_FLOAT(receiver));
 }
 
 // FUNCTION
 
 NATIVE_METHOD(Function, __init__) {
-  THROW_EXCEPTION(luminique.std.lang, InstantiationException, "Cannot instantiate from class Function.");
+  THROW_EXCEPTION(luminique::std::lang, InstantiationException, "Cannot instantiate from class Function.");
 }
 
 NATIVE_METHOD(Function, __invoke__) {
@@ -185,8 +185,8 @@ NATIVE_METHOD(Function, name) {
   RETURN_OBJ(AS_CLOSURE(receiver)->function->name);
 }
 
-NATIVE_METHOD(Function, toString) {
-  assertArgCount("Function::toString()", 0, argCount);
+NATIVE_METHOD(Function, __str__) {
+  assertArgCount("Function::__str__()", 0, argCount);
 
   if (IS_NATIVE_FUNCTION(receiver)) {
     RETURN_STRING_FMT("<native fn %s>", AS_NATIVE_FUNCTION(receiver)->name->chars);
@@ -204,7 +204,7 @@ NATIVE_METHOD(Function, upvalueCount) {
 
 
 NATIVE_METHOD(Method, __init__) {
-  THROW_EXCEPTION(luminique.std.lang, InstantiationException, "Cannot instantiate from class Method.");
+  THROW_EXCEPTION(luminique::std::lang, InstantiationException, "Cannot instantiate from class Method.");
 }
 
 NATIVE_METHOD(Method, arity) {
@@ -228,8 +228,8 @@ NATIVE_METHOD(Method, receiver) {
   RETURN_VAL(AS_BOUND_METHOD(receiver)->receiver);
 }
 
-NATIVE_METHOD(Method, toString) {
-  assertArgCount("Method::toString()", 0, argCount);
+NATIVE_METHOD(Method, __str__) {
+  assertArgCount("Method::__str__()", 0, argCount);
   ObjBoundMethod* bound = AS_BOUND_METHOD(receiver);
   RETURN_STRING_FMT("<method %s::%s>", getObjClass(bound->receiver)->name->chars, bound->method->function->name->chars);
 }
@@ -242,7 +242,7 @@ NATIVE_METHOD(Method, upvalueCount) {
 // INT
 
 NATIVE_METHOD(Int, __init__) {
-  THROW_EXCEPTION(luminique.std.lang, InstantiationException, "Cannot instantiate from class Int.");
+  THROW_EXCEPTION(luminique::std::lang, InstantiationException, "Cannot instantiate from class Int.");
 }
 
 NATIVE_METHOD(Int, __add__) {
@@ -278,15 +278,15 @@ NATIVE_METHOD(Int, clone) {
   return receiver;
 }
 
-NATIVE_METHOD(Int, toString) {
-  assertArgCount("Int::toString()", 0, argCount);
+NATIVE_METHOD(Int, __str__) {
+  assertArgCount("Int::__str__()", 0, argCount);
   RETURN_STRING_FMT("%d", AS_INT(receiver));
 }
 
 // NIL
 
 NATIVE_METHOD(Nil, __init__) {
-	THROW_EXCEPTION(luminique.std.lang, InstantiationException, "Cannot instantiate from class Nil.");
+	THROW_EXCEPTION(luminique::std::lang, InstantiationException, "Cannot instantiate from class Nil.");
 }
 
 NATIVE_METHOD(Nil, clone) {
@@ -294,15 +294,15 @@ NATIVE_METHOD(Nil, clone) {
 	RETURN_NIL;
 }
 
-NATIVE_METHOD(Nil, toString) {
-	assertArgCount("Nil::toString()", 0, argCount);
+NATIVE_METHOD(Nil, __str__) {
+	assertArgCount("Nil::__str__()", 0, argCount);
 	RETURN_STRING("nil", 3);
 }
 
 // NUMBER
 
 NATIVE_METHOD(Number, __init__) {
-  THROW_EXCEPTION(luminique.std.lang, InstantiationException, "Cannot instantiate from class Number.");
+  THROW_EXCEPTION(luminique::std::lang, InstantiationException, "Cannot instantiate from class Number.");
 }
 
 NATIVE_METHOD(Number, __equal__) {
@@ -363,8 +363,8 @@ NATIVE_METHOD(Number, clone) {
 	return receiver;
 }
 
-NATIVE_METHOD(Number, toString) {
-	assertArgCount("Number::toString()", 0, argCount);
+NATIVE_METHOD(Number, __str__) {
+	assertArgCount("Number::__str__()", 0, argCount);
 	char chars[24];
 	int length = snprintf(chars, 24, "%.14g", AS_NUMBER(receiver));
 	RETURN_STRING(chars, length);
@@ -431,8 +431,8 @@ NATIVE_METHOD(Object, memberOf) {
 	RETURN_BOOL(thisClass == thatClass);
 }
 
-NATIVE_METHOD(Object, toString) {
-	assertArgCount("Object::toString()", 0, argCount);
+NATIVE_METHOD(Object, __str__) {
+	assertArgCount("Object::__str__()", 0, argCount);
   RETURN_STRING_FMT("<object %s>", AS_OBJ(receiver)->klass->name->chars);
 }
 
@@ -601,8 +601,8 @@ NATIVE_METHOD(String, lower) {
   RETURN_OBJ(toLowerString(AS_STRING(receiver)));
 }
 
-NATIVE_METHOD(String, toString) {
-  assertArgCount("String::toString()", 0, argCount);
+NATIVE_METHOD(String, __str__) {
+  assertArgCount("String::__str__()", 0, argCount);
   return receiver;
 }
 
@@ -617,7 +617,7 @@ NATIVE_METHOD(String, trim) {
 }
 
 NATIVE_METHOD(Namespace, __init__) {
-  THROW_EXCEPTION(luminique.std.lang, InstantiationException, "Cannot instantiate from class Namespace.");
+  THROW_EXCEPTION(luminique::std::lang, InstantiationException, "Cannot instantiate from class Namespace.");
   RETURN_NIL;
 }
 
@@ -645,8 +645,8 @@ NATIVE_METHOD(Namespace, clone) {
   RETURN_OBJ(receiver);
 }
 
-NATIVE_METHOD(Namespace, toString) {
-  assertArgCount("Namespace::toString()", 0, argCount);
+NATIVE_METHOD(Namespace, __str__) {
+  assertArgCount("Namespace::__str__()", 0, argCount);
   ObjNamespace* self = AS_NAMESPACE(receiver);
   RETURN_STRING_FMT("<namespace %s>", self->fullName->chars);
 }
@@ -687,7 +687,7 @@ void registerLangPackage() {
   DEF_METHOD(vm.objectClass, Object, hashCode, 0);
   DEF_METHOD(vm.objectClass, Object, instanceOf, 1);
   DEF_METHOD(vm.objectClass, Object, memberOf, 1);
-  DEF_METHOD(vm.objectClass, Object, toString, 0);
+  DEF_METHOD(vm.objectClass, Object, __str__, 0);
   DEF_OPERATOR(vm.objectClass, Object, ==, __equal__, 1);
 
   vm.classClass = defineNativeClass("Class");
@@ -700,7 +700,7 @@ void registerLangPackage() {
   DEF_METHOD(vm.classClass, Class, memberOf, 1);
   DEF_METHOD(vm.classClass, Class, name, 0);
   DEF_METHOD(vm.classClass, Class, superclass, 0);
-  DEF_METHOD(vm.classClass, Class, toString, 0);
+  DEF_METHOD(vm.classClass, Class, __str__, 0);
   DEF_OPERATOR(vm.classClass, Class, (), __invoke__, -1);
   vm.objectClass->obj.klass = vm.classClass;
 
@@ -709,7 +709,7 @@ void registerLangPackage() {
   bindSuperclass(vm.namespaceClass, vm.objectClass);
   DEF_METHOD(vm.namespaceClass, Namespace, __init__, 0);
   DEF_METHOD(vm.namespaceClass, Namespace, clone, 0);
-  DEF_METHOD(vm.namespaceClass, Namespace, toString, 0);
+  DEF_METHOD(vm.namespaceClass, Namespace, __str__, 0);
   DEF_METHOD(vm.namespaceClass, Namespace, enclosing, 0);
   DEF_METHOD(vm.namespaceClass, Namespace, fullName, 0);
   DEF_METHOD(vm.namespaceClass, Namespace, shortName, 0);
@@ -718,7 +718,7 @@ void registerLangPackage() {
   vm.exceptionClass = defineNativeClass("Exception");
   bindSuperclass(vm.exceptionClass, vm.objectClass);
   DEF_METHOD(vm.exceptionClass, Exception, __init__, 1);
-  DEF_METHOD(vm.exceptionClass, Exception, toString, 0);
+  DEF_METHOD(vm.exceptionClass, Exception, __str__, 0);
 
 
   ObjClass* runtimeExceptionClass = defineNativeException("RuntimeException", vm.exceptionClass);
@@ -733,19 +733,19 @@ void registerLangPackage() {
 	bindSuperclass(vm.nilClass, vm.objectClass);
 	DEF_METHOD(vm.nilClass, Nil, __init__, 0);
 	DEF_METHOD(vm.nilClass, Nil, clone, 0);
-	DEF_METHOD(vm.nilClass, Nil, toString, 0);
+	DEF_METHOD(vm.nilClass, Nil, __str__, 0);
 
 	vm.boolClass = defineNativeClass("Bool");
 	bindSuperclass(vm.boolClass, vm.objectClass);
 	DEF_METHOD(vm.boolClass, Bool, __init__, 0);
 	DEF_METHOD(vm.boolClass, Bool, clone, 0);
-	DEF_METHOD(vm.boolClass, Bool, toString, 0);
+	DEF_METHOD(vm.boolClass, Bool, __str__, 0);
 
 	vm.numberClass = defineNativeClass("Number");
 	bindSuperclass(vm.numberClass, vm.objectClass);
   DEF_METHOD(vm.numberClass, Number, __init__, 0);
   DEF_METHOD(vm.numberClass, Number, clone, 0);
-  DEF_METHOD(vm.numberClass, Number, toString, 0);
+  DEF_METHOD(vm.numberClass, Number, __str__, 0);
   DEF_OPERATOR(vm.numberClass, Number, ==, __equal__, 1);
   DEF_OPERATOR(vm.numberClass, Number, >, __greater__, 1);
   DEF_OPERATOR(vm.numberClass, Number, <, __less__, 1);
@@ -760,7 +760,7 @@ void registerLangPackage() {
   bindSuperclass(vm.intClass, vm.numberClass);
   DEF_METHOD(vm.intClass, Int, __init__, 0);
   DEF_METHOD(vm.intClass, Int, clone, 0);
-  DEF_METHOD(vm.intClass, Int, toString, 0);
+  DEF_METHOD(vm.intClass, Int, __str__, 0);
   DEF_OPERATOR(vm.intClass, Int, +, __add__, 1);
   DEF_OPERATOR(vm.intClass, Int, -, __subtract__, 1);
   DEF_OPERATOR(vm.intClass, Int, *, __multiply__, 1);
@@ -770,7 +770,7 @@ void registerLangPackage() {
   bindSuperclass(vm.floatClass, vm.numberClass);
   DEF_METHOD(vm.floatClass, Float, __init__, 0);
   DEF_METHOD(vm.floatClass, Float, clone, 0);
-  DEF_METHOD(vm.floatClass, Float, toString, 0);
+  DEF_METHOD(vm.floatClass, Float, __str__, 0);
 
 
   vm.stringClass = defineNativeClass("String");
@@ -792,7 +792,7 @@ void registerLangPackage() {
   DEF_METHOD(vm.stringClass, String, starts, 1);
   DEF_METHOD(vm.stringClass, String, cut, 2);
   DEF_METHOD(vm.stringClass, String, lower, 0);
-  DEF_METHOD(vm.stringClass, String, toString, 0);
+  DEF_METHOD(vm.stringClass, String, __str__, 0);
   DEF_METHOD(vm.stringClass, String, upper, 0);
   DEF_METHOD(vm.stringClass, String, trim, 0);
   DEF_OPERATOR(vm.stringClass, String, +, __add__, 1);
@@ -811,7 +811,7 @@ void registerLangPackage() {
   DEF_METHOD(vm.functionClass, Function, clone, 0);
   DEF_METHOD(vm.functionClass, Function, isNative, 0);
   DEF_METHOD(vm.functionClass, Function, name, 0);
-  DEF_METHOD(vm.functionClass, Function, toString, 0);
+  DEF_METHOD(vm.functionClass, Function, __str__, 0);
   DEF_METHOD(vm.functionClass, Function, upvalueCount, 0);
   DEF_OPERATOR(vm.functionClass, Function, (), __invoke__, -1);
 
@@ -822,7 +822,7 @@ void registerLangPackage() {
   DEF_METHOD(vm.methodClass, Method, clone, 0);
   DEF_METHOD(vm.methodClass, Method, name, 0);
   DEF_METHOD(vm.methodClass, Method, receiver, 0);
-  DEF_METHOD(vm.methodClass, Method, toString, 0);
+  DEF_METHOD(vm.methodClass, Method, __str__, 0);
   DEF_METHOD(vm.methodClass, Method, upvalueCount, 0);
 
   vm.currentNamespace = vm.rootNamespace;
