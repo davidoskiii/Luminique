@@ -25,8 +25,8 @@ class Fraction {
     return Fraction(int(numerator), int(denominator));
   }
 
-  function toString() {
-    return this.numerator.toString() + "/" + this.denominator.toString();
+  function __str__() {
+    return "${this.numerator} / ${this.denominator}";
   }
 
   function == (that) {
@@ -35,10 +35,11 @@ class Fraction {
       return;
     }
 
-    if (this.reduce().toString() == that.reduce().toString()) {
+    if (str(this.reduce()) == str(that.reduce())) {
       return true;
     } else {
       return false;
     }
   }
+
 }

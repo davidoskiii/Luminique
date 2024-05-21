@@ -417,23 +417,25 @@ bool callMethod(Value method, int argCount) {
 }
 
 Value callReentrant(Value receiver, Value callee, ...) {
-    push(receiver);
-    int argCount = IS_NATIVE_METHOD(callee) ? AS_NATIVE_METHOD(callee)->arity : AS_CLOSURE(callee)->function->arity;
-    va_list args;
-    va_start(args, callee);
-    for (int i = 0; i < argCount; i++) {
-        push(va_arg(args, Value));
-    }
-    va_end(args);
+  push(receiver);
+  int argCount = IS_NATIVE_METHOD(callee) ? AS_NATIVE_METHOD(callee)->arity : AS_CLOSURE(callee)->function->arity;
+  va_list args;
+  va_start(args, callee);
+  for (int i = 0; i < argCount; i++) {
+    push(va_arg(args, Value));
+  }
+  va_end(args);
 
-    if (IS_CLOSURE(callee)) {
-      callClosure(AS_CLOSURE(callee), argCount);
-      run();
-    }
-    else {
-      callNativeMethod(AS_NATIVE_METHOD(callee)->method, argCount);
-    }
-    return pop();
+  if (IS_CLOSURE(callee)) {
+    vm.apiStackDepth++;
+    callClosure(AS_CLOSURE(callee), argCount);
+    InterpretResult result = run();
+    if (result == INTERPRET_RUNTIME_ERROR) exit(70);
+    vm.apiStackDepth--;
+  } else {
+    callNativeMethod(AS_NATIVE_METHOD(callee)->method, argCount);
+  }
+  return pop();
 }
 
 static bool callValue(Value callee, int argCount) {
@@ -475,8 +477,7 @@ static bool callValue(Value callee, int argCount) {
     throwException(exceptionClass, "Undefined operator method '%s' on class %s.", name->chars, klass->name->chars);
     return false;
   }
-  int arity = IS_NATIVE_METHOD(method) ? AS_NATIVE_METHOD(method)->arity : AS_CLOSURE(method)->function->arity;
-  return callMethod(method, arity);
+  return callMethod(method, argCount);
 }
 
 

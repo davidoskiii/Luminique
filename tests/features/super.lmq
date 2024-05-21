@@ -3,8 +3,8 @@ class A {
     println("A method");
   }
 
-  function toString() { 
-    return super.toString() + " of class " + this.getClassName();
+  function __str__() { 
+    return super.__str__() + " of class " + this.getClassName();
   }
 }
 
@@ -19,11 +19,10 @@ class B : A {
 
 class C : B { }
 
-C().test();
 let c = C();
 c.test();
 
-println(c.toString());
+println(c.__str__());
 println(c.instanceOf(C));
 println(c.instanceOf(B));
 println(c.instanceOf(A));

@@ -129,8 +129,8 @@ NATIVE_METHOD(Regex, replace) {
   RETURN_OBJ(takeString(result, new_length));
 }
 
-NATIVE_METHOD(Regex, toString) {
-	assertArgCount("Regex::toString()", 0, argCount);
+NATIVE_METHOD(Regex, __str__) {
+	assertArgCount("Regex::__str__()", 0, argCount);
 	Value pattern = getObjProperty(AS_INSTANCE(receiver), "pattern");
 	return pattern;
 }
@@ -144,7 +144,7 @@ void registerUtilPackage() {
 	DEF_METHOD(regexClass, Regex, __init__, 1);
 	DEF_METHOD(regexClass, Regex, match, 1);
 	DEF_METHOD(regexClass, Regex, replace, 2);
-	DEF_METHOD(regexClass, Regex, toString, 0);
+	DEF_METHOD(regexClass, Regex, __str__, 0);
 
   vm.currentNamespace = vm.rootNamespace;
 }
