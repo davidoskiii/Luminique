@@ -19,10 +19,12 @@ class B : A {
 
 class C : B { }
 
+let a = A();
+let b = B();
 let c = C();
 c.test();
 
-println(c.__str__());
+println(str(c));
 println(c.instanceOf(C));
 println(c.instanceOf(B));
 println(c.instanceOf(A));
