@@ -61,6 +61,9 @@ typedef enum {
   OP_CATCH,
   OP_FINALLY,
   OP_INHERIT,
+  OP_BITAND,
+  OP_BITOR,
+  OP_BITXOR,
   OP_RETURN,
   OP_RETURN_NONLOCAL
 } OpCode;

@@ -34,6 +34,10 @@ typedef enum {
   PREC_AND,         // and
   PREC_EQUALITY,    // == !=
   PREC_COMPARISON,  // < > <= >=
+  PREC_BIT_AND,     // &
+  PREC_BIT_XOR,     // ^
+  PREC_BIT_OR,      // !
+  PREC_SHIFT,       // << >> 
   PREC_TERM,        // + -
   PREC_FACTOR,      // * /
   PREC_UNARY,       // ! -
@@ -714,6 +718,21 @@ static void and_(bool canAssign) {
   patchJump(endJump);
 }
 
+static void bitand(bool canAssign) {
+  parsePrecedence(PREC_BIT_AND);
+  emitByte(OP_BITAND);
+}
+
+static void bitor(bool canAssign) {
+  parsePrecedence(PREC_BIT_OR);
+  emitByte(OP_BITOR);
+}
+
+static void bitxor(bool canAssign) {
+  parsePrecedence(PREC_BIT_XOR);
+  emitByte(OP_BITXOR);
+}
+
 static void typeof_(bool canAssign) {
   expression();
   emitByte(OP_TYPEOF);
@@ -1201,6 +1220,7 @@ ParseRule rules[] = {
   [TOKEN_BIN]           = {bin,           NULL,      PREC_NONE},
   [TOKEN_OCT]           = {octal,         NULL,      PREC_NONE},
   [TOKEN_AND]           = {NULL,          and_,      PREC_AND},
+  [TOKEN_AMP]           = {NULL,          bitand,    PREC_BIT_AND},
   [TOKEN_CLASS]         = {NULL,          NULL,      PREC_NONE},
   [TOKEN_ELSE]          = {NULL,          NULL,      PREC_NONE},
   [TOKEN_FALSE]         = {literal,       NULL,      PREC_NONE},
@@ -1210,6 +1230,8 @@ ParseRule rules[] = {
   [TOKEN_IF]            = {NULL,          NULL,      PREC_NONE},
   [TOKEN_NIL]           = {literal,       NULL,      PREC_NONE},
   [TOKEN_OR]            = {NULL,          or_,       PREC_OR},
+  [TOKEN_PIPE]          = {NULL,          bitor,     PREC_BIT_OR},
+  [TOKEN_CARRET]        = {NULL,          bitxor,    PREC_BIT_XOR},
   [TOKEN_REQUIRE]       = {NULL,          NULL,      PREC_NONE},
   [TOKEN_RETURN]        = {NULL,          NULL,      PREC_NONE},
   [TOKEN_SUPER]         = {super_,        NULL,      PREC_NONE},

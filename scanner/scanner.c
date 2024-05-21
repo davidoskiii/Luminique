@@ -346,6 +346,7 @@ Token scanToken() {
       
       return makeToken(TOKEN_DOT);
     }
+    case '^': return makeToken(TOKEN_CARRET);
     case '-': return makeToken(
           match('-') ? TOKEN_MINUS_MINUS : TOKEN_MINUS);
     case '+': return makeToken(
@@ -375,7 +376,7 @@ Token scanToken() {
       if (match('&')) {
         return makeToken(TOKEN_AND);
       } else {
-        return errorToken("Expected '&'");
+        return makeToken(TOKEN_AMP);
       }
     case '|':
       if (match('|')) {

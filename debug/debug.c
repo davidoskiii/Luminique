@@ -210,6 +210,12 @@ int disassembleInstruction(Chunk* chunk, int offset) {
       return simpleInstruction("OP_FINALLY", offset);
     case OP_INHERIT:
       return simpleInstruction("OP_INHERIT", offset);
+    case OP_BITAND:
+      return simpleInstruction("OP_BITAND", offset);
+    case OP_BITXOR:
+      return simpleInstruction("OP_BITXOR", offset);
+    case OP_BITOR:
+      return simpleInstruction("OP_BITOR", offset);
     case OP_RETURN:
       return simpleInstruction("OP_RETURN", offset);
     case OP_RETURN_NONLOCAL:
