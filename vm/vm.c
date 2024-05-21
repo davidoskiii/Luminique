@@ -970,6 +970,16 @@ InterpretResult run() {
         else OVERLOAD_OP(&, 1);
         break;
       }
+      case OP_SHOWEL_L: {
+        if (IS_INT(peek(0)) && IS_INT(peek(1))) BINARY_INT_OP(INT_VAL, <<);
+        else OVERLOAD_OP(<<, 1);
+        break;
+      }
+      case OP_SHOWEL_R: {
+        if (IS_INT(peek(0)) && IS_INT(peek(1))) BINARY_INT_OP(INT_VAL, >>);
+        else OVERLOAD_OP(>>, 1);
+        break;
+      }
       case OP_NOT:
         push(BOOL_VAL(isFalsey(pop())));
         break;

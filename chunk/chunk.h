@@ -64,6 +64,8 @@ typedef enum {
   OP_BITAND,
   OP_BITOR,
   OP_BITXOR,
+  OP_SHOWEL_L,
+  OP_SHOWEL_R,
   OP_RETURN,
   OP_RETURN_NONLOCAL
 } OpCode;

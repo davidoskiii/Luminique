@@ -216,6 +216,10 @@ int disassembleInstruction(Chunk* chunk, int offset) {
       return simpleInstruction("OP_BITXOR", offset);
     case OP_BITOR:
       return simpleInstruction("OP_BITOR", offset);
+    case OP_SHOWEL_L:
+      return simpleInstruction("OP_SHOWEL_L", offset);
+    case OP_SHOWEL_R:
+      return simpleInstruction("OP_SHOWEL_R", offset);
     case OP_RETURN:
       return simpleInstruction("OP_RETURN", offset);
     case OP_RETURN_NONLOCAL:

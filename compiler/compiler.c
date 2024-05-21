@@ -738,6 +738,17 @@ static void typeof_(bool canAssign) {
   emitByte(OP_TYPEOF);
 }
 
+static void showel(bool canAssign) {
+  TokenType operatorType = parser.previous.type;
+  parsePrecedence(PREC_SHIFT);
+
+  switch (operatorType) {
+    case TOKEN_SHOWEL_L: emitByte(OP_SHOWEL_L); break;
+    case TOKEN_SHOWEL_R: emitByte(OP_SHOWEL_R); break;
+    default: return;
+  }
+}
+
 static void binary(bool canAssign) {
   TokenType operatorType = parser.previous.type;
   ParseRule* rule = getRule(operatorType);
@@ -1221,6 +1232,8 @@ ParseRule rules[] = {
   [TOKEN_OCT]           = {octal,         NULL,      PREC_NONE},
   [TOKEN_AND]           = {NULL,          and_,      PREC_AND},
   [TOKEN_AMP]           = {NULL,          bitand,    PREC_BIT_AND},
+  [TOKEN_SHOWEL_L]      = {NULL,          showel,    PREC_SHIFT},
+  [TOKEN_SHOWEL_R]      = {NULL,          showel,    PREC_SHIFT},
   [TOKEN_CLASS]         = {NULL,          NULL,      PREC_NONE},
   [TOKEN_ELSE]          = {NULL,          NULL,      PREC_NONE},
   [TOKEN_FALSE]         = {literal,       NULL,      PREC_NONE},

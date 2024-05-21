@@ -366,12 +366,14 @@ Token scanToken() {
       return makeToken(
           match('=') ? TOKEN_EQUAL_EQUAL : TOKEN_EQUAL);
     case '<':
-      return makeToken(
-          match('=') ? TOKEN_LESS_EQUAL : TOKEN_LESS);
-    case '>':
-      return makeToken(
-          match('=') ? TOKEN_GREATER_EQUAL : TOKEN_GREATER);
-
+      if (match('=')) return makeToken(TOKEN_LESS_EQUAL);
+      else if (match('<')) return makeToken(TOKEN_SHOWEL_L);
+      else return makeToken(TOKEN_LESS);
+    case '>': {
+      if (match('=')) return makeToken(TOKEN_GREATER_EQUAL);
+      else if (match('>')) return makeToken(TOKEN_SHOWEL_R);
+      else return makeToken(TOKEN_GREATER);
+    }
     case '&':
       if (match('&')) {
         return makeToken(TOKEN_AND);
