@@ -1,3 +1,11 @@
 using luminique::std::network;
 
-println(network::URI);
+let url = network::URL("https", "google.com", 0, "", "", "");
+println("URL is: ${url}");
+println("URL is absolute: ${url.isAbsolute()}");
+println("URL is relative: ${url.isRelative()}\n");
+
+let url2 = network::URL("", "", 0, "account/login", "", "top");
+println("URL2 is: ${url2}");
+println("URL2 is absolute: ${url2.isAbsolute()}");
+println("URL2 is relative: ${url2.isRelative()}\n");
