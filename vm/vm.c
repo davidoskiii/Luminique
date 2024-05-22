@@ -22,6 +22,7 @@
 #include "../sys/sys.h"
 #include "../random/random.h"
 #include "../graphics/graphics.h"
+#include "../network/network.h"
 #include "../debug/debug.h"
 #include "vm.h"
 
@@ -222,6 +223,7 @@ void initVM(int argc, char** argv) {
   registerUtilPackage();
   registerMathPackage();
   registerTimePackage();
+  registerNetworkPackage();
   initNatives();
   initStd();
 }
