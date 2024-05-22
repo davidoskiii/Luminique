@@ -1,20 +1,25 @@
 using luminique::std::network;
 
 const url = network::URL("https", "google.com", 0, "", "", "");
-println("URL is: ${url}");
+println("URL is ${url}");
 println("URL is absolute: ${url.isAbsolute()}");
 println("URL is relative: ${url.isRelative()}\n");
 
-const url2 = network::URL("", "", 0, "account/login", "", "top");
+const url2 = network::URL("", "", 0, "products/details/1", "", "top");
 println("URL2 is: ${url2}");
 println("URL2 is absolute: ${url2.isAbsolute()}");
 println("URL2 is relative: ${url2.isRelative()}\n");
 
 const url3 = network::URL.parse("http://www.example.com:8080/dir/file.html?var=val&var2=val2#anchor");
-println("Parsing url3: ${url3}");
+println("Parsing URL3: ${url3}");
 println("Scheme: ${url3.scheme}");
 println("Host: ${url3.host}");
 println("Port: ${url3.port}");
-println("Path: ${url3.path}");
+println("Path: ${url3.pathArray()}");
 println("Query: ${url3.queryDict()}");
-println("Fragment: ${url3.fragment}");
+println("Fragment: ${url3.fragment}\n");
+
+const url3 = network::URL("", "", 0, "products/", "", "");
+println("URL3 is ${url3}");
+print("Relativize URL2 with URL3: ");
+println(str(url2.relativize(url3)));
