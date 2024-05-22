@@ -1193,6 +1193,7 @@ static void unary(bool canAssign) {
   switch (operatorType) {
     case TOKEN_BANG: emitByte(OP_NOT); break;
     case TOKEN_PLUS: emitByte(OP_AFFERM); break;
+    case TOKEN_TILDA: emitByte(OP_BITNOT); break;
     case TOKEN_MINUS: emitByte(OP_NEGATE); break;
     default: return; // Unreachable.
   }
@@ -1250,6 +1251,7 @@ ParseRule rules[] = {
   [TOKEN_OR]            = {NULL,          or_,       PREC_OR},
   [TOKEN_PIPE]          = {NULL,          bitor,     PREC_BIT_OR},
   [TOKEN_CARRET]        = {NULL,          bitxor,    PREC_BIT_XOR},
+  [TOKEN_TILDA]         = {unary,         NULL,      PREC_NONE},
   [TOKEN_REQUIRE]       = {NULL,          NULL,      PREC_NONE},
   [TOKEN_RETURN]        = {NULL,          NULL,      PREC_NONE},
   [TOKEN_SUPER]         = {super_,        NULL,      PREC_NONE},

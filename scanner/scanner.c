@@ -347,6 +347,7 @@ Token scanToken() {
       return makeToken(TOKEN_DOT);
     }
     case '^': return makeToken(TOKEN_CARRET);
+    case '~': return makeToken(TOKEN_TILDA);
     case '-': return makeToken(
           match('-') ? TOKEN_MINUS_MINUS : TOKEN_MINUS);
     case '+': return makeToken(

@@ -1003,6 +1003,14 @@ InterpretResult run() {
         else push(NUMBER_VAL(+AS_NUMBER(pop())));
 
         break;
+      case OP_BITNOT:
+        if (!IS_INT(peek(0))) {
+          ObjClass* exceptionClass = getNativeClass("luminique::std::lang", "IllegalArgumentException");
+          throwException(exceptionClass, "Operand must be an integer for bitwise NOT operator.");
+        }
+
+        push(INT_VAL(~AS_INT(pop())));
+        break;
       case OP_JUMP: {
         uint16_t offset = READ_SHORT();
         frame->ip += offset;

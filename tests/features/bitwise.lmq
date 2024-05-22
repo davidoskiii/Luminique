@@ -1,5 +1,6 @@
 println("Bitwise or between 0b10 and 0b01: ${0b10 | 0b01}");
 println("Bitwise and between 0b0101 and 0b0100: ${0b0101 & 0b0100}");
 println("Bitwise xor between 0b0101 and 0b0011: ${0b0101 ^ 0b0011}");
+println("Bitwise not between 0b0101: ${~0b0101}");
 println("Bitwise left shift between 0b0101 and 0b0001: ${0b0101 << 0b0001}");
 println("Bitwise right shift between 0b1001 and 0b0001: ${0b1001 >> 0b0001}");
