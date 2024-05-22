@@ -480,6 +480,11 @@ static uint16_t propretyConstant(const char* message) {
   switch (parser.current.type) {
     case TOKEN_IDENTIFIER:
     case TOKEN_EQUAL_EQUAL:
+    case TOKEN_AMP:
+    case TOKEN_PIPE:
+    case TOKEN_CARRET:
+    case TOKEN_SHOWEL_R:
+    case TOKEN_SHOWEL_L:
     case TOKEN_GREATER:
     case TOKEN_LESS:
     case TOKEN_PLUS:
