@@ -39,7 +39,7 @@ let maker = CoffeeMaker("coffee and chicory");
 maker.brew();
 
 let maker2 = CoffeeMaker(CoffeeMaker.bestCoffee);
-maker.brew();
+maker2.brew();
 
 class CoffeeMakerCherry : CoffeeMaker {
   function __init__() {

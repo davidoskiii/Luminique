@@ -1112,7 +1112,7 @@ InterpretResult run() {
             return INTERPRET_RUNTIME_ERROR;
           }
         } else {
-          runtimeError("Only instances and classes can get properties.");
+          runtimeError("Only instances and classes can access properties with '.'.");
           return INTERPRET_RUNTIME_ERROR;
         }
         break;
@@ -1133,7 +1133,7 @@ InterpretResult run() {
           pop();
           push(value);
         } else {
-          runtimeError("Only instances and classes can set properties.");
+          runtimeError("Only instances and classes can set properties with '.'.");
           return INTERPRET_RUNTIME_ERROR;
         }
         break;
