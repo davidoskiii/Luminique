@@ -95,6 +95,7 @@ ObjClass* newClass(ObjString* name) {
   klass->superclass = NULL;
   klass->isNative = false;
   initTable(&klass->methods);
+  initTable(&klass->fields);
   return klass;
 }
 
@@ -207,6 +208,19 @@ Value getObjMethod(Value object, char* name) {
 
 void setObjProperty(ObjInstance* object, char* name, Value value) {
   tableSet(&object->fields, copyString(name, (int)strlen(name)), value);
+}
+
+Value getClassProperty(ObjClass* klass, char* name) {
+  Value value;
+  tableGet(&klass->fields, newString(name), &value);
+  return value;
+}
+
+void setClassProperty(ObjClass* klass, char* name, Value value) {
+  ObjString* key = newString(name);
+  push(OBJ_VAL(key));
+  tableSet(&klass->fields, key, ((void*)value == NULL) ? NIL_VAL : value);
+  pop();
 }
 
 bool isClassExtendingSuperclass(ObjClass* klass, ObjClass* superclass) {

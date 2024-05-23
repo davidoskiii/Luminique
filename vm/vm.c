@@ -1086,36 +1086,56 @@ InterpretResult run() {
       case OP_GET_PROPERTY: {
         Value receiver = peek(0);
         if (IS_INSTANCE(receiver)) {
-          ObjInstance* instance = AS_INSTANCE(peek(0));
+          ObjInstance* instance = AS_INSTANCE(receiver);
           ObjString* name = READ_STRING();
-
           Value value;
           if (tableGet(&instance->fields, name, &value)) {
-            pop(); // Instance.
+            pop();
+            push(value);
+            break;
+          }
+          if (!bindMethod(instance->obj.klass, name)) {
+            return INTERPRET_RUNTIME_ERROR;
+          }
+        } else if (IS_CLASS(receiver)) {
+          ObjClass* klass = AS_CLASS(receiver);
+          ObjString* name = READ_STRING();
+          Value value;
+
+          if (tableGet(&klass->fields, name, &value)) {
+            pop();
             push(value);
             break;
           }
 
-          if (!bindMethod(instance->obj.klass, name)) {
+          if (!bindMethod(klass->obj.klass, name)) {
             return INTERPRET_RUNTIME_ERROR;
           }
         } else {
-          runtimeError("Only instances can access properties using '.'.");
+          runtimeError("Only instances and classes can get properties.");
           return INTERPRET_RUNTIME_ERROR;
         }
         break;
       }
       case OP_SET_PROPERTY: {
-        if (!IS_INSTANCE(peek(1))) {
-          runtimeError("Only instances have fields.");
+        Value receiver = peek(1);
+        if (IS_INSTANCE(receiver)) {
+          ObjInstance* instance = AS_INSTANCE(receiver);
+          tableSet(&instance->fields, READ_STRING(), peek(0));
+          Value value = pop();
+          pop();
+          push(value);
+        } else if (IS_CLASS(receiver)) {
+          ObjClass* klass = AS_CLASS(receiver);
+          tableSet(&klass->fields, READ_STRING(), peek(0));
+
+          Value value = pop();
+          pop();
+          push(value);
+        } else {
+          runtimeError("Only instances and classes can set properties.");
           return INTERPRET_RUNTIME_ERROR;
         }
-
-        ObjInstance* instance = AS_INSTANCE(peek(1));
-        tableSet(&instance->fields, READ_STRING(), peek(0));
-        Value value = pop();
-        pop();
-        push(value);
         break;
       }
       case OP_GET_SUBSCRIPT: {

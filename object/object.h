@@ -165,6 +165,7 @@ struct ObjClass {
   struct ObjNamespace* namespace_;
   struct ObjClass* superclass;
   Table methods;
+  Table fields;
   bool isNative;
 };
 
@@ -219,6 +220,8 @@ ObjNativeMethod* newNativeMethod(ObjClass* klass, ObjString* name, int arity, Na
 ObjUpvalue* newUpvalue(Value* slot);
 void printObject(Value value);
 ObjClass* getObjClass(Value value);
+Value getClassProperty(ObjClass* klass, char* name);
+void setClassProperty(ObjClass* klass, char* name, Value value);
 Value getObjProperty(ObjInstance* object, char* name);
 Value getObjMethod(Value object, char* name);
 void setObjProperty(ObjInstance* object, char* name, Value value);

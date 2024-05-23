@@ -27,13 +27,18 @@ class CoffeeMaker {
   }
 
   function brew() {
-    println("Enjoy your cup of " + this.coffee);
+    println("Enjoy your cup of ${this.coffee}");
 
     this.coffee = nil;
   }
 }
 
+CoffeeMaker.bestCoffee = "cappuccino";
+
 let maker = CoffeeMaker("coffee and chicory");
+maker.brew();
+
+let maker2 = CoffeeMaker(CoffeeMaker.bestCoffee);
 maker.brew();
 
 class CoffeeMakerCherry : CoffeeMaker {

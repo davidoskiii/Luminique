@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#include <sys/types.h>
+#include <sys/socket.h>
 #include <arpa/inet.h>
 #include <netdb.h>
 
@@ -12,6 +14,8 @@
 #include "../native/native.h"
 #include "../value/value.h"
 #include "../vm/vm.h"
+
+#define INVALID_SOCKET -1
 
 static struct addrinfo* dnsGetDomainInfo(const char* domainName, int* status) {
   struct addrinfo hints, *result;
@@ -121,6 +125,34 @@ static ObjString* urlToString(ObjInstance* url) {
   if (query->length > 0) urlString = formattedString("%s&%s", urlString->chars, query->chars);
   if (fragment->length > 0) urlString = formattedString("%s#%s", urlString->chars, fragment->chars);
   return urlString;
+}
+
+NATIVE_METHOD(Socket, __init__) {
+    assertArgCount("Socket::init(addressFamily, socketType, protocolType)", 3, argCount);
+    assertArgIsInt("Socket::init(addressFamily, socketType, protocolType)", args, 0);
+    assertArgIsInt("Socket::init(addressFamily, socketType, protocolType)", args, 1);
+    assertArgIsInt("Socket::init(addressFamily, socketType, protocolType)", args, 2);
+
+    int descriptor = socket(AS_INT(args[0]), AS_INT(args[1]), AS_INT(args[2]));
+    if (descriptor == INVALID_SOCKET) {
+      runtimeError("Socket creation failed...");
+      RETURN_NIL;
+    }
+    ObjInstance* self = AS_INSTANCE(receiver);
+    setObjProperty(self, "addressFamily", args[0]);
+    setObjProperty(self, "socketType", args[1]);
+    setObjProperty(self, "protocolType", args[2]);
+    setObjProperty(self, "descriptor", INT_VAL(descriptor));
+    RETURN_OBJ(self);
+}
+
+NATIVE_METHOD(Socket, __str__) {
+    assertArgCount("Socket::__str__()", 0, argCount);
+    ObjInstance* self = AS_INSTANCE(receiver);
+    Value addressFamily = getObjProperty(self, "addressFamily");
+    Value socketType = getObjProperty(self, "socketType");
+    Value protocolType = getObjProperty(self, "protocolType");
+    RETURN_STRING_FMT("Socket - AddressFamily: %d, SocketType: %d, ProtocolType: %d", AS_INT(addressFamily), AS_INT(socketType), AS_INT(protocolType));
 }
 
 NATIVE_METHOD(Domain, __init__) {
@@ -373,7 +405,6 @@ void registerNetworkPackage() {
   ObjClass* urlMetaclass = urlClass->obj.klass;
   DEF_METHOD(urlMetaclass, URLClass, parse, 1);
 
-
   ObjClass* ipAddressClass = defineNativeClass("IPAddress");
   bindSuperclass(ipAddressClass, vm.objectClass);
   DEF_METHOD(ipAddressClass, IPAddress, __init__, 1);
@@ -388,6 +419,32 @@ void registerNetworkPackage() {
   DEF_METHOD(domainClass, Domain, __init__, 1);
   DEF_METHOD(domainClass, Domain, ipAddresses, 0);
   DEF_METHOD(domainClass, Domain, __str__, 0);
+
+
+  ObjClass* socketClass = defineNativeClass("Socket");
+  bindSuperclass(socketClass, vm.objectClass);
+  DEF_METHOD(socketClass, Socket, __init__, 3);
+  DEF_METHOD(socketClass, Socket, __str__, 0);
+
+  ObjClass* socketMetaclass = socketClass->obj.klass;
+  setClassProperty(socketClass, "afUNSPEC", INT_VAL(AF_UNSPEC));
+  setClassProperty(socketClass, "afUNIX", INT_VAL(AF_UNIX));
+  setClassProperty(socketClass, "afINET", INT_VAL(AF_INET));
+  setClassProperty(socketClass, "afIPX", INT_VAL(AF_IPX));
+  setClassProperty(socketClass, "afDECnet", INT_VAL(AF_DECnet));
+  setClassProperty(socketClass, "afAPPLETALK", INT_VAL(AF_APPLETALK));
+  setClassProperty(socketClass, "afINET6", INT_VAL(AF_INET6));
+  setClassProperty(socketClass, "sockSTREAM", INT_VAL(SOCK_STREAM));
+  setClassProperty(socketClass, "sockDGRAM", INT_VAL(SOCK_DGRAM));
+  setClassProperty(socketClass, "sockRAW", INT_VAL(SOCK_RAW));
+  setClassProperty(socketClass, "sockRDM", INT_VAL(SOCK_RDM));
+  setClassProperty(socketClass, "sockSEQPACKET", INT_VAL(SOCK_SEQPACKET));
+  setClassProperty(socketClass, "protoIP", INT_VAL(IPPROTO_IP));
+  setClassProperty(socketClass, "protoICMP", INT_VAL(IPPROTO_ICMP));
+  setClassProperty(socketClass, "protoTCP", INT_VAL(IPPROTO_TCP));
+  setClassProperty(socketClass, "protoUDP", INT_VAL(IPPROTO_UDP));
+  setClassProperty(socketClass, "protoICMPV6", INT_VAL(IPPROTO_ICMPV6));
+  setClassProperty(socketClass, "protoRAW", INT_VAL(IPPROTO_RAW));
 
   vm.currentNamespace = vm.rootNamespace;
 }
