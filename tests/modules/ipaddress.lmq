@@ -1,0 +1,5 @@
+using luminique::std::network::IPAddress;
+
+const ip = IPAddress("127.0.0.1");
+println("IP Address: ${ip}");
+println("IP is v4: ${ip.isIPV4()}");
