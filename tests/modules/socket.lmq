@@ -1,0 +1,4 @@
+using luminique::std::network::Socket;
+
+const socket = Socket(Socket.afINET, Socket.sockSTREAM, Socket.protoIP);
+println("Creating ${socket}");
