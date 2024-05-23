@@ -13,10 +13,36 @@
 
 static bool ipIsV4(ObjString* address) {
   unsigned char b1, b2, b3, b4;
-  if (4 != sscanf(address->chars, "%hhu.%hhu.%hhu.%hhu", &b1, &b2, &b3, &b4)) return false;
-  char buf[16];
-  snprintf(buf, 16, "%hhu.%hhu.%hhu.%hhu", b1, b2, b3, b4);
-  return !strcmp(address->chars, buf);
+  if (sscanf(address->chars, "%hhu.%hhu.%hhu.%hhu", &b1, &b2, &b3, &b4) != 4) return false;
+  char buffer[16];
+  snprintf(buffer, 16, "%hhu.%hhu.%hhu.%hhu", b1, b2, b3, b4);
+  return !strcmp(address->chars, buffer);
+}
+
+static bool ipIsV6(ObjString* address) {
+  unsigned short b1, b2, b3, b4, b5, b6, b7, b8;
+  if (sscanf(address->chars, "%04hx:%04hx:%04hx:%04hx:%04hx:%04hx:%04hx:%04hx", &b1, &b2, &b3, &b4, &b5, &b6, &b7, &b8) != 8) return false;
+  char buffer[40];
+  snprintf(buffer, 40, "%04hx:%04hx:%04hx:%04hx:%04hx:%04hx:%04hx:%04hx", b1, b2, b3, b4, b5, b6, b7, b8);
+  return !strcmp(address->chars, buffer);
+}
+
+static int ipParseBlock(ObjString* address, int startIndex, int endIndex, int radix) {
+  ObjString* bString = subString(address, startIndex, endIndex);
+  return strtol(bString->chars, NULL, radix);
+}
+
+static void ipWriteByteArray(ObjArray* array, ObjString* address, int radix) {
+  push(OBJ_VAL(array));
+  int d = 0;
+  for (int i = 0; i < address->length; i++) {
+    if (address->chars[i] == '.' || address->chars[i] == ':') {
+      writeValueArray(&array->elements, INT_VAL(ipParseBlock(address, d, i, radix)));
+      d = i + 1;
+    }
+  }
+  writeValueArray(&array->elements, INT_VAL(ipParseBlock(address, d, address->length - 1, radix)));
+  pop();
 }
 
 static bool urlIsAbsolute(ObjInstance* url) {
@@ -47,19 +73,42 @@ NATIVE_METHOD(IPAddress, __init__) {
   assertArgCount("IPAddress::__init__(address)", 1, argCount);
   assertArgIsString("IPAddress::__init__(address)", args, 0);
   ObjInstance* self = AS_INSTANCE(receiver);
-  if (!ipIsV4(AS_STRING(args[0]))) { 
-    runtimeError("Invalid IPv4 address specified.");
+  ObjString* address = AS_STRING(args[0]);
+  int version = -1;
+  if (ipIsV4(address)) version = 4;
+  else if (ipIsV6(address)) version = 6;
+  else {
+    runtimeError("Invalid IP address specified.");
     RETURN_NIL;
   }
-  setObjProperty(self, "address", args[0]); 
+  setObjProperty(self, "address", args[0]);
+  setObjProperty(self, "version", INT_VAL(version));
   RETURN_OBJ(self);
 }
+
 
 NATIVE_METHOD(IPAddress, isIPV4) {
   assertArgCount("IPAddress::isIPV4()", 0, argCount);
   ObjInstance* self = AS_INSTANCE(receiver);
-  Value address = getObjProperty(self, "address");
-  RETURN_BOOL(ipIsV4(AS_STRING(address)));
+  int version = AS_INT(getObjProperty(self, "version"));
+  RETURN_BOOL(version == 4);
+}
+
+NATIVE_METHOD(IPAddress, isIPV6) {
+  assertArgCount("IPAddress::isIPV6()", 0, argCount);
+  ObjInstance* self = AS_INSTANCE(receiver);
+  int version = AS_INT(getObjProperty(self, "version"));
+  RETURN_BOOL(version == 6);
+}
+
+NATIVE_METHOD(IPAddress, toArray) {
+  assertArgCount("IPAddress::toArray()", 0, argCount);
+  ObjInstance* self = AS_INSTANCE(receiver);
+  ObjString* address = AS_STRING(getObjProperty(self, "address"));
+  int version = AS_INT(getObjProperty(self, "version"));
+  ObjArray* array = newArray();
+  ipWriteByteArray(array, address, version == 6 ? 16 : 10);
+  RETURN_OBJ(array);
 }
 
 NATIVE_METHOD(IPAddress, __str__) {
@@ -229,6 +278,8 @@ void registerNetworkPackage() {
   bindSuperclass(ipAddressClass, vm.objectClass);
   DEF_METHOD(ipAddressClass, IPAddress, __init__, 1);
   DEF_METHOD(ipAddressClass, IPAddress, isIPV4, 0);
+  DEF_METHOD(ipAddressClass, IPAddress, isIPV6, 0);
+  DEF_METHOD(ipAddressClass, IPAddress, toArray, 0);
   DEF_METHOD(ipAddressClass, IPAddress, __str__, 0);
 
   vm.currentNamespace = vm.rootNamespace;
