@@ -1,4 +1,5 @@
 using luminique::std::network::IPAddress;
+using luminique::std::network::Domain;
 
 const ip = IPAddress("127.0.0.1");
 println("IP Address: ${ip}");
@@ -11,3 +12,16 @@ println("IP2 Address: ${ip2}");
 println("IP2 is v6: ${ip2.isIPV6()}");
 print("IP2 to array: ");
 println(ip2.toArray());
+
+println("");
+
+const domain = Domain("google.com");
+print("Domain name: ");
+println(str(domain));
+print("Domain IPs: ");
+println(domain.ipAddresses());
+
+const ip3 = IPAddress("204.15.11.70");
+println("IP3 address: ${ip3}");
+print("IP3 host: ");
+println(ip3.domain());
