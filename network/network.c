@@ -10,6 +10,15 @@
 #include "../value/value.h"
 #include "../vm/vm.h"
 
+
+static bool ipIsV4(ObjString* address) {
+  unsigned char b1, b2, b3, b4;
+  if (4 != sscanf(address->chars, "%hhu.%hhu.%hhu.%hhu", &b1, &b2, &b3, &b4)) return false;
+  char buf[16];
+  snprintf(buf, 16, "%hhu.%hhu.%hhu.%hhu", b1, b2, b3, b4);
+  return !strcmp(address->chars, buf);
+}
+
 static bool urlIsAbsolute(ObjInstance* url) {
   ObjString* host = AS_STRING(getObjProperty(url, "host"));
   return host->length > 0;
@@ -32,6 +41,32 @@ static ObjString* urlToString(ObjInstance* url) {
   if (query->length > 0) urlString = formattedString("%s&%s", urlString->chars, query->chars);
   if (fragment->length > 0) urlString = formattedString("%s#%s", urlString->chars, fragment->chars);
   return urlString;
+}
+
+NATIVE_METHOD(IPAddress, __init__) {
+  assertArgCount("IPAddress::__init__(address)", 1, argCount);
+  assertArgIsString("IPAddress::__init__(address)", args, 0);
+  ObjInstance* self = AS_INSTANCE(receiver);
+  if (!ipIsV4(AS_STRING(args[0]))) { 
+    runtimeError("Invalid IPv4 address specified.");
+    RETURN_NIL;
+  }
+  setObjProperty(self, "address", args[0]); 
+  RETURN_OBJ(self);
+}
+
+NATIVE_METHOD(IPAddress, isIPV4) {
+  assertArgCount("IPAddress::isIPV4()", 0, argCount);
+  ObjInstance* self = AS_INSTANCE(receiver);
+  Value address = getObjProperty(self, "address");
+  RETURN_BOOL(ipIsV4(AS_STRING(address)));
+}
+
+NATIVE_METHOD(IPAddress, __str__) {
+  assertArgCount("IPAddress::__str__()", 0, argCount);
+  ObjInstance* self = AS_INSTANCE(receiver);
+  Value address = getObjProperty(self, "address");
+  RETURN_OBJ(AS_STRING(address));
 }
 
 NATIVE_METHOD(URL, __init__) {
@@ -188,6 +223,13 @@ void registerNetworkPackage() {
 
   ObjClass* urlMetaclass = urlClass->obj.klass;
   DEF_METHOD(urlMetaclass, URLClass, parse, 1);
+
+
+  ObjClass* ipAddressClass = defineNativeClass("IPAddress");
+  bindSuperclass(ipAddressClass, vm.objectClass);
+  DEF_METHOD(ipAddressClass, IPAddress, __init__, 1);
+  DEF_METHOD(ipAddressClass, IPAddress, isIPV4, 0);
+  DEF_METHOD(ipAddressClass, IPAddress, __str__, 0);
 
   vm.currentNamespace = vm.rootNamespace;
 }
