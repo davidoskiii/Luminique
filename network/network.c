@@ -19,6 +19,25 @@
 
 #define INVALID_SOCKET (socklen_t)(~0)
 
+typedef struct CURLResponse {
+    char* content;
+    size_t size;
+} CURLResponse;
+
+static size_t httpWriteResponse(void* contents, size_t size, size_t nmemb, void* userdata) {
+  size_t realsize = size * nmemb;
+  CURLResponse* mem = (CURLResponse*)userdata;
+
+  char* ptr = realloc(mem->content, mem->size + realsize + 1);
+  if (!ptr) return 0;
+
+  mem->content = ptr;
+  memcpy(&(mem->content[mem->size]), contents, realsize);
+  mem->size += realsize;
+  mem->content[mem->size] = 0;
+  return realsize;
+}
+
 static struct addrinfo* dnsGetDomainInfo(const char* domainName, int* status) {
   struct addrinfo hints, *result;
   void* ptr = NULL;
@@ -419,6 +438,32 @@ NATIVE_METHOD(HTTPClient, __init__) {
   RETURN_VAL(receiver);
 }
 
+NATIVE_METHOD(HTTPClient, get) {
+  assertArgCount("HTTPClient::get(url)", 1, argCount);
+  assertArgIsString("HTTPClient::get(url)", args, 0);
+  CURL* curl = curl_easy_init();
+  if (curl == NULL) {
+    runtimeError("Failed to initiate a GET request using CURL.");
+    RETURN_NIL;
+  }
+
+  ObjString* url = AS_STRING(args[0]);
+  CURLResponse curlResponse = { .content = malloc(0), .size = 0 };
+  curl_easy_setopt(curl, CURLOPT_URL, url->chars);
+  curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, httpWriteResponse);
+  curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void*)&curlResponse);
+  CURLcode curlCode = curl_easy_perform(curl);
+
+  if (curlCode != CURLE_OK) {
+    runtimeError("Failed to complete a GET request from URL.");
+    curl_easy_cleanup(curl);
+    RETURN_NIL;
+  }
+  curl_easy_cleanup(curl);
+  ObjString* response = copyString(curlResponse.content, curlResponse.size);
+  RETURN_OBJ(response);
+}
+
 NATIVE_METHOD(IPAddress, domain) {
   assertArgCount("IPAddress::domain", 0, argCount);
   ObjInstance* self = AS_INSTANCE(receiver);
@@ -723,6 +768,7 @@ void registerNetworkPackage() {
   ObjClass* httpClientClass = defineNativeClass("HTTPClient");
   bindSuperclass(httpClientClass, vm.objectClass);
   DEF_METHOD(httpClientClass, HTTPClient, __init__, 0);
+  DEF_METHOD(httpClientClass, HTTPClient, get, 1);
   DEF_METHOD(httpClientClass, HTTPClient, close, 0);
 
   vm.currentNamespace = vm.rootNamespace;
