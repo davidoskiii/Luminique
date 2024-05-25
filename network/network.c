@@ -51,7 +51,7 @@ static ObjInstance* httpCreateResponse(CURL* curl, CURLResponse curlResponse) {
 
   ObjInstance* httpResponse = newInstance(getNativeClass("luminique::std::network::http", "HTTPResponse"));
   push(OBJ_VAL(httpResponse));
-  setObjProperty(httpResponse, "content", OBJ_VAL(copyString(curlResponse.content, curlResponse.size)));
+  setObjProperty(httpResponse, "content", OBJ_VAL(copyString(curlResponse.content, (int)curlResponse.size)));
   setObjProperty(httpResponse, "contentType", OBJ_VAL(newString(contentType)));
   setObjProperty(httpResponse, "cookies", OBJ_VAL(httpCreateCookies(curl)));
   setObjProperty(httpResponse, "status", INT_VAL(statusCode));
@@ -381,6 +381,14 @@ static bool urlIsAbsolute(ObjInstance* url) {
   return host->length > 0;
 }
 
+static ObjString* urlRaw(Value value) {
+  if (IS_INSTANCE(value)) {
+    ObjInstance* url = AS_INSTANCE(value);
+    return AS_STRING(getObjProperty(url, "raw"));
+  }
+  else return AS_STRING(value);
+}
+
 static ObjString* urlToString(ObjInstance* url) {
   ObjString* scheme = AS_STRING(getObjProperty(url, "scheme"));
   ObjString* host = AS_STRING(getObjProperty(url, "host"));
@@ -527,14 +535,14 @@ NATIVE_METHOD(HTTPClient, __init__) {
 
 NATIVE_METHOD(HTTPClient, get) {
   assertArgCount("HTTPClient::get(url)", 1, argCount);
-  assertArgIsString("HTTPClient::get(url)", args, 0);
+  assertArgInstanceOfEither("HTTPClient::get(url)", args, 0, "luminique::std::lang", "String", "luminique::std::network", "URL");
   CURL* curl = curl_easy_init();
   if (curl == NULL) {
     runtimeError("Failed to initiate a GET request using CURL.");
     RETURN_NIL;
   }
 
-  ObjString* url = AS_STRING(args[0]);
+  ObjString* url = urlRaw(args[0]);
   CURLResponse curlResponse = { .content = malloc(0), .size = 0 };
   curl_easy_setopt(curl, CURLOPT_URL, url->chars);
   curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, httpWriteResponse);
@@ -553,33 +561,33 @@ NATIVE_METHOD(HTTPClient, get) {
 }
 
 NATIVE_METHOD(HTTPClient, post) {
-    assertArgCount("HTTPClient::post(url, data)", 2, argCount);
-    assertArgIsString("HTTPClient::post(url, data)", args, 0);
-    assertArgIsDictionary("HTTPClient::post(url, data)", args, 1);
-    CURL* curl = curl_easy_init();
-    if (curl == NULL) {
-      runtimeError("Failed to initiate a POST request using CURL.");
-      RETURN_NIL;
-    }
+  assertArgCount("HTTPClient::post(url, data)", 2, argCount);
+  assertArgInstanceOfEither("HTTPClient::post(url, data)", args, 0, "luminique::std::lang", "String", "luminique::std::network", "URL");
+  assertArgIsDictionary("HTTPClient::post(url, data)", args, 1);
+  CURL* curl = curl_easy_init();
+  if (curl == NULL) {
+    runtimeError("Failed to initiate a POST request using CURL.");
+    RETURN_NIL;
+  }
 
-    ObjString* url = AS_STRING(args[0]);
-    ObjDictionary* data = AS_DICTIONARY(args[1]);
-    CURLResponse curlResponse = { .content = malloc(0), .size = 0 };
-    curl_easy_setopt(curl, CURLOPT_URL, url->chars);
-    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, httpParsePostData(data)->chars);
-    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, httpWriteResponse);
-    curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void*)&curlResponse);
+  ObjString* url = urlRaw(args[0]);
+  ObjDictionary* data = AS_DICTIONARY(args[1]);
+  CURLResponse curlResponse = { .content = malloc(0), .size = 0 };
+  curl_easy_setopt(curl, CURLOPT_URL, url->chars);
+  curl_easy_setopt(curl, CURLOPT_POSTFIELDS, httpParsePostData(data)->chars);
+  curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, httpWriteResponse);
+  curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void*)&curlResponse);
 
-    CURLcode curlCode = curl_easy_perform(curl);
-    if (curlCode != CURLE_OK) {
-      runtimeError("Failed to complete a POST request from URL.");
-      curl_easy_cleanup(curl);
-      RETURN_NIL;
-    }
-
-    ObjInstance* httpResponse = httpCreateResponse(curl, curlResponse);
+  CURLcode curlCode = curl_easy_perform(curl);
+  if (curlCode != CURLE_OK) {
+    runtimeError("Failed to complete a POST request from URL.");
     curl_easy_cleanup(curl);
-    RETURN_OBJ(httpResponse);
+    RETURN_NIL;
+  }
+
+  ObjInstance* httpResponse = httpCreateResponse(curl, curlResponse);
+  curl_easy_cleanup(curl);
+  RETURN_OBJ(httpResponse);
 }
 
 NATIVE_METHOD(IPAddress, domain) {

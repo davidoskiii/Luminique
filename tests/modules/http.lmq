@@ -1,4 +1,5 @@
 using luminique::std::network::http::HTTPClient;
+using luminique::std::network::URL;
 
 const client = HTTPClient();
 print("Creating HTTP Client: ");
@@ -7,7 +8,7 @@ println(client);
 println("");
 
 println("Sending get request to example.com: ");
-const response = client.get("https://example.com");
+const response = client.get(URL.parse("https://example.com"));
 
 print("Status: ");
 println(response.status);
