@@ -717,6 +717,9 @@ void registerNetworkPackage() {
   setClassProperty(socketClass, "protoICMPV6", INT_VAL(IPPROTO_ICMPV6));
   setClassProperty(socketClass, "protoRAW", INT_VAL(IPPROTO_RAW));
 
+  ObjNamespace* httpNamespace = defineNativeNamespace("http", networkNamespace);
+  vm.currentNamespace = httpNamespace;
+
   ObjClass* httpClientClass = defineNativeClass("HTTPClient");
   bindSuperclass(httpClientClass, vm.objectClass);
   DEF_METHOD(httpClientClass, HTTPClient, __init__, 0);

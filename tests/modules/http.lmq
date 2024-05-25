@@ -1,0 +1,4 @@
+using luminique::std::network::http::HTTPClient;
+
+const client = HTTPClient();
+println(client);
