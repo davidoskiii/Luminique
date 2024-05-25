@@ -401,7 +401,7 @@ NATIVE_METHOD(Domain, ipAddresses) {
 }
 
 NATIVE_METHOD(Domain, __str__) {
-  assertArgCount("Domain::__str__(name)", 0, argCount);
+  assertArgCount("Domain::__str__()", 0, argCount);
   ObjInstance* self = AS_INSTANCE(receiver);
   ObjString* name = AS_STRING(getObjProperty(self, "name"));
   RETURN_OBJ(name);
@@ -413,8 +413,8 @@ NATIVE_METHOD(HTTPClient, close) {
   RETURN_NIL;
 }
 
-NATIVE_METHOD(HTTPClient, init) {
-  assertArgCount("HTTPClient::init()", 0, argCount);
+NATIVE_METHOD(HTTPClient, __init__) {
+  assertArgCount("HTTPClient::__init__()", 0, argCount);
   curl_global_init(CURL_GLOBAL_ALL);
   RETURN_VAL(receiver);
 }
@@ -719,8 +719,8 @@ void registerNetworkPackage() {
 
   ObjClass* httpClientClass = defineNativeClass("HTTPClient");
   bindSuperclass(httpClientClass, vm.objectClass);
+  DEF_METHOD(httpClientClass, HTTPClient, __init__, 0);
   DEF_METHOD(httpClientClass, HTTPClient, close, 0);
-  DEF_METHOD(httpClientClass, HTTPClient, init, 0);
 
   vm.currentNamespace = vm.rootNamespace;
 }
