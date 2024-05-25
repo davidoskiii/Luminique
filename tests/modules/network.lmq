@@ -7,7 +7,7 @@ println("IP is v4: ${ip.isIPV4()}");
 print("IP to array: ");
 println(ip.toArray());
 
-const ip2 = IPAddress("2001:0db8:85a3:0000:0000:8a2e:0370:7334");
+const ip2 = IPAddress("[2001:0db8:85a3:0000:0000:8a2e:0370:7334]:80");
 println("IP2 Address: ${ip2}");
 println("IP2 is v6: ${ip2.isIPV6()}");
 print("IP2 to array: ");
@@ -21,7 +21,7 @@ println(str(domain));
 print("Domain IPs: ");
 println(domain.ipAddresses());
 
-const ip3 = IPAddress("204.15.11.70");
+const ip3 = IPAddress("204.15.11.70:69");
 println("IP3 address: ${ip3}");
 print("IP3 host: ");
 println(ip3.domain());

@@ -1,4 +1,15 @@
 using luminique::std::network::Socket;
+using luminique::std::network::IPAddress;
 
 const socket = Socket(Socket.afINET, Socket.sockSTREAM, Socket.protoIP);
 println("Creating ${socket}");
+
+const ipAddress = IPAddress("93.184.216.34:80");
+
+println("Connecting Socket to IP address.");
+socket.connect(ipAddress);
+println("Send message 'GET / HTTP/1.1\\r\\nHost: example.com\\r\\n\\r\\n' through socket.");
+socket.send("GET / HTTP/1.1\r\nHost: example.com\r\n\r\n");
+println("Receive message: " + socket.receive());
+println("Closing socket...");
+socket.close();

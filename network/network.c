@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
 
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -15,7 +16,7 @@
 #include "../value/value.h"
 #include "../vm/vm.h"
 
-#define INVALID_SOCKET -1
+#define INVALID_SOCKET (socklen_t)(~0)
 
 static struct addrinfo* dnsGetDomainInfo(const char* domainName, int* status) {
   struct addrinfo hints, *result;
@@ -69,20 +70,185 @@ static ObjArray* dnsGetIPAddressesFromDomain(struct addrinfo* result) {
   return ipAddresses;
 }
 
-static bool ipIsV4(ObjString* address) {
+static bool isValidPort(const char* portStr) {
+  if (*portStr == '\0') {
+    return false;
+  }
+  
+  for (int i = 0; portStr[i] != '\0'; i++) {
+    if (!isdigit((unsigned char)portStr[i])) {
+      return false;
+    }
+  }
+  int port = atoi(portStr);
+  return port >= 0 && port <= 65535;
+}
+
+static bool isValidIPv4(const char* ipStr) {
   unsigned char b1, b2, b3, b4;
-  if (sscanf(address->chars, "%hhu.%hhu.%hhu.%hhu", &b1, &b2, &b3, &b4) != 4) return false;
+  if (sscanf(ipStr, "%hhu.%hhu.%hhu.%hhu", &b1, &b2, &b3, &b4) != 4) {
+    return false;
+  }
   char buffer[16];
-  snprintf(buffer, 16, "%hhu.%hhu.%hhu.%hhu", b1, b2, b3, b4);
-  return !strcmp(address->chars, buffer);
+  snprintf(buffer, sizeof(buffer), "%hhu.%hhu.%hhu.%hhu", b1, b2, b3, b4);
+  return !strcmp(ipStr, buffer);
+}
+
+static bool ipIsV4(ObjString* address) {
+  char ip[16];
+  const char* ipStr = address->chars;
+  const char* portStr = NULL;
+
+  char* colonPos = strchr(ipStr, ':');
+  if (colonPos) {
+    int ipLength = colonPos - ipStr;
+    if (ipLength >= sizeof(ip)) {
+      return false;
+    }
+    strncpy(ip, ipStr, ipLength);
+    ip[ipLength] = '\0';
+    portStr = colonPos + 1;
+  } else {
+    strncpy(ip, ipStr, sizeof(ip) - 1);
+    ip[sizeof(ip) - 1] = '\0';
+  }
+
+  if (!isValidIPv4(ip)) {
+    return false;
+  }
+
+  if (portStr && !isValidPort(portStr)) {
+    return false;
+  }
+
+  return true;
+}
+
+static bool isValidIPv6(const char* ipStr) {
+  unsigned short b1, b2, b3, b4, b5, b6, b7, b8;
+  if (sscanf(ipStr, "%04hx:%04hx:%04hx:%04hx:%04hx:%04hx:%04hx:%04hx", &b1, &b2, &b3, &b4, &b5, &b6, &b7, &b8) != 8) {
+    return false;
+  }
+  char buffer[40];
+  snprintf(buffer, sizeof(buffer), "%04hx:%04hx:%04hx:%04hx:%04hx:%04hx:%04hx:%04hx", b1, b2, b3, b4, b5, b6, b7, b8);
+  return !strcmp(ipStr, buffer);
 }
 
 static bool ipIsV6(ObjString* address) {
-  unsigned short b1, b2, b3, b4, b5, b6, b7, b8;
-  if (sscanf(address->chars, "%04hx:%04hx:%04hx:%04hx:%04hx:%04hx:%04hx:%04hx", &b1, &b2, &b3, &b4, &b5, &b6, &b7, &b8) != 8) return false;
-  char buffer[40];
-  snprintf(buffer, 40, "%04hx:%04hx:%04hx:%04hx:%04hx:%04hx:%04hx:%04hx", b1, b2, b3, b4, b5, b6, b7, b8);
-  return !strcmp(address->chars, buffer);
+  char ip[40];
+  const char* ipStr = address->chars;
+  const char* portStr = NULL;
+
+  if (ipStr[0] == '[') {
+    char* closingBracket = strchr(ipStr, ']');
+    if (!closingBracket) {
+      return false;
+    }
+    int ipLength = closingBracket - ipStr - 1;
+    if (ipLength <= 0 || ipLength >= sizeof(ip)) {
+      return false;
+    }
+    strncpy(ip, ipStr + 1, ipLength);
+    ip[ipLength] = '\0';
+
+    if (*(closingBracket + 1) == ':') {
+      portStr = closingBracket + 2;
+    } else if (*(closingBracket + 1) != '\0') {
+      return false;
+    }
+  } else {
+    strncpy(ip, ipStr, sizeof(ip) - 1);
+    ip[sizeof(ip) - 1] = '\0';
+  }
+
+  if (!isValidIPv6(ip)) {
+    return false;
+  }
+
+  if (portStr && !isValidPort(portStr)) {
+    return false;
+  }
+
+  return true;
+}
+
+static bool extractPort(const char* portStr, int* port) {
+  if (*portStr == '\0') {
+    return false;
+  }
+  for (int i = 0; portStr[i] != '\0'; i++) {
+    if (!isdigit((unsigned char)portStr[i])) {
+      return false;
+    }
+  }
+  *port = atoi(portStr);
+  return *port >= 0 && *port <= 65535;
+}
+
+static bool extractIPv6AndPort(const char* address, char* ip, int* port) {
+  const char* ipStr = address;
+  const char* portStr = NULL;
+
+  if (ipStr[0] == '[') {
+    const char* closingBracket = strchr(ipStr, ']');
+    if (!closingBracket) {
+      return false;
+    }
+    int ipLength = closingBracket - ipStr - 1;
+    if (ipLength <= 0 || ipLength >= 40) {
+      return false;
+    }
+    strncpy(ip, ipStr + 1, ipLength);
+    ip[ipLength] = '\0';
+
+    if (*(closingBracket + 1) == ':') {
+      portStr = closingBracket + 2;
+    } else if (*(closingBracket + 1) != '\0') {
+      return false;
+    }
+  } else {
+    strncpy(ip, ipStr, 39);
+    ip[39] = '\0';
+  }
+
+  if (!isValidIPv6(ip)) {
+    return false;
+  }
+
+  if (portStr && !extractPort(portStr, port)) {
+    return false;
+  }
+
+  return true;
+}
+
+static bool extractIPv4AndPort(const char* address, char* ip, int* port) {
+  const char* ipStr = address;
+  const char* portStr = NULL;
+  char* colonPos = strchr(ipStr, ':');
+
+  if (colonPos) {
+    int ipLength = colonPos - ipStr;
+    if (ipLength >= 16) {
+      return false;
+    }
+    strncpy(ip, ipStr, ipLength);
+    ip[ipLength] = '\0';
+    portStr = colonPos + 1;
+  } else {
+    strncpy(ip, ipStr, 15);
+    ip[15] = '\0';
+  }
+
+  if (!isValidIPv4(ip)) {
+    return false;
+  }
+
+  if (portStr && !extractPort(portStr, port)) {
+    return false;
+  }
+
+  return true;
 }
 
 static int ipParseBlock(ObjString* address, int startIndex, int endIndex, int radix) {
@@ -128,31 +294,84 @@ static ObjString* urlToString(ObjInstance* url) {
 }
 
 NATIVE_METHOD(Socket, __init__) {
-    assertArgCount("Socket::init(addressFamily, socketType, protocolType)", 3, argCount);
-    assertArgIsInt("Socket::init(addressFamily, socketType, protocolType)", args, 0);
-    assertArgIsInt("Socket::init(addressFamily, socketType, protocolType)", args, 1);
-    assertArgIsInt("Socket::init(addressFamily, socketType, protocolType)", args, 2);
+  assertArgCount("Socket::__init__(addressFamily, socketType, protocolType)", 3, argCount);
+  assertArgIsInt("Socket::__init__(addressFamily, socketType, protocolType)", args, 0);
+  assertArgIsInt("Socket::__init__(addressFamily, socketType, protocolType)", args, 1);
+  assertArgIsInt("Socket::__init__(addressFamily, socketType, protocolType)", args, 2);
 
-    int descriptor = socket(AS_INT(args[0]), AS_INT(args[1]), AS_INT(args[2]));
-    if (descriptor == INVALID_SOCKET) {
-      runtimeError("Socket creation failed...");
-      RETURN_NIL;
-    }
-    ObjInstance* self = AS_INSTANCE(receiver);
-    setObjProperty(self, "addressFamily", args[0]);
-    setObjProperty(self, "socketType", args[1]);
-    setObjProperty(self, "protocolType", args[2]);
-    setObjProperty(self, "descriptor", INT_VAL(descriptor));
-    RETURN_OBJ(self);
+  socklen_t descriptor = socket(AS_INT(args[0]), AS_INT(args[1]), AS_INT(args[2]));
+  if (descriptor == INVALID_SOCKET) {
+    runtimeError("Socket creation failed...");
+    RETURN_NIL;
+  }
+  ObjInstance* self = AS_INSTANCE(receiver);
+  setObjProperty(self, "addressFamily", args[0]);
+  setObjProperty(self, "socketType", args[1]);
+  setObjProperty(self, "protocolType", args[2]);
+  setObjProperty(self, "descriptor", INT_VAL(descriptor));
+  RETURN_OBJ(self);
+}
+
+NATIVE_METHOD(Socket, close) {
+  assertArgCount("Socket::close()", 0, argCount);
+  ObjInstance* self = AS_INSTANCE(receiver);
+  int descriptor = AS_INT(getObjProperty(self, "descriptor"));
+  close(descriptor);
+  RETURN_NIL;
+}
+
+NATIVE_METHOD(Socket, connect) { 
+  assertArgCount("Socket::connect(ipAddress)", 1, argCount);
+  assertObjInstanceOfClass("Socket::connect(IPAddress)", args[0], "luminique::std::network", "IPAddress", 0);
+  ObjInstance* self = AS_INSTANCE(receiver);
+  ObjInstance* ipAddress = AS_INSTANCE(args[0]);
+
+  struct sockaddr_in socketAddress = { 0 };
+  ObjString* ipString = AS_STRING(getObjProperty(ipAddress, "address"));
+  socketAddress.sin_family = AF_INET;
+  socketAddress.sin_port = htons(AS_INT(getObjProperty(ipAddress, "port")));
+
+  if (inet_pton(AF_INET, ipString->chars, &socketAddress.sin_addr) <= 0) {
+    runtimeError("Invalid socket address provided.");
+    RETURN_NIL;
+  }
+
+  int descriptor = AS_INT(getObjProperty(self, "descriptor")); 
+  if (connect(descriptor, (struct sockaddr*)&socketAddress, sizeof(socketAddress)) < 0) {
+    runtimeError("Socket connection failed.");
+  }
+  RETURN_NIL;
+}
+
+NATIVE_METHOD(Socket, receive) {
+  assertArgCount("Socket::receive()", 0, argCount);
+  ObjInstance* self = AS_INSTANCE(receiver);
+  int descriptor = AS_INT(getObjProperty(self, "descriptor"));
+  char message[UINT8_MAX] = "";
+  if (recv(descriptor, message, UINT8_MAX, 0) < 0) {
+    runtimeError("Failed to receive message from socket.");
+    RETURN_NIL;
+  }
+  RETURN_STRING(message, (int)strlen(message));
+}
+
+NATIVE_METHOD(Socket, send) {
+  assertArgCount("Socket::send(message)", 1, argCount);
+  assertArgIsString("Socket::send(message)", args, 0);
+  ObjInstance* self = AS_INSTANCE(receiver);
+  ObjString* message = AS_STRING(args[0]);
+  int descriptor = AS_INT(getObjProperty(self, "descriptor"));
+  if (send(descriptor, message->chars, message->length, 0) < 0) runtimeError("Failed to send message to socket.");
+  RETURN_NIL;
 }
 
 NATIVE_METHOD(Socket, __str__) {
-    assertArgCount("Socket::__str__()", 0, argCount);
-    ObjInstance* self = AS_INSTANCE(receiver);
-    Value addressFamily = getObjProperty(self, "addressFamily");
-    Value socketType = getObjProperty(self, "socketType");
-    Value protocolType = getObjProperty(self, "protocolType");
-    RETURN_STRING_FMT("Socket - AddressFamily: %d, SocketType: %d, ProtocolType: %d", AS_INT(addressFamily), AS_INT(socketType), AS_INT(protocolType));
+  assertArgCount("Socket::__str__()", 0, argCount);
+  ObjInstance* self = AS_INSTANCE(receiver);
+  Value addressFamily = getObjProperty(self, "addressFamily");
+  Value socketType = getObjProperty(self, "socketType");
+  Value protocolType = getObjProperty(self, "protocolType");
+  RETURN_STRING_FMT("Socket - AddressFamily: %d, SocketType: %d, ProtocolType: %d", AS_INT(addressFamily), AS_INT(socketType), AS_INT(protocolType));
 }
 
 NATIVE_METHOD(Domain, __init__) {
@@ -207,17 +426,28 @@ NATIVE_METHOD(IPAddress, __init__) {
   ObjInstance* self = AS_INSTANCE(receiver);
   ObjString* address = AS_STRING(args[0]);
   int version = -1;
-  if (ipIsV4(address)) version = 4;
-  else if (ipIsV6(address)) version = 6;
-  else {
+  int port = -1;
+  char ip[40];
+
+  if (extractIPv4AndPort(address->chars, ip, &port)) {
+    version = 4;
+  } else if (extractIPv6AndPort(address->chars, ip, &port)) {
+    version = 6;
+  } else {
     runtimeError("Invalid IP address specified.");
     RETURN_NIL;
   }
-  setObjProperty(self, "address", args[0]);
+
+  setObjProperty(self, "address", OBJ_VAL(copyString(ip, strlen(ip))));
   setObjProperty(self, "version", INT_VAL(version));
+  if (port != -1) {
+    setObjProperty(self, "port", INT_VAL(port));
+  } else {
+    setObjProperty(self, "port", INT_VAL(80));
+  }
+
   RETURN_OBJ(self);
 }
-
 
 NATIVE_METHOD(IPAddress, isIPV4) {
   assertArgCount("IPAddress::isIPV4()", 0, argCount);
@@ -243,12 +473,36 @@ NATIVE_METHOD(IPAddress, toArray) {
   RETURN_OBJ(array);
 }
 
+
 NATIVE_METHOD(IPAddress, __str__) {
   assertArgCount("IPAddress::__str__()", 0, argCount);
   ObjInstance* self = AS_INSTANCE(receiver);
-  Value address = getObjProperty(self, "address");
-  RETURN_OBJ(AS_STRING(address));
+  Value addressValue = getObjProperty(self, "address");
+  Value portValue = getObjProperty(self, "port");
+
+  if (IS_STRING(addressValue)) {
+    ObjString* address = AS_STRING(addressValue);
+    char* ipAddress = address->chars;
+
+    if (ipIsV4(address) && AS_NUMBER(portValue) == 80) {
+      RETURN_OBJ(copyString(ipAddress, address->length));
+    } else if (ipIsV4(address)) {
+      char buffer[40];
+      snprintf(buffer, sizeof(buffer), "%s:%d", ipAddress, AS_INT(portValue));
+      RETURN_OBJ(copyString(buffer, strlen(buffer)));
+    } else if (ipIsV6(address) && AS_NUMBER(portValue) == 80) {
+      RETURN_OBJ(copyString(ipAddress, address->length));
+    } else if (ipIsV6(address)) {
+      char buffer[50];
+      snprintf(buffer, sizeof(buffer), "[%s]:%d", ipAddress, AS_INT(portValue));
+      RETURN_OBJ(copyString(buffer, strlen(buffer)));
+    }
+  } else {
+    runtimeError("Address must be a string.");
+  }
+  RETURN_NIL;
 }
+
 
 NATIVE_METHOD(URL, __init__) {
   assertArgCount("URL::__init__(scheme, host, port, path, query, fragment)", 6, argCount);
@@ -424,6 +678,10 @@ void registerNetworkPackage() {
   ObjClass* socketClass = defineNativeClass("Socket");
   bindSuperclass(socketClass, vm.objectClass);
   DEF_METHOD(socketClass, Socket, __init__, 3);
+  DEF_METHOD(socketClass, Socket, close, 0);
+  DEF_METHOD(socketClass, Socket, connect, 1);
+  DEF_METHOD(socketClass, Socket, receive, 0);
+  DEF_METHOD(socketClass, Socket, send, 1);
   DEF_METHOD(socketClass, Socket, __str__, 0);
 
   ObjClass* socketMetaclass = socketClass->obj.klass;
