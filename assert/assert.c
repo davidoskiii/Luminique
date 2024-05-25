@@ -103,6 +103,13 @@ void assertArgIsMethod(const char* method, Value* args, int index) {
   }
 }
 
+void assertArgInstanceOfEither(const char* method, Value* args, int index, const char* namespaceName, const char* className, const char* namespaceName2, const char* className2) {
+  if (!isObjInstanceOf(args[index], getNativeClass(namespaceName, className)) && !isObjInstanceOf(args[index], getNativeClass(namespaceName2, className2))) {
+    runtimeError("method %s expects argument %d to be an instance of class %s or %s but got %s.", method, index + 1, className, className2, getObjClass(args[index])->name->chars);
+    exit(70);
+  }   
+}
+
 void assertIntWithinRange(const char* method, int value, int min, int max, int index){
   if (value < min || value > max) {
     runtimeError("Method %s expects argument %d to be an integer within range %d to %d but got %d.", method, index + 1, min, max, value);
