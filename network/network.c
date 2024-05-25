@@ -7,6 +7,7 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <netdb.h>
+#include <curl/curl.h>
 
 #include "network.h"
 #include "../assert/assert.h"
@@ -406,6 +407,18 @@ NATIVE_METHOD(Domain, __str__) {
   RETURN_OBJ(name);
 }
 
+NATIVE_METHOD(HTTPClient, close) {
+  assertArgCount("HTTPClient::close()", 0, argCount);
+  curl_global_cleanup();
+  RETURN_NIL;
+}
+
+NATIVE_METHOD(HTTPClient, init) {
+  assertArgCount("HTTPClient::init()", 0, argCount);
+  curl_global_init(CURL_GLOBAL_ALL);
+  RETURN_VAL(receiver);
+}
+
 NATIVE_METHOD(IPAddress, domain) {
   assertArgCount("IPAddress::domain", 0, argCount);
   ObjInstance* self = AS_INSTANCE(receiver);
@@ -703,6 +716,11 @@ void registerNetworkPackage() {
   setClassProperty(socketClass, "protoUDP", INT_VAL(IPPROTO_UDP));
   setClassProperty(socketClass, "protoICMPV6", INT_VAL(IPPROTO_ICMPV6));
   setClassProperty(socketClass, "protoRAW", INT_VAL(IPPROTO_RAW));
+
+  ObjClass* httpClientClass = defineNativeClass("HTTPClient");
+  bindSuperclass(httpClientClass, vm.objectClass);
+  DEF_METHOD(httpClientClass, HTTPClient, close, 0);
+  DEF_METHOD(httpClientClass, HTTPClient, init, 0);
 
   vm.currentNamespace = vm.rootNamespace;
 }
