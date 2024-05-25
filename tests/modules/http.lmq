@@ -4,5 +4,41 @@ const client = HTTPClient();
 print("Creating HTTP Client: ");
 println(client);
 
+println("");
+
 println("Sending get request to example.com: ");
-println(client.get("https://example.com"));
+const response = client.get("https://example.com");
+
+print("Status: ");
+println(response.status);
+
+print("Cookies: ");
+println(response.cookies);
+
+print("Content Type: ");
+println(response.contentType);
+
+println("Content: ");
+println(response.content);
+
+println("Sending post request to httpbin.com: ");
+
+const dict = {
+  "name": "Ordland",
+  "age": 34,
+  "location": "United States"
+};
+
+const response2 = client.post("http://mockbin.com/request", dict);
+
+print("Status: ");
+println(response2.status);
+
+print("Cookies: ");
+println(response2.cookies);
+
+print("Content Type: ");
+println(response2.contentType);
+
+println("Content: ");
+println(response2.content);

@@ -20,9 +20,96 @@
 #define INVALID_SOCKET (socklen_t)(~0)
 
 typedef struct CURLResponse {
-    char* content;
-    size_t size;
+  char* content;
+  size_t size;
 } CURLResponse;
+
+static ObjArray* httpCreateCookies(CURL* curl) {
+  struct curl_slist* cookies = NULL;
+  curl_easy_getinfo(curl, CURLINFO_COOKIELIST, &cookies);
+  ObjArray* cookieArray = newArray();
+  if (cookies) {
+    push(OBJ_VAL(cookieArray));
+    struct curl_slist* cookieNode = cookies;
+    while (cookieNode) {
+      writeValueArray(&cookieArray->elements, OBJ_VAL(newString(cookieNode->data)));
+      cookieNode = cookieNode->next;
+    }
+    curl_slist_free_all(cookies);
+    pop();
+  }
+  return cookieArray;
+}
+
+
+static ObjInstance* httpCreateResponse(CURL* curl, CURLResponse curlResponse) {
+  long statusCode;
+  curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &statusCode);
+
+  char* contentType;
+  curl_easy_getinfo(curl, CURLINFO_CONTENT_TYPE, &contentType);
+
+  ObjInstance* httpResponse = newInstance(getNativeClass("luminique::std::network::http", "HTTPResponse"));
+  push(OBJ_VAL(httpResponse));
+  setObjProperty(httpResponse, "content", OBJ_VAL(copyString(curlResponse.content, curlResponse.size)));
+  setObjProperty(httpResponse, "contentType", OBJ_VAL(newString(contentType)));
+  setObjProperty(httpResponse, "cookies", OBJ_VAL(httpCreateCookies(curl)));
+  setObjProperty(httpResponse, "status", INT_VAL(statusCode));
+  pop();
+  return httpResponse;
+}
+
+static ObjString* httpParsePostData(ObjDictionary* dict) {
+  if (dict->count == 0) return newString("");
+  else {
+    char string[UINT8_MAX] = "";
+    size_t offset = 0;
+    int startIndex = 0;
+
+    for (int i = 0; i < dict->capacity; i++) {
+      ObjEntry* entry = &dict->entries[i];
+      if (IS_UNDEFINED(entry->key)) continue;
+      Value key = entry->key;
+      char* keyChars = valueToString(key);
+      size_t keyLength = strlen(keyChars);
+      Value value = entry->value;
+      char* valueChars = valueToString(value);
+      size_t valueLength = strlen(valueChars);
+
+      memcpy(string + offset, keyChars, keyLength);
+      offset += keyLength;
+      memcpy(string + offset, "=", 1);
+      offset += 1;
+      memcpy(string + offset, valueChars, valueLength);
+      offset += valueLength;
+      startIndex = i + 1;
+      break;
+    }
+
+    for (int i = startIndex; i < dict->capacity; i++) {
+      ObjEntry* entry = &dict->entries[i];
+      if (IS_UNDEFINED(entry->key)) continue;
+      Value key = entry->key;
+      char* keyChars = valueToString(key);
+      size_t keyLength = strlen(keyChars);
+      Value value = entry->value;
+      char* valueChars = valueToString(value);
+      size_t valueLength = strlen(valueChars);
+
+      memcpy(string + offset, "&", 1);
+      offset += 1;
+      memcpy(string + offset, keyChars, keyLength);
+      offset += keyLength;
+      memcpy(string + offset, "=", 1);
+      offset += 1;
+      memcpy(string + offset, valueChars, valueLength);
+      offset += valueLength;
+    }
+
+    string[offset] = '\0';
+    return copyString(string, (int)offset + 1);
+  }
+}
 
 static size_t httpWriteResponse(void* contents, size_t size, size_t nmemb, void* userdata) {
   size_t realsize = size * nmemb;
@@ -452,16 +539,47 @@ NATIVE_METHOD(HTTPClient, get) {
   curl_easy_setopt(curl, CURLOPT_URL, url->chars);
   curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, httpWriteResponse);
   curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void*)&curlResponse);
-  CURLcode curlCode = curl_easy_perform(curl);
 
+  CURLcode curlCode = curl_easy_perform(curl);
   if (curlCode != CURLE_OK) {
     runtimeError("Failed to complete a GET request from URL.");
     curl_easy_cleanup(curl);
     RETURN_NIL;
   }
+
+  ObjInstance* httpResponse = httpCreateResponse(curl, curlResponse);
   curl_easy_cleanup(curl);
-  ObjString* response = copyString(curlResponse.content, curlResponse.size);
-  RETURN_OBJ(response);
+  RETURN_OBJ(httpResponse);
+}
+
+NATIVE_METHOD(HTTPClient, post) {
+    assertArgCount("HTTPClient::post(url, data)", 2, argCount);
+    assertArgIsString("HTTPClient::post(url, data)", args, 0);
+    assertArgIsDictionary("HTTPClient::post(url, data)", args, 1);
+    CURL* curl = curl_easy_init();
+    if (curl == NULL) {
+      runtimeError("Failed to initiate a POST request using CURL.");
+      RETURN_NIL;
+    }
+
+    ObjString* url = AS_STRING(args[0]);
+    ObjDictionary* data = AS_DICTIONARY(args[1]);
+    CURLResponse curlResponse = { .content = malloc(0), .size = 0 };
+    curl_easy_setopt(curl, CURLOPT_URL, url->chars);
+    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, httpParsePostData(data)->chars);
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, httpWriteResponse);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void*)&curlResponse);
+
+    CURLcode curlCode = curl_easy_perform(curl);
+    if (curlCode != CURLE_OK) {
+      runtimeError("Failed to complete a POST request from URL.");
+      curl_easy_cleanup(curl);
+      RETURN_NIL;
+    }
+
+    ObjInstance* httpResponse = httpCreateResponse(curl, curlResponse);
+    curl_easy_cleanup(curl);
+    RETURN_OBJ(httpResponse);
 }
 
 NATIVE_METHOD(IPAddress, domain) {
@@ -770,6 +888,10 @@ void registerNetworkPackage() {
   DEF_METHOD(httpClientClass, HTTPClient, __init__, 0);
   DEF_METHOD(httpClientClass, HTTPClient, get, 1);
   DEF_METHOD(httpClientClass, HTTPClient, close, 0);
+  DEF_METHOD(httpClientClass, HTTPClient, post, 2);
+
+  ObjClass* httpResponseClass = defineNativeClass("HTTPResponse");
+  bindSuperclass(httpResponseClass, vm.objectClass);
 
   vm.currentNamespace = vm.rootNamespace;
 }
