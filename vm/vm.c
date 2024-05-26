@@ -1069,11 +1069,11 @@ InterpretResult run() {
           return INTERPRET_RUNTIME_ERROR;
         }
 
-        ObjNamespace* namespace = AS_NAMESPACE(peek(0));
+        ObjNamespace* namespace_ = AS_NAMESPACE(peek(0));
         ObjString* name = READ_STRING();
         Value value;
 
-        if (tableGet(&namespace->values, name, &value)) {
+        if (tableGet(&namespace_->values, name, &value)) {
           pop();
           push(value);
           break;
@@ -1140,10 +1140,8 @@ InterpretResult run() {
       }
       case OP_GET_SUBSCRIPT: {
         if (IS_INT(peek(0))) {
-          int index = AS_INT(peek(0));
-
+          int index = AS_INT(pop());
           if (IS_STRING(peek(0))) {
-            pop();
             ObjString* string = AS_STRING(pop());
             if (index < 0 || index >= string->length) {
               ObjClass* exceptionClass = getNativeClass("luminique::std::lang", "IndexOutOfBoundsException");
@@ -1154,7 +1152,6 @@ InterpretResult run() {
               push(OBJ_VAL(element));
             }
           } else if (IS_ARRAY(peek(0))) {
-            pop();
             ObjArray* array = AS_ARRAY(pop());
 
             if (index < 0 || index >= array->elements.count) {

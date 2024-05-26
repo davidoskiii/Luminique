@@ -31,7 +31,7 @@ void initNativePackage(const char* filePath);
 void loadSourceFile(const char* filePath);
 void defineNativeFunction(const char* name, int arity, NativeFunction functionion);
 void defineNativeMethod(ObjClass* klass, const char* name, int arity, NativeMethod method);
-void defineNativeConstant(const char* name, Value value);
+void defineNativeConstant(ObjNamespace* namespace_, const char* name, Value value);
 ObjNamespace* defineNativeNamespace(const char* name, ObjNamespace* enclosing);
 ObjClass* defineNativeClass(const char* name);
 ObjClass* getNativeClass(const char* namespaceName, const char* className);

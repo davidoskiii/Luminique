@@ -431,11 +431,12 @@ NATIVE_FUNCTION(odd) {
 
 void registerMathPackage() {
   ObjNamespace* mathNamespace = defineNativeNamespace("math", vm.stdNamespace);
-  vm.currentNamespace = mathNamespace;
 
-  defineNativeConstant("pi", NUMBER_VAL(M_PI));
-  defineNativeConstant("inf", NUMBER_VAL(INFINITY));
-  defineNativeConstant("e", NUMBER_VAL(M_E));
+  defineNativeConstant(mathNamespace, "pi", NUMBER_VAL(M_PI));
+  defineNativeConstant(mathNamespace, "inf", NUMBER_VAL(INFINITY));
+  defineNativeConstant(mathNamespace, "e", NUMBER_VAL(M_E));
+
+  vm.currentNamespace = mathNamespace;
 
   // Trigonometric functions
   DEF_FUNCTION(sin, 1);

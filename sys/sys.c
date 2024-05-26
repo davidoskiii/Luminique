@@ -12,12 +12,10 @@
 #include "../value/value.h"
 #include "../vm/vm.h"
 
-ObjArray* argvArray() {
-  ObjArray* argv = newArray();
+static void argvArray(ObjArray* array) {
   for (int i = 0; i < vm.argc; i++) {
-    writeValueArray(&argv->elements, OBJ_VAL(copyString(vm.argv[i], strlen(vm.argv[i]))));
+    writeValueArray(&array->elements, OBJ_VAL(newString(vm.argv[i])));
   }
-  return argv;
 }
 
 NATIVE_FUNCTION(exit) {
@@ -120,10 +118,12 @@ NATIVE_FUNCTION(platform) {
 
 void registerSysPackage() {
   ObjNamespace* sysNamespace = defineNativeNamespace("sys", vm.stdNamespace);
-  vm.currentNamespace = sysNamespace;
 
-  defineNativeConstant("argc", INT_VAL(vm.argc));
-  defineNativeConstant("argv", OBJ_VAL(argvArray()));
+  defineNativeConstant(sysNamespace, "argc", INT_VAL(vm.argc));
+  ObjArray* array = newArray();
+  argvArray(array);
+  defineNativeConstant(sysNamespace, "argv", OBJ_VAL(array));
+  vm.currentNamespace = sysNamespace;
 
   DEF_FUNCTION(exit, -1);
   DEF_FUNCTION(shell, 1);

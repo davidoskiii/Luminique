@@ -43,9 +43,13 @@ void defineNativeMethod(ObjClass* klass, const char* name, int arity, NativeMeth
   pop();
 }
 
-void defineNativeConstant(const char* name, Value value) {
-  ObjString* constantName = copyString(name, (int)strlen(name));
-  tableSet(&vm.currentNamespace->values, constantName, value);
+void defineNativeConstant(ObjNamespace* namespace_, const char* name, Value value) {
+  ObjString* variableName = copyString(name, (int)strlen(name));
+  push(OBJ_VAL(variableName));
+  push(value);
+  tableSet(&namespace_->values, AS_STRING(vm.stack[0]), vm.stack[1]);
+  pop();
+  pop();
 }
 
 ObjNamespace* defineNativeNamespace(const char* name, ObjNamespace* enclosing) {

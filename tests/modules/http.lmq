@@ -1,6 +1,12 @@
 using luminique::std::network::http::HTTPClient;
 using luminique::std::network::URL;
 
+using luminique::std::sys;
+using luminique::std::sys;
+
+if (sys::argc > 3) throw Exception("You can only pass a max of 3 arguments to http.lmq");
+let flag = sys::argv[sys::argc - 1] == "--contents";
+
 const client = HTTPClient();
 print("Creating HTTP Client: ");
 println(client);
@@ -43,3 +49,74 @@ println(response2.contentType);
 
 println("Content: ");
 println(response2.content);
+
+println("");
+
+println("Sending put request to httpbin.com: ");
+
+const response3 = client.put("http://mockbin.com/request", {"id": 521, "name" : "Ordland", "age": 34, "location" : "United States"});
+
+print("Status: ");
+println(response3.status);
+
+print("Cookies: ");
+println(response3.cookies);
+
+print("Content Type: ");
+println(response3.contentType);
+
+println("Content: ");
+println(response3.content);
+
+println("");
+
+println("Sending delete request to httpbin.com: ");
+const response4 = client.delete("http://mockbin.com/request?id=521");
+
+print("Status: ");
+println(response4.status);
+
+print("Cookies: ");
+println(response4.cookies);
+
+print("Content Type: ");
+println(response4.contentType);
+
+println("Content: ");
+println(response4.content);
+
+println("");
+
+println("Sending patch request to httpbin.com: ");
+const response5 = client.patch("http://mockbin.com/request", {"name" : "Hall of Famer", "location" : "New Jersey, United States"});
+
+print("Status: ");
+println(response5.status);
+
+print("Cookies: ");
+println(response5.cookies);
+
+print("Content Type: ");
+println(response5.contentType);
+
+println("Content: ");
+println(response5.content);
+
+println("");
+
+println("Sending generic HTTP request to example.com: ");
+const response6 = client.send(HTTPClient.httpPOST, "http://mockbin.com/request", {"Accept": "*/*", "Content-Type": "application/json"}, {"name" : "Ordland", "age": 34, "location" : "United States"});
+
+print("Status: ");
+println(response6.status);
+
+print("Cookies: ");
+println(response6.cookies);
+
+print("Content Type: ");
+println(response6.contentType);
+
+println("Content: ");
+println(response6.content);
+
+println("");
