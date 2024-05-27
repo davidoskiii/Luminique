@@ -9,6 +9,7 @@ typedef struct {
   const char* start;
   const char* current;
   int line;
+  int column;
   int interpolationDepth;
 } Scanner;
 
@@ -18,6 +19,7 @@ void initScanner(const char* source) {
   scanner.start = source;
   scanner.current = source;
   scanner.line = 1;
+  scanner.column = 1;
 }
 
 static bool isAlpha(char c) {
@@ -49,6 +51,7 @@ static bool isAtEnd() {
 
 static char advance() {
   scanner.current++;
+  scanner.column++;
   return scanner.current[-1];
 }
 
@@ -69,12 +72,14 @@ static bool match(char expected) {
   if (isAtEnd()) return false;
   if (*scanner.current != expected) return false;
   scanner.current++;
+  scanner.column++;
   return true;
 }
 
 static bool matchNext(char expected) {
   if (isAtEnd() || peekNext() != expected) return false;
   scanner.current += 2;
+  scanner.column += 2;
   return true;
 }
 
@@ -84,6 +89,8 @@ static Token makeToken(TokenType type) {
   token.start = scanner.start;
   token.length = (int)(scanner.current - scanner.start);
   token.line = scanner.line;
+  token.startColumn = scanner.column - token.length;
+  token.endColumn = scanner.column - 1;
   return token;
 }
 
@@ -93,6 +100,8 @@ static Token errorToken(const char* message) {
   token.start = message;
   token.length = (int)strlen(message);
   token.line = scanner.line;
+  token.startColumn = scanner.column;
+  token.endColumn = scanner.column + token.length - 1;
   scanner.interpolationDepth = 0;
   return token;
 }
@@ -108,6 +117,7 @@ static void skipWhitespace() {
         break;
       case '\n':
         scanner.line++;
+        scanner.column = 1;
         advance();
         break;
       case '/':
@@ -121,10 +131,10 @@ static void skipWhitespace() {
           while (!(peek() == '*' && peekNext() == '/') && !isAtEnd()) {
             if (peek() == '\n') {
               scanner.line++;
+              scanner.column = 1;
             }
             advance();
           }
-
           advance();
           advance();
         } else {
@@ -136,7 +146,6 @@ static void skipWhitespace() {
     }
   }
 }
-
 
 static TokenType checkKeyword(int start, int length,
     const char* rest, TokenType type) {

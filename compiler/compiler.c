@@ -101,21 +101,9 @@ static Chunk* currentChunk() {
   return &current->function->chunk;
 }
 
-char* stripSpaces(char* str) {
-  if (str == NULL) return NULL;
-
-  int left = 0;
-  while (isspace(str[left])) left++;
-
-  int right = strlen(str) - 1;
-  while (right >= 0 && isspace(str[right])) right--;
-
-  int newLength = right - left + 1;
-
-  memmove(str, str + left, newLength);
-  str[newLength] = '\0';
-
-  return str;
+char* stripSpaces(const char* line) {
+  while (*line == ' ') line++;
+  return strdup(line);
 }
 
 char* stringPrecision(const char* str, int precision) {
@@ -165,37 +153,20 @@ char* tokenString(const Token* token) {
   return str;
 }
 
-char* arrowsTokenString(const Token* token, const char* line) {
-  if (token == NULL || token->length <= 0) {
-    return NULL;
+char* arrowsTokenString(Token* token, const char* line) {
+  int length = strlen(line);
+  char* arrows = (char*)malloc(length + 1);
+  memset(arrows, ' ', length);
+  arrows[length] = '\0';
+
+  int start = token->startColumn - 1;
+  int end = token->endColumn;
+  if (start < length) {
+    arrows[start] = '~';
   }
-
-  char* stoken = stringPrecision(token->start, token->length);
-  int pos = findPosition(line, stoken);
-
-  char* spaces = returnSpaces(pos);
-
-  char* arrows = (char*)malloc((pos + token->length + 1) * sizeof(char));
-  if (!arrows) {
-    return NULL;
+  for (int i = start + 1; i < end && i < length; i++) {
+    arrows[i] = '^';
   }
-
-  for (int i = 0; i < pos; i++) {
-    arrows[i] = ' ';
-  }
-
-  for (int i = pos; i < pos + token->length; i++) {
-    arrows[i] = '~';
-  }
-
-  if (token->length > 0) {
-    arrows[pos] = '^';
-  }
-
-  arrows[pos + token->length] = '\0';
-
-  free(stoken);
-  free(spaces);
 
   return arrows;
 }
@@ -222,9 +193,17 @@ static void errorAt(Token* token, const char* message) {
       line = stripSpaces(getLine(vm.currentModule->source, token->line));
     }
 
-    char* spaces = returnSpaces(digitsInNumber(token->line));
     char* arrows = arrowsTokenString(token, line);
-    fprintf(stderr, "   %d |    %s\n   %s |    \033[31;1m%s\033[0m\n   %s |\n", token->line, line, spaces, arrows, spaces);
+
+    int lineNumberWidth = digitsInNumber(token->line);
+    char* spaces = (char*)malloc(lineNumberWidth + 1);
+    memset(spaces, ' ', lineNumberWidth);
+    spaces[lineNumberWidth] = '\0';
+
+    fprintf(stderr, "   %d | %s\n   %s | \033[31;1m%s\033[0m\n   %s |\n", token->line, line, spaces, arrows, spaces);
+
+    free(arrows);
+    free(spaces);
   }
 
   parser.hadError = true;

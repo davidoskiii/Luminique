@@ -86,13 +86,12 @@ char* getLine(const char* source, int argNum) {
 }
 
 int digitsInNumber(int number) {
-  int count = 0;
-  do {
+  int digits = 0;
+  while (number != 0) {
     number /= 10;
-    ++count;
-  } while (number != 0);
-
-  return count;
+    digits++;
+  }
+  return digits;
 }
 
 char* returnSpaces(int count) {
