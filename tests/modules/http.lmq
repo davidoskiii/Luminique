@@ -25,8 +25,12 @@ println(response.cookies);
 print("Content Type: ");
 println(response.contentType);
 
-println("Content: ");
-println(response.content);
+if (flag) {
+  println("Content: ");
+  println(response.content);
+}
+
+println("");
 
 println("Sending post request to httpbin.com: ");
 
@@ -47,8 +51,10 @@ println(response2.cookies);
 print("Content Type: ");
 println(response2.contentType);
 
-println("Content: ");
-println(response2.content);
+if (flag) {
+  println("Content: ");
+  println(response2.content);
+}
 
 println("");
 
@@ -65,8 +71,10 @@ println(response3.cookies);
 print("Content Type: ");
 println(response3.contentType);
 
-println("Content: ");
-println(response3.content);
+if (flag) {
+  println("Content: ");
+  println(response3.content);
+}
 
 println("");
 
@@ -82,8 +90,10 @@ println(response4.cookies);
 print("Content Type: ");
 println(response4.contentType);
 
-println("Content: ");
-println(response4.content);
+if (flag) {
+  println("Content: ");
+  println(response4.content);
+}
 
 println("");
 
@@ -99,8 +109,10 @@ println(response5.cookies);
 print("Content Type: ");
 println(response5.contentType);
 
-println("Content: ");
-println(response5.content);
+if (flag) {
+  println("Content: ");
+  println(response5.content);
+}
 
 println("");
 
@@ -116,7 +128,9 @@ println(response6.cookies);
 print("Content Type: ");
 println(response6.contentType);
 
-println("Content: ");
-println(response6.content);
+if (flag) {
+  println("Content: ");
+  println(response6.content);
+}
 
 println("");
