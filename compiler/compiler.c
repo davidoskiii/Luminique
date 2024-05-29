@@ -162,10 +162,10 @@ char* arrowsTokenString(Token* token, const char* line) {
   int start = token->startColumn - 1;
   int end = token->endColumn;
   if (start < length) {
-    arrows[start] = '~';
+    arrows[start] = '^';
   }
   for (int i = start + 1; i < end && i < length; i++) {
-    arrows[i] = '^';
+    arrows[i] = '~';
   }
 
   return arrows;
