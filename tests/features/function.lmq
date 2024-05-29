@@ -12,13 +12,19 @@ println(isEven(10));
 print("Class of function 'isEven()' is: ");
 println(isEven.getClassName());
 
+println("");
+
 // variadic function
 
-function returnArgs(...args) {
-  return args;
+function sum(...args) {
+  let r = 0;
+  for (i : args) {
+    r = r + i;
+  }
+  return r;
 }
 
-println(returnArgs(1, 2, 3, 4, 5, 6, 7, 8));
+println("Sum of 1, 2, 3, 4, 5 is ${sum(1, 2, 3, 4, 5)}.\n");
 
 // closure 
 
@@ -90,9 +96,9 @@ println("Calling 'lambda2(2, 4)': ${lambda2(2, 4)}\n");
 println("Testing nonlocal return for lambda function: ");
 
 function nonlocal(closure) {
-    println("Start closure");
-    closure();
-    println("Local return");
+  println("Start closure");
+  closure();
+  println("Local return");
 }
 
 nonlocal( lambda () : (println("Nonlocal return"); return 0; ) );

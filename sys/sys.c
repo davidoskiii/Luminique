@@ -123,6 +123,7 @@ void registerSysPackage() {
   ObjArray* array = newArray();
   argvArray(array);
   defineNativeConstant(sysNamespace, "argv", OBJ_VAL(array));
+
   vm.currentNamespace = sysNamespace;
 
   DEF_FUNCTION(exit, -1);

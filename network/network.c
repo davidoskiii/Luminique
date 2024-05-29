@@ -22,7 +22,8 @@
 typedef struct CURLResponse {
   char* headers;
   char* content;
-  size_t size;
+  size_t hSize;
+  size_t cSize;
 } CURLResponse;
 
 typedef enum HTTPMethod {
@@ -36,18 +37,6 @@ typedef enum HTTPMethod {
   HTTP_TRACE,
   HTTP_CONNECT
 } HTTPMethod;
-
-char* httpMethods[9] = {
-  [HTTP_HEAD] = "HEAD",
-  [HTTP_GET] = "GET",
-  [HTTP_POST] = "POST",
-  [HTTP_PUT] = "PUT",
-  [HTTP_DELETE] = "DELETE",
-  [HTTP_PATCH] = "PATCH",
-  [HTTP_OPTIONS] = "OPTIONS",
-  [HTTP_TRACE] = "TRACE",
-  [HTTP_CONNECT] = "CONNECT"
-};
 
 static ObjArray* httpCreateCookies(CURL* curl) {
   struct curl_slist* cookies = NULL;
@@ -67,43 +56,49 @@ static ObjArray* httpCreateCookies(CURL* curl) {
 }
 
 
-static ObjInstance* httpCreateResponse(CURL* curl, CURLResponse curlResponse) {
+static ObjInstance* httpCreateResponse(ObjString* url, CURL* curl, CURLResponse curlResponse) {
   long statusCode;
-  curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &statusCode);
-
   char* contentType;
+  curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &statusCode);
   curl_easy_getinfo(curl, CURLINFO_CONTENT_TYPE, &contentType);
 
   ObjInstance* httpResponse = newInstance(getNativeClass("luminique::std::network::http", "HTTPResponse"));
   push(OBJ_VAL(httpResponse));
-  setObjProperty(httpResponse, "content", OBJ_VAL(copyString(curlResponse.content, (int)curlResponse.size)));
+  setObjProperty(httpResponse, "content", OBJ_VAL(copyString(curlResponse.content, (int)curlResponse.cSize)));
   setObjProperty(httpResponse, "contentType", OBJ_VAL(newString(contentType)));
   setObjProperty(httpResponse, "cookies", OBJ_VAL(httpCreateCookies(curl)));
-  setObjProperty(httpResponse, "headers", OBJ_VAL(newString(curlResponse.headers)));
+  setObjProperty(httpResponse, "headers", OBJ_VAL(copyString(curlResponse.headers, (int)curlResponse.hSize)));
   setObjProperty(httpResponse, "status", INT_VAL(statusCode));
+  setObjProperty(httpResponse, "url", OBJ_VAL(url));
   pop();
   return httpResponse;
 }
 
-static size_t httpCURLHeaders(char* header, size_t size, size_t nitems, void* userdata) {
+static size_t httpCURLHeaders(void* headers, size_t size, size_t nitems, void* userdata) {
   size_t realsize = size * nitems;
   if (nitems != 2) {
     CURLResponse* curlResponse = (CURLResponse*)userdata;
-    curlResponse->headers = header;
+    char* ptr = realloc(curlResponse->headers, curlResponse->hSize + realsize + 1);
+    if (!ptr) return 0;
+
+    curlResponse->headers = ptr;
+    memcpy(&(curlResponse->headers[curlResponse->hSize]), headers, realsize);
+    curlResponse->hSize += realsize;
+    curlResponse->headers[curlResponse->hSize] = 0;
   }
   return realsize;
 }
 
 static size_t httpCURLResponse(void* contents, size_t size, size_t nmemb, void* userdata) {
   size_t realsize = size * nmemb;
-  CURLResponse* mem = (CURLResponse*)userdata;
-  char* ptr = realloc(mem->content, mem->size + realsize + 1);
+  CURLResponse* curlResponse = (CURLResponse*)userdata;
+  char* ptr = realloc(curlResponse->content, curlResponse->cSize + realsize + 1);
   if (!ptr) return 0;
 
-  mem->content = ptr;
-  memcpy(&(mem->content[mem->size]), contents, realsize);
-  mem->size += realsize;
-  mem->content[mem->size] = 0;
+  curlResponse->content = ptr;
+  memcpy(&(curlResponse->content[curlResponse->cSize]), contents, realsize);
+  curlResponse->cSize += realsize;
+  curlResponse->content[curlResponse->cSize] = 0;
   return realsize;
 }
 
@@ -185,20 +180,6 @@ static ObjString* httpParsePostData(ObjDictionary* dict) {
     string[offset] = '\0';
     return copyString(string, (int)offset + 1);
   }
-}
-
-static size_t httpWriteResponse(void* contents, size_t size, size_t nmemb, void* userdata) {
-  size_t realsize = size * nmemb;
-  CURLResponse* mem = (CURLResponse*)userdata;
-
-  char* ptr = realloc(mem->content, mem->size + realsize + 1);
-  if (!ptr) return 0;
-
-  mem->content = ptr;
-  memcpy(&(mem->content[mem->size]), contents, realsize);
-  mem->size += realsize;
-  mem->content[mem->size] = 0;
-  return realsize;
 }
 
 static struct addrinfo* dnsGetDomainInfo(const char* domainName, int* status) {
@@ -465,23 +446,26 @@ static ObjString* httpRawURL(Value value) {
   else return AS_STRING(value);
 }
 
-static CURLcode httpSendRequest(Value* args, HTTPMethod method, CURL* curl, CURLResponse* curlResponse) {
-  ObjString* url = httpRawURL(args[0]);
+static CURLcode httpSendRequest(ObjString* url, HTTPMethod method, ObjDictionary* data, CURL* curl, CURLResponse* curlResponse) {
+  curlResponse->headers = malloc(0);
   curlResponse->content = malloc(0);
-  curlResponse->size = 0;
+  curlResponse->hSize = 0;
+  curlResponse->cSize = 0;
 
   curl_easy_setopt(curl, CURLOPT_URL, url->chars);
   if (method > HTTP_POST) {
-    curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, httpMapMethod(method));
+      curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, httpMapMethod(method));
   }
 
-  if (method == HTTP_POST || method == HTTP_PUT || method == HTTP_PATCH) {
-    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, httpParsePostData(AS_DICTIONARY(args[1]))->chars);
+  if (method == HTTP_HEAD) {
+      curl_easy_setopt(curl, CURLOPT_NOBODY, 1L);
+  }
+  else if (method == HTTP_POST || method == HTTP_PUT || method == HTTP_PATCH) {
+      curl_easy_setopt(curl, CURLOPT_POSTFIELDS, httpParsePostData(data)->chars);
   }
   else if (method == HTTP_OPTIONS) {
-    curl_easy_setopt(curl, CURLOPT_REQUEST_TARGET, "*");
+      curl_easy_setopt(curl, CURLOPT_REQUEST_TARGET, "*");
   }
-
   curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, httpCURLResponse);
   curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void*)curlResponse);
   curl_easy_setopt(curl, CURLOPT_HEADERFUNCTION, httpCURLHeaders);
@@ -630,22 +614,23 @@ NATIVE_METHOD(HTTPClient, close) {
 NATIVE_METHOD(HTTPClient, delete) {
   assertArgCount("HTTPClient::delete(url)", 1, argCount);
   assertArgInstanceOfEither("HTTPClient::delete(url)", args, 0, "luminique::std::lang", "String", "luminique::std::network", "URL");
-  CURL* curl = curl_easy_init();
+  ObjString* url = httpRawURL(args[0]);
 
+  CURL* curl = curl_easy_init();
   if (curl == NULL) {
     runtimeError("Failed to initiate a DELETE request using CURL.");
     RETURN_NIL;
   }
 
   CURLResponse curlResponse;
-  CURLcode curlCode = httpSendRequest(args, HTTP_DELETE, curl, &curlResponse);
+  CURLcode curlCode = httpSendRequest(url, HTTP_DELETE, NULL, curl, &curlResponse);
   if (curlCode != CURLE_OK) {
     runtimeError("Failed to complete a DELETE request from URL.");
     curl_easy_cleanup(curl);
     RETURN_NIL;
   }
 
-  ObjInstance* httpResponse = httpCreateResponse(curl, curlResponse);
+  ObjInstance* httpResponse = httpCreateResponse(url, curl, curlResponse);
   curl_easy_cleanup(curl);
   RETURN_OBJ(httpResponse);
 }
@@ -659,6 +644,8 @@ NATIVE_METHOD(HTTPClient, __init__) {
 NATIVE_METHOD(HTTPClient, get) {
   assertArgCount("HTTPClient::get(url)", 1, argCount);
   assertArgInstanceOfEither("HTTPClient::get(url)", args, 0, "luminique::std::lang", "String", "luminique::std::network", "URL");
+  ObjString* url = httpRawURL(args[0]);
+
   CURL* curl = curl_easy_init();
   if (curl == NULL) {
     runtimeError("Failed to initiate a GET request using CURL.");
@@ -666,14 +653,38 @@ NATIVE_METHOD(HTTPClient, get) {
   }
 
   CURLResponse curlResponse;
-  CURLcode curlCode = httpSendRequest(args, HTTP_GET, curl, &curlResponse);
+  CURLcode curlCode = httpSendRequest(url, HTTP_GET, NULL, curl, &curlResponse);
   if (curlCode != CURLE_OK) {
     runtimeError("Failed to complete a GET request from URL.");
     curl_easy_cleanup(curl);
     RETURN_NIL;
   }
 
-  ObjInstance* httpResponse = httpCreateResponse(curl, curlResponse);
+  ObjInstance* httpResponse = httpCreateResponse(url, curl, curlResponse);
+  curl_easy_cleanup(curl);
+  RETURN_OBJ(httpResponse);
+}
+
+NATIVE_METHOD(HTTPClient, head) {
+  assertArgCount("HTTPClient::head(url)", 1, argCount);
+  assertArgInstanceOfEither("HTTPClient::head(url)", args, 0, "luminique::std::lang", "String", "luminique::std::network", "URL");
+  ObjString* url = httpRawURL(args[0]);
+
+  CURL* curl = curl_easy_init();
+  if (curl == NULL) {
+    runtimeError("Failed to initiate a HEAD request using CURL.");
+    RETURN_NIL;
+  }
+
+  CURLResponse curlResponse;
+  CURLcode curlCode = httpSendRequest(url, HTTP_HEAD, NULL, curl, &curlResponse);
+  if (curlCode != CURLE_OK) {
+    runtimeError("Failed to complete a HEAD request from URL.");
+    curl_easy_cleanup(curl);
+    RETURN_NIL;
+  }
+
+  ObjInstance* httpResponse = httpCreateResponse(url, curl, curlResponse);
   curl_easy_cleanup(curl);
   RETURN_OBJ(httpResponse);
 }
@@ -682,6 +693,9 @@ NATIVE_METHOD(HTTPClient, post) {
   assertArgCount("HTTPClient::post(url, data)", 2, argCount);
   assertArgInstanceOfEither("HTTPClient::post(url, data)", args, 0, "luminique::std::lang", "String", "luminique::std::network", "URL");
   assertArgIsDictionary("HTTPClient::post(url, data)", args, 1);
+  ObjString* url = httpRawURL(args[0]);
+  ObjDictionary* data = AS_DICTIONARY(args[1]);
+
   CURL* curl = curl_easy_init();
   if (curl == NULL) {
     runtimeError("Failed to initiate a POST request using CURL.");
@@ -689,14 +703,14 @@ NATIVE_METHOD(HTTPClient, post) {
   }
 
   CURLResponse curlResponse;
-  CURLcode curlCode = httpSendRequest(args, HTTP_POST, curl, &curlResponse);
+  CURLcode curlCode = httpSendRequest(url, HTTP_POST, data, curl, &curlResponse);
   if (curlCode != CURLE_OK) {
     runtimeError("Failed to complete a POST request from URL.");
     curl_easy_cleanup(curl);
     RETURN_NIL;
   }
 
-  ObjInstance* httpResponse = httpCreateResponse(curl, curlResponse);
+  ObjInstance* httpResponse = httpCreateResponse(url, curl, curlResponse);
   curl_easy_cleanup(curl);
   RETURN_OBJ(httpResponse);
 }
@@ -704,22 +718,23 @@ NATIVE_METHOD(HTTPClient, post) {
 NATIVE_METHOD(HTTPClient, options) {
   assertArgCount("HTTPClient::options(url)", 1, argCount);
   assertArgInstanceOfEither("HTTPClient::options(url, data)", args, 0, "luminique::std::lang", "String", "luminique::std::network", "URL");
-  CURL* curl = curl_easy_init();
+  ObjString* url = httpRawURL(args[0]);
 
+  CURL* curl = curl_easy_init();
   if (curl == NULL) {
     runtimeError("Failed to initiate an OPTIONS request using CURL.");
     RETURN_NIL;
   }
 
   CURLResponse curlResponse;
-  CURLcode curlCode = httpSendRequest(args, HTTP_OPTIONS, curl, &curlResponse);
+  CURLcode curlCode = httpSendRequest(url, HTTP_OPTIONS, NULL, curl, &curlResponse);
   if (curlCode != CURLE_OK) {
     runtimeError("Failed to complete an OPTIONS request from URL.");
     curl_easy_cleanup(curl);
     RETURN_NIL;
   }
 
-  ObjInstance* httpResponse = httpCreateResponse(curl, curlResponse);
+  ObjInstance* httpResponse = httpCreateResponse(url, curl, curlResponse);
   curl_easy_cleanup(curl);
   RETURN_OBJ(httpResponse);
 }
@@ -728,6 +743,8 @@ NATIVE_METHOD(HTTPClient, patch) {
   assertArgCount("HTTPClient::patch(url, data)", 2, argCount);
   assertArgInstanceOfEither("HTTPClient::patch(url, data)", args, 0, "luminique::std::lang", "String", "luminique::std::network", "URL");
   assertArgIsDictionary("HTTPClient::patch(url, data)", args, 1);
+  ObjString* url = httpRawURL(args[0]);
+  ObjDictionary* data = AS_DICTIONARY(args[1]);
 
   CURL* curl = curl_easy_init();
   if (curl == NULL) {
@@ -736,14 +753,14 @@ NATIVE_METHOD(HTTPClient, patch) {
   }
 
   CURLResponse curlResponse;
-  CURLcode curlCode = httpSendRequest(args, HTTP_PATCH, curl, &curlResponse);
+  CURLcode curlCode = httpSendRequest(url, HTTP_PATCH, data, curl, &curlResponse);
   if (curlCode != CURLE_OK) {
     runtimeError("Failed to complete a PATCH request from URL.");
     curl_easy_cleanup(curl);
     RETURN_NIL;
   }
 
-  ObjInstance* httpResponse = httpCreateResponse(curl, curlResponse);
+  ObjInstance* httpResponse = httpCreateResponse(url, curl, curlResponse);
   curl_easy_cleanup(curl);
   RETURN_OBJ(httpResponse);
 }
@@ -752,6 +769,8 @@ NATIVE_METHOD(HTTPClient, put) {
   assertArgCount("HTTPClient::put(url, data)", 2, argCount);
   assertArgInstanceOfEither("HTTPClient::put(url, data)", args, 0, "luminique::std::lang", "String", "luminique::std::network", "URL");
   assertArgIsDictionary("HTTPClient::put(url, data)", args, 1);
+  ObjString* url = httpRawURL(args[0]);
+  ObjDictionary* data = AS_DICTIONARY(args[1]);
 
   CURL* curl = curl_easy_init();
   if (curl == NULL) {
@@ -760,24 +779,21 @@ NATIVE_METHOD(HTTPClient, put) {
   }
 
   CURLResponse curlResponse;
-  CURLcode curlCode = httpSendRequest(args, HTTP_PUT, curl, &curlResponse);
+  CURLcode curlCode = httpSendRequest(url, HTTP_PATCH, data, curl, &curlResponse);
   if (curlCode != CURLE_OK) {
     runtimeError("Failed to complete a PUT request from URL.");
     curl_easy_cleanup(curl);
     RETURN_NIL;
   }
 
-  ObjInstance* httpResponse = httpCreateResponse(curl, curlResponse);
+  ObjInstance* httpResponse = httpCreateResponse(url, curl, curlResponse);
   curl_easy_cleanup(curl);
   RETURN_OBJ(httpResponse);
 }
 
 NATIVE_METHOD(HTTPClient, send) {
-  assertArgCount("HTTPClient::send(method, url, headers, data)", 4, argCount);
-  assertArgIsInt("HTTPClient::send(method, url, headers, data)", args, 0);
-  assertArgInstanceOfEither("HTTPClient::send(method, url, headers, data)", args, 1, "luminique::std::lang", "String", "luminique::std::network", "URL");
-  assertArgIsDictionary("HTTPClient::send(method, url, headers, data)", args, 2);
-  assertArgIsDictionary("HTTPClient::send(method, url, headers, data)", args, 3);
+  assertArgCount("HTTPClient::send(request)", 1, argCount);
+  assertObjInstanceOfClass("HTTPClient::send(request)", args[0], "luminique::std::network::http", "HTTPRequest", 0);
 
   CURL* curl = curl_easy_init();
   if (curl == NULL) {
@@ -785,19 +801,73 @@ NATIVE_METHOD(HTTPClient, send) {
     RETURN_NIL;
   }
 
-  struct curl_slist* headers = httpParseHeaders(AS_DICTIONARY(args[2]), curl);
+  ObjInstance* request = AS_INSTANCE(args[0]);
+  ObjString* url = AS_STRING(getObjProperty(request, "url"));
+  HTTPMethod method = (HTTPMethod)AS_INT(getObjProperty(request, "method"));
+  ObjDictionary* headers = AS_DICTIONARY(getObjProperty(request, "headers"));
+  ObjDictionary* data = AS_DICTIONARY(getObjProperty(request, "data"));
+
+  struct curl_slist* curlHeaders = httpParseHeaders(headers, curl);
   CURLResponse curlResponse;
-  CURLcode curlCode = httpSendRequest((Value[]) { args[1], args[3] }, (HTTPMethod)AS_INT(args[0]), curl, &curlResponse);
-  curl_slist_free_all(headers);
+  CURLcode curlCode = httpSendRequest(url, method, data, curl, &curlResponse);
+  curl_slist_free_all(curlHeaders);
   if (curlCode != CURLE_OK) {
     runtimeError("Failed to complete a PUT request from URL.");
     curl_easy_cleanup(curl);
     RETURN_NIL;
   }
 
-  ObjInstance* httpResponse = httpCreateResponse(curl, curlResponse);
+  ObjInstance* httpResponse = httpCreateResponse(url, curl, curlResponse);
   curl_easy_cleanup(curl);
   RETURN_OBJ(httpResponse);
+}
+
+NATIVE_METHOD(HTTPRequest, __init__) {
+  assertArgCount("HTTPRequest::__init__(url, method, headers, data)", 4, argCount);
+  assertArgIsString("HTTPRequest::__init__(url, method, headers, data)", args, 0);
+  assertArgIsInt("HTTPRequest::__init__(url, method, headers, data)", args, 1);
+  assertArgIsDictionary("HTTPRequest::__init__(url, method, headers, data)", args, 2);
+  assertArgIsDictionary("HTTPRequest::__init__(url, method, headers, data)", args, 3);
+
+  ObjInstance* self = AS_INSTANCE(receiver);
+  setObjProperty(self, "url", args[0]);
+  setObjProperty(self, "method", args[1]);
+  setObjProperty(self, "headers", args[2]);
+  setObjProperty(self, "data", args[3]);
+  RETURN_OBJ(self);
+}
+
+NATIVE_METHOD(HTTPRequest, toString) {
+  assertArgCount("HTTPRequest::toString()", 0, argCount);
+  ObjInstance* self = AS_INSTANCE(receiver);
+  ObjString* url = AS_STRING(getObjProperty(self, "url"));
+  HTTPMethod method = (HTTPMethod)AS_INT(getObjProperty(self, "method"));
+  ObjDictionary* data = AS_DICTIONARY(getObjProperty(self, "data"));
+  RETURN_STRING_FMT("HTTPRequest - URL: %s; Method: %s; Data: %s", url->chars, httpMapMethod(method), httpParsePostData(data)->chars);
+}
+
+NATIVE_METHOD(HTTPResponse, __init__) {
+  assertArgCount("HTTPResponse::__init__(url, status, headers, contentType)", 4, argCount);
+  assertArgIsString("HTTPResponse::__init__(url, status, headers, contentType)", args, 0);
+  assertArgIsInt("HTTPResponse::__init__(url, status, headers, contentType)", args, 1);
+  assertArgIsDictionary("HTTPResponse::__init__(url, status, headers, contentType)", args, 2);
+  assertArgIsString("HTTPResponse::__init__(url, status, headers, contentType)", args, 3);
+
+  ObjInstance* self = AS_INSTANCE(receiver);
+  setObjProperty(self, "url", args[0]);
+  setObjProperty(self, "status", args[1]);
+  setObjProperty(self, "headers", args[2]);
+  setObjProperty(self, "contentType", args[3]);
+  RETURN_OBJ(self);
+}
+
+NATIVE_METHOD(HTTPResponse, toString) {
+  assertArgCount("HTTPResponse::toString()", 0, argCount);
+  ObjInstance* self = AS_INSTANCE(receiver);
+  ObjString* url = AS_STRING(getObjProperty(self, "url"));
+  int status = AS_INT(getObjProperty(self, "status"));
+  ObjString* contentType = AS_STRING(getObjProperty(self, "contentType"));
+  RETURN_STRING_FMT("HTTPResponse - URL: %s; Status: %d; ContentType: %s", url->chars, status, contentType->chars);
 }
 
 NATIVE_METHOD(IPAddress, domain) {
@@ -1107,25 +1177,43 @@ void registerNetworkPackage() {
   DEF_METHOD(httpClientClass, HTTPClient, close, 0);
   DEF_METHOD(httpClientClass, HTTPClient, delete, 1);
   DEF_METHOD(httpClientClass, HTTPClient, get, 1);
+  DEF_METHOD(httpClientClass, HTTPClient, head, 1);
   DEF_METHOD(httpClientClass, HTTPClient, options, 1);
   DEF_METHOD(httpClientClass, HTTPClient, patch, 2);
   DEF_METHOD(httpClientClass, HTTPClient, post, 2);
   DEF_METHOD(httpClientClass, HTTPClient, put, 2);
-  DEF_METHOD(httpClientClass, HTTPClient, send, 4);
+  DEF_METHOD(httpClientClass, HTTPClient, send, 1);
 
-  ObjClass* httpClientMetaclass = httpClientClass->obj.klass;
-  setClassProperty(httpClientClass, "httpHEAD", INT_VAL(HTTP_HEAD));
-  setClassProperty(httpClientClass, "httpGET", INT_VAL(HTTP_GET));
-  setClassProperty(httpClientClass, "httpPOST", INT_VAL(HTTP_POST));
-  setClassProperty(httpClientClass, "httpPUT", INT_VAL(HTTP_PUT));
-  setClassProperty(httpClientClass, "httpDELETE", INT_VAL(HTTP_DELETE));
-  setClassProperty(httpClientClass, "httpPATCH", INT_VAL(HTTP_PATCH));
-  setClassProperty(httpClientClass, "httpOPTIONS", INT_VAL(HTTP_OPTIONS));
-  setClassProperty(httpClientClass, "httpTRACE", INT_VAL(HTTP_TRACE));
-  setClassProperty(httpClientClass, "httpCONNECT", INT_VAL(HTTP_CONNECT));
+  ObjClass* httpRequestClass = defineNativeClass("HTTPRequest");
+  bindSuperclass(httpRequestClass, vm.objectClass);
+  DEF_METHOD(httpRequestClass, HTTPRequest, __init__, 4);
+  DEF_METHOD(httpRequestClass, HTTPRequest, toString, 0);
+
+  setClassProperty(httpRequestClass, "httpHEAD", INT_VAL(HTTP_HEAD));
+  setClassProperty(httpRequestClass, "httpGET", INT_VAL(HTTP_GET));
+  setClassProperty(httpRequestClass, "httpPOST", INT_VAL(HTTP_POST));
+  setClassProperty(httpRequestClass, "httpPUT", INT_VAL(HTTP_PUT));
+  setClassProperty(httpRequestClass, "httpDELETE", INT_VAL(HTTP_DELETE));
+  setClassProperty(httpRequestClass, "httpPATCH", INT_VAL(HTTP_PATCH));
+  setClassProperty(httpRequestClass, "httpOPTIONS", INT_VAL(HTTP_OPTIONS));
+  setClassProperty(httpRequestClass, "httpTRACE", INT_VAL(HTTP_TRACE));
+  setClassProperty(httpRequestClass, "httpCONNECT", INT_VAL(HTTP_CONNECT));
 
   ObjClass* httpResponseClass = defineNativeClass("HTTPResponse");
   bindSuperclass(httpResponseClass, vm.objectClass);
+  DEF_METHOD(httpResponseClass, HTTPResponse, __init__, 4);
+  DEF_METHOD(httpResponseClass, HTTPResponse, toString, 0);
+
+  setClassProperty(httpResponseClass, "statusOK", INT_VAL(200));
+  setClassProperty(httpResponseClass, "statusFound", INT_VAL(302));
+  setClassProperty(httpResponseClass, "statusBadRequest", INT_VAL(400));
+  setClassProperty(httpResponseClass, "statusUnauthorized", INT_VAL(401));
+  setClassProperty(httpResponseClass, "statusForbidden", INT_VAL(403));
+  setClassProperty(httpResponseClass, "statusNotFound", INT_VAL(404));
+  setClassProperty(httpResponseClass, "statusMethodNotAllowed", INT_VAL(405));
+  setClassProperty(httpResponseClass, "statusInternalError", INT_VAL(500));
+  setClassProperty(httpResponseClass, "statusBadGateway", INT_VAL(502));
+  setClassProperty(httpResponseClass, "statusServiceUnavailable", INT_VAL(503));
 
   vm.currentNamespace = vm.rootNamespace;
 }
