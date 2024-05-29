@@ -1,0 +1,19 @@
+class Dog {
+  function __init__(name) {
+    this.name = name;
+  }
+
+  static function bark() {
+    // println("${this.name} barks"); // Error
+    println("Dog barks");
+  }
+
+  function bark() {
+    println("${this.name} barks");
+  }
+}
+
+Dog.bark();
+
+let dog = Dog("Fluffly");
+dog.bark();

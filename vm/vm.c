@@ -587,9 +587,14 @@ static void closeUpvalues(Value* last) {
   }
 }
 
-static void defineMethod(ObjString* name) {
+static void defineMethod(ObjString* name, bool isMethodStatic) {
   Value method = peek(0);
   ObjClass* klass = AS_CLASS(peek(1));
+
+  if (isMethodStatic) {
+    klass = klass->obj.klass;
+  }
+
   tableSet(&klass->methods, name, method);
   pop();
 }
@@ -1196,7 +1201,10 @@ InterpretResult run() {
         break;
       }
       case OP_METHOD:
-        defineMethod(READ_STRING());
+        defineMethod(READ_STRING(), false);
+        break;
+      case OP_STATIC_METHOD:
+        defineMethod(READ_STRING(), true);
         break;
       case OP_INVOKE: {
         ObjString* method = READ_STRING();

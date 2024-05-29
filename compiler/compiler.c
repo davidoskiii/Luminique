@@ -88,6 +88,7 @@ typedef struct Compiler {
 
 typedef struct ClassCompiler {
   struct ClassCompiler* enclosing;
+  bool isStaticMethod;
 } ClassCompiler;
 
 Parser parser;
@@ -1130,6 +1131,11 @@ static void this_(bool canAssign) {
     return;
   }
 
+  if (currentClass->isStaticMethod == true) {
+    error("You can't use 'this' inside of a static method.");
+    return;
+  }
+
   variable(false);
 }
 
@@ -1366,6 +1372,13 @@ static void function(FunctionType type) {
 }
 
 static void method() {
+  uint8_t opCode = OP_METHOD;
+  currentClass->isStaticMethod = false;
+
+  if (match(TOKEN_STATIC)) {
+    currentClass->isStaticMethod = true;
+    opCode = OP_STATIC_METHOD;
+  }
   consume(TOKEN_FUN, "Expect 'function' keyword");
 
   uint16_t constant = propretyConstant("Expect method name.");
@@ -1377,7 +1390,7 @@ static void method() {
   }
 
   function(type);
-  emitByte(OP_METHOD);
+  emitByte(opCode);
   emitShort(constant);
 }
 
