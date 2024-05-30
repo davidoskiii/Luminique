@@ -20,6 +20,7 @@
 #include "../math/math.h"
 #include "../chrono/chrono.h"
 #include "../sys/sys.h"
+#include "../json/json.h"
 #include "../random/random.h"
 #include "../graphics/graphics.h"
 #include "../network/network.h"
@@ -222,6 +223,7 @@ void initVM(int argc, char** argv) {
   registerUtilPackage();
   registerMathPackage();
   registerTimePackage();
+  registerJsonPackage();
   registerNetworkPackage();
   initNatives();
   initStd();
@@ -1144,8 +1146,9 @@ InterpretResult run() {
       }
       case OP_GET_SUBSCRIPT: {
         if (IS_INT(peek(0))) {
-          int index = AS_INT(pop());
+          int index = AS_INT(peek(0));
           if (IS_STRING(peek(0))) {
+            pop();
             ObjString* string = AS_STRING(pop());
             if (index < 0 || index >= string->length) {
               ObjClass* exceptionClass = getNativeClass("luminique::std::lang", "IndexOutOfBoundsException");
@@ -1156,6 +1159,7 @@ InterpretResult run() {
               push(OBJ_VAL(element));
             }
           } else if (IS_ARRAY(peek(0))) {
+            pop();
             ObjArray* array = AS_ARRAY(pop());
 
             if (index < 0 || index >= array->elements.count) {
@@ -1166,6 +1170,12 @@ InterpretResult run() {
               push(element);
             }
           } else OVERLOAD_OP([], 1);
+        } else if (IS_DICTIONARY(peek(1))) {
+            Value key = pop();
+            ObjDictionary* dictionary = AS_DICTIONARY(pop());
+            Value value;
+            if (dictGet(dictionary, key, &value)) push(value);
+            else push(NIL_VAL);
         } else OVERLOAD_OP([], 1);
         break;
       }

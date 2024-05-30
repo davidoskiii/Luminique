@@ -1,0 +1,16 @@
+using luminique::std::network::http::HTTPRequest;
+using luminique::std::network::http::HTTPClient;
+using luminique::std::json;
+
+let url = "https://api.github.com/search/repositories";
+url = url + "?q=languages:C+sort:stars+stars:>10000";
+
+const client = HTTPClient();
+let request = HTTPRequest(url, HTTPRequest.httpGET, {"Accept": "application/vnd.github.v3+json", "User-Agent": "luminique"}, {});
+
+let response = client.send(request);
+
+let parsed = json::parse(response.content);
+println("JSON parsed to dictionary:");
+println(parsed);
+println("Typeof 'parsed': ${typeof parsed}\n");
