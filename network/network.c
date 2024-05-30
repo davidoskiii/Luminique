@@ -717,7 +717,7 @@ NATIVE_METHOD(HTTPClient, post) {
 
 NATIVE_METHOD(HTTPClient, options) {
   assertArgCount("HTTPClient::options(url)", 1, argCount);
-  assertArgInstanceOfEither("HTTPClient::options(url, data)", args, 0, "luminique::std::lang", "String", "luminique::std::network", "URL");
+  assertArgInstanceOfEither("HTTPClient::options(url)", args, 0, "luminique::std::lang", "String", "luminique::std::network", "URL");
   ObjString* url = httpRawURL(args[0]);
 
   CURL* curl = curl_easy_init();
