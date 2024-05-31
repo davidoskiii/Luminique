@@ -243,7 +243,7 @@ void loadSourceFile(const char* filePath) {
 }
 
 void initNatives() {
-  vm.currentNamespace = vm.langNamespace;
+  vm.currentNamespace = vm.rootNamespace;
 
   DEF_FUNCTION(print, 1);
   DEF_FUNCTION(println, 1);
@@ -252,7 +252,4 @@ void initNatives() {
   DEF_FUNCTION(int, 1);
   DEF_FUNCTION(float, 1);
   DEF_FUNCTION(str, 1);
-
-  vm.currentNamespace = vm.rootNamespace;
 }
-
