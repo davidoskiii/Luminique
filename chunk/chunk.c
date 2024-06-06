@@ -44,7 +44,7 @@ int opCodeOffset(Chunk* chunk, int ip) {
     switch (code) {
       case OP_CONSTANT: return 2;
       case OP_CONSTANT_16: return 3;
-      case OP_NAMESPACE: return 2;
+      case OP_NAMESPACE: return 1;
       case OP_NIL: return 1;
       case OP_TRUE: return 1;
       case OP_FALSE: return 1;

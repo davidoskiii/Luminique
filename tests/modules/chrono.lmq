@@ -25,7 +25,7 @@ let datetime = chrono::dateTimeNow();
 
 println("Current DateTime is ${datetime}.");
 println("Current DateTime's timestamp is: ${datetime.getTimestamp()}.");
-println("Birthday is after current DateTime: ${birthday.toDateTime() < (datetime)}");
+println("Birthday is before current DateTime: ${birthday.toDateTime() < (datetime)}");
 println("Difference in sec(s) between current DateTime and birthday: ${datetime.diff(birthday.toDateTime())}\n");
 
 println("Current Date is instance of Date: ${now.instanceOf(Date)}.");

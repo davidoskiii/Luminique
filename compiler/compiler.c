@@ -637,10 +637,6 @@ static void defineVariable(uint16_t global, bool isMutable) {
     return;
   } else {
     ObjString* name = identifierName(global);
-    Value value;
-    if (tableGet(&vm.globals, name, &value)) {
-      error("Cannot redeclare global variable.");
-    }
 
     if (isMutable) {
       tableSet(&vm.globals, name, NIL_VAL);
