@@ -201,6 +201,30 @@ chunk/chunk.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/luminique.dir/build.make CMakeFiles/luminique.dir/chunk/chunk.c.s
 .PHONY : chunk/chunk.c.s
 
+cjson/cjson.o: cjson/cjson.c.o
+.PHONY : cjson/cjson.o
+
+# target to build an object file
+cjson/cjson.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/luminique.dir/build.make CMakeFiles/luminique.dir/cjson/cjson.c.o
+.PHONY : cjson/cjson.c.o
+
+cjson/cjson.i: cjson/cjson.c.i
+.PHONY : cjson/cjson.i
+
+# target to preprocess a source file
+cjson/cjson.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/luminique.dir/build.make CMakeFiles/luminique.dir/cjson/cjson.c.i
+.PHONY : cjson/cjson.c.i
+
+cjson/cjson.s: cjson/cjson.c.s
+.PHONY : cjson/cjson.s
+
+# target to generate assembly for a file
+cjson/cjson.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/luminique.dir/build.make CMakeFiles/luminique.dir/cjson/cjson.c.s
+.PHONY : cjson/cjson.c.s
+
 collection/collection.o: collection/collection.c.o
 .PHONY : collection/collection.o
 
@@ -345,6 +369,30 @@ io/io.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/luminique.dir/build.make CMakeFiles/luminique.dir/io/io.c.s
 .PHONY : io/io.c.s
 
+json/json.o: json/json.c.o
+.PHONY : json/json.o
+
+# target to build an object file
+json/json.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/luminique.dir/build.make CMakeFiles/luminique.dir/json/json.c.o
+.PHONY : json/json.c.o
+
+json/json.i: json/json.c.i
+.PHONY : json/json.i
+
+# target to preprocess a source file
+json/json.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/luminique.dir/build.make CMakeFiles/luminique.dir/json/json.c.i
+.PHONY : json/json.c.i
+
+json/json.s: json/json.c.s
+.PHONY : json/json.s
+
+# target to generate assembly for a file
+json/json.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/luminique.dir/build.make CMakeFiles/luminique.dir/json/json.c.s
+.PHONY : json/json.c.s
+
 lang/lang.o: lang/lang.c.o
 .PHONY : lang/lang.o
 
@@ -464,6 +512,30 @@ native/native.s: native/native.c.s
 native/native.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/luminique.dir/build.make CMakeFiles/luminique.dir/native/native.c.s
 .PHONY : native/native.c.s
+
+network/network.o: network/network.c.o
+.PHONY : network/network.o
+
+# target to build an object file
+network/network.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/luminique.dir/build.make CMakeFiles/luminique.dir/network/network.c.o
+.PHONY : network/network.c.o
+
+network/network.i: network/network.c.i
+.PHONY : network/network.i
+
+# target to preprocess a source file
+network/network.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/luminique.dir/build.make CMakeFiles/luminique.dir/network/network.c.i
+.PHONY : network/network.c.i
+
+network/network.s: network/network.c.s
+.PHONY : network/network.s
+
+# target to generate assembly for a file
+network/network.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/luminique.dir/build.make CMakeFiles/luminique.dir/network/network.c.s
+.PHONY : network/network.c.s
 
 object/object.o: object/object.c.o
 .PHONY : object/object.o
@@ -729,6 +801,30 @@ vm/vm.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/luminique.dir/build.make CMakeFiles/luminique.dir/vm/vm.c.s
 .PHONY : vm/vm.c.s
 
+yuarel/yuarel.o: yuarel/yuarel.c.o
+.PHONY : yuarel/yuarel.o
+
+# target to build an object file
+yuarel/yuarel.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/luminique.dir/build.make CMakeFiles/luminique.dir/yuarel/yuarel.c.o
+.PHONY : yuarel/yuarel.c.o
+
+yuarel/yuarel.i: yuarel/yuarel.c.i
+.PHONY : yuarel/yuarel.i
+
+# target to preprocess a source file
+yuarel/yuarel.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/luminique.dir/build.make CMakeFiles/luminique.dir/yuarel/yuarel.c.i
+.PHONY : yuarel/yuarel.c.i
+
+yuarel/yuarel.s: yuarel/yuarel.c.s
+.PHONY : yuarel/yuarel.s
+
+# target to generate assembly for a file
+yuarel/yuarel.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/luminique.dir/build.make CMakeFiles/luminique.dir/yuarel/yuarel.c.s
+.PHONY : yuarel/yuarel.c.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -747,6 +843,9 @@ help:
 	@echo "... chunk/chunk.o"
 	@echo "... chunk/chunk.i"
 	@echo "... chunk/chunk.s"
+	@echo "... cjson/cjson.o"
+	@echo "... cjson/cjson.i"
+	@echo "... cjson/cjson.s"
 	@echo "... collection/collection.o"
 	@echo "... collection/collection.i"
 	@echo "... collection/collection.s"
@@ -765,6 +864,9 @@ help:
 	@echo "... io/io.o"
 	@echo "... io/io.i"
 	@echo "... io/io.s"
+	@echo "... json/json.o"
+	@echo "... json/json.i"
+	@echo "... json/json.s"
 	@echo "... lang/lang.o"
 	@echo "... lang/lang.i"
 	@echo "... lang/lang.s"
@@ -780,6 +882,9 @@ help:
 	@echo "... native/native.o"
 	@echo "... native/native.i"
 	@echo "... native/native.s"
+	@echo "... network/network.o"
+	@echo "... network/network.i"
+	@echo "... network/network.s"
 	@echo "... object/object.o"
 	@echo "... object/object.i"
 	@echo "... object/object.s"
@@ -813,6 +918,9 @@ help:
 	@echo "... vm/vm.o"
 	@echo "... vm/vm.i"
 	@echo "... vm/vm.s"
+	@echo "... yuarel/yuarel.o"
+	@echo "... yuarel/yuarel.i"
+	@echo "... yuarel/yuarel.s"
 .PHONY : help
 
 

@@ -237,12 +237,19 @@ CMakeFiles/luminique.dir/vm/vm.c.o: \
  /home/davide/Vs\ Code\ Projects/c/compiler/luminique/vm/../sys/sys.h \
  /home/davide/Vs\ Code\ Projects/c/compiler/luminique/vm/../sys/../common.h \
  /home/davide/Vs\ Code\ Projects/c/compiler/luminique/vm/../sys/../string/string.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/vm/../json/json.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/vm/../json/../common.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/vm/../json/../string/string.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/vm/../json/../cjson/cjson.h \
  /home/davide/Vs\ Code\ Projects/c/compiler/luminique/vm/../random/random.h \
  /home/davide/Vs\ Code\ Projects/c/compiler/luminique/vm/../random/../common.h \
  /home/davide/Vs\ Code\ Projects/c/compiler/luminique/vm/../random/../string/string.h \
  /home/davide/Vs\ Code\ Projects/c/compiler/luminique/vm/../graphics/graphics.h \
  /home/davide/Vs\ Code\ Projects/c/compiler/luminique/vm/../graphics/../common.h \
  /home/davide/Vs\ Code\ Projects/c/compiler/luminique/vm/../graphics/../string/string.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/vm/../network/network.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/vm/../network/../common.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/vm/../network/../string/string.h \
  /home/davide/Vs\ Code\ Projects/c/compiler/luminique/vm/../debug/debug.h \
  /home/davide/Vs\ Code\ Projects/c/compiler/luminique/vm/../debug/../chunk/chunk.h \
  /home/davide/Vs\ Code\ Projects/c/compiler/luminique/vm/vm.h

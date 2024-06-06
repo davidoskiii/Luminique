@@ -31,10 +31,14 @@ set(SOURCES
   chrono/chrono.c
   graphics/graphics.c
   random/random.c
+  network/network.c
+  yuarel/yuarel.c
+  json/json.c
+  cjson/cjson.c
 )
 
 # Add an executable target
 add_executable(luminique ${SOURCES})
 
 # Link libraries
-target_link_libraries(luminique m SDL2 readline)
+target_link_libraries(luminique m SDL2 readline curl)

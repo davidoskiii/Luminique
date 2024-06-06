@@ -419,6 +419,62 @@ CMakeFiles/luminique.dir/random/random.c.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/luminique.dir/random/random.c.s"
 	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S "/home/davide/Vs Code Projects/c/compiler/luminique/random/random.c" -o CMakeFiles/luminique.dir/random/random.c.s
 
+CMakeFiles/luminique.dir/network/network.c.o: CMakeFiles/luminique.dir/flags.make
+CMakeFiles/luminique.dir/network/network.c.o: ../network/network.c
+CMakeFiles/luminique.dir/network/network.c.o: CMakeFiles/luminique.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir="/home/davide/Vs Code Projects/c/compiler/luminique/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_26) "Building C object CMakeFiles/luminique.dir/network/network.c.o"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/luminique.dir/network/network.c.o -MF CMakeFiles/luminique.dir/network/network.c.o.d -o CMakeFiles/luminique.dir/network/network.c.o -c "/home/davide/Vs Code Projects/c/compiler/luminique/network/network.c"
+
+CMakeFiles/luminique.dir/network/network.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/luminique.dir/network/network.c.i"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E "/home/davide/Vs Code Projects/c/compiler/luminique/network/network.c" > CMakeFiles/luminique.dir/network/network.c.i
+
+CMakeFiles/luminique.dir/network/network.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/luminique.dir/network/network.c.s"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S "/home/davide/Vs Code Projects/c/compiler/luminique/network/network.c" -o CMakeFiles/luminique.dir/network/network.c.s
+
+CMakeFiles/luminique.dir/yuarel/yuarel.c.o: CMakeFiles/luminique.dir/flags.make
+CMakeFiles/luminique.dir/yuarel/yuarel.c.o: ../yuarel/yuarel.c
+CMakeFiles/luminique.dir/yuarel/yuarel.c.o: CMakeFiles/luminique.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir="/home/davide/Vs Code Projects/c/compiler/luminique/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_27) "Building C object CMakeFiles/luminique.dir/yuarel/yuarel.c.o"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/luminique.dir/yuarel/yuarel.c.o -MF CMakeFiles/luminique.dir/yuarel/yuarel.c.o.d -o CMakeFiles/luminique.dir/yuarel/yuarel.c.o -c "/home/davide/Vs Code Projects/c/compiler/luminique/yuarel/yuarel.c"
+
+CMakeFiles/luminique.dir/yuarel/yuarel.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/luminique.dir/yuarel/yuarel.c.i"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E "/home/davide/Vs Code Projects/c/compiler/luminique/yuarel/yuarel.c" > CMakeFiles/luminique.dir/yuarel/yuarel.c.i
+
+CMakeFiles/luminique.dir/yuarel/yuarel.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/luminique.dir/yuarel/yuarel.c.s"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S "/home/davide/Vs Code Projects/c/compiler/luminique/yuarel/yuarel.c" -o CMakeFiles/luminique.dir/yuarel/yuarel.c.s
+
+CMakeFiles/luminique.dir/json/json.c.o: CMakeFiles/luminique.dir/flags.make
+CMakeFiles/luminique.dir/json/json.c.o: ../json/json.c
+CMakeFiles/luminique.dir/json/json.c.o: CMakeFiles/luminique.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir="/home/davide/Vs Code Projects/c/compiler/luminique/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_28) "Building C object CMakeFiles/luminique.dir/json/json.c.o"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/luminique.dir/json/json.c.o -MF CMakeFiles/luminique.dir/json/json.c.o.d -o CMakeFiles/luminique.dir/json/json.c.o -c "/home/davide/Vs Code Projects/c/compiler/luminique/json/json.c"
+
+CMakeFiles/luminique.dir/json/json.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/luminique.dir/json/json.c.i"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E "/home/davide/Vs Code Projects/c/compiler/luminique/json/json.c" > CMakeFiles/luminique.dir/json/json.c.i
+
+CMakeFiles/luminique.dir/json/json.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/luminique.dir/json/json.c.s"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S "/home/davide/Vs Code Projects/c/compiler/luminique/json/json.c" -o CMakeFiles/luminique.dir/json/json.c.s
+
+CMakeFiles/luminique.dir/cjson/cjson.c.o: CMakeFiles/luminique.dir/flags.make
+CMakeFiles/luminique.dir/cjson/cjson.c.o: ../cjson/cjson.c
+CMakeFiles/luminique.dir/cjson/cjson.c.o: CMakeFiles/luminique.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir="/home/davide/Vs Code Projects/c/compiler/luminique/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_29) "Building C object CMakeFiles/luminique.dir/cjson/cjson.c.o"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/luminique.dir/cjson/cjson.c.o -MF CMakeFiles/luminique.dir/cjson/cjson.c.o.d -o CMakeFiles/luminique.dir/cjson/cjson.c.o -c "/home/davide/Vs Code Projects/c/compiler/luminique/cjson/cjson.c"
+
+CMakeFiles/luminique.dir/cjson/cjson.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/luminique.dir/cjson/cjson.c.i"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E "/home/davide/Vs Code Projects/c/compiler/luminique/cjson/cjson.c" > CMakeFiles/luminique.dir/cjson/cjson.c.i
+
+CMakeFiles/luminique.dir/cjson/cjson.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/luminique.dir/cjson/cjson.c.s"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S "/home/davide/Vs Code Projects/c/compiler/luminique/cjson/cjson.c" -o CMakeFiles/luminique.dir/cjson/cjson.c.s
+
 # Object files for target luminique
 luminique_OBJECTS = \
 "CMakeFiles/luminique.dir/main.c.o" \
@@ -445,7 +501,11 @@ luminique_OBJECTS = \
 "CMakeFiles/luminique.dir/sys/sys.c.o" \
 "CMakeFiles/luminique.dir/chrono/chrono.c.o" \
 "CMakeFiles/luminique.dir/graphics/graphics.c.o" \
-"CMakeFiles/luminique.dir/random/random.c.o"
+"CMakeFiles/luminique.dir/random/random.c.o" \
+"CMakeFiles/luminique.dir/network/network.c.o" \
+"CMakeFiles/luminique.dir/yuarel/yuarel.c.o" \
+"CMakeFiles/luminique.dir/json/json.c.o" \
+"CMakeFiles/luminique.dir/cjson/cjson.c.o"
 
 # External object files for target luminique
 luminique_EXTERNAL_OBJECTS =
@@ -475,9 +535,13 @@ luminique: CMakeFiles/luminique.dir/sys/sys.c.o
 luminique: CMakeFiles/luminique.dir/chrono/chrono.c.o
 luminique: CMakeFiles/luminique.dir/graphics/graphics.c.o
 luminique: CMakeFiles/luminique.dir/random/random.c.o
+luminique: CMakeFiles/luminique.dir/network/network.c.o
+luminique: CMakeFiles/luminique.dir/yuarel/yuarel.c.o
+luminique: CMakeFiles/luminique.dir/json/json.c.o
+luminique: CMakeFiles/luminique.dir/cjson/cjson.c.o
 luminique: CMakeFiles/luminique.dir/build.make
 luminique: CMakeFiles/luminique.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir="/home/davide/Vs Code Projects/c/compiler/luminique/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_26) "Linking C executable luminique"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir="/home/davide/Vs Code Projects/c/compiler/luminique/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_30) "Linking C executable luminique"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/luminique.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
