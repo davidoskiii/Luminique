@@ -1250,6 +1250,23 @@ InterpretResult run() {
         pop(); // Subclass.
         break;
       }
+      case OP_ASSERT: {
+        Value message = pop();
+        Value condition = pop();
+        
+        if (isFalsey(condition)) {
+          ObjClass* exceptionClass = getNativeClass("luminique::std::lang", "AssertException"); 
+          if (IS_NIL(message)) { 
+            throwException(exceptionClass, "<assert statement>");
+          } else if (IS_STRING(message)) {
+            throwException(exceptionClass, AS_CSTRING(message));
+          } else {
+            runtimeError("Message must be a string.");
+            return INTERPRET_RUNTIME_ERROR;
+          }
+        }
+        break;
+      }
       case OP_THROW: {
         ObjArray* stackTrace = getStackTrace();
         Value exception = peek(0);

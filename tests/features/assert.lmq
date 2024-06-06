@@ -1,0 +1,11 @@
+function test(n) {
+  return n == n**2;
+}
+
+assert test(0), "0**0 is 0";
+
+try {
+  assert test(3), "test failed";
+} catch (AssertException : e) {
+  println("The error message was: ${e.message}");
+}

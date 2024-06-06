@@ -163,7 +163,13 @@ static TokenType identifierType() {
       if (scanner.current - scanner.start > 1) {
         switch (scanner.start[1]) {
           case 'n': return checkKeyword(2, 1, "d", TOKEN_AND);
-          case 's': return checkKeyword(2, 0, "", TOKEN_AS);
+          case 's': 
+            if (scanner.current - scanner.start > 2) {
+              switch (scanner.start[2]) {
+                case 'a': return checkKeyword(3, 0, "", TOKEN_AS);
+                case 's': return checkKeyword(3, 3, "ert", TOKEN_ASSERT);
+              }
+            }
         }
       }
       break;

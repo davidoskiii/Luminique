@@ -1073,6 +1073,20 @@ static void checkMutability(int arg, uint8_t opCode) {
   }
 }
 
+static void assertStatement() {
+  expression();
+
+  if (match(TOKEN_COMMA)) {
+    expression();
+  } else {
+    emitByte(OP_NIL);
+  }
+
+  consume(TOKEN_SEMICOLON, "Expect ';' after assert statement.");
+
+  emitByte(OP_ASSERT);
+}
+
 static void closure(bool canAssign) {
   function(TYPE_FUNCTION);
 }
@@ -1225,6 +1239,7 @@ ParseRule rules[] = {
   [TOKEN_ELSE]          = {NULL,          NULL,      PREC_NONE},
   [TOKEN_FALSE]         = {literal,       NULL,      PREC_NONE},
   [TOKEN_FOR]           = {NULL,          NULL,      PREC_NONE},
+  [TOKEN_ASSERT]        = {NULL,          NULL,      PREC_NONE},
   [TOKEN_FUN]           = {closure,       NULL,      PREC_NONE},
   [TOKEN_LAMBDA]        = {lambda,        NULL,      PREC_NONE},
   [TOKEN_IF]            = {NULL,          NULL,      PREC_NONE},
@@ -1808,7 +1823,7 @@ static void returnStatement() {
   }
 
   uint8_t depth = 0;
-  if(current->type == TYPE_LAMBDA) depth = lambdaDepth();
+  if (current->type == TYPE_LAMBDA) depth = lambdaDepth();
 
   if (match(TOKEN_SEMICOLON)) {
     emitReturn(depth);
@@ -1859,6 +1874,7 @@ static void synchronize() {
     if (parser.previous.type == TOKEN_SEMICOLON) return;
     switch (parser.current.type) {
       case TOKEN_CLASS:
+      case TOKEN_ASSERT:
       case TOKEN_NAMESPACE:
       case TOKEN_USING:
       case TOKEN_SWITCH:
@@ -1907,6 +1923,8 @@ static void statement() {
     switchStatement();
   } else if (match(TOKEN_IF)) {
     ifStatement();
+  } else if (match(TOKEN_ASSERT)) {
+    assertStatement();
   } else if (match(TOKEN_THROW)) {
     throwStatement();
   } else if (match(TOKEN_TRY)) {
