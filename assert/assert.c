@@ -91,21 +91,28 @@ void assertArgIsFile(const char* method, Value* args, int index) {
 
 void assertArgIsNamespace(const char* method, Value* args, int index) {
   if (!IS_NAMESPACE(args[index]) && !isObjInstanceOf(args[index], vm.namespaceClass)) {
-    runtimeError("method %s expects argument %d to be a namespace.", method, index + 1);
+    runtimeError("Method %s expects argument %d to be a namespace.", method, index + 1);
     exit(70);
   }
 }
 
 void assertArgIsMethod(const char* method, Value* args, int index) { 
   if (!IS_NAMESPACE(args[index]) && !isObjInstanceOf(args[index], vm.methodClass)) {
-    runtimeError("method %s expects argument %d to be a method.", method, index + 1);
+    runtimeError("Method %s expects argument %d to be a method.", method, index + 1);
+    exit(70);
+  }
+}
+
+void assertIsNumber(const char* method, Value number) {
+  if (!IS_NUMBER(number)){
+    runtimeError("Method %s expects value %s to be a number.", method, valueToString(number));
     exit(70);
   }
 }
 
 void assertArgInstanceOfEither(const char* method, Value* args, int index, const char* namespaceName, const char* className, const char* namespaceName2, const char* className2) {
   if (!isObjInstanceOf(args[index], getNativeClass(namespaceName, className)) && !isObjInstanceOf(args[index], getNativeClass(namespaceName2, className2))) {
-    runtimeError("method %s expects argument %d to be an instance of class %s or %s but got %s.", method, index + 1, className, className2, getObjClass(args[index])->name->chars);
+    runtimeError("Method %s expects argument %d to be an instance of class %s or %s but got %s.", method, index + 1, className, className2, getObjClass(args[index])->name->chars);
     exit(70);
   }   
 }

@@ -24,6 +24,7 @@
 #include "../random/random.h"
 #include "../graphics/graphics.h"
 #include "../network/network.h"
+#include "../statistics/statistics.h"
 #include "../debug/debug.h"
 #include "vm.h"
 
@@ -224,6 +225,7 @@ void initVM(int argc, char** argv) {
   registerMathPackage();
   registerTimePackage();
   registerJsonPackage();
+  registerStatisticsPackage();
   registerNetworkPackage();
   initNatives();
   initStd();
