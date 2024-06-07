@@ -1,18 +1,10 @@
-using tests::features::fraction;
 using tests::features::fib;
 using luminique::std;
 
 namespace tests;
 
 println(std::chrono::Date);
-println(frac::Fraction);
+println(fibonacci(2));
 println(fibonacci);
-
-let frac = Fraction(3, 6);
-let frac2 = frac.reduce();
-
-println(frac.toString());
-println(frac2.toString());
-println(frac == frac2);
 
 // println(Date); Error!
