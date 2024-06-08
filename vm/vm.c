@@ -11,7 +11,6 @@
 #include "../compiler/compiler.h"
 #include "../object/object.h"
 #include "../memory/memory.h"
-#include "../std/std.h"
 #include "../lang/lang.h"
 #include "../util/util.h"
 #include "../string/string.h"
@@ -228,7 +227,6 @@ void initVM(int argc, char** argv) {
   registerStatisticsPackage();
   registerNetworkPackage();
   initNatives();
-  initStd();
 }
 
 void freeVM() {

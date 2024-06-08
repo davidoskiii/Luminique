@@ -1,0 +1,62 @@
+using luminique::std::statistics;
+
+let data = [1, 1, 1, 2, 2, 3, 2, 2, 1, 1, 1];
+println("Dataset: ${data}");
+
+print("Calculating the arithmetic mean of the dataset: ");
+println(statistics::mean(data));
+
+let weights = [0.1, 0.2, 0.3, 0.7, 0.7, 1, 0.7, 0.7, 0.3, 0.2, 0.1];
+println("Weights: ${weights}");
+
+print("Calculating the weighted mean of the first dataset: ");
+println(statistics::weightedMean(data, weights));
+
+print("Calculating the geometric mean of the first dataset: ");
+println(statistics::geometricMean(data));
+
+print("Calculating the harmonic mean of the first dataset: ");
+println(statistics::harmonicMean(data));
+
+let data2 = [-11, 5.5, -3.4, 7.1, -9, 22];
+println("Second dataset: ${data2}");
+
+print("Calculating the median of the second dataset: ");
+println(statistics::median(data2));
+
+print("Calculating the high median of the second dataset: ");
+println(statistics::hmedian(data2));
+
+print("Calculating the low median of the second dataset: ");
+println(statistics::lmedian(data2));
+
+let data3 = [1, 2, 2, 3, 4, 4, 5];
+println("Third dataset: ${data3}");
+
+print("Calculating the mode of the third dataset: ");
+println(statistics::mode(data3));
+
+print("Calculating the multimode of the thrid dataset: ");
+println(statistics::multimode(data3));
+
+print("Calculating the 'decilies' of the thrid dataset: ");
+println(statistics::quantiles(data3, 10));
+
+let population = [2, 4, 4, 4, 5, 5, 7, 9];
+let sample = [2, 4, 4, 4, 5];
+
+println("Population: ${population}");
+println("Sample: ${sample}");
+
+
+print("Calculating the standard deviation of the population: ");
+println(statistics::pstdev(population));
+
+print("Calculating the standard deviation of the sample: ");
+println(statistics::stdev(sample));
+
+print("Calculating the variance of the population: ");
+println(statistics::pvariance(population));
+
+print("Calculating the variance of the sample: ");
+println(statistics::variance(sample));

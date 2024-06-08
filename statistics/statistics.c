@@ -9,15 +9,15 @@
 #include "../vm/vm.h"
 
 static double mean(double* data, int size);
-static double fmean(double* data, int size);
 static double weightedMean(double* data, double* weights, int size);
 static double geometricMean(double* data, int size);
 static double harmonicMean(double* data, int size);
 static double median(double* data, int size);
 static double medianLow(double* data, int size);
 static double medianHigh(double* data, int size);
-static double medianGrouped(double* data, int size);
 static double mode(double* data, int size);
+static double variance(double* data, int size, int isSample);
+static double standardDeviation(double* data, int size, int isSample);
 static ObjArray* multiMode(double* data, int size);
 static ObjArray* quantiles(double* data, int size, int nQuantiles);
 
@@ -38,21 +38,6 @@ NATIVE_FUNCTION(mean) {
     data[i] = AS_NUMBER(array->elements.values[i]);
   }
   double result = mean(data, array->elements.count);
-  free(data);
-  RETURN_NUMBER(result);
-}
-
-NATIVE_FUNCTION(fmean) {
-  assertArgCount("fmean(data)", 1, argCount);
-  assertArgIsArray("fmean(data)", args, 0);
-
-  ObjArray* array = AS_ARRAY(args[0]);
-  double* data = (double*)malloc(array->elements.count * sizeof(double));
-  for (int i = 0; i < array->elements.count; i++) {
-    assertIsNumber("fmean(data)", array->elements.values[i]);
-    data[i] = AS_NUMBER(array->elements.values[i]);
-  }
-  double result = fmean(data, array->elements.count);
   free(data);
   RETURN_NUMBER(result);
 }
@@ -167,21 +152,6 @@ NATIVE_FUNCTION(hmedian) {
   RETURN_NUMBER(result);
 }
 
-NATIVE_FUNCTION(medianGrouped) {
-  assertArgCount("medianGrouped(data)", 1, argCount);
-  assertArgIsArray("medianGrouped(data)", args, 0);
-
-  ObjArray* array = AS_ARRAY(args[0]);
-  double* data = (double*)malloc(array->elements.count * sizeof(double));
-  for (int i = 0; i < array->elements.count; i++) {
-    assertIsNumber("medianGrouped(data)", array->elements.values[i]);
-    data[i] = AS_NUMBER(array->elements.values[i]);
-  }
-  double result = medianGrouped(data, array->elements.count);
-  free(data);
-  RETURN_NUMBER(result);
-}
-
 NATIVE_FUNCTION(mode) {
   assertArgCount("mode(data)", 1, argCount);
   assertArgIsArray("mode(data)", args, 0);
@@ -231,7 +201,82 @@ NATIVE_FUNCTION(quantiles) {
   RETURN_OBJ(result);
 }
 
-// Statistical functions implementations
+NATIVE_FUNCTION(pstdev) {
+  assertArgCount("pstdev(data)", 1, argCount);
+  assertArgIsArray("pstdev(data)", args, 0);
+
+  ObjArray* dataArray = AS_ARRAY(args[0]);
+  int dataSize = dataArray->elements.count;
+
+  double* data = (double*)malloc(dataSize * sizeof(double));
+  for (int i = 0; i < dataSize; i++) {
+    assertIsNumber("pstdev(data)", dataArray->elements.values[i]);
+    data[i] = AS_NUMBER(dataArray->elements.values[i]);
+  }
+
+  double result = standardDeviation(data, dataSize, 0);
+
+  free(data);
+  RETURN_NUMBER(result);
+}
+
+NATIVE_FUNCTION(stdev) {
+  assertArgCount("stdev(data)", 1, argCount);
+  assertArgIsArray("stdev(data)", args, 0);
+
+  ObjArray* dataArray = AS_ARRAY(args[0]);
+  int dataSize = dataArray->elements.count;
+
+  double* data = (double*)malloc(dataSize * sizeof(double));
+  for (int i = 0; i < dataSize; i++) {
+    assertIsNumber("stdev(data)", dataArray->elements.values[i]);
+    data[i] = AS_NUMBER(dataArray->elements.values[i]);
+  }
+
+  double result = standardDeviation(data, dataSize, 1);
+
+  free(data);
+  RETURN_NUMBER(result);
+}
+
+NATIVE_FUNCTION(pvariance) {
+  assertArgCount("pvariance(data)", 1, argCount);
+  assertArgIsArray("pvariance(data)", args, 0);
+
+  ObjArray* dataArray = AS_ARRAY(args[0]);
+  int dataSize = dataArray->elements.count;
+
+  double* data = (double*)malloc(dataSize * sizeof(double));
+  for (int i = 0; i < dataSize; i++) {
+    assertIsNumber("pvariance(data)", dataArray->elements.values[i]);
+    data[i] = AS_NUMBER(dataArray->elements.values[i]);
+  }
+
+  double result = variance(data, dataSize, 0);
+
+  free(data);
+  RETURN_NUMBER(result);
+}
+
+NATIVE_FUNCTION(variance) {
+  assertArgCount("variance(data)", 1, argCount);
+  assertArgIsArray("variance(data)", args, 0);
+
+  ObjArray* dataArray = AS_ARRAY(args[0]);
+  int dataSize = dataArray->elements.count;
+
+  double* data = (double*)malloc(dataSize * sizeof(double));
+  for (int i = 0; i < dataSize; i++) {
+    assertIsNumber("variance(data)", dataArray->elements.values[i]);
+    data[i] = AS_NUMBER(dataArray->elements.values[i]);
+  }
+
+  double result = variance(data, dataSize, 1);
+
+  free(data);
+  RETURN_NUMBER(result);
+}
+
 static double mean(double* data, int size) {
   double sum = 0.0;
   for (int i = 0; i < size; i++) {
@@ -240,13 +285,20 @@ static double mean(double* data, int size) {
   return sum / size;
 }
 
-static double fmean(double* data, int size) {
+static double variance(double* data, int size, int isSample) {
+  double m = mean(data, size);
   double sum = 0.0;
   for (int i = 0; i < size; i++) {
-    sum += data[i];
+    double diff = data[i] - m;
+    sum += diff * diff;
   }
-  return sum / size;
+  return sum / (isSample ? size - 1 : size);
 }
+
+static double standardDeviation(double* data, int size, int isSample) {
+  return sqrt(variance(data, size, isSample));
+}
+
 
 static double weightedMean(double* data, double* weights, int size) {
   double sum = 0.0;
@@ -291,14 +343,6 @@ static double medianLow(double* data, int size) {
 static double medianHigh(double* data, int size) {
   qsort(data, size, sizeof(double), compare);
   return data[size / 2];
-}
-
-static double medianGrouped(double* data, int size) {
-  qsort(data, size, sizeof(double), compare);
-  int midpoint = size / 2;
-  double L = data[midpoint - 1];
-  double G = data[midpoint];
-  return L + (G - L) / 2.0;
 }
 
 static double mode(double* data, int size) {
@@ -376,17 +420,19 @@ void registerStatisticsPackage() {
   vm.currentNamespace = statisticsNamespace;
 
   DEF_FUNCTION(mean, 1);
-  DEF_FUNCTION(fmean, 1);
   DEF_FUNCTION(geometricMean, 1);
   DEF_FUNCTION(weightedMean, 2);
   DEF_FUNCTION(harmonicMean, 1);
   DEF_FUNCTION(median, 1);
   DEF_FUNCTION(lmedian, 1);
   DEF_FUNCTION(hmedian, 1);
-  DEF_FUNCTION(medianGrouped, 1);
   DEF_FUNCTION(mode, 1);
   DEF_FUNCTION(multimode, 1);
   DEF_FUNCTION(quantiles, 2);
+  DEF_FUNCTION(pstdev, 1);
+  DEF_FUNCTION(stdev, 1);
+  DEF_FUNCTION(pvariance, 1);
+  DEF_FUNCTION(variance, 1);
 
   vm.currentNamespace = vm.rootNamespace;
 }
