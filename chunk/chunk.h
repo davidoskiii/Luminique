@@ -70,7 +70,8 @@ typedef enum {
   OP_SHOWEL_L,
   OP_SHOWEL_R,
   OP_RETURN,
-  OP_RETURN_NONLOCAL
+  OP_RETURN_NONLOCAL,
+  OP_CODE_COUNT // This will count the total number of opcodes
 } OpCode;
 
 typedef struct {

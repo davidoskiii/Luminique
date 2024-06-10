@@ -147,6 +147,11 @@ NATIVE_FUNCTION(num) {
   }
 
   ObjString* stringValue = AS_STRING(args[0]);
+
+  if (stringValue->length == 0) {
+    RETURN_INT(0);
+  }
+
   const char* str = stringValue->chars;
 
   char* endptr;
@@ -171,6 +176,11 @@ NATIVE_FUNCTION(int) {
   }
 
   ObjString* stringValue = AS_STRING(args[0]);
+
+  if (stringValue->length == 0) {
+    RETURN_INT(0);
+  }
+
   const char* str = stringValue->chars;
 
   char* endptr;
@@ -195,6 +205,11 @@ NATIVE_FUNCTION(float) {
   }
 
   ObjString* stringValue = AS_STRING(args[0]);
+
+  if (stringValue->length == 0) {
+    RETURN_INT(0);
+  }
+
   const char* str = stringValue->chars;
 
   char* endptr;
