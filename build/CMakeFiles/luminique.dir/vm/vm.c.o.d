@@ -207,10 +207,6 @@ CMakeFiles/luminique.dir/vm/vm.c.o: \
  /home/davide/Vs\ Code\ Projects/c/compiler/luminique/vm/../memory/../object/object.h \
  /home/davide/Vs\ Code\ Projects/c/compiler/luminique/vm/../memory/../value/value.h \
  /home/davide/Vs\ Code\ Projects/c/compiler/luminique/vm/../memory/../vm/vm.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/luminique/vm/../std/std.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/luminique/vm/../std/../object/object.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/luminique/vm/../std/../vm/vm.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/luminique/vm/../std/../native/native.h \
  /home/davide/Vs\ Code\ Projects/c/compiler/luminique/vm/../lang/lang.h \
  /home/davide/Vs\ Code\ Projects/c/compiler/luminique/vm/../lang/../common.h \
  /home/davide/Vs\ Code\ Projects/c/compiler/luminique/vm/../lang/../string/string.h \
@@ -250,6 +246,9 @@ CMakeFiles/luminique.dir/vm/vm.c.o: \
  /home/davide/Vs\ Code\ Projects/c/compiler/luminique/vm/../network/network.h \
  /home/davide/Vs\ Code\ Projects/c/compiler/luminique/vm/../network/../common.h \
  /home/davide/Vs\ Code\ Projects/c/compiler/luminique/vm/../network/../string/string.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/vm/../statistics/statistics.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/vm/../statistics/../common.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/vm/../statistics/../string/string.h \
  /home/davide/Vs\ Code\ Projects/c/compiler/luminique/vm/../debug/debug.h \
  /home/davide/Vs\ Code\ Projects/c/compiler/luminique/vm/../debug/../chunk/chunk.h \
  /home/davide/Vs\ Code\ Projects/c/compiler/luminique/vm/vm.h

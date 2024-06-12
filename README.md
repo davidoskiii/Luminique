@@ -22,8 +22,10 @@ git clone https://github.com/davidoskiii/Luminique.git
 cd Luminique
 ```
 
-2. Compile the executable:
+2. Clear the build directory and compile the executable:
 ```
+rm -rf ./build/*
+cmake -S . -B ./build
 cmake --build ./build
 ./build/luminique
 ```

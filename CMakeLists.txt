@@ -17,7 +17,6 @@ set(SOURCES
   object/object.c
   table/table.c
   native/native.c
-  std/std.c
   assert/assert.c
   util/util.c
   collection/collection.c
@@ -35,6 +34,7 @@ set(SOURCES
   yuarel/yuarel.c
   json/json.c
   cjson/cjson.c
+  statistics/statistics.c
 )
 
 # Add an executable target

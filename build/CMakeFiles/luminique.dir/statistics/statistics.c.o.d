@@ -1,6 +1,6 @@
-CMakeFiles/luminique.dir/std/std.c.o: \
- /home/davide/Vs\ Code\ Projects/c/compiler/luminique/std/std.c \
- /usr/include/stdc-predef.h /usr/include/stdio.h \
+CMakeFiles/luminique.dir/statistics/statistics.c.o: \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/statistics/statistics.c \
+ /usr/include/stdc-predef.h /usr/include/math.h \
  /usr/include/x86_64-linux-gnu/bits/libc-header-start.h \
  /usr/include/features.h /usr/include/features-time64.h \
  /usr/include/x86_64-linux-gnu/bits/wordsize.h \
@@ -9,20 +9,19 @@ CMakeFiles/luminique.dir/std/std.c.o: \
  /usr/include/x86_64-linux-gnu/bits/long-double.h \
  /usr/include/x86_64-linux-gnu/gnu/stubs.h \
  /usr/include/x86_64-linux-gnu/gnu/stubs-64.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/stddef.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/stdarg.h \
  /usr/include/x86_64-linux-gnu/bits/types.h \
  /usr/include/x86_64-linux-gnu/bits/typesizes.h \
  /usr/include/x86_64-linux-gnu/bits/time64.h \
- /usr/include/x86_64-linux-gnu/bits/types/__fpos_t.h \
- /usr/include/x86_64-linux-gnu/bits/types/__mbstate_t.h \
- /usr/include/x86_64-linux-gnu/bits/types/__fpos64_t.h \
- /usr/include/x86_64-linux-gnu/bits/types/__FILE.h \
- /usr/include/x86_64-linux-gnu/bits/types/FILE.h \
- /usr/include/x86_64-linux-gnu/bits/types/struct_FILE.h \
- /usr/include/x86_64-linux-gnu/bits/stdio_lim.h \
+ /usr/include/x86_64-linux-gnu/bits/math-vector.h \
+ /usr/include/x86_64-linux-gnu/bits/libm-simd-decl-stubs.h \
  /usr/include/x86_64-linux-gnu/bits/floatn.h \
- /usr/include/x86_64-linux-gnu/bits/floatn-common.h /usr/include/stdlib.h \
+ /usr/include/x86_64-linux-gnu/bits/floatn-common.h \
+ /usr/include/x86_64-linux-gnu/bits/flt-eval-method.h \
+ /usr/include/x86_64-linux-gnu/bits/fp-logb.h \
+ /usr/include/x86_64-linux-gnu/bits/fp-fast.h \
+ /usr/include/x86_64-linux-gnu/bits/mathcalls-helper-functions.h \
+ /usr/include/x86_64-linux-gnu/bits/mathcalls.h /usr/include/stdlib.h \
+ /usr/lib/gcc/x86_64-linux-gnu/11/include/stddef.h \
  /usr/include/x86_64-linux-gnu/bits/waitflags.h \
  /usr/include/x86_64-linux-gnu/bits/waitstatus.h \
  /usr/include/x86_64-linux-gnu/sys/types.h \
@@ -47,12 +46,37 @@ CMakeFiles/luminique.dir/std/std.c.o: \
  /usr/include/x86_64-linux-gnu/bits/atomic_wide_counter.h \
  /usr/include/x86_64-linux-gnu/bits/struct_mutex.h \
  /usr/include/x86_64-linux-gnu/bits/struct_rwlock.h /usr/include/alloca.h \
- /usr/include/x86_64-linux-gnu/bits/stdlib-float.h /usr/include/string.h \
+ /usr/include/x86_64-linux-gnu/bits/stdlib-float.h \
+ /usr/lib/gcc/x86_64-linux-gnu/11/include/float.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/statistics/statistics.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/statistics/../common.h \
+ /usr/lib/gcc/x86_64-linux-gnu/11/include/stdbool.h \
+ /usr/lib/gcc/x86_64-linux-gnu/11/include/stdint.h /usr/include/stdint.h \
+ /usr/include/x86_64-linux-gnu/bits/wchar.h \
+ /usr/include/x86_64-linux-gnu/bits/stdint-uintn.h /usr/include/stdio.h \
+ /usr/lib/gcc/x86_64-linux-gnu/11/include/stdarg.h \
+ /usr/include/x86_64-linux-gnu/bits/types/__fpos_t.h \
+ /usr/include/x86_64-linux-gnu/bits/types/__mbstate_t.h \
+ /usr/include/x86_64-linux-gnu/bits/types/__fpos64_t.h \
+ /usr/include/x86_64-linux-gnu/bits/types/__FILE.h \
+ /usr/include/x86_64-linux-gnu/bits/types/FILE.h \
+ /usr/include/x86_64-linux-gnu/bits/types/struct_FILE.h \
+ /usr/include/x86_64-linux-gnu/bits/stdio_lim.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/statistics/../string/string.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/statistics/../string/../common.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/statistics/../string/../table/table.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/statistics/../string/../table/../common.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/statistics/../string/../table/../value/value.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/statistics/../string/../table/../value/../common.h \
+ /usr/include/string.h \
  /usr/include/x86_64-linux-gnu/bits/types/locale_t.h \
  /usr/include/x86_64-linux-gnu/bits/types/__locale_t.h \
  /usr/include/strings.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/luminique/std/std.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/luminique/std/../object/object.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/statistics/../string/../chunk/chunk.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/statistics/../string/../chunk/../common.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/statistics/../string/../chunk/../value/value.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/statistics/../string/../value/value.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/statistics/../string/../object/object.h \
  /usr/include/x86_64-linux-gnu/sys/stat.h \
  /usr/include/x86_64-linux-gnu/bits/stat.h \
  /usr/include/x86_64-linux-gnu/bits/struct_stat.h /usr/include/SDL2/SDL.h \
@@ -61,20 +85,9 @@ CMakeFiles/luminique.dir/std/std.c.o: \
  /usr/include/x86_64-linux-gnu/SDL2/_real_SDL_config.h \
  /usr/include/SDL2/SDL_platform.h /usr/include/SDL2/begin_code.h \
  /usr/include/SDL2/close_code.h /usr/include/wchar.h \
- /usr/include/x86_64-linux-gnu/bits/wchar.h \
  /usr/include/x86_64-linux-gnu/bits/types/wint_t.h \
  /usr/include/x86_64-linux-gnu/bits/types/mbstate_t.h \
- /usr/include/inttypes.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/stdint.h /usr/include/stdint.h \
- /usr/include/x86_64-linux-gnu/bits/stdint-uintn.h /usr/include/ctype.h \
- /usr/include/math.h /usr/include/x86_64-linux-gnu/bits/math-vector.h \
- /usr/include/x86_64-linux-gnu/bits/libm-simd-decl-stubs.h \
- /usr/include/x86_64-linux-gnu/bits/flt-eval-method.h \
- /usr/include/x86_64-linux-gnu/bits/fp-logb.h \
- /usr/include/x86_64-linux-gnu/bits/fp-fast.h \
- /usr/include/x86_64-linux-gnu/bits/mathcalls-helper-functions.h \
- /usr/include/x86_64-linux-gnu/bits/mathcalls.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/float.h \
+ /usr/include/inttypes.h /usr/include/ctype.h \
  /usr/include/SDL2/SDL_assert.h /usr/include/SDL2/SDL_atomic.h \
  /usr/include/SDL2/SDL_platform.h /usr/include/SDL2/SDL_audio.h \
  /usr/include/SDL2/SDL_error.h /usr/include/SDL2/SDL_endian.h \
@@ -181,29 +194,18 @@ CMakeFiles/luminique.dir/std/std.c.o: \
  /usr/include/SDL2/SDL_shape.h /usr/include/SDL2/SDL_system.h \
  /usr/include/SDL2/SDL_timer.h /usr/include/SDL2/SDL_version.h \
  /usr/include/SDL2/SDL_locale.h /usr/include/SDL2/SDL_misc.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/luminique/std/../object/../common.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/stdbool.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/luminique/std/../object/../table/table.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/luminique/std/../object/../table/../common.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/luminique/std/../object/../table/../value/value.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/luminique/std/../object/../table/../value/../common.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/luminique/std/../object/../chunk/chunk.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/luminique/std/../object/../chunk/../common.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/luminique/std/../object/../chunk/../value/value.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/luminique/std/../object/../value/value.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/luminique/std/../vm/vm.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/luminique/std/../vm/../object/object.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/luminique/std/../vm/../table/table.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/luminique/std/../vm/../value/value.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/luminique/std/../native/native.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/luminique/std/../native/../object/object.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/luminique/std/../native/../vm/vm.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/luminique/std/../assert/assert.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/luminique/std/../assert/../common.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/luminique/std/../assert/../value/value.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/luminique/std/../string/string.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/luminique/std/../string/../common.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/luminique/std/../string/../table/table.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/luminique/std/../string/../chunk/chunk.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/luminique/std/../string/../value/value.h \
- /home/davide/Vs\ Code\ Projects/c/compiler/luminique/std/../string/../object/object.h
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/statistics/../string/../object/../common.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/statistics/../string/../object/../table/table.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/statistics/../string/../object/../chunk/chunk.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/statistics/../string/../object/../value/value.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/statistics/../assert/assert.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/statistics/../assert/../common.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/statistics/../assert/../value/value.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/statistics/../native/native.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/statistics/../native/../object/object.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/statistics/../native/../vm/vm.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/statistics/../native/../vm/../object/object.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/statistics/../native/../vm/../table/table.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/statistics/../native/../vm/../value/value.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/statistics/../value/value.h \
+ /home/davide/Vs\ Code\ Projects/c/compiler/luminique/statistics/../vm/vm.h

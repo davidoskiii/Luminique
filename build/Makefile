@@ -633,29 +633,29 @@ scanner/scanner.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/luminique.dir/build.make CMakeFiles/luminique.dir/scanner/scanner.c.s
 .PHONY : scanner/scanner.c.s
 
-std/std.o: std/std.c.o
-.PHONY : std/std.o
+statistics/statistics.o: statistics/statistics.c.o
+.PHONY : statistics/statistics.o
 
 # target to build an object file
-std/std.c.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/luminique.dir/build.make CMakeFiles/luminique.dir/std/std.c.o
-.PHONY : std/std.c.o
+statistics/statistics.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/luminique.dir/build.make CMakeFiles/luminique.dir/statistics/statistics.c.o
+.PHONY : statistics/statistics.c.o
 
-std/std.i: std/std.c.i
-.PHONY : std/std.i
+statistics/statistics.i: statistics/statistics.c.i
+.PHONY : statistics/statistics.i
 
 # target to preprocess a source file
-std/std.c.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/luminique.dir/build.make CMakeFiles/luminique.dir/std/std.c.i
-.PHONY : std/std.c.i
+statistics/statistics.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/luminique.dir/build.make CMakeFiles/luminique.dir/statistics/statistics.c.i
+.PHONY : statistics/statistics.c.i
 
-std/std.s: std/std.c.s
-.PHONY : std/std.s
+statistics/statistics.s: statistics/statistics.c.s
+.PHONY : statistics/statistics.s
 
 # target to generate assembly for a file
-std/std.c.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/luminique.dir/build.make CMakeFiles/luminique.dir/std/std.c.s
-.PHONY : std/std.c.s
+statistics/statistics.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/luminique.dir/build.make CMakeFiles/luminique.dir/statistics/statistics.c.s
+.PHONY : statistics/statistics.c.s
 
 string/string.o: string/string.c.o
 .PHONY : string/string.o
@@ -897,9 +897,9 @@ help:
 	@echo "... scanner/scanner.o"
 	@echo "... scanner/scanner.i"
 	@echo "... scanner/scanner.s"
-	@echo "... std/std.o"
-	@echo "... std/std.i"
-	@echo "... std/std.s"
+	@echo "... statistics/statistics.o"
+	@echo "... statistics/statistics.i"
+	@echo "... statistics/statistics.s"
 	@echo "... string/string.o"
 	@echo "... string/string.i"
 	@echo "... string/string.s"

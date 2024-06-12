@@ -29,7 +29,7 @@ set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "/home/davide/Vs Code Projects/c/compiler/luminique/pcg/pcg.c" "CMakeFiles/luminique.dir/pcg/pcg.c.o" "gcc" "CMakeFiles/luminique.dir/pcg/pcg.c.o.d"
   "/home/davide/Vs Code Projects/c/compiler/luminique/random/random.c" "CMakeFiles/luminique.dir/random/random.c.o" "gcc" "CMakeFiles/luminique.dir/random/random.c.o.d"
   "/home/davide/Vs Code Projects/c/compiler/luminique/scanner/scanner.c" "CMakeFiles/luminique.dir/scanner/scanner.c.o" "gcc" "CMakeFiles/luminique.dir/scanner/scanner.c.o.d"
-  "/home/davide/Vs Code Projects/c/compiler/luminique/std/std.c" "CMakeFiles/luminique.dir/std/std.c.o" "gcc" "CMakeFiles/luminique.dir/std/std.c.o.d"
+  "/home/davide/Vs Code Projects/c/compiler/luminique/statistics/statistics.c" "CMakeFiles/luminique.dir/statistics/statistics.c.o" "gcc" "CMakeFiles/luminique.dir/statistics/statistics.c.o.d"
   "/home/davide/Vs Code Projects/c/compiler/luminique/string/string.c" "CMakeFiles/luminique.dir/string/string.c.o" "gcc" "CMakeFiles/luminique.dir/string/string.c.o.d"
   "/home/davide/Vs Code Projects/c/compiler/luminique/sys/sys.c" "CMakeFiles/luminique.dir/sys/sys.c.o" "gcc" "CMakeFiles/luminique.dir/sys/sys.c.o.d"
   "/home/davide/Vs Code Projects/c/compiler/luminique/table/table.c" "CMakeFiles/luminique.dir/table/table.c.o" "gcc" "CMakeFiles/luminique.dir/table/table.c.o.d"
