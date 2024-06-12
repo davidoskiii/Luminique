@@ -1,4 +1,4 @@
-let range = Range(0, 4);
+let range = 0...4;
 println("Creating an object of range: ${range}");
 println("Length of range: ${range.length()}");
 

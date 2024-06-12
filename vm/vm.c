@@ -783,6 +783,17 @@ InterpretResult run() {
         makeDictionary(entryCount); 
         break;
       }
+      case OP_RANGE: {
+        if (IS_INT(peek(0)) && IS_INT(peek(1))) {
+          int b = AS_INT(pop());
+          int a = AS_INT(pop());
+          push(OBJ_VAL(newRange(a, b)));
+        } else {
+          ObjClass* exceptionClass = getNativeClass("luminique::std::lang", "IllegalArgumentException");
+          throwException(exceptionClass, "Operand must be two integers.");
+        }
+        break;
+      }
       case OP_NAMESPACE: {
         uint8_t namespaceDepth = READ_BYTE();
         vm.currentNamespace = declareNamespace(namespaceDepth);
