@@ -1,0 +1,11 @@
+let range = Range(0, 4);
+println("Creating an object of range: ${range}");
+println("Length of range: ${range.length()}");
+
+print("Values in Range: ( ");
+
+for (n : range){ 
+  print("${n} ");
+}
+
+println(")");
