@@ -62,6 +62,13 @@ ObjArray* newArray() {
   return array;
 }
 
+ObjRange* newRange(int from, int to) {
+  ObjRange* range = ALLOCATE_OBJ(ObjRange, OBJ_RANGE, vm.rangeClass);
+  range->from = from;
+  range->to = to;
+  return range;
+}
+
 ObjWindow* newWindow(const char* title, int width, int height) {
   ObjWindow* window = ALLOCATE_OBJ(ObjWindow, OBJ_WINDOW, vm.windowClass);
   window->window = SDL_CreateWindow(title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_HIDDEN);
@@ -292,6 +299,9 @@ void printObject(Value value) {
       break;
     case OBJ_MODULE:
       printf("<module %s>", AS_MODULE(value)->path->chars);
+      break;
+    case OBJ_RANGE:
+      printf("%d...%d", AS_RANGE(value)->from, AS_RANGE(value)->to);
       break;
     case OBJ_WINDOW:
       printf("<%s window>", AS_WINDOW(value)->title);

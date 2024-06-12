@@ -189,6 +189,10 @@ static void freeObject(Obj* object) {
       FREE(ObjDictionary, object);
       break;
     }
+    case OBJ_RANGE: {
+      FREE(ObjRange, object);
+      break;
+    }
     case OBJ_ENTRY: {
       FREE(ObjEntry, object);
       break;

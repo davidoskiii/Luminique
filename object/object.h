@@ -220,6 +220,7 @@ ObjDictionary* newDictionary();
 ObjClass* newClass(ObjString* name);
 ObjModule* newModule(ObjString* path);
 ObjNamespace* newNamespace(ObjString* shortName, ObjNamespace* enclosing);
+ObjRange* newRange(int from, int to);
 ObjWindow* newWindow(const char* title, int width, int height);
 ObjClosure* newClosure(ObjFunction* function);
 ObjFunction* newFunction();
