@@ -748,6 +748,7 @@ static void binary(bool canAssign) {
     case TOKEN_SLASH:         emitByte(OP_DIVIDE); break;
     case TOKEN_MODULO:        emitByte(OP_MODULO); break;
     case TOKEN_POWER:         emitByte(OP_POWER); break;
+    case TOKEN_DOT_DOT_DOT:   emitByte(OP_RANGE); break;
     default: return; // Unreachable.
   }
 }
@@ -1204,7 +1205,7 @@ ParseRule rules[] = {
   [TOKEN_COMMA]         = {NULL,          NULL,      PREC_NONE},
   [TOKEN_DOT]           = {NULL,          dot,       PREC_CALL},
   [TOKEN_COLON_COLON]   = {NULL,          coloncolon,PREC_CALL},
-  [TOKEN_DOT_DOT_DOT]   = {NULL,          binary,    PREC_NONE},
+  [TOKEN_DOT_DOT_DOT]   = {NULL,          binary,    PREC_CALL},
   [TOKEN_MINUS_MINUS]   = {NULL,          NULL,      PREC_CALL},
   [TOKEN_MINUS]         = {unary,         binary,    PREC_TERM},
   [TOKEN_PLUS_PLUS]     = {NULL,          NULL,      PREC_CALL},
