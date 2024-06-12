@@ -24,6 +24,7 @@
 #define IS_FILE(value) isObjType(value, OBJ_FILE)
 #define IS_RECORD(value) isObjType(value, OBJ_RECORD)
 #define IS_ARRAY(value) isObjType(value, OBJ_ARRAY)
+#define IS_RANGE(value) isObjType(value, OBJ_RANGE)
 #define IS_WINDOW(value) isObjType(value, OBJ_WINDOW)
 #define IS_NATIVE_FUNCTION(value) isObjType(value, OBJ_NATIVE_FUNCTION)
 #define IS_NATIVE_METHOD(value) isObjType(value, OBJ_NATIVE_METHOD)
@@ -41,6 +42,7 @@
 #define AS_FILE(value) ((ObjFile*)AS_OBJ(value))
 #define AS_RECORD(value) ((ObjRecord*)AS_OBJ(value))
 #define AS_ARRAY(value) ((ObjArray*)AS_OBJ(value))
+#define AS_RANGE(value) ((ObjRange*)AS_OBJ(value))
 #define AS_WINDOW(value) ((ObjWindow*)AS_OBJ(value))
 #define AS_NATIVE_FUNCTION(value) ((ObjNativeFunction*)AS_OBJ(value))
 #define AS_NATIVE_METHOD(value) ((ObjNativeMethod*)AS_OBJ(value))
@@ -65,6 +67,7 @@ typedef enum {
   OBJ_NATIVE_FUNCTION,
   OBJ_NATIVE_METHOD,
   OBJ_STRING,
+  OBJ_RANGE,
   OBJ_WINDOW,
   OBJ_UPVALUE
 } ObjType;
@@ -191,6 +194,12 @@ typedef struct ObjDictionary {
   int count;
   ObjEntry* entries;
 } ObjDictionary;
+
+typedef struct {
+  Obj obj;
+  int from;
+  int to;
+} ObjRange;
 
 typedef struct {
   Obj obj;
