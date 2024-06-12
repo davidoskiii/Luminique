@@ -376,9 +376,9 @@ NATIVE_METHOD(Collection, append) {
   RETURN_NIL;
 }
 
-NATIVE_METHOD(Collection, appendCollection) {
-  assertArgCount("Collection::appendCollection(collection)", 1, argCount);
-  assertObjInstanceOfClass("Collection::appendCollection(collection)", args[0], "luminique::std::collection", "Collection", 0);
+NATIVE_METHOD(Collection, extend) {
+  assertArgCount("Collection::extend(collection)", 1, argCount);
+  assertObjInstanceOfClass("Collection::extend(collection)", args[0], "luminique::std::collection", "Collection", 0);
   Value collection = args[0];
   Value addMethod = getObjMethod(receiver, "append");
   Value nextMethod = getObjMethod(collection, "next");
@@ -577,9 +577,9 @@ NATIVE_METHOD(Array, append) {
 	RETURN_OBJ(&receiver);
 }
 
-NATIVE_METHOD(Array, appendArray) {
-	assertArgCount("Array::appendArray(array)", 1, argCount);
-	assertArgIsArray("Array::appendArray(array)", args, 0);
+NATIVE_METHOD(Array, extend) {
+	assertArgCount("Array::extend(array)", 1, argCount);
+	assertArgIsArray("Array::extend(array)", args, 0);
 	arrayAddAll(AS_ARRAY(args[0]), AS_ARRAY(receiver));
 	return receiver;
 }
@@ -876,6 +876,197 @@ NATIVE_METHOD(Dictionary, __str__) {
 	RETURN_OBJ(dictToString(AS_DICTIONARY(receiver)));
 }
 
+NATIVE_METHOD(Range, __init__) {
+	assertArgCount("Range::__init__()", 2, argCount);
+  assertArgIsInt("Range::__init__(from, to)", args, 0);
+  assertArgIsInt("Range::__init__(from, to)", args, 1);
+  int from = AS_INT(args[0]);
+  int to = AS_INT(args[1]);
+
+  ObjRange* range = newRange(from, to);
+  RETURN_OBJ(range);
+}
+
+NATIVE_METHOD(Range, clone) {
+  assertArgCount("Range::clone()", 0, argCount);
+  ObjRange* self = AS_RANGE(receiver);
+  ObjRange* range = newRange(self->from, self->to);
+  RETURN_OBJ(range);
+}
+
+NATIVE_METHOD(Range, contains) {
+  assertArgCount("Range::contains(element)", 1, argCount);
+  if (!IS_INT(args[0])) RETURN_FALSE;
+  ObjRange* self = AS_RANGE(receiver);
+  int element = AS_INT(args[0]);
+  if (self->from < self->to) RETURN_BOOL(element >= self->from && element <= self->to);
+  else RETURN_BOOL(element >= self->to && element <= self->from);
+}
+
+NATIVE_METHOD(Range, from) {
+  assertArgCount("Range::from()", 0, argCount);
+  ObjRange* self = AS_RANGE(receiver);
+  RETURN_INT(self->from);
+}
+
+NATIVE_METHOD(Range, getAt) {
+  assertArgCount("Range::getAt(index)", 1, argCount);
+  assertArgIsInt("Range::getAt(index)", args, 0);
+  ObjRange* self = AS_RANGE(receiver);
+  int index = AS_INT(args[0]);
+
+  int min = (self->from < self->to) ? self->from : self->to;
+  int max = (self->from < self->to) ? self->to : self->from;
+  assertIntWithinRange("Range::getAt(index)", index, min, max, 0);
+  RETURN_INT(self->from + index);
+}
+
+NATIVE_METHOD(Range, length) {
+  assertArgCount("Range::length()", 0, argCount);
+  ObjRange* self = AS_RANGE(receiver);
+  RETURN_INT(abs(self->to - self->from) + 1);
+}
+
+NATIVE_METHOD(Range, max) {
+  assertArgCount("Range::max()", 0, argCount);
+  ObjRange* self = AS_RANGE(receiver);
+  RETURN_INT((self->from < self->to) ? self->to : self->from);
+}
+
+NATIVE_METHOD(Range, min) {
+  assertArgCount("Range::min()", 0, argCount);
+  ObjRange* self = AS_RANGE(receiver);
+  RETURN_INT((self->from < self->to) ? self->from : self->to);
+}
+
+NATIVE_METHOD(Range, next) {
+  assertArgCount("Range::next(index)", 1, argCount);
+  ObjRange* self = AS_RANGE(receiver);
+  if (IS_NIL(args[0])) {
+    if (self->from == self->to) RETURN_FALSE;
+    RETURN_INT(0);
+  }
+
+  assertArgIsInt("Range::next(index)", args, 0);
+  int index = AS_INT(args[0]);
+  if (index < 0 || index < abs(self->to - self->from)) RETURN_INT(index + 1);
+  RETURN_NIL;
+}
+
+NATIVE_METHOD(Range, nextValue) {
+  assertArgCount("Range::nextValue(index)", 1, argCount);
+  assertArgIsInt("Range::nextValue(index)", args, 0);
+  ObjRange* self = AS_RANGE(receiver);
+  int index = AS_INT(args[0]);
+
+  int step = (self->from < self->to) ? index : -index;
+  if (index > -1 && index < abs(self->to - self->from) + 1) RETURN_INT(self->from + step);
+  RETURN_NIL;
+}
+
+NATIVE_METHOD(Range, step) {
+  assertArgCount("Range::step(by, closure)", 2, argCount);
+  assertArgIsNumber("Range::step(by, closure)", args, 0);
+  assertArgIsClosure("Range::step(by, closure)", args, 1);
+  ObjRange* self = AS_RANGE(receiver);
+  double from = self->from;
+  double to = self->to;
+  double by = AS_NUMBER(args[0]);
+  ObjClosure* closure = AS_CLOSURE(args[1]);
+
+  if (by == 0) { 
+    THROW_EXCEPTION(luminique::std::lang, IllegalArgumentException, "Step size cannot be 0.");
+  } else {
+    if (by > 0) {
+      for (double num = from; num <= to; num += by) {
+        callReentrant(receiver, OBJ_VAL(closure), NUMBER_VAL(num));
+      }
+    } else {
+      for (double num = from; num >= to; num += by) {
+        callReentrant(receiver, OBJ_VAL(closure), NUMBER_VAL(num));
+      }
+    }
+  }
+  RETURN_NIL;
+}
+
+NATIVE_METHOD(Range, to) {
+  assertArgCount("Range::to()", 0, argCount);
+  ObjRange* self = AS_RANGE(receiver);
+  RETURN_INT(self->to);
+}
+
+NATIVE_METHOD(Range, toArray) {
+  assertArgCount("Range::toArray()", 0, argCount);
+  ObjRange* self = AS_RANGE(receiver);
+  ObjArray* array = newArray();
+  push(OBJ_VAL(array));
+
+  if (self->from < self->to) {
+    for (int i = self->from; i <= self->to; i++) {
+      writeValueArray(&array->elements, INT_VAL(i));
+    }
+  } else { 
+    for (int i = self->to; i >= self->from; i--) {
+      writeValueArray(&array->elements, INT_VAL(i));
+    }
+  }
+
+  pop();
+  RETURN_OBJ(array);
+}
+
+NATIVE_METHOD(Range, append) {
+  THROW_EXCEPTION(luminique::std::lang, NotImplementedException, "Cannot add an element to instance of class Range.");
+}
+
+NATIVE_METHOD(Range, extend) {
+  THROW_EXCEPTION(luminique::std::lang, NotImplementedException, "Cannot add a collection to instance of class Range.");
+}
+
+NATIVE_METHOD(Range, __str__) {
+  assertArgCount("Range::__str__()", 0, argCount);
+  ObjRange* self = AS_RANGE(receiver);
+  RETURN_STRING_FMT("%d...%d", self->from, self->to);
+}
+
+
+NATIVE_METHOD(List, eachIndex) {
+  assertArgCount("List::eachIndex(closure)", 1, argCount);
+  assertArgIsClosure("List::eachIndex(closure)", args, 0);
+  ObjClosure* closure = AS_CLOSURE(args[0]);
+  Value index = INT_VAL(0);
+  Value nextMethod = getObjMethod(receiver, "next");
+  Value nextValueMethod = getObjMethod(receiver, "nextValue");
+
+  while (index != NIL_VAL) {
+    Value element = callReentrant(receiver, nextValueMethod, index);
+    callReentrant(receiver, OBJ_VAL(closure), index, element);
+    index = callReentrant(receiver, nextMethod, index);
+  }
+  RETURN_NIL;
+}
+
+NATIVE_METHOD(List, getAt) {
+  assertArgCount("List::getAt(index)", 1, argCount);
+  assertArgIsInt("List::getAt(index)", args, 0);
+  int position = AS_INT(args[0]);
+  Value index = INT_VAL(0);
+  Value nextMethod = getObjMethod(receiver, "next");
+  Value nextValueMethod = getObjMethod(receiver, "nextValue");
+
+  while (index != NIL_VAL) {
+    Value element = callReentrant(receiver, nextValueMethod, index);
+    if (index == position) RETURN_VAL(element);
+    index = callReentrant(receiver, nextMethod, index);
+  }
+  RETURN_NIL;
+}
+
+NATIVE_METHOD(List, putAt) {
+  THROW_EXCEPTION(luminique::std::lang, NotImplementedException, "Not implemented, subclass responsibility.");
+}
+
 void registerCollectionPackage() {
   ObjNamespace* collectionNamespace = defineNativeNamespace("collection", vm.stdNamespace);
   vm.currentNamespace = vm.langNamespace;
@@ -884,7 +1075,7 @@ void registerCollectionPackage() {
   bindSuperclass(collectionClass, vm.objectClass);
   DEF_METHOD(collectionClass, Collection, __init__, 0);
   DEF_METHOD(collectionClass, Collection, append, 1);
-  DEF_METHOD(collectionClass, Collection, appendCollection, 1);
+  DEF_METHOD(collectionClass, Collection, extend, 1);
   DEF_METHOD(collectionClass, Collection, collect, 1);
   DEF_METHOD(collectionClass, Collection, detect, 1);
   DEF_METHOD(collectionClass, Collection, each, 1);
@@ -894,11 +1085,17 @@ void registerCollectionPackage() {
   DEF_METHOD(collectionClass, Collection, select, 1);
   DEF_METHOD(collectionClass, Collection, toArray, 0);
 
+  ObjClass* listClass = defineNativeClass("List");
+  bindSuperclass(listClass, collectionClass);
+  DEF_METHOD(listClass, List, eachIndex, 1);
+  DEF_METHOD(listClass, List, getAt, 1);
+  DEF_METHOD(listClass, List, putAt, 2);
+
 	vm.arrayClass = defineNativeClass("Array");
-	bindSuperclass(vm.arrayClass, collectionClass);
+	bindSuperclass(vm.arrayClass, listClass);
 	DEF_METHOD(vm.arrayClass, Array, __init__, 0);
 	DEF_METHOD(vm.arrayClass, Array, append, 1);
-  DEF_METHOD(vm.arrayClass, Array, appendArray, 1);
+  DEF_METHOD(vm.arrayClass, Array, extend, 1);
 	DEF_METHOD(vm.arrayClass, Array, clear, 0);
 	DEF_METHOD(vm.arrayClass, Array, clone, 0);
 	DEF_METHOD(vm.arrayClass, Array, contains, 1);
@@ -940,6 +1137,25 @@ void registerCollectionPackage() {
 	DEF_METHOD(vm.dictionaryClass, Dictionary, __str__, 0);
   DEF_OPERATOR(vm.dictionaryClass, Dictionary, [], __getSubscript__, 1);
   DEF_OPERATOR(vm.dictionaryClass, Dictionary, []=, __setSubscript__, 2);
+
+  vm.rangeClass = defineNativeClass("Range");
+  bindSuperclass(vm.rangeClass, listClass);
+  DEF_METHOD(vm.rangeClass, Range, __init__, 2);
+  DEF_METHOD(vm.rangeClass, Range, append, 1);
+  DEF_METHOD(vm.rangeClass, Range, extend, 1);
+  DEF_METHOD(vm.rangeClass, Range, clone, 0);
+  DEF_METHOD(vm.rangeClass, Range, contains, 1);
+  DEF_METHOD(vm.rangeClass, Range, from, 0);
+  DEF_METHOD(vm.rangeClass, Range, getAt, 1);
+  DEF_METHOD(vm.rangeClass, Range, length, 0);
+  DEF_METHOD(vm.rangeClass, Range, max, 0);
+  DEF_METHOD(vm.rangeClass, Range, min, 0);
+  DEF_METHOD(vm.rangeClass, Range, next, 1);
+  DEF_METHOD(vm.rangeClass, Range, nextValue, 1);
+  DEF_METHOD(vm.rangeClass, Range, step, 2);
+  DEF_METHOD(vm.rangeClass, Range, to, 0);
+  DEF_METHOD(vm.rangeClass, Range, toArray, 0);
+  DEF_METHOD(vm.rangeClass, Range, __str__, 0);
 
   vm.currentNamespace = collectionNamespace;
 

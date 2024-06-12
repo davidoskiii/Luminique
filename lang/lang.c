@@ -726,6 +726,7 @@ void registerLangPackage() {
   defineNativeException("IllegalArgumentException", runtimeExceptionClass);
   defineNativeException("IndexOutOfBoundsException", runtimeExceptionClass);
   defineNativeException("UnsupportedOperationException", runtimeExceptionClass);
+  defineNativeException("NotImplementedException", runtimeExceptionClass);
   defineNativeException("AssertException", runtimeExceptionClass);
   defineNativeException("InstantiationException", runtimeExceptionClass);
   defineNativeException("CallException", runtimeExceptionClass);
