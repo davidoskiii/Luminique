@@ -315,6 +315,16 @@ NATIVE_FUNCTION(fabs) {
   RETURN_NUMBER(result);
 }
 
+NATIVE_FUNCTION(abs) {
+  assertArgCount("abs(value)", 1, argCount);
+  assertArgIsInt("abs(value)", args, 0);
+  double result = abs(AS_INT(args[0]));
+  if (isnan(result)) {
+    RETURN_NIL;
+  }
+  RETURN_INT(result);
+}
+
 NATIVE_FUNCTION(fmod) {
   assertArgCount("fmod(x, y)", 2, argCount);
   assertArgIsNumber("fmod(x, y)", args, 0);
@@ -471,6 +481,7 @@ void registerMathPackage() {
   DEF_FUNCTION(ceil, 1);
   DEF_FUNCTION(floor, 1);
   DEF_FUNCTION(round, 1);
+  DEF_FUNCTION(abs, 1);
   DEF_FUNCTION(fabs, 1);
 
   // Additional arithmetic operations
