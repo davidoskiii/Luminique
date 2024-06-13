@@ -340,12 +340,12 @@ void printObject(Value value) {
     case OBJ_INSTANCE:
       if (objMethodExists(value, "__format__")) {
         Value method = getObjMethod(value, "__format__");
-        Value string = callReentrant(value, method);
-        if (!IS_STRING(string)) {
-          ObjClass* exceptionClass = getNativeClass("luminique::std::lang", "IllegalArgumentException");
-          throwException(exceptionClass, "You must return a string from '__format__'.");
-        }
-        printf("%s", AS_CSTRING(string));
+        Value str = callReentrant(value, method);
+        do {
+          Value toStringMethod = getObjMethod(str, "__str__");
+          str = callReentrant(str, toStringMethod);
+        } while (!IS_STRING(str));
+        printf("%s", AS_CSTRING(str));
       } else {
         printf("<object %s>", AS_OBJ(value)->klass->name->chars);
       }
