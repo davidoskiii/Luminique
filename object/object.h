@@ -229,6 +229,7 @@ ObjNativeFunction* newNativeFunction(ObjString* name, int arity, NativeFunction 
 ObjNativeMethod* newNativeMethod(ObjClass* klass, ObjString* name, int arity, NativeMethod method);
 ObjUpvalue* newUpvalue(Value* slot);
 void printObject(Value value);
+bool objMethodExists(Value object, char* name);
 ObjClass* getObjClass(Value value);
 Value getClassProperty(ObjClass* klass, char* name);
 void setClassProperty(ObjClass* klass, char* name, Value value);

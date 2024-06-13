@@ -1,4 +1,6 @@
 #include <stdarg.h>
+#include <time.h>
+#include <unistd.h>
 #include <stdio.h>
 #include <math.h>
 #include <string.h>
@@ -224,9 +226,12 @@ NATIVE_FUNCTION(float) {
 
 NATIVE_FUNCTION(str) {
   assertArgCount("str(value)", 1, argCount);
-  Value toStringMethod = getObjMethod(args[0], "__str__");
+  Value str = args[0];
+  do {
+    Value toStringMethod = getObjMethod(str, "__str__");
+    str = callReentrant(str, toStringMethod);
+  } while (!IS_STRING(str));
 
-  Value str = callReentrant(args[0], toStringMethod);
   RETURN_STRING_FMTL(AS_CSTRING(str));
 }
 

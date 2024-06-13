@@ -3,6 +3,7 @@
 #include <stdarg.h>
 
 #include "object.h"
+#include "../native/native.h"
 #include "../memory/memory.h"
 #include "../table/table.h"
 #include "../value/value.h"
@@ -213,6 +214,15 @@ Value getObjMethod(Value object, char* name) {
   return method;
 }
 
+bool objMethodExists(Value object, char* name) {
+  ObjClass* klass = getObjClass(object);
+  Value method;
+  if (!tableGet(&klass->methods, newString(name), &method)) {
+    return false;
+  }
+  return true;
+}
+
 void setObjProperty(ObjInstance* object, char* name, Value value) {
   tableSet(&object->fields, copyString(name, (int)strlen(name)), value);
 }
@@ -328,7 +338,17 @@ void printObject(Value value) {
       printFunction(AS_FUNCTION(value));
       break;
     case OBJ_INSTANCE:
-      printf("<object %s>", AS_OBJ(value)->klass->name->chars);
+      if (objMethodExists(value, "__format__")) {
+        Value method = getObjMethod(value, "__format__");
+        Value string = callReentrant(value, method);
+        if (!IS_STRING(string)) {
+          ObjClass* exceptionClass = getNativeClass("luminique::std::lang", "IllegalArgumentException");
+          throwException(exceptionClass, "You must return a string from '__format__'.");
+        }
+        printf("%s", AS_CSTRING(string));
+      } else {
+        printf("<object %s>", AS_OBJ(value)->klass->name->chars);
+      }
       break;
     case OBJ_NATIVE_FUNCTION:
       printf("<native function %s>", AS_NATIVE_FUNCTION(value)->name->chars);
