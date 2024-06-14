@@ -1091,7 +1091,7 @@ InterpretResult run() {
         }
         ObjEnum* enumObj = AS_ENUM(peek(0));
         int elementValue = enumObj->nextValue++;
-        tableSet(&enumObj->values, elementName, NUMBER_VAL(elementValue));
+        tableSet(&enumObj->values, elementName, INT_VAL(elementValue));
         break;
       }
       case OP_CLASS: {
