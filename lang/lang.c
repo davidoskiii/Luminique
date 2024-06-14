@@ -122,6 +122,31 @@ NATIVE_METHOD(Class, __str__) {
   else RETURN_STRING_FMT("<class %s::%s>", self->namespace_->fullName->chars, self->name->chars);
 }
 
+// ENUM
+
+NATIVE_METHOD(Enum, __init__) {
+  assertArgCount("Enum::__init__(name)", 1, argCount);
+  assertArgIsString("Enum::__init__(name)", args, 0);
+  ObjEnum* enum_ = newEnum(AS_STRING(args[0]));
+  RETURN_OBJ(enum_);
+}
+
+NATIVE_METHOD(Enum, clone) {
+  assertArgCount("Enum::clone()", 0, argCount);
+  return receiver;
+}
+
+NATIVE_METHOD(Enum, name) {
+  assertArgCount("Enum::name()", 0, argCount);
+  RETURN_OBJ(AS_ENUM(receiver)->name);
+}
+
+NATIVE_METHOD(Enum, __str__) {
+  assertArgCount("Enum::__str__()", 0, argCount);
+  ObjEnum* self = AS_ENUM(receiver);
+  RETURN_STRING_FMT("<enum %s>", self->name->chars);
+}
+
 // FLOAT
 
 NATIVE_METHOD(Float, __init__) {
@@ -704,6 +729,12 @@ void registerLangPackage() {
   DEF_OPERATOR(vm.classClass, Class, (), __invoke__, -1);
   vm.objectClass->obj.klass = vm.classClass;
 
+  vm.enumClass = defineNativeClass("Enum");
+  bindSuperclass(vm.enumClass, vm.objectClass);
+  DEF_METHOD(vm.enumClass, Enum, __init__, 2);
+  DEF_METHOD(vm.enumClass, Enum, clone, 0);
+  DEF_METHOD(vm.enumClass, Enum, name, 0);
+  DEF_METHOD(vm.enumClass, Enum, __str__, 0);
 
   vm.namespaceClass = defineNativeClass("Namespace");
   bindSuperclass(vm.namespaceClass, vm.objectClass);

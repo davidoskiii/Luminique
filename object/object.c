@@ -335,9 +335,12 @@ void printObject(Value value) {
     case OBJ_BOUND_METHOD:
       printFunction(AS_BOUND_METHOD(value)->method->function);
       break;
-    case OBJ_CLASS:
-      printf("%s class", AS_CLASS(value)->name->chars);
+    case OBJ_CLASS: {
+      ObjClass* klass = AS_CLASS(value);
+      if (klass->namespace_->isRoot) printf("<class %s>", klass->name->chars);
+      else printf("<class %s::%s>", klass->namespace_->fullName->chars, klass->name->chars);
       break;
+    }
     case OBJ_CLOSURE:
       printFunction(AS_CLOSURE(value)->function);
       break;
@@ -345,7 +348,7 @@ void printObject(Value value) {
       printFunction(AS_FUNCTION(value));
       break;
     case OBJ_ENUM:
-      printf("%s enum", AS_ENUM(value)->name->chars);
+      printf("<enum %s>", AS_ENUM(value)->name->chars);
     case OBJ_INSTANCE:
       if (objMethodExists(value, "__format__")) {
         Value method = getObjMethod(value, "__format__");
