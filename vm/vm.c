@@ -877,43 +877,64 @@ InterpretResult run() {
       case OP_INCREMENT_GLOBAL:
       case OP_DECREMENT_GLOBAL: {
         ObjString* name = READ_STRING();
+        bool isPrefix = READ_BYTE();
+
         Value value;
         if (!loadGlobal(name, &value)) {
           runtimeError("Undefined variable '%s'.", name->chars);
           return INTERPRET_RUNTIME_ERROR;
         }
+
         if (!IS_NUMBER(value)) {
           runtimeError("Operand must be a number.");
           return INTERPRET_RUNTIME_ERROR;
         }
+
         double delta = (instruction == OP_INCREMENT_GLOBAL) ? 1.0 : -1.0;
         if (tableSet(&vm.globals, name, NUMBER_VAL(AS_NUMBER(value) + delta))) {
           tableDelete(&vm.globals, name); 
           runtimeError("Undefined variable '%s'.", name->chars);
           return INTERPRET_RUNTIME_ERROR;
         }
+        if (isPrefix) {
+          pop();
+          push(NUMBER_VAL(AS_NUMBER(value) + delta));
+        }
         break;
       }
       case OP_INCREMENT_LOCAL:
       case OP_DECREMENT_LOCAL: {
         uint8_t slot = READ_BYTE();
+        bool isPrefix = READ_BYTE();
+
         if (!IS_NUMBER(frame->slots[slot])) {
           runtimeError("Operand must be a number.");
           return INTERPRET_RUNTIME_ERROR;
         }
         double delta = (instruction == OP_INCREMENT_LOCAL) ? 1.0 : -1.0;
         frame->slots[slot] = NUMBER_VAL(AS_NUMBER(frame->slots[slot]) + delta);
+
+        if (isPrefix) {
+          pop();
+          push(NUMBER_VAL(AS_NUMBER(frame->slots[slot]) + delta));
+        }
         break;
       }
       case OP_INCREMENT_UPVALUE:
       case OP_DECREMENT_UPVALUE: {
         uint8_t slot = READ_BYTE();
+        bool isPrefix = READ_BYTE();
         if (!IS_NUMBER(*frame->closure->upvalues[slot]->location)) {
           runtimeError("Operand must be a number.");
           return INTERPRET_RUNTIME_ERROR;
         }
         double delta = (instruction == OP_INCREMENT_UPVALUE) ? 1.0 : -1.0;
         *frame->closure->upvalues[slot]->location = NUMBER_VAL(AS_NUMBER(*frame->closure->upvalues[slot]->location) + delta);
+
+        if (isPrefix) {
+          pop();
+          push(NUMBER_VAL(AS_NUMBER(*frame->closure->upvalues[slot]->location) + delta));
+        }
         break;
       }
       case OP_GET_LOCAL: {

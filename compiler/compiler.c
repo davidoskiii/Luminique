@@ -873,7 +873,63 @@ static void dictionary(bool canAssign) {
   emitBytes(OP_DICTIONARY, entryCount);
 }
 
-static void increment(bool canAssign) {
+static void preinc(bool canAssign) {
+  if (parser.previous.type == TOKEN_IDENTIFIER) {
+    uint8_t incrementOp, getOp;
+    bool isConstant = false;
+    Token name = parser.previous;
+    int arg = resolveLocal(current, &name);
+    if (arg != -1) {
+      incrementOp = OP_INCREMENT_LOCAL;
+    } else if ((arg = resolveUpvalue(current, &name)) != -1) {
+      incrementOp = OP_INCREMENT_UPVALUE;
+    } else {
+      arg = identifierConstant(&name);
+      isConstant = true;
+      incrementOp = OP_INCREMENT_GLOBAL;
+    }
+
+    emitByte(incrementOp);
+    if (isConstant) {
+      emitShort((uint16_t)arg);
+    } else {
+      emitByte((uint8_t)arg);
+    }
+    emitByte(1);
+  } else {
+    error("Unexpected use of pre-increment operator.");
+  }
+}
+
+static void predec(bool canAssign) {
+  if (parser.previous.type == TOKEN_IDENTIFIER) {
+    uint8_t decrementOp, getOp;
+    bool isConstant = false;
+    Token name = parser.previous;
+    int arg = resolveLocal(current, &name);
+    if (arg != -1) {
+      decrementOp = OP_DECREMENT_LOCAL;
+    } else if ((arg = resolveUpvalue(current, &name)) != -1) {
+      decrementOp = OP_DECREMENT_UPVALUE;
+    } else {
+      arg = identifierConstant(&name);
+      isConstant = true;
+      decrementOp = OP_DECREMENT_GLOBAL;
+    }
+
+    emitByte(decrementOp);
+    if (isConstant) {
+      emitShort((uint16_t)arg);
+    } else {
+      emitByte((uint8_t)arg);
+    }
+    emitByte(1);
+  } else {
+    error("Unexpected use of pre-decrement operator.");
+  }
+}
+
+static void postinc(bool canAssign) {
   if (canAssign && (parser.pprevious.type == TOKEN_IDENTIFIER)) {
     uint8_t incrementOp;
     bool isConstant = false;
@@ -895,12 +951,13 @@ static void increment(bool canAssign) {
     } else {
       emitByte((uint8_t)arg);
     }
+    emitByte(0);
   } else {
-    error("Unexpected use of increment operator.");
+    error("Unexpected use of post-increment operator.");
   }
 }
 
-static void decrement(bool canAssign) {
+static void postdec(bool canAssign) {
   if (canAssign && (parser.pprevious.type == TOKEN_IDENTIFIER)) {
     uint8_t decrementOp;
     bool isConstant = false;
@@ -922,8 +979,9 @@ static void decrement(bool canAssign) {
     } else {
       emitByte((uint8_t)arg);
     }
+    emitByte(0);
   } else {
-    error("Unexpected use of increment operator.");
+    error("Unexpected use of post-decrement operator.");
   }
 }
 
@@ -1247,81 +1305,83 @@ static void unary(bool canAssign) {
     case TOKEN_PLUS: emitByte(OP_AFFERM); break;
     case TOKEN_TILDA: emitByte(OP_BITNOT); break;
     case TOKEN_MINUS: emitByte(OP_NEGATE); break;
+    case TOKEN_MINUS_MINUS: predec(canAssign); break;
+    case TOKEN_PLUS_PLUS: preinc(canAssign); break;
     default: return; // Unreachable.
   }
 }
 
 ParseRule rules[] = {
-  [TOKEN_LEFT_BRAKE]    = {array,         subscript, PREC_CALL}, 
-  [TOKEN_RIGHT_BRAKE]   = {NULL,          NULL,      PREC_NONE},
-  [TOKEN_LEFT_PAREN]    = {grouping,      call,      PREC_CALL},
-  [TOKEN_RIGHT_PAREN]   = {NULL,          NULL,      PREC_NONE},
-  [TOKEN_LEFT_BRACE]    = {dictionary,    NULL,      PREC_NONE}, 
-  [TOKEN_RIGHT_BRACE]   = {NULL,          NULL,      PREC_NONE},
-  [TOKEN_COMMA]         = {NULL,          NULL,      PREC_NONE},
-  [TOKEN_DOT]           = {NULL,          dot,       PREC_CALL},
-  [TOKEN_COLON_COLON]   = {NULL,          coloncolon,PREC_CALL},
-  [TOKEN_DOT_DOT_DOT]   = {NULL,          binary,    PREC_CALL},
-  [TOKEN_MINUS_MINUS]   = {NULL,          decrement, PREC_CALL},
-  [TOKEN_MINUS]         = {unary,         binary,    PREC_TERM},
-  [TOKEN_PLUS_PLUS]     = {NULL,          increment, PREC_CALL},
-  [TOKEN_PLUS]          = {unary,         binary,    PREC_TERM},
-  [TOKEN_SEMICOLON]     = {NULL,          NULL,      PREC_NONE},
-  [TOKEN_SLASH]         = {NULL,          binary,    PREC_FACTOR},
-  [TOKEN_STAR]          = {NULL,          binary,    PREC_FACTOR},
-  [TOKEN_MODULO]        = {NULL,          binary,    PREC_FACTOR},
-  [TOKEN_POWER]         = {NULL,          binary,    PREC_FACTOR},
-  [TOKEN_BANG]          = {unary,         NULL,      PREC_NONE},
-  [TOKEN_BANG_EQUAL]    = {NULL,          binary,    PREC_EQUALITY},
-  [TOKEN_EQUAL]         = {NULL,          NULL,      PREC_NONE},
-  [TOKEN_EQUAL_EQUAL]   = {NULL,          binary,    PREC_EQUALITY},
-  [TOKEN_GREATER]       = {NULL,          binary,    PREC_COMPARISON},
-  [TOKEN_GREATER_EQUAL] = {NULL,          binary,    PREC_COMPARISON},
-  [TOKEN_LESS]          = {NULL,          binary,    PREC_COMPARISON},
-  [TOKEN_LESS_EQUAL]    = {NULL,          binary,    PREC_COMPARISON},
-  [TOKEN_TYPEOF]        = {typeof_,       NULL,      PREC_NONE},
-  [TOKEN_IDENTIFIER]    = {variable,      NULL,      PREC_NONE},
-  [TOKEN_STRING]        = {string,        NULL,      PREC_NONE},
-  [TOKEN_INTERPOLATION] = {interpolation, NULL,      PREC_NONE},
-  [TOKEN_NUMBER]        = {number,        NULL,      PREC_NONE},
-  [TOKEN_INT]           = {integer,       NULL,      PREC_NONE},
-  [TOKEN_HEX]           = {hex,           NULL,      PREC_NONE},
-  [TOKEN_BIN]           = {bin,           NULL,      PREC_NONE},
-  [TOKEN_OCT]           = {octal,         NULL,      PREC_NONE},
-  [TOKEN_AND]           = {NULL,          and_,      PREC_AND},
-  [TOKEN_AMP]           = {NULL,          bitand,    PREC_BIT_AND},
-  [TOKEN_SHOWEL_L]      = {NULL,          showel,    PREC_SHIFT},
-  [TOKEN_SHOWEL_R]      = {NULL,          showel,    PREC_SHIFT},
-  [TOKEN_CLASS]         = {NULL,          NULL,      PREC_NONE},
-  [TOKEN_ELSE]          = {NULL,          NULL,      PREC_NONE},
-  [TOKEN_FALSE]         = {literal,       NULL,      PREC_NONE},
-  [TOKEN_FOR]           = {NULL,          NULL,      PREC_NONE},
-  [TOKEN_ASSERT]        = {NULL,          NULL,      PREC_NONE},
-  [TOKEN_FUN]           = {closure,       NULL,      PREC_NONE},
-  [TOKEN_LAMBDA]        = {lambda,        NULL,      PREC_NONE},
-  [TOKEN_IF]            = {NULL,          NULL,      PREC_NONE},
-  [TOKEN_NIL]           = {literal,       NULL,      PREC_NONE},
-  [TOKEN_OR]            = {NULL,          or_,       PREC_OR},
-  [TOKEN_PIPE]          = {NULL,          bitor,     PREC_BIT_OR},
-  [TOKEN_CARRET]        = {NULL,          bitxor,    PREC_BIT_XOR},
-  [TOKEN_TILDA]         = {unary,         NULL,      PREC_NONE},
-  [TOKEN_REQUIRE]       = {NULL,          NULL,      PREC_NONE},
-  [TOKEN_RETURN]        = {NULL,          NULL,      PREC_NONE},
-  [TOKEN_SUPER]         = {super_,        NULL,      PREC_NONE},
-  [TOKEN_THIS]          = {this_,         NULL,      PREC_NONE},
-  [TOKEN_TRUE]          = {literal,       NULL,      PREC_NONE},
-  [TOKEN_VAR]           = {NULL,          NULL,      PREC_NONE},
-  [TOKEN_CONST]         = {NULL,          NULL,      PREC_NONE},
-  [TOKEN_WHILE]         = {NULL,          NULL,      PREC_NONE},
-  [TOKEN_ERROR]         = {NULL,          NULL,      PREC_NONE},
-  [TOKEN_THROW]         = {NULL,          NULL,      PREC_NONE},
-  [TOKEN_TRY]           = {NULL,          NULL,      PREC_NONE},
-  [TOKEN_CATCH]         = {NULL,          NULL,      PREC_NONE},
-  [TOKEN_FINALLY]       = {NULL,          NULL,      PREC_NONE},
-  [TOKEN_AS]            = {NULL,          NULL,      PREC_NONE},
-  [TOKEN_NAMESPACE]     = {NULL,          NULL,      PREC_NONE},
-  [TOKEN_USING]         = {NULL,          NULL,      PREC_NONE},
-  [TOKEN_EOF]           = {NULL,          NULL,      PREC_NONE}
+  [TOKEN_LEFT_BRAKE]    = {array,         subscript,    PREC_CALL}, 
+  [TOKEN_RIGHT_BRAKE]   = {NULL,          NULL,         PREC_NONE},
+  [TOKEN_LEFT_PAREN]    = {grouping,      call,         PREC_CALL},
+  [TOKEN_RIGHT_PAREN]   = {NULL,          NULL,         PREC_NONE},
+  [TOKEN_LEFT_BRACE]    = {dictionary,    NULL,         PREC_NONE}, 
+  [TOKEN_RIGHT_BRACE]   = {NULL,          NULL,         PREC_NONE},
+  [TOKEN_COMMA]         = {NULL,          NULL,         PREC_NONE},
+  [TOKEN_DOT]           = {NULL,          dot,          PREC_CALL},
+  [TOKEN_COLON_COLON]   = {NULL,          coloncolon,   PREC_CALL},
+  [TOKEN_DOT_DOT_DOT]   = {NULL,          binary,       PREC_CALL},
+  [TOKEN_MINUS_MINUS]   = {unary,         postdec,      PREC_CALL},
+  [TOKEN_MINUS]         = {unary,         binary,       PREC_TERM},
+  [TOKEN_PLUS_PLUS]     = {unary,         postinc,      PREC_CALL},
+  [TOKEN_PLUS]          = {unary,         binary,       PREC_TERM},
+  [TOKEN_SEMICOLON]     = {NULL,          NULL,         PREC_NONE},
+  [TOKEN_SLASH]         = {NULL,          binary,       PREC_FACTOR},
+  [TOKEN_STAR]          = {NULL,          binary,       PREC_FACTOR},
+  [TOKEN_MODULO]        = {NULL,          binary,       PREC_FACTOR},
+  [TOKEN_POWER]         = {NULL,          binary,       PREC_FACTOR},
+  [TOKEN_BANG]          = {unary,         NULL,         PREC_NONE},
+  [TOKEN_BANG_EQUAL]    = {NULL,          binary,       PREC_EQUALITY},
+  [TOKEN_EQUAL]         = {NULL,          NULL,         PREC_NONE},
+  [TOKEN_EQUAL_EQUAL]   = {NULL,          binary,       PREC_EQUALITY},
+  [TOKEN_GREATER]       = {NULL,          binary,       PREC_COMPARISON},
+  [TOKEN_GREATER_EQUAL] = {NULL,          binary,       PREC_COMPARISON},
+  [TOKEN_LESS]          = {NULL,          binary,       PREC_COMPARISON},
+  [TOKEN_LESS_EQUAL]    = {NULL,          binary,       PREC_COMPARISON},
+  [TOKEN_TYPEOF]        = {typeof_,       NULL,         PREC_NONE},
+  [TOKEN_IDENTIFIER]    = {variable,      NULL,         PREC_NONE},
+  [TOKEN_STRING]        = {string,        NULL,         PREC_NONE},
+  [TOKEN_INTERPOLATION] = {interpolation, NULL,         PREC_NONE},
+  [TOKEN_NUMBER]        = {number,        NULL,         PREC_NONE},
+  [TOKEN_INT]           = {integer,       NULL,         PREC_NONE},
+  [TOKEN_HEX]           = {hex,           NULL,         PREC_NONE},
+  [TOKEN_BIN]           = {bin,           NULL,         PREC_NONE},
+  [TOKEN_OCT]           = {octal,         NULL,         PREC_NONE},
+  [TOKEN_AND]           = {NULL,          and_,         PREC_AND},
+  [TOKEN_AMP]           = {NULL,          bitand,       PREC_BIT_AND},
+  [TOKEN_SHOWEL_L]      = {NULL,          showel,       PREC_SHIFT},
+  [TOKEN_SHOWEL_R]      = {NULL,          showel,       PREC_SHIFT},
+  [TOKEN_CLASS]         = {NULL,          NULL,         PREC_NONE},
+  [TOKEN_ELSE]          = {NULL,          NULL,         PREC_NONE},
+  [TOKEN_FALSE]         = {literal,       NULL,         PREC_NONE},
+  [TOKEN_FOR]           = {NULL,          NULL,         PREC_NONE},
+  [TOKEN_ASSERT]        = {NULL,          NULL,         PREC_NONE},
+  [TOKEN_FUN]           = {closure,       NULL,         PREC_NONE},
+  [TOKEN_LAMBDA]        = {lambda,        NULL,         PREC_NONE},
+  [TOKEN_IF]            = {NULL,          NULL,         PREC_NONE},
+  [TOKEN_NIL]           = {literal,       NULL,         PREC_NONE},
+  [TOKEN_OR]            = {NULL,          or_,          PREC_OR},
+  [TOKEN_PIPE]          = {NULL,          bitor,        PREC_BIT_OR},
+  [TOKEN_CARRET]        = {NULL,          bitxor,       PREC_BIT_XOR},
+  [TOKEN_TILDA]         = {unary,         NULL,         PREC_NONE},
+  [TOKEN_REQUIRE]       = {NULL,          NULL,         PREC_NONE},
+  [TOKEN_RETURN]        = {NULL,          NULL,         PREC_NONE},
+  [TOKEN_SUPER]         = {super_,        NULL,         PREC_NONE},
+  [TOKEN_THIS]          = {this_,         NULL,         PREC_NONE},
+  [TOKEN_TRUE]          = {literal,       NULL,         PREC_NONE},
+  [TOKEN_VAR]           = {NULL,          NULL,         PREC_NONE},
+  [TOKEN_CONST]         = {NULL,          NULL,         PREC_NONE},
+  [TOKEN_WHILE]         = {NULL,          NULL,         PREC_NONE},
+  [TOKEN_ERROR]         = {NULL,          NULL,         PREC_NONE},
+  [TOKEN_THROW]         = {NULL,          NULL,         PREC_NONE},
+  [TOKEN_TRY]           = {NULL,          NULL,         PREC_NONE},
+  [TOKEN_CATCH]         = {NULL,          NULL,         PREC_NONE},
+  [TOKEN_FINALLY]       = {NULL,          NULL,         PREC_NONE},
+  [TOKEN_AS]            = {NULL,          NULL,         PREC_NONE},
+  [TOKEN_NAMESPACE]     = {NULL,          NULL,         PREC_NONE},
+  [TOKEN_USING]         = {NULL,          NULL,         PREC_NONE},
+  [TOKEN_EOF]           = {NULL,          NULL,         PREC_NONE}
 };
 
 static ParseRule* getRule(TokenType type) {
@@ -1977,6 +2037,7 @@ static void synchronize() {
       case TOKEN_FUN:
       case TOKEN_CONST:
       case TOKEN_VAR:
+      case TOKEN_ENUM:
       case TOKEN_FOR:
       case TOKEN_IF:
       case TOKEN_WHILE:
