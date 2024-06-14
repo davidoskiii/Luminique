@@ -137,6 +137,12 @@ static void blackenObject(Obj* object) {
       markTable(&klass->methods);
       break;
     }
+    case OBJ_ENUM: {
+      ObjEnum* enum_ = (ObjEnum*)object;
+      markObject((Obj*)enum_->name);
+      markTable(&enum_->values);
+      break;
+    }
     case OBJ_CLOSURE: {
       ObjClosure* closure = (ObjClosure*)object;
       markObject((Obj*)closure->function);
@@ -212,6 +218,12 @@ static void freeObject(Obj* object) {
       ObjClass* klass = (ObjClass*)object;
       freeTable(&klass->fields);
       freeTable(&klass->methods);
+      break;
+    }
+    case OBJ_ENUM: {
+      FREE(ObjEnum, object);
+      ObjEnum* enum_ = (ObjEnum*)object;
+      freeTable(&enum_->values);
       break;
     }
     case OBJ_MODULE: {

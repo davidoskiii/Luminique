@@ -44,6 +44,7 @@
 #define AS_RECORD(value) ((ObjRecord*)AS_OBJ(value))
 #define AS_ARRAY(value) ((ObjArray*)AS_OBJ(value))
 #define AS_RANGE(value) ((ObjRange*)AS_OBJ(value))
+#define AS_ENUM(value) ((ObjEnum*)AS_OBJ(value))
 #define AS_WINDOW(value) ((ObjWindow*)AS_OBJ(value))
 #define AS_NATIVE_FUNCTION(value) ((ObjNativeFunction*)AS_OBJ(value))
 #define AS_NATIVE_METHOD(value) ((ObjNativeMethod*)AS_OBJ(value))

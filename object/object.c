@@ -344,6 +344,8 @@ void printObject(Value value) {
     case OBJ_FUNCTION:
       printFunction(AS_FUNCTION(value));
       break;
+    case OBJ_ENUM:
+      printf("%s enum", AS_ENUM(value)->name->chars);
     case OBJ_INSTANCE:
       if (objMethodExists(value, "__format__")) {
         Value method = getObjMethod(value, "__format__");
