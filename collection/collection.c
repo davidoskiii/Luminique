@@ -750,6 +750,11 @@ NATIVE_METHOD(Array, __str__) {
 	RETURN_OBJ(arrayToString(AS_ARRAY(receiver)));
 }
 
+NATIVE_METHOD(Array, __format__) {
+	assertArgCount("Array::__format__()", 0, argCount);
+	RETURN_OBJ(arrayToString(AS_ARRAY(receiver)));
+}
+
 // DICTIONARY
 
 NATIVE_METHOD(Dictionary, __init__) {
@@ -873,6 +878,11 @@ NATIVE_METHOD(Dictionary, removeAt) {
 
 NATIVE_METHOD(Dictionary, __str__) {
 	assertArgCount("Dictionary::__str__()", 0, argCount);
+	RETURN_OBJ(dictToString(AS_DICTIONARY(receiver)));
+}
+
+NATIVE_METHOD(Dictionary, __format__) {
+	assertArgCount("Dictionary::__format__()", 0, argCount);
 	RETURN_OBJ(dictToString(AS_DICTIONARY(receiver)));
 }
 
@@ -1030,6 +1040,11 @@ NATIVE_METHOD(Range, __str__) {
   RETURN_STRING_FMT("%d...%d", self->from, self->to);
 }
 
+NATIVE_METHOD(Range, __format__) {
+  assertArgCount("Range::__format__()", 0, argCount);
+  ObjRange* self = AS_RANGE(receiver);
+  RETURN_STRING_FMT("%d...%d", self->from, self->to);
+}
 
 NATIVE_METHOD(List, eachIndex) {
   assertArgCount("List::eachIndex(closure)", 1, argCount);
@@ -1115,6 +1130,7 @@ void registerCollectionPackage() {
 	DEF_METHOD(vm.arrayClass, Array, removeAt, 1);
   DEF_METHOD(vm.arrayClass, Array, subArray, 2);
 	DEF_METHOD(vm.arrayClass, Array, __str__, 0);
+	DEF_METHOD(vm.arrayClass, Array, __format__, 0);
   DEF_OPERATOR(vm.arrayClass, Array, [], __getSubscript__, 1);
   DEF_OPERATOR(vm.arrayClass, Array, []=, __setSubscript__, 2);
 
@@ -1135,6 +1151,7 @@ void registerCollectionPackage() {
 	DEF_METHOD(vm.dictionaryClass, Dictionary, putAll, 1);
 	DEF_METHOD(vm.dictionaryClass, Dictionary, removeAt, 1);
 	DEF_METHOD(vm.dictionaryClass, Dictionary, __str__, 0);
+	DEF_METHOD(vm.dictionaryClass, Dictionary, __format__, 0);
   DEF_OPERATOR(vm.dictionaryClass, Dictionary, [], __getSubscript__, 1);
   DEF_OPERATOR(vm.dictionaryClass, Dictionary, []=, __setSubscript__, 2);
 
@@ -1156,6 +1173,7 @@ void registerCollectionPackage() {
   DEF_METHOD(vm.rangeClass, Range, to, 0);
   DEF_METHOD(vm.rangeClass, Range, toArray, 0);
   DEF_METHOD(vm.rangeClass, Range, __str__, 0);
+  DEF_METHOD(vm.rangeClass, Range, __format__, 0);
 
   vm.currentNamespace = collectionNamespace;
 

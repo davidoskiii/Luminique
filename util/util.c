@@ -135,6 +135,12 @@ NATIVE_METHOD(Regex, __str__) {
 	return pattern;
 }
 
+NATIVE_METHOD(Regex, __format__) {
+	assertArgCount("Regex::__format__()", 0, argCount);
+	Value pattern = getObjProperty(AS_INSTANCE(receiver), "pattern");
+	return pattern;
+}
+
 void registerUtilPackage() {
   ObjNamespace* utilNamespace = defineNativeNamespace("util", vm.stdNamespace);
   vm.currentNamespace = utilNamespace;
@@ -145,6 +151,7 @@ void registerUtilPackage() {
 	DEF_METHOD(regexClass, Regex, match, 1);
 	DEF_METHOD(regexClass, Regex, replace, 2);
 	DEF_METHOD(regexClass, Regex, __str__, 0);
+	DEF_METHOD(regexClass, Regex, __format__, 0);
 
   vm.currentNamespace = vm.rootNamespace;
 }

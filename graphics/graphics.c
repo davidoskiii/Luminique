@@ -28,6 +28,11 @@ NATIVE_METHOD(Window, __str__) {
   RETURN_STRING_FMT("<%s window>", AS_WINDOW(receiver)->title);
 }
 
+NATIVE_METHOD(Window, __format__) {
+  assertArgCount("Window::__format__()", 0, argCount);
+  RETURN_STRING_FMT("<%s window>", AS_WINDOW(receiver)->title);
+}
+
 NATIVE_METHOD(Window, show) {
   assertArgCount("Window::show()", 0, argCount);
   SDL_ShowWindow(AS_WINDOW(receiver)->window);
@@ -79,6 +84,7 @@ void registerGraphicsPackage() {
 	bindSuperclass(vm.windowClass, vm.objectClass);
 	DEF_METHOD(vm.windowClass, Window, __init__, 3);
 	DEF_METHOD(vm.windowClass, Window, __str__, 0);
+	DEF_METHOD(vm.windowClass, Window, __format__, 0);
   DEF_METHOD(vm.windowClass, Window, show, 0);
 
   DEF_FUNCTION(createWindow, 3);

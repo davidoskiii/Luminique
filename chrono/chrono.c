@@ -187,6 +187,15 @@ NATIVE_METHOD(Date, __str__) {
 	RETURN_STRING_FMT("%02d/%02d/%d", AS_INT(day), AS_INT(month), AS_INT(year));
 }
 
+NATIVE_METHOD(Date, __format__) {
+	assertArgCount("Date::__format__()", 0, argCount);
+	ObjInstance* self = AS_INSTANCE(receiver);
+	Value year = getObjProperty(self, "year");
+	Value month = getObjProperty(self, "month");
+	Value day = getObjProperty(self, "day");
+	RETURN_STRING_FMT("%02d/%02d/%d", AS_INT(day), AS_INT(month), AS_INT(year));
+}
+
 NATIVE_METHOD(Date, toDateTime) {
 	assertArgCount("Date::toDateTime()", 0, argCount);
 	ObjInstance* self = AS_INSTANCE(receiver);
@@ -315,6 +324,18 @@ NATIVE_METHOD(DateTime, __str__) {
 	RETURN_STRING_FMT("%02d/%02d/%d %02d:%02d:%02d", AS_INT(day), AS_INT(month), AS_INT(year), AS_INT(hour), AS_INT(minute), AS_INT(second));
 }
 
+NATIVE_METHOD(DateTime, __format__) {
+	assertArgCount("DateTime::__format__()", 0, argCount);
+	ObjInstance* self = AS_INSTANCE(receiver);
+	Value year = getObjProperty(self, "year");
+	Value month = getObjProperty(self, "month");
+	Value day = getObjProperty(self, "day");
+	Value hour = getObjProperty(self, "hour");
+	Value minute = getObjProperty(self, "minute");
+	Value second = getObjProperty(self, "second");
+	RETURN_STRING_FMT("%02d/%02d/%d %02d:%02d:%02d", AS_INT(day), AS_INT(month), AS_INT(year), AS_INT(hour), AS_INT(minute), AS_INT(second));
+}
+
 // DURATION 
 
 NATIVE_METHOD(Duration, __init__) {
@@ -346,6 +367,16 @@ NATIVE_METHOD(Duration, getTotalSeconds) {
 
 NATIVE_METHOD(Duration, __str__) {
 	assertArgCount("Duration::__str__()", 0, argCount);
+	ObjInstance* self = AS_INSTANCE(receiver);
+	Value days = getObjProperty(self, "days");
+	Value hours = getObjProperty(self, "hours");
+	Value minutes = getObjProperty(self, "minutes");
+	Value seconds = getObjProperty(self, "seconds");
+	RETURN_STRING_FMT("%d days, %02d hours, %02d minutes, %02d seconds", AS_INT(days), AS_INT(hours), AS_INT(minutes), AS_INT(seconds));
+}
+
+NATIVE_METHOD(Duration, __format__) {
+	assertArgCount("Duration::__format__()", 0, argCount);
 	ObjInstance* self = AS_INSTANCE(receiver);
 	Value days = getObjProperty(self, "days");
 	Value hours = getObjProperty(self, "hours");
@@ -412,6 +443,7 @@ void registerTimePackage() {
 	DEF_METHOD(dateClass, Date, getTimestamp, 0);
 	DEF_METHOD(dateClass, Date, toDateTime, 0);
 	DEF_METHOD(dateClass, Date, __str__, 0);
+	DEF_METHOD(dateClass, Date, __format__, 0);
   DEF_OPERATOR(dateClass, Date, ==, __equal__, 1);
   DEF_OPERATOR(dateClass, Date, >, __greater__, 1);
   DEF_OPERATOR(dateClass, Date, <, __less__, 1);
@@ -425,6 +457,7 @@ void registerTimePackage() {
 	DEF_METHOD(dateTimeClass, DateTime, getTimestamp, 0);
 	DEF_METHOD(dateTimeClass, DateTime, toDate, 0);
 	DEF_METHOD(dateTimeClass, DateTime, __str__, 0);
+	DEF_METHOD(dateTimeClass, DateTime, __format__, 0);
   DEF_OPERATOR(dateTimeClass, DateTime, ==, __equal__, 1);
   DEF_OPERATOR(dateTimeClass, DateTime, >, __greater__, 1);
   DEF_OPERATOR(dateTimeClass, DateTime, <, __less__, 1);
@@ -436,6 +469,7 @@ void registerTimePackage() {
   DEF_METHOD(durationClass, Duration, __init__, 4);
 	DEF_METHOD(durationClass, Duration, getTotalSeconds, 0);
 	DEF_METHOD(durationClass, Duration, __str__, 0);
+	DEF_METHOD(durationClass, Duration, __format__, 0);
 
   vm.currentNamespace = vm.rootNamespace;
 }

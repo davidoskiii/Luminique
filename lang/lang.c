@@ -29,6 +29,12 @@ NATIVE_METHOD(Bool, __str__) {
 	else RETURN_STRING("false", 5);
 }
 
+NATIVE_METHOD(Bool, __format__) {
+	assertArgCount("Bool::__format__()", 0, argCount);
+	if (AS_BOOL(receiver)) RETURN_STRING("true", 4);
+	else RETURN_STRING("false", 5);
+}
+
 // EXCEPTION
 
 NATIVE_METHOD(Exception, __init__) {
@@ -42,6 +48,13 @@ NATIVE_METHOD(Exception, __init__) {
 
 NATIVE_METHOD(Exception, __str__) {
   assertArgCount("Exception::__str__()", 0, argCount);
+  ObjInstance* self = AS_INSTANCE(receiver);
+  Value message = getObjProperty(self, "message");
+  RETURN_STRING_FMT("<Exception %s - %s>", self->obj.klass->name->chars, AS_CSTRING(message));
+}
+
+NATIVE_METHOD(Exception, __format__) {
+  assertArgCount("Exception::__format__()", 0, argCount);
   ObjInstance* self = AS_INSTANCE(receiver);
   Value message = getObjProperty(self, "message");
   RETURN_STRING_FMT("<Exception %s - %s>", self->obj.klass->name->chars, AS_CSTRING(message));
@@ -122,6 +135,13 @@ NATIVE_METHOD(Class, __str__) {
   else RETURN_STRING_FMT("<class %s::%s>", self->namespace_->fullName->chars, self->name->chars);
 }
 
+NATIVE_METHOD(Class, __format__) {
+  assertArgCount("Class::__format__()", 0, argCount);
+  ObjClass* self = AS_CLASS(receiver);
+  if (self->namespace_->isRoot) RETURN_STRING_FMT("<class %s>", self->name->chars);
+  else RETURN_STRING_FMT("<class %s::%s>", self->namespace_->fullName->chars, self->name->chars);
+}
+
 // ENUM
 
 NATIVE_METHOD(Enum, __init__) {
@@ -147,6 +167,12 @@ NATIVE_METHOD(Enum, __str__) {
   RETURN_STRING_FMT("<enum %s>", self->name->chars);
 }
 
+NATIVE_METHOD(Enum, __format__) {
+  assertArgCount("Enum::__format__()", 0, argCount);
+  ObjEnum* self = AS_ENUM(receiver);
+  RETURN_STRING_FMT("<enum %s>", self->name->chars);
+}
+
 // FLOAT
 
 NATIVE_METHOD(Float, __init__) {
@@ -160,6 +186,11 @@ NATIVE_METHOD(Float, clone) {
 
 NATIVE_METHOD(Float, __str__) {
   assertArgCount("Float::__str__()", 0, argCount);
+  RETURN_STRING_FMT("%g", AS_FLOAT(receiver));
+}
+
+NATIVE_METHOD(Float, __format__) {
+  assertArgCount("Float::__format__()", 0, argCount);
   RETURN_STRING_FMT("%g", AS_FLOAT(receiver));
 }
 
@@ -220,6 +251,16 @@ NATIVE_METHOD(Function, __str__) {
   RETURN_STRING_FMT("<fn %s>", AS_CLOSURE(receiver)->function->name->chars);
 }
 
+NATIVE_METHOD(Function, __format__) {
+  assertArgCount("Function::__format_()", 0, argCount);
+
+  if (IS_NATIVE_FUNCTION(receiver)) {
+    RETURN_STRING_FMT("<native fn %s>", AS_NATIVE_FUNCTION(receiver)->name->chars);
+  }
+
+  RETURN_STRING_FMT("<fn %s>", AS_CLOSURE(receiver)->function->name->chars);
+}
+
 NATIVE_METHOD(Function, upvalueCount) {
   assertArgCount("Function::upvalueCount()", 0, argCount);
   RETURN_INT(AS_CLOSURE(receiver)->upvalueCount);
@@ -255,6 +296,12 @@ NATIVE_METHOD(Method, receiver) {
 
 NATIVE_METHOD(Method, __str__) {
   assertArgCount("Method::__str__()", 0, argCount);
+  ObjBoundMethod* bound = AS_BOUND_METHOD(receiver);
+  RETURN_STRING_FMT("<method %s::%s>", getObjClass(bound->receiver)->name->chars, bound->method->function->name->chars);
+}
+
+NATIVE_METHOD(Method, __format__) {
+  assertArgCount("Method::__format__()", 0, argCount);
   ObjBoundMethod* bound = AS_BOUND_METHOD(receiver);
   RETURN_STRING_FMT("<method %s::%s>", getObjClass(bound->receiver)->name->chars, bound->method->function->name->chars);
 }
@@ -308,6 +355,11 @@ NATIVE_METHOD(Int, __str__) {
   RETURN_STRING_FMT("%d", AS_INT(receiver));
 }
 
+NATIVE_METHOD(Int, __format__) {
+  assertArgCount("Int::__format__()", 0, argCount);
+  RETURN_STRING_FMT("%d", AS_INT(receiver));
+}
+
 // NIL
 
 NATIVE_METHOD(Nil, __init__) {
@@ -321,6 +373,11 @@ NATIVE_METHOD(Nil, clone) {
 
 NATIVE_METHOD(Nil, __str__) {
 	assertArgCount("Nil::__str__()", 0, argCount);
+	RETURN_STRING("nil", 3);
+}
+
+NATIVE_METHOD(Nil, __format__) {
+	assertArgCount("Nil::__format__()", 0, argCount);
 	RETURN_STRING("nil", 3);
 }
 
@@ -395,6 +452,13 @@ NATIVE_METHOD(Number, __str__) {
 	RETURN_STRING(chars, length);
 }
 
+NATIVE_METHOD(Number, __format__) {
+	assertArgCount("Number::__format__()", 0, argCount);
+	char chars[24];
+	int length = snprintf(chars, 24, "%.14g", AS_NUMBER(receiver));
+	RETURN_STRING(chars, length);
+}
+
 // OBJECT
 
 
@@ -458,6 +522,11 @@ NATIVE_METHOD(Object, memberOf) {
 
 NATIVE_METHOD(Object, __str__) {
 	assertArgCount("Object::__str__()", 0, argCount);
+  RETURN_STRING_FMT("<object %s>", AS_OBJ(receiver)->klass->name->chars);
+}
+
+NATIVE_METHOD(Object, __format__) {
+	assertArgCount("Object::__format__()", 0, argCount);
   RETURN_STRING_FMT("<object %s>", AS_OBJ(receiver)->klass->name->chars);
 }
 
@@ -631,6 +700,11 @@ NATIVE_METHOD(String, __str__) {
   return receiver;
 }
 
+NATIVE_METHOD(String, __format__) {
+  assertArgCount("String::__format__()", 0, argCount);
+  return receiver;
+}
+
 NATIVE_METHOD(String, upper) {
   assertArgCount("String::upper()", 0, argCount);
   RETURN_OBJ(toUpperString(AS_STRING(receiver)));
@@ -676,6 +750,12 @@ NATIVE_METHOD(Namespace, __str__) {
   RETURN_STRING_FMT("<namespace %s>", self->fullName->chars);
 }
 
+NATIVE_METHOD(Namespace, __format__) {
+  assertArgCount("Namespace::__format__()", 0, argCount);
+  ObjNamespace* self = AS_NAMESPACE(receiver);
+  RETURN_STRING_FMT("<namespace %s>", self->fullName->chars);
+}
+
 static void bindNamespaceClass() {
   for (int i = 0; i < vm.namespaces.capacity; i++) {
     Entry* entry = &vm.namespaces.entries[i];
@@ -713,6 +793,7 @@ void registerLangPackage() {
   DEF_METHOD(vm.objectClass, Object, instanceOf, 1);
   DEF_METHOD(vm.objectClass, Object, memberOf, 1);
   DEF_METHOD(vm.objectClass, Object, __str__, 0);
+  DEF_METHOD(vm.objectClass, Object, __format__, 0);
   DEF_OPERATOR(vm.objectClass, Object, ==, __equal__, 1);
 
   vm.classClass = defineNativeClass("Class");
@@ -726,30 +807,34 @@ void registerLangPackage() {
   DEF_METHOD(vm.classClass, Class, name, 0);
   DEF_METHOD(vm.classClass, Class, superclass, 0);
   DEF_METHOD(vm.classClass, Class, __str__, 0);
+  DEF_METHOD(vm.classClass, Class, __format__, 0);
   DEF_OPERATOR(vm.classClass, Class, (), __invoke__, -1);
   vm.objectClass->obj.klass = vm.classClass;
 
   vm.enumClass = defineNativeClass("Enum");
   bindSuperclass(vm.enumClass, vm.objectClass);
-  DEF_METHOD(vm.enumClass, Enum, __init__, 2);
+  DEF_METHOD(vm.enumClass, Enum, __init__, 1);
   DEF_METHOD(vm.enumClass, Enum, clone, 0);
   DEF_METHOD(vm.enumClass, Enum, name, 0);
   DEF_METHOD(vm.enumClass, Enum, __str__, 0);
+  DEF_METHOD(vm.enumClass, Enum, __format__, 0);
 
   vm.namespaceClass = defineNativeClass("Namespace");
   bindSuperclass(vm.namespaceClass, vm.objectClass);
   DEF_METHOD(vm.namespaceClass, Namespace, __init__, 0);
   DEF_METHOD(vm.namespaceClass, Namespace, clone, 0);
-  DEF_METHOD(vm.namespaceClass, Namespace, __str__, 0);
   DEF_METHOD(vm.namespaceClass, Namespace, enclosing, 0);
   DEF_METHOD(vm.namespaceClass, Namespace, fullName, 0);
   DEF_METHOD(vm.namespaceClass, Namespace, shortName, 0);
+  DEF_METHOD(vm.namespaceClass, Namespace, __str__, 0);
+  DEF_METHOD(vm.namespaceClass, Namespace, __format__, 0);
   bindNamespaceClass();
 
   vm.exceptionClass = defineNativeClass("Exception");
   bindSuperclass(vm.exceptionClass, vm.objectClass);
   DEF_METHOD(vm.exceptionClass, Exception, __init__, 1);
   DEF_METHOD(vm.exceptionClass, Exception, __str__, 0);
+  DEF_METHOD(vm.exceptionClass, Exception, __format__, 0);
 
 
   ObjClass* runtimeExceptionClass = defineNativeException("RuntimeException", vm.exceptionClass);
@@ -767,18 +852,21 @@ void registerLangPackage() {
 	DEF_METHOD(vm.nilClass, Nil, __init__, 0);
 	DEF_METHOD(vm.nilClass, Nil, clone, 0);
 	DEF_METHOD(vm.nilClass, Nil, __str__, 0);
+	DEF_METHOD(vm.nilClass, Nil, __format__, 0);
 
 	vm.boolClass = defineNativeClass("Bool");
 	bindSuperclass(vm.boolClass, vm.objectClass);
 	DEF_METHOD(vm.boolClass, Bool, __init__, 0);
 	DEF_METHOD(vm.boolClass, Bool, clone, 0);
 	DEF_METHOD(vm.boolClass, Bool, __str__, 0);
+	DEF_METHOD(vm.boolClass, Bool, __format__, 0);
 
 	vm.numberClass = defineNativeClass("Number");
 	bindSuperclass(vm.numberClass, vm.objectClass);
   DEF_METHOD(vm.numberClass, Number, __init__, 0);
   DEF_METHOD(vm.numberClass, Number, clone, 0);
   DEF_METHOD(vm.numberClass, Number, __str__, 0);
+  DEF_METHOD(vm.numberClass, Number, __format__, 0);
   DEF_OPERATOR(vm.numberClass, Number, ==, __equal__, 1);
   DEF_OPERATOR(vm.numberClass, Number, >, __greater__, 1);
   DEF_OPERATOR(vm.numberClass, Number, <, __less__, 1);
@@ -794,6 +882,7 @@ void registerLangPackage() {
   DEF_METHOD(vm.intClass, Int, __init__, 0);
   DEF_METHOD(vm.intClass, Int, clone, 0);
   DEF_METHOD(vm.intClass, Int, __str__, 0);
+  DEF_METHOD(vm.intClass, Int, __format__, 0);
   DEF_OPERATOR(vm.intClass, Int, +, __add__, 1);
   DEF_OPERATOR(vm.intClass, Int, -, __subtract__, 1);
   DEF_OPERATOR(vm.intClass, Int, *, __multiply__, 1);
@@ -804,6 +893,7 @@ void registerLangPackage() {
   DEF_METHOD(vm.floatClass, Float, __init__, 0);
   DEF_METHOD(vm.floatClass, Float, clone, 0);
   DEF_METHOD(vm.floatClass, Float, __str__, 0);
+  DEF_METHOD(vm.floatClass, Float, __format__, 0);
 
 
   vm.stringClass = defineNativeClass("String");
@@ -826,6 +916,7 @@ void registerLangPackage() {
   DEF_METHOD(vm.stringClass, String, cut, 2);
   DEF_METHOD(vm.stringClass, String, lower, 0);
   DEF_METHOD(vm.stringClass, String, __str__, 0);
+  DEF_METHOD(vm.stringClass, String, __format__, 0);
   DEF_METHOD(vm.stringClass, String, upper, 0);
   DEF_METHOD(vm.stringClass, String, trim, 0);
   DEF_OPERATOR(vm.stringClass, String, +, __add__, 1);
@@ -845,6 +936,7 @@ void registerLangPackage() {
   DEF_METHOD(vm.functionClass, Function, isNative, 0);
   DEF_METHOD(vm.functionClass, Function, name, 0);
   DEF_METHOD(vm.functionClass, Function, __str__, 0);
+  DEF_METHOD(vm.functionClass, Function, __format__, 0);
   DEF_METHOD(vm.functionClass, Function, upvalueCount, 0);
   DEF_OPERATOR(vm.functionClass, Function, (), __invoke__, -1);
 
@@ -856,6 +948,7 @@ void registerLangPackage() {
   DEF_METHOD(vm.methodClass, Method, name, 0);
   DEF_METHOD(vm.methodClass, Method, receiver, 0);
   DEF_METHOD(vm.methodClass, Method, __str__, 0);
+  DEF_METHOD(vm.methodClass, Method, __format__, 0);
   DEF_METHOD(vm.methodClass, Method, upvalueCount, 0);
 
   vm.currentNamespace = vm.rootNamespace;

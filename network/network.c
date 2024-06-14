@@ -573,6 +573,15 @@ NATIVE_METHOD(Socket, __str__) {
   RETURN_STRING_FMT("Socket - AddressFamily: %d, SocketType: %d, ProtocolType: %d", AS_INT(addressFamily), AS_INT(socketType), AS_INT(protocolType));
 }
 
+NATIVE_METHOD(Socket, __format__) {
+  assertArgCount("Socket::__format__()", 0, argCount);
+  ObjInstance* self = AS_INSTANCE(receiver);
+  Value addressFamily = getObjProperty(self, "addressFamily");
+  Value socketType = getObjProperty(self, "socketType");
+  Value protocolType = getObjProperty(self, "protocolType");
+  RETURN_STRING_FMT("Socket - AddressFamily: %d, SocketType: %d, ProtocolType: %d", AS_INT(addressFamily), AS_INT(socketType), AS_INT(protocolType));
+}
+
 NATIVE_METHOD(Domain, __init__) {
   assertArgCount("Domain::__init__(name)", 1, argCount);
   assertArgIsString("Domain::__init__(name)", args, 0);
@@ -600,6 +609,13 @@ NATIVE_METHOD(Domain, ipAddresses) {
 
 NATIVE_METHOD(Domain, __str__) {
   assertArgCount("Domain::__str__()", 0, argCount);
+  ObjInstance* self = AS_INSTANCE(receiver);
+  ObjString* name = AS_STRING(getObjProperty(self, "name"));
+  RETURN_OBJ(name);
+}
+
+NATIVE_METHOD(Domain, __format__) {
+  assertArgCount("Domain::__format__()", 0, argCount);
   ObjInstance* self = AS_INSTANCE(receiver);
   ObjString* name = AS_STRING(getObjProperty(self, "name"));
   RETURN_OBJ(name);
@@ -837,8 +853,17 @@ NATIVE_METHOD(HTTPRequest, __init__) {
   RETURN_OBJ(self);
 }
 
-NATIVE_METHOD(HTTPRequest, toString) {
-  assertArgCount("HTTPRequest::toString()", 0, argCount);
+NATIVE_METHOD(HTTPRequest, __str__) {
+  assertArgCount("HTTPRequest::__str__()", 0, argCount);
+  ObjInstance* self = AS_INSTANCE(receiver);
+  ObjString* url = AS_STRING(getObjProperty(self, "url"));
+  HTTPMethod method = (HTTPMethod)AS_INT(getObjProperty(self, "method"));
+  ObjDictionary* data = AS_DICTIONARY(getObjProperty(self, "data"));
+  RETURN_STRING_FMT("HTTPRequest - URL: %s; Method: %s; Data: %s", url->chars, httpMapMethod(method), httpParsePostData(data)->chars);
+}
+
+NATIVE_METHOD(HTTPRequest, __format__) {
+  assertArgCount("HTTPRequest::__format__()", 0, argCount);
   ObjInstance* self = AS_INSTANCE(receiver);
   ObjString* url = AS_STRING(getObjProperty(self, "url"));
   HTTPMethod method = (HTTPMethod)AS_INT(getObjProperty(self, "method"));
@@ -861,8 +886,17 @@ NATIVE_METHOD(HTTPResponse, __init__) {
   RETURN_OBJ(self);
 }
 
-NATIVE_METHOD(HTTPResponse, toString) {
-  assertArgCount("HTTPResponse::toString()", 0, argCount);
+NATIVE_METHOD(HTTPResponse, __str__) {
+  assertArgCount("HTTPResponse::__str__()", 0, argCount);
+  ObjInstance* self = AS_INSTANCE(receiver);
+  ObjString* url = AS_STRING(getObjProperty(self, "url"));
+  int status = AS_INT(getObjProperty(self, "status"));
+  ObjString* contentType = AS_STRING(getObjProperty(self, "contentType"));
+  RETURN_STRING_FMT("HTTPResponse - URL: %s; Status: %d; ContentType: %s", url->chars, status, contentType->chars);
+}
+
+NATIVE_METHOD(HTTPResponse, __format__) {
+  assertArgCount("HTTPResponse::__format__()", 0, argCount);
   ObjInstance* self = AS_INSTANCE(receiver);
   ObjString* url = AS_STRING(getObjProperty(self, "url"));
   int status = AS_INT(getObjProperty(self, "status"));
@@ -940,6 +974,35 @@ NATIVE_METHOD(IPAddress, toArray) {
 
 NATIVE_METHOD(IPAddress, __str__) {
   assertArgCount("IPAddress::__str__()", 0, argCount);
+  ObjInstance* self = AS_INSTANCE(receiver);
+  Value addressValue = getObjProperty(self, "address");
+  Value portValue = getObjProperty(self, "port");
+
+  if (IS_STRING(addressValue)) {
+    ObjString* address = AS_STRING(addressValue);
+    char* ipAddress = address->chars;
+
+    if (ipIsV4(address) && AS_NUMBER(portValue) == 80) {
+      RETURN_OBJ(copyString(ipAddress, address->length));
+    } else if (ipIsV4(address)) {
+      char buffer[40];
+      snprintf(buffer, sizeof(buffer), "%s:%d", ipAddress, AS_INT(portValue));
+      RETURN_OBJ(copyString(buffer, strlen(buffer)));
+    } else if (ipIsV6(address) && AS_NUMBER(portValue) == 80) {
+      RETURN_OBJ(copyString(ipAddress, address->length));
+    } else if (ipIsV6(address)) {
+      char buffer[50];
+      snprintf(buffer, sizeof(buffer), "[%s]:%d", ipAddress, AS_INT(portValue));
+      RETURN_OBJ(copyString(buffer, strlen(buffer)));
+    }
+  } else {
+    runtimeError("Address must be a string.");
+  }
+  RETURN_NIL;
+}
+
+NATIVE_METHOD(IPAddress, __format__) {
+  assertArgCount("IPAddress::__format__()", 0, argCount);
   ObjInstance* self = AS_INSTANCE(receiver);
   Value addressValue = getObjProperty(self, "address");
   Value portValue = getObjProperty(self, "port");
@@ -1084,6 +1147,13 @@ NATIVE_METHOD(URL, __str__) {
   RETURN_OBJ(raw);
 }
 
+NATIVE_METHOD(URL, __format__) {
+  assertArgCount("URL::__format__()", 0, argCount);
+  ObjInstance* self = AS_INSTANCE(receiver);
+  ObjString* raw = AS_STRING(getObjProperty(self, "raw"));
+  RETURN_OBJ(raw);
+}
+
 NATIVE_METHOD(URLClass, parse) {
   assertArgCount("URL class::parse(url)", 1, argCount);
   assertArgIsString("URL class::parse(url)", args, 0);
@@ -1113,12 +1183,13 @@ void registerNetworkPackage() {
   ObjClass* urlClass = defineNativeClass("URL");
   bindSuperclass(urlClass, vm.objectClass);
   DEF_METHOD(urlClass, URL, __init__, 6);
-  DEF_METHOD(urlClass, URL, __str__, 0);
   DEF_METHOD(urlClass, URL, isAbsolute, 0);
   DEF_METHOD(urlClass, URL, isRelative, 0);
   DEF_METHOD(urlClass, URL, pathArray, 0);
   DEF_METHOD(urlClass, URL, queryDict, 0);
   DEF_METHOD(urlClass, URL, relativize, 1);
+  DEF_METHOD(urlClass, URL, __str__, 0);
+  DEF_METHOD(urlClass, URL, __format__, 0);
 
   ObjClass* urlMetaclass = urlClass->obj.klass;
   DEF_METHOD(urlMetaclass, URLClass, parse, 1);
@@ -1131,12 +1202,14 @@ void registerNetworkPackage() {
   DEF_METHOD(ipAddressClass, IPAddress, isIPV6, 0);
   DEF_METHOD(ipAddressClass, IPAddress, toArray, 0);
   DEF_METHOD(ipAddressClass, IPAddress, __str__, 0);
+  DEF_METHOD(ipAddressClass, IPAddress, __format__, 0);
 
   ObjClass* domainClass = defineNativeClass("Domain");
   bindSuperclass(domainClass, vm.objectClass);
   DEF_METHOD(domainClass, Domain, __init__, 1);
   DEF_METHOD(domainClass, Domain, ipAddresses, 0);
   DEF_METHOD(domainClass, Domain, __str__, 0);
+  DEF_METHOD(domainClass, Domain, __format__, 0);
 
 
   ObjClass* socketClass = defineNativeClass("Socket");
@@ -1147,6 +1220,7 @@ void registerNetworkPackage() {
   DEF_METHOD(socketClass, Socket, receive, 0);
   DEF_METHOD(socketClass, Socket, send, 1);
   DEF_METHOD(socketClass, Socket, __str__, 0);
+  DEF_METHOD(socketClass, Socket, __format__, 0);
 
   ObjClass* socketMetaclass = socketClass->obj.klass;
   setClassProperty(socketClass, "afUNSPEC", INT_VAL(AF_UNSPEC));
@@ -1187,7 +1261,8 @@ void registerNetworkPackage() {
   ObjClass* httpRequestClass = defineNativeClass("HTTPRequest");
   bindSuperclass(httpRequestClass, vm.objectClass);
   DEF_METHOD(httpRequestClass, HTTPRequest, __init__, 4);
-  DEF_METHOD(httpRequestClass, HTTPRequest, toString, 0);
+  DEF_METHOD(httpRequestClass, HTTPRequest, __str__, 0);
+  DEF_METHOD(httpRequestClass, HTTPRequest, __format__, 0);
 
   setClassProperty(httpRequestClass, "httpHEAD", INT_VAL(HTTP_HEAD));
   setClassProperty(httpRequestClass, "httpGET", INT_VAL(HTTP_GET));
@@ -1202,7 +1277,8 @@ void registerNetworkPackage() {
   ObjClass* httpResponseClass = defineNativeClass("HTTPResponse");
   bindSuperclass(httpResponseClass, vm.objectClass);
   DEF_METHOD(httpResponseClass, HTTPResponse, __init__, 4);
-  DEF_METHOD(httpResponseClass, HTTPResponse, toString, 0);
+  DEF_METHOD(httpResponseClass, HTTPResponse, __str__, 0);
+  DEF_METHOD(httpResponseClass, HTTPResponse, __format__, 0);
 
   setClassProperty(httpResponseClass, "statusOK", INT_VAL(200));
   setClassProperty(httpResponseClass, "statusFound", INT_VAL(302));

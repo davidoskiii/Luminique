@@ -332,6 +332,11 @@ NATIVE_METHOD(File, __str__) {
   RETURN_OBJ(AS_FILE(receiver)->name);
 }
 
+NATIVE_METHOD(File, __format__) {
+  assertArgCount("File::__format__()", 0, argCount);
+  RETURN_OBJ(AS_FILE(receiver)->name);
+}
+
 NATIVE_METHOD(FileReadStream, __init__) {
   assertArgCount("FileReadStream::__init__(file)", 1, argCount);
   ObjInstance* self = AS_INSTANCE(receiver);
@@ -542,6 +547,7 @@ void registerIOPackage() {
   DEF_METHOD(vm.fileClass, File, setWritable, 1);
   DEF_METHOD(vm.fileClass, File, size, 0);
   DEF_METHOD(vm.fileClass, File, __str__, 0);
+  DEF_METHOD(vm.fileClass, File, __format__, 0);
 
 
   ObjClass* ioStreamClass = defineNativeClass("IOStream");
