@@ -25,6 +25,7 @@
 #define IS_RECORD(value) isObjType(value, OBJ_RECORD)
 #define IS_ARRAY(value) isObjType(value, OBJ_ARRAY)
 #define IS_RANGE(value) isObjType(value, OBJ_RANGE)
+#define IS_ENUM(value) isObjType(value, OBJ_ENUM)
 #define IS_WINDOW(value) isObjType(value, OBJ_WINDOW)
 #define IS_NATIVE_FUNCTION(value) isObjType(value, OBJ_NATIVE_FUNCTION)
 #define IS_NATIVE_METHOD(value) isObjType(value, OBJ_NATIVE_METHOD)
@@ -61,6 +62,7 @@ typedef enum {
   OBJ_INSTANCE,
   OBJ_FILE,
   OBJ_RECORD,
+  OBJ_ENUM,
   OBJ_ARRAY,
   OBJ_ENTRY,
   OBJ_DICTIONARY,
@@ -174,6 +176,12 @@ struct ObjClass {
 
 typedef struct {
   Obj obj;
+  ObjString* name;
+  Table values;
+} ObjEnum;
+
+typedef struct {
+  Obj obj;
   Table fields;
 } ObjInstance;
 
@@ -218,6 +226,7 @@ ObjArray* newArray();
 ObjArray* copyArray(ValueArray elements, int fromIndex, int toIndex);
 ObjDictionary* newDictionary();
 ObjClass* newClass(ObjString* name);
+ObjEnum* newEnum(ObjString* name);
 ObjModule* newModule(ObjString* path);
 ObjNamespace* newNamespace(ObjString* shortName, ObjNamespace* enclosing);
 ObjRange* newRange(int from, int to);

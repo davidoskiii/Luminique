@@ -107,6 +107,13 @@ ObjClass* newClass(ObjString* name) {
   return klass;
 }
 
+ObjEnum* newEnum(ObjString* name) {
+  ObjEnum* enum_ = ALLOCATE_OBJ(ObjEnum, OBJ_ENUM, vm.enumClass);
+  enum_->name = name;
+  initTable(&enum_->values);
+  return enum_;
+}
+
 ObjModule* newModule(ObjString* path) {
   ObjModule* module = ALLOCATE_OBJ(ObjModule, OBJ_MODULE, NULL);
   module->path = path;
