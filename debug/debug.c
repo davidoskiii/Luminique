@@ -159,8 +159,8 @@ int disassembleInstruction(Chunk* chunk, int offset) {
       return byteInstruction("OP_CALL", chunk, offset);
     case OP_GET_PROPERTY:
       return constantValueInstruction16("OP_GET_PROPERTY", chunk, offset);
-    case OP_GET_NAMESPACE:
-      return constantValueInstruction16("OP_GET_NAMESPACE", chunk, offset);
+    case OP_GET_COLON_PROPERTY:
+      return constantValueInstruction16("OP_GET_COLON_PROPERTY", chunk, offset);
     case OP_SET_PROPERTY:
       return constantValueInstruction16("OP_SET_PROPERTY", chunk, offset);
     case OP_GET_SUBSCRIPT:
@@ -196,6 +196,8 @@ int disassembleInstruction(Chunk* chunk, int offset) {
       return simpleInstruction("OP_CLOSE_UPVALUE", offset);
     case OP_ENUM:
       return constantValueInstruction16("OP_ENUM", chunk, offset);
+    case OP_ENUM_ELEMENT:
+      return constantValueInstruction16("OP_ENUM_ELEMENT", chunk, offset);
     case OP_CLASS:
       return constantValueInstruction16("OP_CLASS", chunk, offset);
     case OP_METHOD:

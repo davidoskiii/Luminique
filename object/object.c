@@ -110,6 +110,7 @@ ObjClass* newClass(ObjString* name) {
 ObjEnum* newEnum(ObjString* name) {
   ObjEnum* enum_ = ALLOCATE_OBJ(ObjEnum, OBJ_ENUM, vm.enumClass);
   enum_->name = name;
+  enum_->nextValue = 0;
   initTable(&enum_->values);
   return enum_;
 }

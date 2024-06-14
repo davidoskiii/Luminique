@@ -1,7 +1,5 @@
-#ifndef cluminique_scanner_h
-#define cluminique_scanner_h
-
-typedef enum {
+enum TokenType {
+  TOKEN_CIAO,
   // Single-character tokens.
   TOKEN_LEFT_PAREN, TOKEN_RIGHT_PAREN,
   TOKEN_LEFT_BRACE, TOKEN_RIGHT_BRACE,
@@ -36,18 +34,6 @@ typedef enum {
   TOKEN_STATIC, TOKEN_ASSERT, TOKEN_ENUM,
 
   TOKEN_ERROR, TOKEN_EOF
-} TokenType;
+}
 
-typedef struct {
-  TokenType type;
-  const char* start;
-  int length;
-  int line;
-  int startColumn;
-  int endColumn;
-} Token;
-
-void initScanner(const char* source);
-Token scanToken();
-
-#endif
+println(TokenType::TOKEN_CIA);

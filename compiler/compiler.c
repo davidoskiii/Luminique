@@ -779,7 +779,7 @@ static void dot(bool canAssign) {
 static void coloncolon(bool canAssign) {
   uint16_t name = propretyConstant("Expect property name after '::'.");
 
-  emitByte(OP_GET_NAMESPACE);
+  emitByte(OP_GET_COLON_PROPERTY);
   emitShort(name);
 }
 
@@ -1406,6 +1406,44 @@ static void method() {
   emitShort(constant);
 }
 
+static void enumDeclaration() {
+  consume(TOKEN_IDENTIFIER, "Expect enum name.");
+  Token enumName = parser.previous;
+  uint16_t nameConstant = identifierConstant(&enumName);
+  declareVariable();
+
+  emitByte(OP_ENUM);
+  emitShort(nameConstant);
+
+  beginScope();
+  defineVariable(0, false);
+  namedVariable(enumName, false);
+
+  namedVariable(enumName, false);
+  consume(TOKEN_LEFT_BRACE, "Expect '{' before enum body.");
+
+  uint8_t elementCount = 0;
+  if (!check(TOKEN_RIGHT_BRACE)) {
+    do {
+      consume(TOKEN_IDENTIFIER, "Expect enum element name.");
+      Token elementName = parser.previous;
+
+      uint16_t elementConstant = identifierConstant(&elementName);
+      emitByte(OP_ENUM_ELEMENT);
+      emitShort(elementConstant);
+
+      if (elementCount == UINT8_MAX) {
+        error("Cannot have more than 255 enum elements.");
+      }
+      elementCount++;
+    } while (match(TOKEN_COMMA));
+  }
+
+  consume(TOKEN_RIGHT_BRACE, "Expect '}' after enum body.");
+  emitByte(OP_POP);
+  endScope();
+}
+
 static void classDeclaration() {
   consume(TOKEN_IDENTIFIER, "Expect class name.");
   Token className = parser.previous;
@@ -1900,6 +1938,8 @@ static void synchronize() {
 static void declaration() {
   if (match(TOKEN_CLASS)) {
     classDeclaration();
+  } else if (match(TOKEN_ENUM)) {
+    enumDeclaration();
   } else if (match(TOKEN_FUN)) {
     funDeclaration();
   } else if (match(TOKEN_VAR)) {

@@ -178,6 +178,7 @@ struct ObjClass {
 typedef struct {
   Obj obj;
   ObjString* name;
+  int nextValue;
   Table values;
 } ObjEnum;
 

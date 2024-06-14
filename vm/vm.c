@@ -1070,34 +1070,67 @@ InterpretResult run() {
         break;
       }
       case OP_DUP: push(peek(0)); break;
-      case OP_CLOSE_UPVALUE:
+      case OP_CLOSE_UPVALUE: {
         closeUpvalues(vm.stackTop - 1);
         pop();
         break;
+      }
+      case OP_ENUM: {
+        ObjString* name = READ_STRING();
+        ObjEnum* enumObj = newEnum(name);
+        enumObj->nextValue = 0;
+        push(OBJ_VAL(enumObj));
+        tableSet(&vm.currentNamespace->values, name, peek(0));
+        break;
+      }
+      case OP_ENUM_ELEMENT: {
+        ObjString* elementName = READ_STRING();
+        if (!IS_ENUM(peek(0))) {
+          runtimeError("Expected enum object.");
+          break;
+        }
+        ObjEnum* enumObj = AS_ENUM(peek(0));
+        int elementValue = enumObj->nextValue++;
+        tableSet(&enumObj->values, elementName, NUMBER_VAL(elementValue));
+        break;
+      }
       case OP_CLASS: {
         ObjString* name = READ_STRING();
         push(OBJ_VAL(newClass(name)));
         tableSet(&vm.currentNamespace->values, name, peek(0));
         break;
       }
-      case OP_GET_NAMESPACE: {
-        if (!IS_NAMESPACE(peek(0))) {
-          runtimeError("Only namespaces can access properties using '::'.");
-          return INTERPRET_RUNTIME_ERROR;
-        }
-
-        ObjNamespace* namespace_ = AS_NAMESPACE(peek(0));
+      case OP_GET_COLON_PROPERTY: {
         ObjString* name = READ_STRING();
-        Value value;
+        Value object = peek(0);
 
-        if (tableGet(&namespace_->values, name, &value)) {
-          pop();
-          push(value);
-          break;
+        if (IS_NAMESPACE(object)) {
+          ObjNamespace* namespace_ = AS_NAMESPACE(object);
+          Value value;
+
+          if (tableGet(&namespace_->values, name, &value)) {
+            pop();
+            push(value);
+          } else {
+            runtimeError("Undefined subnamespace or property '%s'.", name->chars);
+            return INTERPRET_RUNTIME_ERROR;
+          }
+        } else if (IS_ENUM(object)) {
+          ObjEnum* enumObj = AS_ENUM(object);
+          Value elementValue;
+
+          if (tableGet(&enumObj->values, name, &elementValue)) {
+            pop();
+            push(elementValue);
+          } else {
+            runtimeError("Undefined enum element '%s'.", name->chars);
+            return INTERPRET_RUNTIME_ERROR;
+          }
         } else {
-          runtimeError("Undefined subnamespace '%s'.", name->chars);
+          runtimeError("Only namespaces or enums can access properties using '::'.");
           return INTERPRET_RUNTIME_ERROR;
         }
+
         break;
       }
       case OP_GET_PROPERTY: {
