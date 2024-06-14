@@ -105,6 +105,10 @@ int disassembleInstruction(Chunk* chunk, int offset) {
       return byteInstruction("OP_SUBNAMESPACE", chunk, offset);
     case OP_POP:
       return simpleInstruction("OP_POP", offset);
+    case OP_INCREMENT_LOCAL:
+      return byteInstruction("OP_INCREMENT_LOCAL", chunk, offset);
+    case OP_INCREMENT_GLOBAL:
+      return constantValueInstruction16("OP_INCREMENT_GLOBAL", chunk, offset);
     case OP_GET_LOCAL:
       return byteInstruction("OP_GET_LOCAL", chunk, offset);
     case OP_SET_LOCAL:

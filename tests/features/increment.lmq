@@ -1,0 +1,19 @@
+println("Global increment: ");
+let x = 0;
+println("Before incrementing: ${x}");
+x++;
+println("After incrementing: ${x}");
+
+{
+  println("Local increment: ");
+  let y = 0;
+  println("Before incrementing: ${y}");
+  y++;
+  println("After incrementing: ${y}");
+}
+
+println("For loops using increment operator (0 - 5).");
+
+for (let i = 0; i < 6; i++) {
+  println("i is: ${i}");
+}

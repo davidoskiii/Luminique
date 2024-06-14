@@ -17,8 +17,9 @@
 #define MAX_CASES 256
 
 typedef struct {
-  Token current;
+  Token pprevious;
   Token previous;
+  Token current;
   Token next;
   Token rootClass;
   bool hadError;
@@ -223,6 +224,7 @@ static void errorAtPrevious(const char* message) {
 }
 
 static void advance() {
+  parser.pprevious = parser.previous;
   parser.previous = parser.current;
   parser.current = parser.next;
 
@@ -871,6 +873,34 @@ static void dictionary(bool canAssign) {
   emitBytes(OP_DICTIONARY, entryCount);
 }
 
+static void increment(bool canAssign) {
+  if (canAssign && (parser.pprevious.type == TOKEN_IDENTIFIER)) {
+    uint8_t incrementOp;
+    bool isConstant = false;
+    Token name = parser.pprevious;
+    int arg = resolveLocal(current, &name);
+    if (arg != -1) {
+      incrementOp = OP_INCREMENT_LOCAL;
+    } else if ((arg = resolveUpvalue(current, &name)) != -1) {
+      // incrementOp = OP_INCREMENT_UPVALUE;
+      incrementOp = OP_INCREMENT_LOCAL;
+    } else {
+      arg = identifierConstant(&name);
+      isConstant = true;
+      incrementOp = OP_INCREMENT_GLOBAL;
+    }
+
+    emitByte(incrementOp);
+    if (isConstant) {
+      emitShort((uint16_t)arg);
+    } else {
+      emitByte((uint8_t)arg);
+    }
+  } else {
+    error("Unexcpected use of increment operator.");
+  }
+}
+
 static void subscript(bool canAssign) {
   expression();
   consume(TOKEN_RIGHT_BRAKE, "Expect ']' after subscript.");
@@ -1208,7 +1238,7 @@ ParseRule rules[] = {
   [TOKEN_DOT_DOT_DOT]   = {NULL,          binary,    PREC_CALL},
   [TOKEN_MINUS_MINUS]   = {NULL,          NULL,      PREC_CALL},
   [TOKEN_MINUS]         = {unary,         binary,    PREC_TERM},
-  [TOKEN_PLUS_PLUS]     = {NULL,          NULL,      PREC_CALL},
+  [TOKEN_PLUS_PLUS]     = {NULL,          increment, PREC_CALL},
   [TOKEN_PLUS]          = {unary,         binary,    PREC_TERM},
   [TOKEN_SEMICOLON]     = {NULL,          NULL,      PREC_NONE},
   [TOKEN_SLASH]         = {NULL,          binary,    PREC_FACTOR},
