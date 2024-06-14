@@ -1,0 +1,19 @@
+println("Global decrement: ");
+let x = 0;
+println("Before decrementing: ${x}");
+x--;
+println("After decrementing: ${x}");
+
+{
+  println("Local decrement: ");
+  let y = 0;
+  println("Before decrementing: ${y}");
+  y--;
+  println("After decrementing: ${y}");
+}
+
+println("For loops using decrement operator (0 - 5).");
+
+for (let i = 5; i > -1; i--) {
+  println("i is: ${i}");
+}

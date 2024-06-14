@@ -915,6 +915,47 @@ InterpretResult run() {
         *frame->closure->upvalues[slot]->location = NUMBER_VAL(AS_NUMBER(*frame->closure->upvalues[slot]->location) + 1); 
         break;
       }
+      case OP_DECREMENT_GLOBAL: {
+        ObjString* name = READ_STRING();
+        Value value;
+        if (!loadGlobal(name, &value)) {
+          runtimeError("Undefined variable '%s'.", name->chars);
+          return INTERPRET_RUNTIME_ERROR;
+        }
+
+        if (!IS_NUMBER(value)) {
+          runtimeError("Operand must be a number.");
+          return INTERPRET_RUNTIME_ERROR;
+        }
+
+        if (tableSet(&vm.globals, name, NUMBER_VAL(AS_NUMBER(value) - 1))) {
+          tableDelete(&vm.globals, name); 
+          runtimeError("Undefined variable '%s'.", name->chars);
+          return INTERPRET_RUNTIME_ERROR;
+        }
+
+        break;
+      }
+      case OP_DECREMENT_LOCAL: {
+        uint8_t slot = READ_BYTE();
+        
+        if (!IS_NUMBER(frame->slots[slot])) {
+          runtimeError("Operand must be a number.");
+          return INTERPRET_RUNTIME_ERROR;
+        }
+        frame->slots[slot] = NUMBER_VAL(AS_NUMBER(frame->slots[slot]) - 1); 
+        break;
+      }
+      case OP_DECREMENT_UPVALUE: {
+        uint8_t slot = READ_BYTE();
+        
+        if (!IS_NUMBER(*frame->closure->upvalues[slot]->location)) {
+          runtimeError("Operand must be a number.");
+          return INTERPRET_RUNTIME_ERROR;
+        }
+        *frame->closure->upvalues[slot]->location = NUMBER_VAL(AS_NUMBER(*frame->closure->upvalues[slot]->location) - 1); 
+        break;
+      }
       case OP_GET_LOCAL: {
         uint8_t slot = READ_BYTE();
         push(frame->slots[slot]);
