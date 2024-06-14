@@ -111,6 +111,12 @@ int disassembleInstruction(Chunk* chunk, int offset) {
       return constantValueInstruction16("OP_INCREMENT_GLOBAL", chunk, offset);
     case OP_INCREMENT_UPVALUE:
       return byteInstruction("OP_INCREMENT_UPVALUE", chunk, offset);
+    case OP_DECREMENT_LOCAL:
+      return byteInstruction("OP_DECREMENT_LOCAL", chunk, offset);
+    case OP_DECREMENT_GLOBAL:
+      return constantValueInstruction16("OP_DECREMENT_GLOBAL", chunk, offset);
+    case OP_DECREMENT_UPVALUE:
+      return byteInstruction("OP_DECREMENT_UPVALUE", chunk, offset);
     case OP_GET_LOCAL:
       return byteInstruction("OP_GET_LOCAL", chunk, offset);
     case OP_SET_LOCAL:
