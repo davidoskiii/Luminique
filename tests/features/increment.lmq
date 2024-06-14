@@ -1,19 +1,50 @@
-println("Global increment: ");
+println("Global post-increment: ");
 let x = 0;
-println("Before incrementing: ${x}");
+println("Before post-incrementing: ${x}");
 x++;
-println("After incrementing: ${x}");
+println("After post-incrementing: ${x}");
 
 {
-  println("Local increment: ");
+  println("Local post-increment: ");
   let y = 0;
-  println("Before incrementing: ${y}");
+  println("Before post-incrementing: ${y}");
   y++;
-  println("After incrementing: ${y}");
+  println("After post-incrementing: ${y}");
 }
 
-println("For loops using increment operator (0 - 5).");
+println("For loops using post-increment operator (0 - 5).");
 
 for (let i = 0; i < 6; i++) {
   println("i is: ${i}");
 }
+
+
+let z = 0;
+println("Return value of post-increment operator: ${z++}");
+z = 0;
+println("Return value of pre-increment operator: ${++z}");
+
+println("Global post-decrement: ");
+x = 0;
+println("Before post-decrementing: ${x}");
+x--;
+println("After post-decrementing: ${x}");
+
+{
+  println("Local post-decrement: ");
+  let y = 0;
+  println("Before post-decrementing: ${y}");
+  y--;
+  println("After post-decrementing: ${y}");
+}
+
+println("For loops using post-decrement operator (0 - 5).");
+
+for (let i = 5; i > -1; i--) {
+  println("i is: ${i}");
+}
+
+z = 0;
+println("Return value of post-decrement operator: ${z--}");
+z = 0;
+println("Return value of pre-decrement operator: ${--z}");
