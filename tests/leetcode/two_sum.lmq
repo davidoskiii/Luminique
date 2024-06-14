@@ -1,6 +1,6 @@
 function twoSum(nums, target) {
   const seen = {};
-  for (let i = 0; i < nums.length(); i = i + 1) {
+  for (let i = 0; i < nums.length(); i++) {
     const complement = target - nums[i];
     if (seen[complement]) {
       return [seen[complement], i];

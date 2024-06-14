@@ -37,14 +37,14 @@ let i = 0;
 let number = 0;
 
 while (i < 10) {
-  i = i + 1;
+  i++;
   number = number + i;
 }
 
 println(number);
 
-for (let j = 0; j <= 5; j = j + 1) {
-  i = i + 1;
+for (let j = 0; j <= 5; j++) {
+  i++;
 }
 
 switch (i) {

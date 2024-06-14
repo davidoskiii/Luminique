@@ -6,7 +6,7 @@ while (i < 15) {
   if (i == 11) {
     break;
   } else if (i == 3 || i == 6) {
-    i = i + 1;
+    i++;
     continue;
   }
 
@@ -16,13 +16,13 @@ while (i < 15) {
     println(i);
   }
 
-  i = i + 1;
+  i++;
 }
 
 println("");
 println("For loop");
 
-for (let i = 0; i < 15; i = i + 1) {
+for (let i = 0; i < 15; i++) {
   if (i == 11) {
     break;
   } else if (i == 3 || i == 6) {

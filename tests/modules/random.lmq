@@ -6,7 +6,7 @@ println(random::getseed());
 let i = 0;
 
 while (i < 100) { 
-  i = i + 1;
+  i++;
   print("Random number ${i}: ");
   println(random::randbint(10000));
 }

@@ -6,7 +6,7 @@ println(array1); // [1, 2, 3, 4, 5]
 array1.clear();
 println(array1); // []
 
-for (let i = 0; i < 6; i = i + 1) {
+for (let i = 0; i < 6; i++) {
   array1.append(i);
   println(array1);
 }
@@ -24,8 +24,8 @@ array3.append(2);
 
 println(array3);
 
-for (let i = 0; i < array1.length(); i = i + 1) {
-  for (let j = 0; j < array2.length(); j = j + 1) {
+for (let i = 0; i < array1.length(); i++) {
+  for (let j = 0; j < array2.length(); j++) {
     if (array1[i] == array2[j]) {
       println(array1[i]);
     }
