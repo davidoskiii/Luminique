@@ -93,6 +93,7 @@ int opCodeOffset(Chunk* chunk, int ip) {
         return 2 + (function->upvalueCount * 2);
       }
       case OP_CLOSE_UPVALUE: return 1;
+      case OP_ENUM: return 3;
       case OP_CLASS: return 3;
       case OP_INHERIT: return 1;
       case OP_METHOD: return 3; 

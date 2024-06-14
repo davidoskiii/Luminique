@@ -194,6 +194,8 @@ int disassembleInstruction(Chunk* chunk, int offset) {
     }
     case OP_CLOSE_UPVALUE:
       return simpleInstruction("OP_CLOSE_UPVALUE", offset);
+    case OP_ENUM:
+      return constantValueInstruction16("OP_ENUM", chunk, offset);
     case OP_CLASS:
       return constantValueInstruction16("OP_CLASS", chunk, offset);
     case OP_METHOD:
