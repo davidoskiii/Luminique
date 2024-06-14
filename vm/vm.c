@@ -819,11 +819,14 @@ InterpretResult run() {
         } else if (IS_NATIVE_FUNCTION(value)) {
           ObjNativeFunction* function = AS_NATIVE_FUNCTION(value);
           tableSet(&vm.rootNamespace->values, function->name, value);
+        } else if (IS_ENUM(value)) {
+          ObjEnum* enum_ = AS_ENUM(value);
+          tableSet(&vm.rootNamespace->values, enum_->name, value);
         } else if (IS_NAMESPACE(value)) {
           ObjNamespace* namespace = AS_NAMESPACE(value);
           tableSet(&vm.rootNamespace->values, namespace->shortName, value);
         } else {
-          runtimeError("Only classes, functions and namespaces may be imported.");
+          runtimeError("Only classes, functions, enums and namespaces may be imported.");
           return INTERPRET_RUNTIME_ERROR;
         }
         break;

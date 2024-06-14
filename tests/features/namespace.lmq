@@ -6,5 +6,6 @@ namespace tests;
 println(std::chrono::Date);
 println(fibonacci(2));
 println(fibonacci);
+println(fib::Enum_);
 
 // println(Date); Error!
