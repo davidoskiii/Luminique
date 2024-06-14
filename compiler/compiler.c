@@ -896,7 +896,7 @@ static void increment(bool canAssign) {
       emitByte((uint8_t)arg);
     }
   } else {
-    error("Unexcpected use of increment operator.");
+    error("Unexpected use of increment operator.");
   }
 }
 
