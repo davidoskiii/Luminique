@@ -900,6 +900,33 @@ static void increment(bool canAssign) {
   }
 }
 
+static void decrement(bool canAssign) {
+  if (canAssign && (parser.pprevious.type == TOKEN_IDENTIFIER)) {
+    uint8_t decrementOp;
+    bool isConstant = false;
+    Token name = parser.pprevious;
+    int arg = resolveLocal(current, &name);
+    if (arg != -1) {
+      decrementOp = OP_DECREMENT_LOCAL;
+    } else if ((arg = resolveUpvalue(current, &name)) != -1) {
+      decrementOp = OP_DECREMENT_UPVALUE;
+    } else {
+      arg = identifierConstant(&name);
+      isConstant = true;
+      decrementOp = OP_DECREMENT_GLOBAL;
+    }
+
+    emitByte(decrementOp);
+    if (isConstant) {
+      emitShort((uint16_t)arg);
+    } else {
+      emitByte((uint8_t)arg);
+    }
+  } else {
+    error("Unexpected use of increment operator.");
+  }
+}
+
 static void subscript(bool canAssign) {
   expression();
   consume(TOKEN_RIGHT_BRAKE, "Expect ']' after subscript.");
@@ -1235,7 +1262,7 @@ ParseRule rules[] = {
   [TOKEN_DOT]           = {NULL,          dot,       PREC_CALL},
   [TOKEN_COLON_COLON]   = {NULL,          coloncolon,PREC_CALL},
   [TOKEN_DOT_DOT_DOT]   = {NULL,          binary,    PREC_CALL},
-  [TOKEN_MINUS_MINUS]   = {NULL,          NULL,      PREC_CALL},
+  [TOKEN_MINUS_MINUS]   = {NULL,          decrement, PREC_CALL},
   [TOKEN_MINUS]         = {unary,         binary,    PREC_TERM},
   [TOKEN_PLUS_PLUS]     = {NULL,          increment, PREC_CALL},
   [TOKEN_PLUS]          = {unary,         binary,    PREC_TERM},
