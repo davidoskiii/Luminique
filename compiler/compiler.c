@@ -882,8 +882,7 @@ static void increment(bool canAssign) {
     if (arg != -1) {
       incrementOp = OP_INCREMENT_LOCAL;
     } else if ((arg = resolveUpvalue(current, &name)) != -1) {
-      // incrementOp = OP_INCREMENT_UPVALUE;
-      incrementOp = OP_INCREMENT_LOCAL;
+      incrementOp = OP_INCREMENT_UPVALUE;
     } else {
       arg = identifierConstant(&name);
       isConstant = true;

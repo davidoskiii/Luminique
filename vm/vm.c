@@ -905,6 +905,16 @@ InterpretResult run() {
         frame->slots[slot] = NUMBER_VAL(AS_NUMBER(frame->slots[slot]) + 1); 
         break;
       }
+      case OP_INCREMENT_UPVALUE: {
+        uint8_t slot = READ_BYTE();
+        
+        if (!IS_NUMBER(*frame->closure->upvalues[slot]->location)) {
+          runtimeError("Operand must be a number.");
+          return INTERPRET_RUNTIME_ERROR;
+        }
+        *frame->closure->upvalues[slot]->location = NUMBER_VAL(AS_NUMBER(*frame->closure->upvalues[slot]->location) + 1); 
+        break;
+      }
       case OP_GET_LOCAL: {
         uint8_t slot = READ_BYTE();
         push(frame->slots[slot]);
