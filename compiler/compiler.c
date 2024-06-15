@@ -1609,18 +1609,52 @@ static void classDeclaration() {
 }
 
 static void varDeclaration(bool isMutable) {
-  uint16_t global = parseVariable("Expect variable name.");
+  uint16_t globals[UINT8_MAX];
+  int varCount = 0;
+
+  do {
+    if (varCount >= UINT8_MAX) {
+      error("Can't have more than 255 variables in a single declaration.");
+      return;
+    }
+    globals[varCount++] = parseVariable("Expect variable name.");
+  } while (match(TOKEN_COMMA));
 
   if (!isMutable && !check(TOKEN_EQUAL)) {
     error("Const variable must be initialized upon declaration.");
+    return;
+  } else if (match(TOKEN_SEMICOLON)) {
+    for (int i = varCount - 1; i >= 0; i--) {
+      emitByte(OP_NIL);
+    }
   } else if (match(TOKEN_EQUAL)) {
-    expression();
-  } else {
-    emitByte(OP_NIL);
-  }
-  consume(TOKEN_SEMICOLON, "Expect ';' after variable declaration.");
+    int exprCount = 0;
+    if (check(TOKEN_COMMA) || !check(TOKEN_SEMICOLON)) {
+      do {
+        if (exprCount >= varCount) {
+          error("Too many initializers.");
+          return;
+        }
+        expression();
+        exprCount++;
+      } while (match(TOKEN_COMMA));
+    } else {
+      expression();
+      exprCount = varCount;
+    }
 
-  defineVariable(global, isMutable);
+    if (exprCount < varCount) {
+      error("Too few initializers.");
+      return;
+    }
+
+    consume(TOKEN_SEMICOLON, "Expect ';' after variable declaration.");
+  }
+
+
+  for (int i = varCount - 1; i >= 0; i--) {
+    defineVariable(globals[i], isMutable);
+  }
 }
 
 static void funDeclaration() {

@@ -1,0 +1,21 @@
+let x = 0;
+println("Creating x mutable variable: ${x}");
+
+let y;
+println("Creating y mutable variable (not initialized): ${y}");
+
+const z = true;
+println("Creating z immutable variable: ${z}");
+
+// z = false;
+
+// const j;
+
+print("Initializing more than one variable at once: ");
+let a, b, c = 1, 2, 3;
+
+print("${a}, ");
+print("${b}, ");
+println(c);
+
+// const d, e, f;
