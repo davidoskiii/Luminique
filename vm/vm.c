@@ -1340,6 +1340,12 @@ InterpretResult run() {
       case OP_SUPER_INVOKE: {
         ObjString* method = READ_STRING();
         int argCount = READ_BYTE();
+
+        if (!IS_CLASS(peek(0))) {
+          runtimeError("Superclass must be a class. (This message is needed for debug purposes)");
+          return INTERPRET_RUNTIME_ERROR;
+        }
+
         ObjClass* superclass = AS_CLASS(pop());
         if (!invokeFromClass(superclass, method, argCount)) {
           return INTERPRET_RUNTIME_ERROR;
