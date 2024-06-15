@@ -352,6 +352,7 @@ void printObject(Value value) {
       printf("<enum %s>", AS_ENUM(value)->name->chars);
       break;
     case OBJ_INSTANCE:
+      #ifdef DEBUG_FORMAT
       if (objMethodExists(value, "__format__")) {
         Value method = getObjMethod(value, "__format__");
         Value str = callReentrant(value, method);
@@ -360,9 +361,9 @@ void printObject(Value value) {
           str = callReentrant(str, toStringMethod);
         } while (!IS_STRING(str));
         printf("%s", AS_CSTRING(str));
-      } else {
-        printf("<object %s>", AS_OBJ(value)->klass->name->chars);
-      }
+      } else 
+      #endif
+      printf("<object %s>", AS_OBJ(value)->klass->name->chars);
       break;
     case OBJ_NATIVE_FUNCTION:
       printf("<native function %s>", AS_NATIVE_FUNCTION(value)->name->chars);
