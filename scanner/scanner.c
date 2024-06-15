@@ -173,7 +173,14 @@ static TokenType identifierType() {
       }
       break;
     case 'b': return checkKeyword(1, 4, "reak", TOKEN_BREAK);
-    case 'd': return checkKeyword(1, 6, "efault", TOKEN_DEFAULT);
+    case 'd':
+      if (scanner.current - scanner.start > 1) {
+        switch (scanner.start[1]) {
+          case 'o': return checkKeyword(2, 0, "", TOKEN_DO);
+          case 'e': return checkKeyword(2, 5, "fault", TOKEN_DEFAULT);
+        }
+      }
+      break;
     case 'c':
       if (scanner.current - scanner.start > 1) {
         switch (scanner.start[1]) {

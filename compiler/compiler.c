@@ -2056,6 +2056,33 @@ static void whileStatement() {
   current->innermostLoopScopeDepth = scopeDepth;
 }
 
+static void doWhileStatement() {
+  int loopStart = current->innermostLoopStart;
+  int scopeDepth = current->innermostLoopScopeDepth;
+
+  current->innermostLoopStart = currentChunk()->count;
+  current->innermostLoopScopeDepth = current->scopeDepth;
+
+  statement();
+
+  consume(TOKEN_WHILE, "Expect 'while' after body.");
+  consume(TOKEN_LEFT_PAREN, "Expect '(' after 'while'.");
+  expression();
+  consume(TOKEN_RIGHT_PAREN, "Expect ')' after condition.");
+
+  int exitJump = emitJump(OP_JUMP_IF_FALSE);
+  emitByte(OP_POP);
+
+  emitLoop(current->innermostLoopStart);
+
+  patchJump(exitJump);
+  emitByte(OP_POP);
+
+  endLoop();
+  current->innermostLoopStart = loopStart;
+  current->innermostLoopScopeDepth = scopeDepth;
+}
+
 static void synchronize() {
   parser.panicMode = false;
 
@@ -2068,6 +2095,7 @@ static void synchronize() {
       case TOKEN_USING:
       case TOKEN_SWITCH:
       case TOKEN_THROW:
+      case TOKEN_DO:
       case TOKEN_FUN:
       case TOKEN_CONST:
       case TOKEN_VAR:
@@ -2131,6 +2159,8 @@ static void statement() {
     returnStatement();
   } else if (match(TOKEN_WHILE)) {
     whileStatement();
+  } else if (match(TOKEN_DO)) {
+    doWhileStatement();
   } else if (match(TOKEN_LEFT_BRACE)) {
     beginScope();
     block();
