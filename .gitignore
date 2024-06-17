@@ -10,6 +10,4 @@
 # Unignore Makefile
 !Makefile
 
-Make
-
-LICENSE
+build/
