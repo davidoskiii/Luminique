@@ -816,7 +816,6 @@ InterpretResult run() {
       }
       case OP_BEGIN_NAMESPACE: {
         ObjString* name = READ_STRING();
-        printf("namespace: %s\n", vm.currentNamespace->shortName->chars);
         ObjNamespace* namespaceObj = defineNativeNamespace(name->chars, vm.currentNamespace);
         stackPush(&namespaceStack, vm.currentNamespace);
         vm.previousNamespace = vm.currentNamespace;
@@ -826,7 +825,7 @@ InterpretResult run() {
         break;
       }
       case OP_END_NAMESPACE: {
-        vm.currentNamespace = stackPop(&namespaceStack);  // Pop the previous namespace from the stack
+        vm.currentNamespace = stackPop(&namespaceStack);
         break;
       }
       case OP_SUBNAMESPACE: { 

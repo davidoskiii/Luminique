@@ -60,18 +60,6 @@ ObjNamespace* defineNativeNamespace(const char* name, ObjNamespace* enclosing) {
   ObjNamespace* nativeNamespace = newNamespace(shortName, enclosing);
   push(OBJ_VAL(nativeNamespace));
   tableSet(&vm.namespaces, nativeNamespace->fullName, OBJ_VAL(nativeNamespace));
-  // printf("nativeNamespace: ");
-  // printValue(OBJ_VAL(nativeNamespace));
-  // printf("\n");
-  //
-  // printf("enclosing: ");
-  // printValue(OBJ_VAL(enclosing));
-  // printf("\n");
-  //
-  // printf("enclosing->values: ");
-  // printTable(enclosing->values);
-  // printf("\n");
-  //
   tableSet(&enclosing->values, nativeNamespace->shortName, OBJ_VAL(nativeNamespace));
   pop();
   pop();
