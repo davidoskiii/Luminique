@@ -369,6 +369,86 @@ Value newCollection(ObjClass* klass) {
   }
 }
 
+static int linkFindIndex(ObjInstance* linkedList, Value element) {
+  int index = 0;
+  Value f = getObjProperty(linkedList, "first");
+  ObjNode* first = IS_NIL(f) ? NULL : AS_NODE(f);
+  for (ObjNode* node = first; node != NULL; node = node->next) {
+    if (valuesEqual(element, node->element)) return index;
+    index++;
+  }
+  return -1;
+}
+
+static bool collectionIsEmpty(ObjInstance* collection) {
+  int length = AS_INT(getObjProperty(collection, "length"));
+  return (length == 0);
+}
+
+static void collectionLengthDecrement(ObjInstance* collection) {
+  int length = AS_INT(getObjProperty(collection, "length"));
+  setObjProperty(collection, "length", INT_VAL(length - 1));
+}
+
+static void collectionLengthIncrement(ObjInstance* collection) {
+  int length = AS_INT(getObjProperty(collection, "length"));
+  setObjProperty(collection, "length", INT_VAL(length + 1));
+}
+
+
+static int linkSearchElement(ObjInstance* linkedList, Value element) {
+  int length = AS_INT(getObjProperty(linkedList, "length"));
+  if (length > 0) {
+    ObjNode * first = AS_NODE(getObjProperty(linkedList, "first"));
+    for (int i = 0; i < length; i++) {
+      if (valuesEqual(element, first->element)) return i;
+      first = first->next;
+    }
+  }
+  return -1;
+}
+
+static ObjString* linkToString(ObjInstance* linkedList) {
+  int size = AS_INT(getObjProperty(linkedList, "length"));
+  if (size == 0) return copyString("[]", 2);
+  else {
+    char string[UINT8_MAX] = "";
+    string[0] = '[';
+    size_t offset = 1;
+    ObjNode* node = AS_NODE(getObjProperty(linkedList, "first"));
+    for (int i = 0; i < size; i++) {
+      char* chars;
+      size_t length;
+
+      if (IS_STRING(node->element)) {
+        chars = valueToString(node->element);
+        length = strlen(chars);
+        string[offset] = '"';
+        memcpy(string + offset + 1, chars, length);
+        string[offset + 1 + length] = '"';
+        length += 2;
+      } else {
+        // Handle non-string elements
+        chars = valueToString(node->element);
+        length = strlen(chars);
+        memcpy(string + offset, chars, length);
+      }
+
+      if (i == size - 1) {
+        offset += length;
+      }
+      else {
+        memcpy(string + offset + length, ", ", 2);
+        offset += length + 2;
+      }
+      node = node->next;
+    }
+    string[offset] = ']';
+    string[offset + 1] = '\0';
+    return copyString(string, (int)offset + 1);
+  }
+}
+
 // COLLECTION
 
 NATIVE_METHOD(Collection, append) {
@@ -1082,6 +1162,207 @@ NATIVE_METHOD(List, putAt) {
   THROW_EXCEPTION(luminique::std::lang, NotImplementedException, "Not implemented, subclass responsibility.");
 }
 
+NATIVE_METHOD(Node, __init__) {
+  assertArgCount("Node::__init__(element, prev, next)", 3, argCount);
+  ObjNode* self = AS_NODE(receiver);
+  self->element = args[0];
+  if (!IS_NIL(args[1])) self->prev = AS_NODE(args[1]);
+  if (!IS_NIL(args[2])) self->next = AS_NODE(args[2]);
+  RETURN_OBJ(self);
+}
+
+NATIVE_METHOD(Node, clone) {
+  assertArgCount("Node::clone()", 0, argCount);
+  ObjNode* self = AS_NODE(receiver);
+  ObjNode* node = newNode(self->element, self->prev, self->next);
+  RETURN_OBJ(node);
+}
+
+NATIVE_METHOD(Node, element) {
+  assertArgCount("Node::element()", 0, argCount);
+  RETURN_VAL(AS_NODE(receiver)->element);
+}
+
+NATIVE_METHOD(Node, next) {
+  assertArgCount("Node::next()", 0, argCount);
+  RETURN_OBJ(AS_NODE(receiver)->next);
+}
+
+NATIVE_METHOD(Node, prev) {
+  assertArgCount("Node::prev()", 0, argCount);
+  RETURN_OBJ(AS_NODE(receiver)->prev);
+}
+
+NATIVE_METHOD(Node, __str__) {
+  assertArgCount("Node::__str__()", 0, argCount);
+  char nodeString[UINT8_MAX] = "";
+  memcpy(nodeString, "Node: ", 6);
+
+  Value nodeElement = AS_NODE(receiver)->element;
+  char* nodeChars = valueToString(nodeElement);
+  size_t nodeLength = strlen(nodeChars);
+  memcpy(nodeString + 6, nodeChars, nodeLength);
+  nodeString[nodeLength + 6] = '\0';
+  RETURN_STRING(nodeString, (int)nodeLength + 6);
+}
+
+NATIVE_METHOD(Node, __format__) {
+  assertArgCount("Node::__format__()", 0, argCount);
+  char nodeString[UINT8_MAX] = "";
+  memcpy(nodeString, "Node: ", 6);
+
+  Value nodeElement = AS_NODE(receiver)->element;
+  char* nodeChars = valueToString(nodeElement);
+  size_t nodeLength = strlen(nodeChars);
+  memcpy(nodeString + 6, nodeChars, nodeLength);
+  nodeString[nodeLength + 6] = '\0';
+  RETURN_STRING(nodeString, (int)nodeLength + 6);
+}
+
+NATIVE_METHOD(Stack, clear) {
+  assertArgCount("Stack::clear()", 0, argCount);
+  ObjInstance* self = AS_INSTANCE(receiver);
+  setObjProperty(self, "first", NIL_VAL);
+  setObjProperty(self, "current", NIL_VAL);
+  setObjProperty(self, "length", INT_VAL(0));
+  RETURN_NIL;
+}
+
+NATIVE_METHOD(Stack, contains) {
+  assertArgCount("Stack::contains(element)", 1, argCount);
+  RETURN_BOOL(linkFindIndex(AS_INSTANCE(receiver), args[0]) != -1);
+}
+
+NATIVE_METHOD(Stack, getFirst) { 
+  assertArgCount("Stack::getFirst()", 0, argCount);
+  ObjNode* first = AS_NODE(getObjProperty(AS_INSTANCE(receiver), "first"));
+  RETURN_VAL(first->element);
+}
+
+NATIVE_METHOD(Stack, __init__) {
+  assertArgCount("Stack::__init__()", 0, argCount);
+  ObjInstance* self = AS_INSTANCE(receiver);
+  setObjProperty(self, "first", OBJ_VAL(newNode(NIL_VAL, NULL, NULL)));
+  setObjProperty(self, "current", NIL_VAL);
+  setObjProperty(self, "length", INT_VAL(0));
+  RETURN_OBJ(receiver);
+}
+
+NATIVE_METHOD(Stack, isEmpty) {
+  assertArgCount("Stack::isEmpty()", 0, argCount);
+  RETURN_BOOL(collectionIsEmpty(AS_INSTANCE(receiver)));
+}
+
+NATIVE_METHOD(Stack, length) {
+  assertArgCount("Stack::length()", 0, argCount);
+  Value length = getObjProperty(AS_INSTANCE(receiver), "length");
+  RETURN_INT(length);
+}
+
+NATIVE_METHOD(Stack, next) {
+  assertArgCount("Stack::next(index)", 1, argCount);
+  ObjInstance* self = AS_INSTANCE(receiver);
+  int length = AS_INT(getObjProperty(self, "length"));
+
+  if (IS_NIL(args[0])) {
+    if (length == 0) RETURN_FALSE;
+    RETURN_INT(0);
+  }
+
+  assertArgIsInt("Stack::next(index)", args, 0);
+  int index = AS_INT(args[0]);
+  if (index >= 0 && index < length - 1) {
+    ObjNode* current = AS_NODE(getObjProperty(self, (index == 0) ? "first" : "current"));
+    setObjProperty(self, "current", OBJ_VAL(current->next));
+    RETURN_INT(index + 1);
+  } else {
+    setObjProperty(self, "current", getObjProperty(self, "first"));
+    RETURN_NIL;
+  }
+}
+
+NATIVE_METHOD(Stack, nextValue) {
+  assertArgCount("Stack::nextValue(index)", 1, argCount);
+  assertArgIsInt("Stack::nextValue(index)", args, 0);
+  ObjInstance* self = AS_INSTANCE(receiver);
+  int length = AS_INT(getObjProperty(self, "length"));
+  int index = AS_INT(args[0]);
+  if (index == 0) RETURN_VAL(getObjProperty(self, "first"));
+  if (index > 0 && index < length) RETURN_VAL(getObjProperty(self, "current"));
+  RETURN_NIL;
+}
+
+NATIVE_METHOD(Stack, peek) {
+  assertArgCount("Stack::peek()", 0, argCount);
+  ObjNode* first = AS_NODE(getObjProperty(AS_INSTANCE(receiver), "first"));
+  RETURN_VAL(first->element);
+}
+
+NATIVE_METHOD(Stack, pop) {
+  assertArgCount("Stack::pop()", 0, argCount);
+  ObjInstance* self = AS_INSTANCE(receiver);
+  ObjNode* first = AS_NODE(getObjProperty(self, "first"));
+  int length = AS_INT(getObjProperty(AS_INSTANCE(receiver), "length"));
+  if (length == 0) RETURN_NIL;
+  else {
+    Value element = first->element;
+    setObjProperty(self, "first", first->next == NULL ? NIL_VAL : OBJ_VAL(first->next));
+    collectionLengthDecrement(self);
+    RETURN_VAL(element);
+  }
+}
+
+NATIVE_METHOD(Stack, push) {
+  assertArgCount("Stack::push(element)", 1, argCount);
+  ObjInstance* self = AS_INSTANCE(receiver);
+  ObjNode* first = AS_NODE(getObjProperty(self, "first"));
+  int length = AS_INT(getObjProperty(AS_INSTANCE(receiver), "length"));
+  ObjNode* new = newNode(args[0], NULL, NULL);
+
+  push(OBJ_VAL(new));
+  if (length > 0) {
+    new->next = first;
+  }
+  setObjProperty(self, "first", OBJ_VAL(new));
+  pop();
+  
+  collectionLengthIncrement(self);
+  RETURN_VAL(args[0]);
+}
+
+NATIVE_METHOD(Stack, search) {
+  assertArgCount("Stack::search(element)", 1, argCount);
+  ObjInstance* self = AS_INSTANCE(receiver);
+  RETURN_INT(linkSearchElement(self, args[0]));
+}
+
+NATIVE_METHOD(Stack, toArray) {
+  assertArgCount("Stack::toArray()", 0, argCount);
+  ObjInstance* self = AS_INSTANCE(receiver);
+  int length = AS_INT(getObjProperty(self, "length"));
+  ObjArray* array = newArray();
+  push(OBJ_VAL(array));
+  if (length > 0) {
+    for (ObjNode* node = AS_NODE(getObjProperty(self, "first")); node != NULL; node = node->next) {
+      writeValueArray(&array->elements, node->element);
+    }
+  }
+  pop();
+  RETURN_OBJ(array);
+}
+
+NATIVE_METHOD(Stack, __str__) {
+  assertArgCount("Stack::__str__()", 0, argCount);
+  ObjInstance* self = AS_INSTANCE(receiver);
+  RETURN_OBJ(linkToString(self));
+}
+
+NATIVE_METHOD(Stack, __format__) {
+  assertArgCount("Stack::__format__()", 0, argCount);
+  ObjInstance* self = AS_INSTANCE(receiver);
+  RETURN_OBJ(linkToString(self));
+}
+
 void registerCollectionPackage() {
   ObjNamespace* collectionNamespace = defineNativeNamespace("collection", vm.stdNamespace);
   vm.currentNamespace = vm.langNamespace;
@@ -1182,6 +1463,34 @@ void registerCollectionPackage() {
 
   ObjClass* entryClass = defineNativeClass("Entry");
   bindSuperclass(entryClass, vm.objectClass);
+
+  vm.nodeClass = defineNativeClass("Node");
+  bindSuperclass(vm.nodeClass, vm.objectClass);
+  DEF_METHOD(vm.nodeClass, Node, __init__, 3);
+  DEF_METHOD(vm.nodeClass, Node, clone, 0);
+  DEF_METHOD(vm.nodeClass, Node, element, 0);
+  DEF_METHOD(vm.nodeClass, Node, next, 0);
+  DEF_METHOD(vm.nodeClass, Node, prev, 0);
+  DEF_METHOD(vm.nodeClass, Node, __str__, 0);
+  DEF_METHOD(vm.nodeClass, Node, __format__, 0);
+
+  ObjClass* stackClass = defineNativeClass("Stack");
+  bindSuperclass(stackClass, collectionClass);
+  DEF_METHOD(stackClass, Stack, __init__, 0);
+  DEF_METHOD(stackClass, Stack, clear, 0);
+  DEF_METHOD(stackClass, Stack, contains, 1);
+  DEF_METHOD(stackClass, Stack, getFirst, 0);
+  DEF_METHOD(stackClass, Stack, isEmpty, 0);
+  DEF_METHOD(stackClass, Stack, length, 0);
+  DEF_METHOD(stackClass, Stack, next, 1);
+  DEF_METHOD(stackClass, Stack, nextValue, 1);
+  DEF_METHOD(stackClass, Stack, peek, 0);
+  DEF_METHOD(stackClass, Stack, pop, 0);
+  DEF_METHOD(stackClass, Stack, push, 1);
+  DEF_METHOD(stackClass, Stack, search, 1);
+  DEF_METHOD(stackClass, Stack, toArray, 0);
+  DEF_METHOD(stackClass, Stack, __str__, 0);
+  DEF_METHOD(stackClass, Stack, __format__, 0);
 
   vm.currentNamespace = vm.rootNamespace;
 }

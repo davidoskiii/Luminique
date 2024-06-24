@@ -25,6 +25,7 @@
 #define IS_RECORD(value) isObjType(value, OBJ_RECORD)
 #define IS_ARRAY(value) isObjType(value, OBJ_ARRAY)
 #define IS_RANGE(value) isObjType(value, OBJ_RANGE)
+#define IS_NODE(value) isObjType(value, OBJ_NODE)
 #define IS_ENUM(value) isObjType(value, OBJ_ENUM)
 #define IS_WINDOW(value) isObjType(value, OBJ_WINDOW)
 #define IS_NATIVE_FUNCTION(value) isObjType(value, OBJ_NATIVE_FUNCTION)
@@ -44,6 +45,7 @@
 #define AS_RECORD(value) ((ObjRecord*)AS_OBJ(value))
 #define AS_ARRAY(value) ((ObjArray*)AS_OBJ(value))
 #define AS_RANGE(value) ((ObjRange*)AS_OBJ(value))
+#define AS_NODE(value) ((ObjNode*)AS_OBJ(value))
 #define AS_ENUM(value) ((ObjEnum*)AS_OBJ(value))
 #define AS_WINDOW(value) ((ObjWindow*)AS_OBJ(value))
 #define AS_NATIVE_FUNCTION(value) ((ObjNativeFunction*)AS_OBJ(value))
@@ -71,6 +73,7 @@ typedef enum {
   OBJ_NATIVE_METHOD,
   OBJ_STRING,
   OBJ_RANGE,
+  OBJ_NODE,
   OBJ_WINDOW,
   OBJ_UPVALUE
 } ObjType;
@@ -212,6 +215,13 @@ typedef struct {
   int to;
 } ObjRange;
 
+struct ObjNode {
+  Obj obj;
+  Value element;
+  struct ObjNode* prev;
+  struct ObjNode* next;
+};
+
 typedef struct {
   Obj obj;
   SDL_Window* window;
@@ -233,6 +243,7 @@ ObjEnum* newEnum(ObjString* name);
 ObjModule* newModule(ObjString* path);
 ObjNamespace* newNamespace(ObjString* shortName, ObjNamespace* enclosing);
 ObjRange* newRange(int from, int to);
+ObjNode* newNode(Value element, ObjNode* prev, ObjNode* next);
 ObjWindow* newWindow(const char* title, int width, int height);
 ObjClosure* newClosure(ObjFunction* function);
 ObjFunction* newFunction();

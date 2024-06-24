@@ -42,6 +42,7 @@ typedef struct {
   ObjClass* dictionaryClass;
   ObjClass* entryClass;
   ObjClass* rangeClass;
+  ObjClass* nodeClass;
   ObjClass* windowClass;
 
   ObjNamespace* rootNamespace;

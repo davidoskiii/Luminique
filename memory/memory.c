@@ -79,6 +79,13 @@ static void blackenObject(Obj* object) {
       markArray(&((ObjArray*)object)->elements);
       break;
     }
+    case OBJ_NODE: {
+      ObjNode* node = (ObjNode*)object;
+      markValue(node->element);
+      markObject((Obj*)node->prev);
+      markObject((Obj*)node->next);
+      break;
+    }
     case OBJ_DICTIONARY: {
       ObjDictionary* dict = (ObjDictionary*)object;
       for (int i = 0; i < dict->capacity; i++) {
@@ -198,6 +205,10 @@ static void freeObject(Obj* object) {
     }
     case OBJ_RANGE: {
       FREE(ObjRange, object);
+      break;
+    }
+    case OBJ_NODE: {
+      FREE(ObjNode, object);
       break;
     }
     case OBJ_ENTRY: {

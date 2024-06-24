@@ -2,11 +2,7 @@ using luminique::std::network::http::HTTPClient;
 using luminique::std::network::http::HTTPRequest;
 using luminique::std::network::URL;
 
-using luminique::std::sys;
-using luminique::std::sys;
-
-if (sys::argc > 3) throw Exception("You can only pass a max of 3 arguments to http.lmq");
-let flag = sys::argv[sys::argc - 1] == "--contents";
+let flag = false;
 
 const client = HTTPClient();
 print("Creating HTTP Client: ");
@@ -119,7 +115,7 @@ println("");
 
 println("Creating a HTTPRequest object: ");
 const request = HTTPRequest("https://mockbin.com/request", HTTPRequest.httpPOST, {"Accept": "*/*", "Content-Type": "application/json"}, {"name" : "Ordland", "age": 34, "location" : "United States"});
-println(request.toString());
+println(str(request));
 println("");
 
 println("Sending generic HTTP request to example.com: ");
