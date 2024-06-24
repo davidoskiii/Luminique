@@ -97,8 +97,6 @@ int disassembleInstruction(Chunk* chunk, int offset) {
       return byteInstruction("OP_DICTIONARY", chunk, offset);
     case OP_RANGE:
       return simpleInstruction("OP_RANGE", offset);
-    case OP_NAMESPACE:
-      return byteInstruction("OP_NAMESPACE", chunk, offset);
     case OP_USING:
       return byteInstruction("OP_USING", chunk, offset);
     case OP_SUBNAMESPACE: 
@@ -181,6 +179,10 @@ int disassembleInstruction(Chunk* chunk, int offset) {
       return simpleInstruction("OP_SET_SUBSCRIPT", offset);
     case OP_REQUIRE:
       return simpleInstruction("OP_REQUIRE", offset);
+    case OP_BEGIN_NAMESPACE:
+      return constantValueInstruction16("OP_BEGIN_NAMESPACE", chunk, offset);
+    case OP_END_NAMESPACE:
+      return simpleInstruction("OP_END_NAMESPACE", offset);
     case OP_TYPEOF:
       return simpleInstruction("OP_TYPEOF", offset);
     case OP_GET_SUPER:

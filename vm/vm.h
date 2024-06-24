@@ -50,6 +50,7 @@ typedef struct {
   ObjNamespace* langNamespace;
   ObjNamespace* defaultNamespace;
   ObjNamespace* currentNamespace;
+  ObjNamespace* previousNamespace;
   bool runModule;
 
   CallFrame frames[FRAMES_MAX];
@@ -66,7 +67,6 @@ typedef struct {
 
   Table modules;
   Table namespaces;
-  Table globals;
   Table strings;
 
   ObjString* initString;

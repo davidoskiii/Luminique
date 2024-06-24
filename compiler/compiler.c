@@ -5,10 +5,12 @@
 
 #include "../object/object.h"
 #include "../common.h"
-#include "compiler.h"
 #include "../memory/memory.h"
 #include "../scanner/scanner.h"
+#include "../native/native.h"
 #include "../string/string.h"
+#include "../dsa/dsa.h"
+#include "compiler.h"
 
 #ifdef DEBUG_PRINT_CODE
 #include "../debug/debug.h"
@@ -92,6 +94,7 @@ typedef struct ClassCompiler {
   bool isStaticMethod;
 } ClassCompiler;
 
+static Stack namespaceStack;
 Parser parser;
 Compiler* current = NULL;
 ClassCompiler* currentClass = NULL;
@@ -365,6 +368,8 @@ static void initCompiler(Compiler* compiler, FunctionType type) {
   compiler->innermostLoopStart = -1;
   compiler->innermostLoopScopeDepth = 0;
   current = compiler;
+
+  initStack(&namespaceStack);
 
   if (type != TYPE_SCRIPT) {
     if (parser.previous.length == 8 && memcmp(parser.previous.start, "function", 8) == 0) {
@@ -641,12 +646,11 @@ static void defineVariable(uint16_t global, bool isMutable) {
     ObjString* name = identifierName(global);
 
     if (isMutable) {
-      tableSet(&vm.globals, name, NIL_VAL);
+      tableSet(&vm.currentNamespace->globals, name, NIL_VAL);
       emitByte(OP_DEFINE_GLOBAL);
       emitShort(global);
-    }
-    else {
-      tableSet(&vm.rootNamespace->values, name, NIL_VAL);
+    } else {
+      tableSet(&vm.currentNamespace->values, name, NIL_VAL);
       emitByte(OP_DEFINE_CONST);
       emitShort(global);
     }
@@ -1178,7 +1182,7 @@ static void checkMutability(int arg, uint8_t opCode) {
     case OP_SET_GLOBAL: {
       ObjString* name = identifierName(arg);
       Value value;
-      if (tableGet(&vm.rootNamespace->values, name, &value)) { 
+      if (tableGet(&vm.currentNamespace->values, name, &value)) { 
         error("Cannot assign to immutable global variables.");
       }
       break;
@@ -1208,6 +1212,11 @@ static void closure(bool canAssign) {
 
 static void lambda(bool canAssign) {
   function(TYPE_LAMBDA);
+}
+
+static bool isInNamespace() {
+  if (vm.currentNamespace != vm.rootNamespace) return true;
+  else return false;
 }
 
 static void namedVariable(Token name, bool canAssign) {
@@ -1262,12 +1271,6 @@ static void this_(bool canAssign) {
   }
 
   variable(false);
-}
-
-static void namespace_(bool canAssign) {
-  consume(TOKEN_IDENTIFIER, "Expect Namespace identifier.");
-  ObjString* name = copyString(parser.previous.start, parser.previous.length);
-  emitConstant(OBJ_VAL(name));
 }
 
 static void super_(bool canAssign) {
@@ -1533,7 +1536,6 @@ static void enumDeclaration() {
 
   beginScope();
   defineVariable(0, false);
-  namedVariable(enumName, false);
 
   namedVariable(enumName, false);
   consume(TOKEN_LEFT_BRACE, "Expect '{' before enum body.");
@@ -1962,19 +1964,37 @@ static void tryStatement() {
 }
 
 static void namespaceDeclaration() {
-  uint8_t namespaceDepth = 0;
-  do {
-    if (namespaceDepth > UINT4_MAX) {
-      errorAtCurrent("Can't have more than 15 levels of namespace depth.");
-    }
-    namespace_(false);
-    namespaceDepth++;
-  } while (match(TOKEN_COLON_COLON));
+  consume(TOKEN_IDENTIFIER, "Expect namespace identifier.");
 
-  consume(TOKEN_SEMICOLON, "Expect semicolon after namespace declaration.");
-  emitBytes(OP_NAMESPACE, namespaceDepth);
+  Token namespaceName = parser.previous;
+  uint16_t nameConstant = identifierConstant(&namespaceName);
+  ObjString* name = copyString(parser.previous.start, parser.previous.length);
+
+  declareVariable();
+
+  ObjNamespace* namespaceObj = defineNativeNamespace(name->chars, vm.currentNamespace);
+  stackPush(&namespaceStack, vm.currentNamespace);  // Push the current namespace onto the stack
+  vm.previousNamespace = vm.currentNamespace;
+  vm.currentNamespace = namespaceObj;
+
+  emitByte(OP_BEGIN_NAMESPACE);
+  emitShort(nameConstant);
+
+  defineVariable(0, false);
+
+  consume(TOKEN_LEFT_BRACE, "Expect '{' after namespace declaration.");
+
+  while (!check(TOKEN_RIGHT_BRACE) && !check(TOKEN_EOF)) {
+    declaration();
+  }
+
+  consume(TOKEN_RIGHT_BRACE, "Expect '}' after namespace block.");
+
+  vm.currentNamespace = stackPop(&namespaceStack);  // Pop the previous namespace from the stack
+  emitByte(OP_END_NAMESPACE);
+
+  emitByte(OP_POP);
 }
-
 static void usingStatement() {
   uint8_t namespaceDepth = 0;
   do { 
@@ -2117,6 +2137,8 @@ static void synchronize() {
 static void declaration() {
   if (match(TOKEN_CLASS)) {
     classDeclaration();
+  } else if (match(TOKEN_NAMESPACE)) {
+    namespaceDeclaration();
   } else if (match(TOKEN_ENUM)) {
     enumDeclaration();
   } else if (match(TOKEN_FUN)) {
@@ -2149,8 +2171,6 @@ static void statement() {
     throwStatement();
   } else if (match(TOKEN_TRY)) {
     tryStatement();
-  } else if (match(TOKEN_NAMESPACE)) {
-    namespaceDeclaration();
   } else if (match(TOKEN_USING)) {
     usingStatement();
   } else if (match(TOKEN_REQUIRE)) {
@@ -2187,6 +2207,7 @@ ObjFunction* compile(const char* source) {
   }
 
   ObjFunction* function = endCompiler();
+  freeStack(&namespaceStack);
   return parser.hadError ? NULL : function;
 }
 

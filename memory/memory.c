@@ -115,6 +115,7 @@ static void blackenObject(Obj* object) {
       markObject((Obj*)namespace->shortName);
       if (namespace->enclosing != NULL) markObject((Obj*)namespace->enclosing);
       markTable(&namespace->values);
+      markTable(&namespace->globals);
       break;
     }
     case OBJ_RECORD:
@@ -235,6 +236,7 @@ static void freeObject(Obj* object) {
     case OBJ_NAMESPACE: { 
       ObjNamespace* namespace = (ObjNamespace*)object;
       freeTable(&namespace->values);
+      freeTable(&namespace->globals);
       FREE(ObjNamespace, object);
       break;
     }
@@ -301,7 +303,7 @@ static void markRoots() {
     markObject((Obj*)upvalue);
   }
 
-  markTable(&vm.globals);
+  markTable(&vm.currentNamespace->globals);
   markTable(&vm.namespaces);
   markTable(&vm.modules);
   markCompilerRoots();

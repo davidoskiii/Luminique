@@ -145,6 +145,7 @@ struct ObjNamespace {
   struct ObjNamespace* enclosing;
   bool isRoot;
   Table values;
+  Table globals;
 };
 
 typedef struct ObjRecord {

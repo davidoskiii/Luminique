@@ -1,11 +1,32 @@
-using tests::features::fib;
-using luminique::std;
+namespace Outer {
+  let mutable = 5;
+  const immutable = 2;
 
-namespace tests;
+  enum Colors {
+    RED,
+    BLUE,
+    GREEN
+  }
 
-println(std::chrono::Date);
-println(fibonacci(2));
-println(fibonacci);
-println(fib::Enum_);
+  class Dog {
+    function __init__(name) {
+      this.name = name;
+    }
 
-// println(Date); Error!
+    static function bark() {
+      println("Dog barks");
+    }
+
+    function bark() {
+      println("${this.name} barks");
+    }
+  }
+
+  namespace Inner {}
+}
+
+println(Outer::mutable);
+println(Outer::immutable);
+println(Outer::Colors::RED);
+Outer::Dog.bark();
+println(Outer::Inner);

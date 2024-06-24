@@ -140,6 +140,7 @@ ObjNamespace* newNamespace(ObjString* shortName, ObjNamespace* enclosing) {
   else namespace->fullName = namespace->shortName;
 
   initTable(&namespace->values);
+  initTable(&namespace->globals);
   return namespace;
 }
 

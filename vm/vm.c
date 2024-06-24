@@ -7,6 +7,7 @@
 #include <stdlib.h>
 
 #include "../native/native.h"
+#include "../dsa/dsa.h"
 #include "../common.h"
 #include "../compiler/compiler.h"
 #include "../object/object.h"
@@ -28,6 +29,7 @@
 #include "vm.h"
 
 VM vm;
+static Stack namespaceStack;
 
 static void resetCallFrames() {
   for (int i = 0; i < FRAMES_MAX; i++) {
@@ -207,9 +209,12 @@ void initVM(int argc, char** argv) {
   vm.grayCapacity = 0;
   vm.grayStack = NULL;
 
-  initTable(&vm.globals);
   initTable(&vm.namespaces);
   initTable(&vm.strings);
+
+  initStack(&namespaceStack);
+
+  vm.previousNamespace = vm.rootNamespace;
 
   vm.initString = NULL;
   vm.initString = copyString("__init__", 8);
@@ -230,10 +235,11 @@ void initVM(int argc, char** argv) {
 }
 
 void freeVM() {
-  freeTable(&vm.globals);
   freeTable(&vm.namespaces);
   freeTable(&vm.modules);
   freeTable(&vm.strings);
+
+  freeStack(&namespaceStack);
   vm.initString = NULL;
 
   freeObjects();
@@ -550,8 +556,7 @@ static bool bindMethod(ObjClass* klass, ObjString* name) {
 bool loadGlobal(ObjString* name, Value* value) {
   if (tableGet(&vm.currentModule->values, name, value)) return true;
   else if (tableGet(&vm.currentNamespace->values, name, value)) return true;
-  else if (tableGet(&vm.rootNamespace->values, name, value)) return true;
-  else return tableGet(&vm.globals, name, value);
+  else return tableGet(&vm.currentNamespace->globals, name, value);
 } 
 
 static ObjUpvalue* captureUpvalue(Value* local) {
@@ -794,9 +799,18 @@ InterpretResult run() {
         }
         break;
       }
-      case OP_NAMESPACE: {
-        uint8_t namespaceDepth = READ_BYTE();
-        vm.currentNamespace = declareNamespace(namespaceDepth);
+      case OP_BEGIN_NAMESPACE: {
+        ObjString* name = READ_STRING();
+        ObjNamespace* namespaceObj = defineNativeNamespace(name->chars, vm.currentNamespace);
+        stackPush(&namespaceStack, vm.currentNamespace);
+        vm.previousNamespace = vm.currentNamespace;
+        vm.currentNamespace = namespaceObj;
+        push(OBJ_VAL(namespaceObj));
+        tableSet(&vm.previousNamespace->values, name, peek(0));
+        break;
+      }
+      case OP_END_NAMESPACE: {
+        vm.currentNamespace = stackPop(&namespaceStack);  // Pop the previous namespace from the stack
         break;
       }
       case OP_SUBNAMESPACE: { 
@@ -891,8 +905,8 @@ InterpretResult run() {
         }
 
         double delta = (instruction == OP_INCREMENT_GLOBAL) ? 1.0 : -1.0;
-        if (tableSet(&vm.globals, name, NUMBER_VAL(AS_NUMBER(value) + delta))) {
-          tableDelete(&vm.globals, name); 
+        if (tableSet(&vm.currentNamespace->globals, name, NUMBER_VAL(AS_NUMBER(value) + delta))) {
+          tableDelete(&vm.currentNamespace->globals, name); 
           runtimeError("Undefined variable '%s'.", name->chars);
           return INTERPRET_RUNTIME_ERROR;
         }
@@ -959,20 +973,19 @@ InterpretResult run() {
       }
       case OP_DEFINE_GLOBAL: {
         ObjString* name = READ_STRING();
-        tableSet(&vm.globals, name, peek(0));
+        tableSet(&vm.currentNamespace->globals, name, peek(0));
         pop();
         break;
       }
       case OP_DEFINE_CONST: {
         ObjString* name = READ_STRING();
-        tableSet(&vm.rootNamespace->values, name, peek(0));
-        pop();
+        tableSet(&vm.currentNamespace->values, name, peek(0));
         break;
       }
       case OP_SET_GLOBAL: {
         ObjString* name = READ_STRING();
-        if (tableSet(&vm.globals, name, peek(0))) {
-          tableDelete(&vm.globals, name); 
+        if (tableSet(&vm.currentNamespace->globals, name, peek(0))) {
+          tableDelete(&vm.currentNamespace->globals, name); 
           runtimeError("Undefined variable '%s'.", name->chars);
           return INTERPRET_RUNTIME_ERROR;
         }
@@ -1175,6 +1188,9 @@ InterpretResult run() {
           Value value;
 
           if (tableGet(&namespace_->values, name, &value)) {
+            pop();
+            push(value);
+          } else if (tableGet(&namespace_->globals, name, &value)) {
             pop();
             push(value);
           } else {
@@ -1500,6 +1516,9 @@ InterpretResult run() {
 
 InterpretResult interpret(const char* source) {
   ObjFunction* function = compile(source);
+
+  vm.currentNamespace = vm.rootNamespace;
+
   if (function == NULL) return INTERPRET_COMPILE_ERROR;
 
   push(OBJ_VAL(function));
