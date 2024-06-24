@@ -3,7 +3,7 @@ class Dog {
     this.name = name;
   }
 
-  static function bark() {
+  static bark() {
     // println("${this.name} barks"); // Error
     println("Dog barks");
   }

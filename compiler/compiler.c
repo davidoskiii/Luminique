@@ -1509,8 +1509,9 @@ static void method() {
   if (match(TOKEN_STATIC)) {
     currentClass->isStaticMethod = true;
     opCode = OP_STATIC_METHOD;
+  } else {
+    consume(TOKEN_FUN, "Expect 'function' keyword");
   }
-  consume(TOKEN_FUN, "Expect 'function' keyword");
 
   uint16_t constant = propretyConstant("Expect method name.");
 

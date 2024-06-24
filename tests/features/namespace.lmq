@@ -13,7 +13,7 @@ namespace Outer {
       this.name = name;
     }
 
-    static function bark() {
+    static bark() {
       println("Dog barks");
     }
 
