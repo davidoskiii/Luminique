@@ -25,6 +25,7 @@ ObjString* reverseStringBasedOnMemory(ObjString* string);
 ObjString* toLowerString(ObjString* string);
 ObjString* toUpperString(ObjString* string);
 ObjString* trimString(ObjString* string);
+ObjString* concatenateStrings(ObjString* str1, ObjString* str2);
 
 int utf8NumBytes(int value);
 char* utf8Encode(int value);

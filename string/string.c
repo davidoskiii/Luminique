@@ -248,6 +248,17 @@ ObjString* toUpperString(ObjString* string) {
   return takeString(heapChars, (int)string->length);
 }
 
+ObjString* concatenateStrings(ObjString* str1, ObjString* str2) {
+  int newLength = str1->length + str2->length;
+  char* heapChars = ALLOCATE(char, (size_t)newLength + 1);
+
+  memcpy(heapChars, str1->chars, str1->length);
+  memcpy(heapChars + str1->length, str2->chars, str2->length);
+
+  heapChars[newLength] = '\0';
+  return takeString(heapChars, newLength);
+}
+
 ObjString* trimString(ObjString* string) {
   int ltLen = 0, rtLen = 0;
 

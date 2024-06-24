@@ -181,15 +181,23 @@ static bool loadModule(ObjString* filePath) {
   char* source = readFile(filePath->chars);
   vm.currentModule->source = source;
   ObjFunction* function = compile(source);
+
+  vm.currentNamespace = vm.rootNamespace;
+  vm.previousNamespace = vm.rootNamespace;
+
+  free(source);
+
   if (function == NULL) return false;
   push(OBJ_VAL(function));
 
   ObjClosure* closure = newClosure(function);
   pop();
+
   push(OBJ_VAL(closure));
   callClosure(closure, 0);
+
   vm.currentModule = lastModule;
-  free(source);
+
   vm.runModule = true;
   return true;
 }
@@ -214,8 +222,6 @@ void initVM(int argc, char** argv) {
 
   initStack(&namespaceStack);
 
-  vm.previousNamespace = vm.rootNamespace;
-
   vm.initString = NULL;
   vm.initString = copyString("__init__", 8);
 
@@ -232,6 +238,9 @@ void initVM(int argc, char** argv) {
   registerStatisticsPackage();
   registerNetworkPackage();
   initNatives();
+
+  vm.currentNamespace = vm.rootNamespace;
+  vm.previousNamespace = vm.rootNamespace;
 }
 
 void freeVM() {
@@ -313,6 +322,7 @@ static ObjNamespace* declareNamespace(uint8_t namespaceDepth) {
   return enclosingNamespace;
 }
 
+
 static ObjString* resolveNamespacedFile(ObjNamespace* enclosingNamespace, ObjString* shortName) {
   int fullNameLength = enclosingNamespace->fullName->length;
   int shortNameLength = shortName->length;
@@ -325,7 +335,8 @@ static ObjString* resolveNamespacedFile(ObjNamespace* enclosingNamespace, ObjStr
     }
   }
 
-  int length = containsColons ? (fullNameLength + shortNameLength + 5) : (shortNameLength + 4);
+  int length = containsColons ? (fullNameLength + shortNameLength + 2) : (shortNameLength + 1);
+  length += 4;
   char* heapChars = ALLOCATE(char, length + 1);
   int offset = 0;
 
@@ -350,9 +361,11 @@ static ObjString* resolveNamespacedFile(ObjNamespace* enclosingNamespace, ObjStr
   heapChars[offset++] = 'l';
   heapChars[offset++] = 'm';
   heapChars[offset++] = 'q';
-  heapChars[length] = '\0';
+  heapChars[offset] = '\0';
 
-  return takeString(heapChars, length);
+  ObjString* result = newString(heapChars);
+  FREE_ARRAY(char, heapChars, length + 1);
+  return result;
 }
 
 static Value usingNamespace(uint8_t namespaceDepth) {
@@ -556,6 +569,8 @@ static bool bindMethod(ObjClass* klass, ObjString* name) {
 bool loadGlobal(ObjString* name, Value* value) {
   if (tableGet(&vm.currentModule->values, name, value)) return true;
   else if (tableGet(&vm.currentNamespace->values, name, value)) return true;
+  else if (tableGet(&vm.rootNamespace->values, name, value)) return true;
+  else if (tableGet(&vm.rootNamespace->globals, name, value)) return true;
   else return tableGet(&vm.currentNamespace->globals, name, value);
 } 
 
@@ -801,6 +816,7 @@ InterpretResult run() {
       }
       case OP_BEGIN_NAMESPACE: {
         ObjString* name = READ_STRING();
+        printf("namespace: %s\n", vm.currentNamespace->shortName->chars);
         ObjNamespace* namespaceObj = defineNativeNamespace(name->chars, vm.currentNamespace);
         stackPush(&namespaceStack, vm.currentNamespace);
         vm.previousNamespace = vm.currentNamespace;
@@ -855,7 +871,7 @@ InterpretResult run() {
           ObjString* filePath = resolveNamespacedFile(enclosingNamespace, shortName);
           struct stat fileStat;
           if (stat(filePath->chars, &fileStat) == -1) {
-            runtimeError("Failed to load source file %s", filePath->chars);
+            runtimeError("Failed to load source file %s.", filePath->chars);
             return INTERPRET_RUNTIME_ERROR;
           }
           loadModule(filePath);
@@ -1518,6 +1534,7 @@ InterpretResult interpret(const char* source) {
   ObjFunction* function = compile(source);
 
   vm.currentNamespace = vm.rootNamespace;
+  vm.previousNamespace = vm.rootNamespace;
 
   if (function == NULL) return INTERPRET_COMPILE_ERROR;
 

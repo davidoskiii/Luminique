@@ -48,7 +48,6 @@ typedef struct {
   ObjNamespace* luminiqueNamespace;
   ObjNamespace* stdNamespace;
   ObjNamespace* langNamespace;
-  ObjNamespace* defaultNamespace;
   ObjNamespace* currentNamespace;
   ObjNamespace* previousNamespace;
   bool runModule;

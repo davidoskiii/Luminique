@@ -1,45 +1,45 @@
 using luminique::std::math::gcd;
-namespace fract;
 
-class Fraction {
-  function __init__(numerator, denominator) {
-    this.validateNumbers(numerator, denominator);
-    this.numerator = numerator;
-    this.denominator = denominator;
-  }
-
-  function validateNumbers(numerator, denominator) {
-    if (!numerator.instanceOf(Int) or !denominator.instanceOf(Int)) {
-      throw IllegalArgumentException("Numerator and Denominator must be integers.");
+namespace Test {
+  class Fraction {
+    function __init__(numerator, denominator) {
+      this.validateNumbers(numerator, denominator);
+      this.numerator = numerator;
+      this.denominator = denominator;
     }
 
-    if (denominator == 0) {
-      throw IllegalArgumentException("Denominator of a Fraction object cannot be 0.");
-    }
-  }
+    function validateNumbers(numerator, denominator) {
+      if (!numerator.instanceOf(Int) || !denominator.instanceOf(Int)) {
+        throw IllegalArgumentException("Numerator and Denominator must be integers.");
+      }
 
-  function reduce() {
-    let gcdn = gcd(this.numerator, this.denominator);
-    let numerator = this.numerator / gcdn;
-    let denominator = this.denominator / gcdn;
-    return Fraction(int(numerator), int(denominator));
-  }
-
-  function __str__() {
-    return "${this.numerator} / ${this.denominator}";
-  }
-
-  function == (that) {
-    if (!that.instanceOf(Fraction)) {
-      println("Argument must be a fraction");
-      return;
+      if (denominator == 0) {
+        throw IllegalArgumentException("Denominator of a Fraction object cannot be 0.");
+      }
     }
 
-    if (str(this.reduce()) == str(that.reduce())) {
-      return true;
-    } else {
-      return false;
+    function reduce() {
+      let gcdn = gcd(this.numerator, this.denominator);
+      let numerator = this.numerator / gcdn;
+      let denominator = this.denominator / gcdn;
+      return Test::Fraction(int(numerator), int(denominator));
+    }
+
+    function __str__() {
+      return "${this.numerator} / ${this.denominator}";
+    }
+
+    function == (that) {
+      if (!that.instanceOf(Test::Fraction)) {
+        println("Argument must be a fraction");
+        return;
+      }
+
+      if (str(this.reduce()) == str(that.reduce())) {
+        return true;
+      } else {
+        return false;
+      }
     }
   }
-
 }

@@ -1,4 +1,4 @@
-require "tests/features/fraction.lmq";
+using tests::features::fraction;
 
 println("Created class Fraction...");
 
