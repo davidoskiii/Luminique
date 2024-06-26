@@ -926,15 +926,18 @@ InterpretResult run() {
           return INTERPRET_RUNTIME_ERROR;
         }
 
+        bool isInt = IS_INT(value);
+
         double delta = (instruction == OP_INCREMENT_GLOBAL) ? 1.0 : -1.0;
-        if (tableSet(&vm.currentNamespace->globals, name, NUMBER_VAL(AS_NUMBER(value) + delta))) {
+        if (tableSet(&vm.currentNamespace->globals, name, isInt ? INT_VAL(AS_INT(value) + delta) : NUMBER_VAL(AS_NUMBER(value) + delta))) {
           tableDelete(&vm.currentNamespace->globals, name); 
           runtimeError("Undefined variable '%s'.", name->chars);
           return INTERPRET_RUNTIME_ERROR;
         }
+        
         if (isPrefix) {
           pop();
-          push(NUMBER_VAL(AS_NUMBER(value) + delta));
+          push(isInt ? INT_VAL(AS_INT(value) + delta) : NUMBER_VAL(AS_NUMBER(value) + delta));
         }
         break;
       }
@@ -947,12 +950,15 @@ InterpretResult run() {
           runtimeError("Operand must be a number.");
           return INTERPRET_RUNTIME_ERROR;
         }
+
+        bool isInt = IS_INT(frame->slots[slot]);
+
         double delta = (instruction == OP_INCREMENT_LOCAL) ? 1.0 : -1.0;
-        frame->slots[slot] = NUMBER_VAL(AS_NUMBER(frame->slots[slot]) + delta);
+        frame->slots[slot] = isInt ? INT_VAL(AS_INT(frame->slots[slot]) + delta) : NUMBER_VAL(AS_NUMBER(frame->slots[slot]) + delta);
 
         if (isPrefix) {
           pop();
-          push(NUMBER_VAL(AS_NUMBER(frame->slots[slot]) + delta));
+          push(isInt ? INT_VAL(AS_INT(frame->slots[slot]) + delta) : NUMBER_VAL(AS_NUMBER(frame->slots[slot]) + delta));
         }
         break;
       }
@@ -964,12 +970,16 @@ InterpretResult run() {
           runtimeError("Operand must be a number.");
           return INTERPRET_RUNTIME_ERROR;
         }
+
+        bool isInt = IS_INT(frame->slots[slot]);
+
         double delta = (instruction == OP_INCREMENT_UPVALUE) ? 1.0 : -1.0;
-        *frame->closure->upvalues[slot]->location = NUMBER_VAL(AS_NUMBER(*frame->closure->upvalues[slot]->location) + delta);
+        *frame->closure->upvalues[slot]->location = isInt ? INT_VAL(AS_INT(*frame->closure->upvalues[slot]->location) + delta) :
+          NUMBER_VAL(AS_NUMBER(*frame->closure->upvalues[slot]->location) + delta);
 
         if (isPrefix) {
           pop();
-          push(NUMBER_VAL(AS_NUMBER(*frame->closure->upvalues[slot]->location) + delta));
+          push(isInt ? INT_VAL(AS_INT(*frame->closure->upvalues[slot]->location) + delta) : NUMBER_VAL(AS_NUMBER(*frame->closure->upvalues[slot]->location) + delta));
         }
         break;
       }
@@ -1299,6 +1309,7 @@ InterpretResult run() {
         break;
       }
       case OP_GET_SUBSCRIPT: {
+        printf("index: %lf\n", AS_NUMBER(peek(0)));
         if (IS_INT(peek(0))) {
           int index = AS_INT(peek(0));
           if (IS_STRING(peek(0))) {
