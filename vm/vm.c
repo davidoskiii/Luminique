@@ -573,9 +573,9 @@ static bool bindMethod(ObjClass* klass, ObjString* name) {
 
 bool loadGlobal(ObjString* name, Value* value) {
   if (tableGet(&vm.currentModule->values, name, value)) return true;
-  else if (tableGet(&vm.currentNamespace->values, name, value)) return true;
   else if (tableGet(&vm.rootNamespace->values, name, value)) return true;
   else if (tableGet(&vm.rootNamespace->globals, name, value)) return true;
+  else if (tableGet(&vm.currentNamespace->values, name, value)) return true;
   else return tableGet(&vm.currentNamespace->globals, name, value);
 } 
 
@@ -996,7 +996,6 @@ InterpretResult run() {
       case OP_DEFINE_GLOBAL: {
         ObjString* name = READ_STRING();
         tableSet(&vm.currentNamespace->globals, name, peek(0));
-        pop();
         break;
       }
       case OP_DEFINE_CONST: {

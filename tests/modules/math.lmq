@@ -1,4 +1,11 @@
+using luminique::std::math::Complex;
 using luminique::std::math;
+
+let comp1 = Complex(3, 6);
+println("Creating complex number '3 + 6i': ${comp2}");
+
+let comp2 = Complex(1, 2);
+println("Creating complex number '1 + 2i': ${comp2}");
 
 print("pi constant: ");
 println(math::pi);

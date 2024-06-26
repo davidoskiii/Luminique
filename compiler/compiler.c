@@ -646,11 +646,9 @@ static void defineVariable(uint16_t global, bool isMutable) {
     ObjString* name = identifierName(global);
 
     if (isMutable) {
-      tableSet(&vm.currentNamespace->globals, name, NIL_VAL);
       emitByte(OP_DEFINE_GLOBAL);
       emitShort(global);
     } else {
-      tableSet(&vm.currentNamespace->values, name, NIL_VAL);
       emitByte(OP_DEFINE_CONST);
       emitShort(global);
     }

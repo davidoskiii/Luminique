@@ -48,6 +48,158 @@ char* intToBinary(int num, char* binaryString) {
   return binaryString;
 }
 
+NATIVE_METHOD(Complex, __init__) {
+  assertArgCount("Complex::__init__(real, imaginary)", 2, argCount);
+  assertArgIsNumber("Complex::__init__(real, imaginary)", args, 0);
+  assertArgIsNumber("Complex::__init__(real, imaginary)", args, 1);
+
+  ObjInstance* self = AS_INSTANCE(receiver);
+  setObjProperty(self, "real", args[0]);
+  setObjProperty(self, "imaginary", args[1]);
+  return receiver;
+}
+
+NATIVE_METHOD(Complex, __equal__) {
+  assertArgCount("Complex::==(complex)", 1, argCount);
+  assertObjInstanceOfClass("Complex::==(complex)", args[0], "luminique::std::math", "Complex", 0);
+
+  ObjInstance* self = AS_INSTANCE(receiver);
+  Value real1 = getObjProperty(self, "real");
+  Value imag1 = getObjProperty(self, "imaginary");
+  ObjInstance* other = AS_INSTANCE(args[0]);
+  Value real2 = getObjProperty(other, "real");
+  Value imag2 = getObjProperty(other, "imaginary");
+
+  RETURN_BOOL(AS_NUMBER(real1) == AS_NUMBER(real2) && AS_NUMBER(imag1) == AS_NUMBER(imag2));
+}
+
+NATIVE_METHOD(Complex, __add__) {
+  assertArgCount("Complex::+(complex)", 1, argCount);
+  assertObjInstanceOfClass("Complex::+(complex)", args[0], "luminique::std::math", "Complex", 0);
+
+  ObjInstance* self = AS_INSTANCE(receiver);
+  Value real1 = getObjProperty(self, "real");
+  Value imag1 = getObjProperty(self, "imaginary");
+  ObjInstance* other = AS_INSTANCE(args[0]);
+  Value real2 = getObjProperty(other, "real");
+  Value imag2 = getObjProperty(other, "imaginary");
+
+  double resultReal = AS_NUMBER(real1) + AS_NUMBER(real2);
+  double resultImaginary = AS_NUMBER(imag1) + AS_NUMBER(imag2);
+
+  ObjInstance* result = newInstance(getNativeClass("luminique::std::math", "Complex"));
+  push(OBJ_VAL(result));
+  setObjProperty(result, "real", NUMBER_VAL(resultReal));
+  setObjProperty(result, "imaginary", NUMBER_VAL(resultImaginary));
+  pop();
+  
+  RETURN_OBJ(result);
+}
+
+NATIVE_METHOD(Complex, __subtract__) {
+  assertArgCount("Complex::-(complex)", 1, argCount);
+  assertObjInstanceOfClass("Complex::-(complex)", args[0], "luminique::std::math", "Complex", 0);
+
+  ObjInstance* self = AS_INSTANCE(receiver);
+  Value real1 = getObjProperty(self, "real");
+  Value imag1 = getObjProperty(self, "imaginary");
+  ObjInstance* other = AS_INSTANCE(args[0]);
+  Value real2 = getObjProperty(other, "real");
+  Value imag2 = getObjProperty(other, "imaginary");
+
+  double resultReal = AS_NUMBER(real1) - AS_NUMBER(real2);
+  double resultImaginary = AS_NUMBER(imag1) - AS_NUMBER(imag2);
+
+  ObjInstance* result = newInstance(getNativeClass("luminique::std::math", "Complex"));
+  push(OBJ_VAL(result));
+  setObjProperty(result, "real", NUMBER_VAL(resultReal));
+  setObjProperty(result, "imaginary", NUMBER_VAL(resultImaginary));
+  pop();
+  
+  RETURN_OBJ(result);
+}
+
+NATIVE_METHOD(Complex, __multiply__) {
+  assertArgCount("Complex::*(complex)", 1, argCount);
+  assertObjInstanceOfClass("Complex::*(complex)", args[0], "luminique::std::math", "Complex", 0);
+
+  ObjInstance* self = AS_INSTANCE(receiver);
+  Value real1 = getObjProperty(self, "real");
+  Value imag1 = getObjProperty(self, "imaginary");
+  ObjInstance* other = AS_INSTANCE(args[0]);
+  Value real2 = getObjProperty(other, "real");
+  Value imag2 = getObjProperty(other, "imaginary");
+
+  double resultReal = AS_NUMBER(real1) * AS_NUMBER(real2) - AS_NUMBER(imag1) * AS_NUMBER(imag2);
+  double resultImaginary = AS_NUMBER(real1) * AS_NUMBER(imag2) + AS_NUMBER(imag1) * AS_NUMBER(real2);
+
+  ObjInstance* result = newInstance(getNativeClass("luminique::std::math", "Complex"));
+  push(OBJ_VAL(result));
+  setObjProperty(result, "real", NUMBER_VAL(resultReal));
+  setObjProperty(result, "imaginary", NUMBER_VAL(resultImaginary));
+  pop();
+  
+  RETURN_OBJ(result);
+}
+
+NATIVE_METHOD(Complex, __divide__) {
+  assertArgCount("Complex::/(complex)", 1, argCount);
+  assertObjInstanceOfClass("Complex::/(complex)", args[0], "luminique::std::math", "Complex", 0);
+
+  ObjInstance* self = AS_INSTANCE(receiver);
+  Value real1 = getObjProperty(self, "real");
+  Value imag1 = getObjProperty(self, "imaginary");
+  ObjInstance* other = AS_INSTANCE(args[0]);
+  Value real2 = getObjProperty(other, "real");
+  Value imag2 = getObjProperty(other, "imaginary");
+
+  double denom = AS_NUMBER(real2) * AS_NUMBER(real2) + AS_NUMBER(imag2) * AS_NUMBER(imag2);
+  double resultReal = (AS_NUMBER(real1) * AS_NUMBER(real2) + AS_NUMBER(imag1) * AS_NUMBER(imag2)) / denom;
+  double resultImaginary = (AS_NUMBER(imag1) * AS_NUMBER(real2) - AS_NUMBER(real1) * AS_NUMBER(imag2)) / denom;
+
+  ObjInstance* result = newInstance(getNativeClass("luminique::std::math", "Complex"));
+  push(OBJ_VAL(result));
+  setObjProperty(result, "real", NUMBER_VAL(resultReal));
+  setObjProperty(result, "imaginary", NUMBER_VAL(resultImaginary));
+  pop();
+  
+  RETURN_OBJ(result);
+}
+
+NATIVE_METHOD(Complex, __str__) {
+  assertArgCount("Complex::__str__()", 0, argCount);
+  ObjInstance* self = AS_INSTANCE(receiver);
+  Value real = getObjProperty(self, "real");
+  Value imaginary = getObjProperty(self, "imaginary");
+  RETURN_STRING_FMT("%g + %gi", AS_NUMBER(real), AS_NUMBER(imaginary));
+}
+
+NATIVE_METHOD(Complex, __format__) {
+  assertArgCount("Complex::__format__()", 0, argCount);
+  ObjInstance* self = AS_INSTANCE(receiver);
+  Value real = getObjProperty(self, "real");
+  Value imaginary = getObjProperty(self, "imaginary");
+  RETURN_STRING_FMT("%g + %gi", AS_NUMBER(real), AS_NUMBER(imaginary));
+}
+
+NATIVE_METHOD(Complex, magnitude) {
+  assertArgCount("Complex::magnitude()", 0, argCount);
+  ObjInstance* self = AS_INSTANCE(receiver);
+  Value real = getObjProperty(self, "real");
+  Value imaginary = getObjProperty(self, "imaginary");
+  double magnitude = sqrt(AS_NUMBER(real) * AS_NUMBER(real) + AS_NUMBER(imaginary) * AS_NUMBER(imaginary));
+  RETURN_NUMBER(magnitude);
+}
+
+NATIVE_METHOD(Complex, phase) {
+  assertArgCount("Complex::phase()", 0, argCount);
+  ObjInstance* self = AS_INSTANCE(receiver);
+  Value real = getObjProperty(self, "real");
+  Value imaginary = getObjProperty(self, "imaginary");
+  double phase = atan2(AS_NUMBER(imaginary), AS_NUMBER(real));
+  RETURN_NUMBER(phase);
+}
+
 NATIVE_FUNCTION(sin) {
   assertArgCount("sin(radiants)", 1, argCount);
   assertArgIsNumber("sin(radiants)", args, 0);
@@ -447,6 +599,19 @@ void registerMathPackage() {
   defineNativeConstant(mathNamespace, "e", NUMBER_VAL(M_E));
 
   vm.currentNamespace = mathNamespace;
+
+	ObjClass* dateClass = defineNativeClass("Complex");
+	bindSuperclass(dateClass, vm.objectClass);
+	DEF_METHOD(dateClass, Complex, __init__, 3);
+	DEF_METHOD(dateClass, Complex, magnitude, 0);
+	DEF_METHOD(dateClass, Complex, phase, 0);
+	DEF_METHOD(dateClass, Complex, __str__, 0);
+	DEF_METHOD(dateClass, Complex, __format__, 0);
+  DEF_OPERATOR(dateClass, Complex, ==, __equal__, 1);
+  DEF_OPERATOR(dateClass, Complex, +, __add__, 1);
+  DEF_OPERATOR(dateClass, Complex, -, __subtract__, 1);
+  DEF_OPERATOR(dateClass, Complex, *, __multiply__, 1);
+  DEF_OPERATOR(dateClass, Complex, /, __divide__, 1);
 
   // Trigonometric functions
   DEF_FUNCTION(sin, 1);
