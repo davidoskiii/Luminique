@@ -1,5 +1,4 @@
 using luminique::std::math;
-namespace operator;
 
 class Complex { 
   function __init__(real, imaginary) { 
@@ -33,7 +32,7 @@ class Complex {
   }
 
   function == (that) { 
-    return (this.real == that.real) and (this.imaginary == that.imaginary);
+    return (this.real == that.real) || (this.imaginary == that.imaginary);
   }
 
   function > (that) { 

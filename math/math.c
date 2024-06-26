@@ -166,12 +166,97 @@ NATIVE_METHOD(Complex, __divide__) {
   RETURN_OBJ(result);
 }
 
+NATIVE_METHOD(Complex, __less__) {
+  assertArgCount("Complex::<(complex)", 1, argCount);
+  assertObjInstanceOfClass("Complex::<(complex)", args[0], "luminique::std::math", "Complex", 0);
+
+  ObjInstance* self = AS_INSTANCE(receiver);
+  double magnitude1 = sqrt(AS_NUMBER(getObjProperty(self, "real")) * AS_NUMBER(getObjProperty(self, "real")) +
+                          AS_NUMBER(getObjProperty(self, "imaginary")) * AS_NUMBER(getObjProperty(self, "imaginary")));
+  ObjInstance* other = AS_INSTANCE(args[0]);
+  double magnitude2 = sqrt(AS_NUMBER(getObjProperty(other, "real")) * AS_NUMBER(getObjProperty(other, "real")) +
+                          AS_NUMBER(getObjProperty(other, "imaginary")) * AS_NUMBER(getObjProperty(other, "imaginary")));
+
+  RETURN_BOOL(magnitude1 < magnitude2);
+}
+
+NATIVE_METHOD(Complex, __greater__) {
+  assertArgCount("Complex::>(complex)", 1, argCount);
+  assertObjInstanceOfClass("Complex::>(complex)", args[0], "luminique::std::math", "Complex", 0);
+
+  ObjInstance* self = AS_INSTANCE(receiver);
+  double magnitude1 = sqrt(AS_NUMBER(getObjProperty(self, "real")) * AS_NUMBER(getObjProperty(self, "real")) +
+                          AS_NUMBER(getObjProperty(self, "imaginary")) * AS_NUMBER(getObjProperty(self, "imaginary")));
+  ObjInstance* other = AS_INSTANCE(args[0]);
+  double magnitude2 = sqrt(AS_NUMBER(getObjProperty(other, "real")) * AS_NUMBER(getObjProperty(other, "real")) +
+                          AS_NUMBER(getObjProperty(other, "imaginary")) * AS_NUMBER(getObjProperty(other, "imaginary")));
+
+  RETURN_BOOL(magnitude1 > magnitude2);
+}
+
+NATIVE_METHOD(Complex, __lessEqual__) {
+  assertArgCount("Complex::<=(complex)", 1, argCount);
+  assertObjInstanceOfClass("Complex::<=(complex)", args[0], "luminique::std::math", "Complex", 0);
+
+  ObjInstance* self = AS_INSTANCE(receiver);
+  double magnitude1 = sqrt(AS_NUMBER(getObjProperty(self, "real")) * AS_NUMBER(getObjProperty(self, "real")) +
+                          AS_NUMBER(getObjProperty(self, "imaginary")) * AS_NUMBER(getObjProperty(self, "imaginary")));
+  ObjInstance* other = AS_INSTANCE(args[0]);
+  double magnitude2 = sqrt(AS_NUMBER(getObjProperty(other, "real")) * AS_NUMBER(getObjProperty(other, "real")) +
+                          AS_NUMBER(getObjProperty(other, "imaginary")) * AS_NUMBER(getObjProperty(other, "imaginary")));
+
+  RETURN_BOOL(magnitude1 <= magnitude2);
+}
+
+NATIVE_METHOD(Complex, __greaterEqual__) {
+  assertArgCount("Complex::>=(complex)", 1, argCount);
+  assertObjInstanceOfClass("Complex::>=(complex)", args[0], "luminique::std::math", "Complex", 0);
+
+  ObjInstance* self = AS_INSTANCE(receiver);
+  double magnitude1 = sqrt(AS_NUMBER(getObjProperty(self, "real")) * AS_NUMBER(getObjProperty(self, "real")) +
+                          AS_NUMBER(getObjProperty(self, "imaginary")) * AS_NUMBER(getObjProperty(self, "imaginary")));
+  ObjInstance* other = AS_INSTANCE(args[0]);
+  double magnitude2 = sqrt(AS_NUMBER(getObjProperty(other, "real")) * AS_NUMBER(getObjProperty(other, "real")) +
+                          AS_NUMBER(getObjProperty(other, "imaginary")) * AS_NUMBER(getObjProperty(other, "imaginary")));
+
+  RETURN_BOOL(magnitude1 >= magnitude2);
+}
+
 NATIVE_METHOD(Complex, __str__) {
   assertArgCount("Complex::__str__()", 0, argCount);
   ObjInstance* self = AS_INSTANCE(receiver);
   Value real = getObjProperty(self, "real");
   Value imaginary = getObjProperty(self, "imaginary");
-  RETURN_STRING_FMT("%g + %gi", AS_NUMBER(real), AS_NUMBER(imaginary));
+
+  double realPart = AS_NUMBER(real);
+  double imaginaryPart = AS_NUMBER(imaginary);
+  char buffer[255];
+
+  if (realPart == 0 && imaginaryPart == 0) {
+    snprintf(buffer, sizeof(buffer), "0");
+  } else if (realPart == 0) {
+    if (imaginaryPart == 1) {
+      snprintf(buffer, sizeof(buffer), "i");
+    } else if (imaginaryPart == -1) {
+      snprintf(buffer, sizeof(buffer), "-i");
+    } else {
+      snprintf(buffer, sizeof(buffer), "%gi", imaginaryPart);
+    }
+  } else if (imaginaryPart == 0) {
+      snprintf(buffer, sizeof(buffer), "%g", realPart);
+  } else {
+    if (imaginaryPart == 1) {
+      snprintf(buffer, sizeof(buffer), "%g + i", realPart);
+    } else if (imaginaryPart == -1) {
+      snprintf(buffer, sizeof(buffer), "%g - i", realPart);
+    } else if (imaginaryPart > 0) {
+      snprintf(buffer, sizeof(buffer), "%g + %gi", realPart, imaginaryPart);
+    } else {
+      snprintf(buffer, sizeof(buffer), "%g - %gi", realPart, -imaginaryPart);
+    }
+  }
+
+  RETURN_STRING(buffer, strlen(buffer));
 }
 
 NATIVE_METHOD(Complex, __format__) {
@@ -179,9 +264,37 @@ NATIVE_METHOD(Complex, __format__) {
   ObjInstance* self = AS_INSTANCE(receiver);
   Value real = getObjProperty(self, "real");
   Value imaginary = getObjProperty(self, "imaginary");
-  RETURN_STRING_FMT("%g + %gi", AS_NUMBER(real), AS_NUMBER(imaginary));
-}
 
+  double realPart = AS_NUMBER(real);
+  double imaginaryPart = AS_NUMBER(imaginary);
+  char buffer[255];
+
+  if (realPart == 0 && imaginaryPart == 0) {
+    snprintf(buffer, sizeof(buffer), "0");
+  } else if (realPart == 0) {
+    if (imaginaryPart == 1) {
+      snprintf(buffer, sizeof(buffer), "i");
+    } else if (imaginaryPart == -1) {
+      snprintf(buffer, sizeof(buffer), "-i");
+    } else {
+      snprintf(buffer, sizeof(buffer), "%gi", imaginaryPart);
+    }
+  } else if (imaginaryPart == 0) {
+      snprintf(buffer, sizeof(buffer), "%g", realPart);
+  } else {
+    if (imaginaryPart == 1) {
+      snprintf(buffer, sizeof(buffer), "%g + i", realPart);
+    } else if (imaginaryPart == -1) {
+      snprintf(buffer, sizeof(buffer), "%g - i", realPart);
+    } else if (imaginaryPart > 0) {
+      snprintf(buffer, sizeof(buffer), "%g + %gi", realPart, imaginaryPart);
+    } else {
+      snprintf(buffer, sizeof(buffer), "%g - %gi", realPart, -imaginaryPart);
+    }
+  }
+
+  RETURN_STRING(buffer, strlen(buffer));
+}
 NATIVE_METHOD(Complex, magnitude) {
   assertArgCount("Complex::magnitude()", 0, argCount);
   ObjInstance* self = AS_INSTANCE(receiver);
@@ -608,6 +721,10 @@ void registerMathPackage() {
 	DEF_METHOD(dateClass, Complex, __str__, 0);
 	DEF_METHOD(dateClass, Complex, __format__, 0);
   DEF_OPERATOR(dateClass, Complex, ==, __equal__, 1);
+  DEF_OPERATOR(dateClass, Complex, <, __less__, 1);
+  DEF_OPERATOR(dateClass, Complex, >, __greater__, 1);
+  DEF_OPERATOR(dateClass, Complex, <=, __lessEqual__, 1);
+  DEF_OPERATOR(dateClass, Complex, >=, __greaterEqual__, 1);
   DEF_OPERATOR(dateClass, Complex, +, __add__, 1);
   DEF_OPERATOR(dateClass, Complex, -, __subtract__, 1);
   DEF_OPERATOR(dateClass, Complex, *, __multiply__, 1);
