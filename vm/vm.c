@@ -979,7 +979,8 @@ InterpretResult run() {
 
         if (isPrefix) {
           pop();
-          push(isInt ? INT_VAL(AS_INT(*frame->closure->upvalues[slot]->location) + delta) : NUMBER_VAL(AS_NUMBER(*frame->closure->upvalues[slot]->location) + delta));
+          push(isInt ? INT_VAL(AS_INT(*frame->closure->upvalues[slot]->location) + delta) :
+            NUMBER_VAL(AS_NUMBER(*frame->closure->upvalues[slot]->location) + delta));
         }
         break;
       }
@@ -1309,7 +1310,6 @@ InterpretResult run() {
         break;
       }
       case OP_GET_SUBSCRIPT: {
-        printf("index: %lf\n", AS_NUMBER(peek(0)));
         if (IS_INT(peek(0))) {
           int index = AS_INT(peek(0));
           if (IS_STRING(peek(0))) {
