@@ -644,11 +644,17 @@ static void defineVariable(uint16_t global, bool isMutable) {
     return;
   } else {
     ObjString* name = identifierName(global);
+    Value value;
+    if (tableGet(&vm.currentNamespace->compilerValues, name, &value) || tableGet(&vm.currentNamespace->compilerGlobals, name, &value)) {
+      error("Cannot redeclare global variable.");
+    }
 
     if (isMutable) {
+      tableSet(&vm.currentNamespace->compilerGlobals, name, NIL_VAL);
       emitByte(OP_DEFINE_GLOBAL);
       emitShort(global);
     } else {
+      tableSet(&vm.currentNamespace->compilerValues, name, NIL_VAL);
       emitByte(OP_DEFINE_CONST);
       emitShort(global);
     }
@@ -1180,7 +1186,7 @@ static void checkMutability(int arg, uint8_t opCode) {
     case OP_SET_GLOBAL: {
       ObjString* name = identifierName(arg);
       Value value;
-      if (tableGet(&vm.currentNamespace->values, name, &value)) { 
+      if (tableGet(&vm.currentNamespace->compilerValues, name, &value)) { 
         error("Cannot assign to immutable global variables.");
       }
       break;
@@ -1618,7 +1624,8 @@ static void varDeclaration(bool isMutable) {
       error("Can't have more than 255 variables in a single declaration.");
       return;
     }
-    globals[varCount++] = parseVariable("Expect variable name.");
+    globals[varCount] = parseVariable("Expect variable name.");
+    varCount++;
   } while (match(TOKEN_COMMA));
 
   if (!isMutable && !check(TOKEN_EQUAL)) {

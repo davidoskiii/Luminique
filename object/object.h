@@ -148,7 +148,9 @@ struct ObjNamespace {
   struct ObjNamespace* enclosing;
   bool isRoot;
   Table values;
+  Table compilerValues;
   Table globals;
+  Table compilerGlobals;
 };
 
 typedef struct ObjRecord {

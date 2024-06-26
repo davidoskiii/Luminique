@@ -996,11 +996,13 @@ InterpretResult run() {
       case OP_DEFINE_GLOBAL: {
         ObjString* name = READ_STRING();
         tableSet(&vm.currentNamespace->globals, name, peek(0));
+        pop();
         break;
       }
       case OP_DEFINE_CONST: {
         ObjString* name = READ_STRING();
         tableSet(&vm.currentNamespace->values, name, peek(0));
+        pop();
         break;
       }
       case OP_SET_GLOBAL: {
