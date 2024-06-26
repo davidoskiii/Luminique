@@ -88,6 +88,7 @@ int opCodeOffset(Chunk* chunk, int ip) {
       case OP_AFFERM: return 1;
       case OP_JUMP: return 3;
       case OP_JUMP_IF_FALSE: return 3;
+      case OP_JUMP_IF_EMPTY: return 3;
       case OP_LOOP: return 3;
       case OP_CALL: return 2;
       case OP_TYPEOF: return 1;

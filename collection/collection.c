@@ -369,17 +369,6 @@ Value newCollection(ObjClass* klass) {
   }
 }
 
-static int linkFindIndex(ObjInstance* linkedList, Value element) {
-  int index = 0;
-  Value f = getObjProperty(linkedList, "first");
-  ObjNode* first = IS_NIL(f) ? NULL : AS_NODE(f);
-  for (ObjNode* node = first; node != NULL; node = node->next) {
-    if (valuesEqual(element, node->element)) return index;
-    index++;
-  }
-  return -1;
-}
-
 static bool collectionIsEmpty(ObjInstance* collection) {
   int length = AS_INT(getObjProperty(collection, "length"));
   return (length == 0);
@@ -395,6 +384,141 @@ static void collectionLengthIncrement(ObjInstance* collection) {
   setObjProperty(collection, "length", INT_VAL(length + 1));
 }
 
+
+
+static bool linkAddBefore(ObjInstance* linkedList, Value element, ObjNode* succ) {
+  if (succ == NULL) return false;
+  else {
+    ObjNode* pred = succ->prev;
+    ObjNode* new = newNode(element, pred, succ);
+    push(OBJ_VAL(new));
+    succ->prev = new;
+    if (pred == NULL) setObjProperty(linkedList, "first", OBJ_VAL(new));
+    else pred->next = new;
+    pop();
+    collectionLengthIncrement(linkedList);
+    return true;
+  }
+}
+
+static void linkAddFirst(ObjInstance* linkedList, Value element) {
+  Value f = getObjProperty(linkedList, "first");
+  ObjNode* first = IS_NIL(f) ? NULL : AS_NODE(f);
+  ObjNode* new = newNode(element, NULL, first);
+  push(OBJ_VAL(new));
+  setObjProperty(linkedList, "first", OBJ_VAL(new));
+  if (first == NULL) setObjProperty(linkedList, "last", OBJ_VAL(new));
+  else first->prev = new;
+  pop();
+  collectionLengthIncrement(linkedList);
+}
+
+static void linkAddLast(ObjInstance* linkedList, Value element) {
+  Value l = getObjProperty(linkedList, "last");
+  ObjNode* last = IS_NIL(l) ? NULL : AS_NODE(l);
+  ObjNode* new = newNode(element, last, NULL);
+  push(OBJ_VAL(new));
+  setObjProperty(linkedList, "last", OBJ_VAL(new));
+  if (last == NULL) setObjProperty(linkedList, "first", OBJ_VAL(new));
+  else last->next = new;
+  pop();
+  collectionLengthIncrement(linkedList);
+}
+
+static int linkFindIndex(ObjInstance* linkedList, Value element) {
+  int index = 0;
+  Value f = getObjProperty(linkedList, "first");
+  ObjNode* first = IS_NIL(f) ? NULL : AS_NODE(f);
+  for (ObjNode* node = first; node != NULL; node = node->next) {
+    if (valuesEqual(element, node->element)) return index;
+    index++;
+  }
+  return -1;
+}
+
+static int linkFindLastIndex(ObjInstance* linkedList, Value element) {
+  int index = AS_INT(getObjProperty(linkedList, "length"));
+  Value l = getObjProperty(linkedList, "last");
+  ObjNode* last = IS_NIL(l) ? NULL : AS_NODE(l);
+  for (ObjNode* node = last; node != NULL; node = node->prev) {
+    index--;
+    if (valuesEqual(element, node->element)) return index;
+  }
+  return -1;
+}
+
+static bool linkIndexIsValid(ObjInstance* linkedList, int index) {
+  int length = AS_INT(getObjProperty(linkedList, "length"));
+  return (index >= 0 && index < length);
+}
+
+static ObjNode* linkNode(ObjInstance* linkedList, int index) {
+  int length = AS_INT(getObjProperty(linkedList, "length"));
+  if (index < (length >> 1)) {
+    ObjNode* node = AS_NODE(getObjProperty(linkedList, "first"));
+    for (int i = 0; i < index; i++) {
+      node = node->next;
+    }
+    return node;
+  } else {
+    ObjNode* node = AS_NODE(getObjProperty(linkedList, "last"));
+    for (int i = length - 1; i > index; i--) {
+      node = node->prev;
+    }
+    return node;
+  }
+}
+
+static Value linkRemove(ObjInstance* linkedList, ObjNode* node) {
+  if (node == NULL) return NIL_VAL;
+  else {
+    Value element = node->element;
+    ObjNode* next = node->next;
+    ObjNode* prev = node->prev;
+
+    if (prev == NULL) {
+      setObjProperty(linkedList, "first", OBJ_VAL(next));
+    } else {
+      prev->next = next;
+      node->prev = NULL;
+    }
+
+    if (next == NULL) {
+      setObjProperty(linkedList, "last", OBJ_VAL(prev));
+    } else {
+      next->prev = prev;
+      node->next = NULL;
+    }
+
+    node->element = NIL_VAL;
+    collectionLengthDecrement(linkedList);
+    RETURN_VAL(element);
+  }
+}
+
+static Value linkRemoveFirst(ObjInstance* linkedList, ObjNode* first) {
+  Value element = first->element;
+  ObjNode* next = first->next;
+  first->element = NIL_VAL;
+  first->next = NULL;
+  setObjProperty(linkedList, "first", OBJ_VAL(next));
+  if (next == NULL) setObjProperty(linkedList, "last", NIL_VAL);
+  else next->prev = NULL;
+  collectionLengthDecrement(linkedList);
+  RETURN_VAL(element);
+}
+
+static Value linkRemoveLast(ObjInstance* linkedList, ObjNode* last) {
+  Value element = last->element;
+  ObjNode* prev = last->prev;
+  last->element = NIL_VAL;
+  last->next = NULL;
+  setObjProperty(linkedList, "last", OBJ_VAL(prev));
+  if (prev == NULL) setObjProperty(linkedList, "first", NIL_VAL);
+  else prev->next = NULL;
+  collectionLengthDecrement(linkedList);
+  RETURN_VAL(element);
+}
 
 static int linkSearchElement(ObjInstance* linkedList, Value element) {
   int length = AS_INT(getObjProperty(linkedList, "length"));
@@ -1363,6 +1487,215 @@ NATIVE_METHOD(Stack, __format__) {
   RETURN_OBJ(linkToString(self));
 }
 
+NATIVE_METHOD(LinkedList, add) {
+  assertArgCount("LinkedList::add(element)", 1, argCount);
+  linkAddLast(AS_INSTANCE(receiver), args[0]);
+  RETURN_TRUE;
+}
+
+NATIVE_METHOD(LinkedList, addAt) {
+  assertArgCount("LinkedList::addAt(index, element)", 2, argCount);
+  assertArgIsInt("LinkedList::addAt(index, element)", args, 0);
+  ObjInstance* self = AS_INSTANCE(receiver);
+  int index = AS_INT(args[0]);
+  int length = AS_INT(getObjProperty(self, "length"));
+  if (index == length) linkAddLast(self, args[1]);
+  else {
+    if (!linkIndexIsValid(self, index)) {
+      THROW_EXCEPTION(luminique::std::lang, IndexOutOfBoundsException, "Index out of bound for LinkedList.");
+    }
+    if (!linkAddBefore(self, args[1], linkNode(self, index))) {
+      THROW_EXCEPTION(luminique::std::lang, UnsupportedOperationException, "Index out of bound for LinkedList.");
+    }
+  }
+  RETURN_VAL(args[1]);
+}
+
+NATIVE_METHOD(LinkedList, addFirst) {
+  assertArgCount("LinkedList::addFirst(element)", 1, argCount);
+  linkAddFirst(AS_INSTANCE(receiver), args[0]);
+  RETURN_NIL;
+}
+
+NATIVE_METHOD(LinkedList, addLast) {
+  assertArgCount("LinkedList::addLast(element)", 1, argCount);
+  linkAddLast(AS_INSTANCE(receiver), args[0]);
+  RETURN_NIL;
+}
+
+NATIVE_METHOD(LinkedList, clear) {
+  assertArgCount("LinkedList::clear()", 0, argCount);
+  ObjInstance* self = AS_INSTANCE(receiver);
+  setObjProperty(self, "first", NIL_VAL);
+  setObjProperty(self, "last", NIL_VAL);
+  setObjProperty(self, "current", NIL_VAL);
+  setObjProperty(self, "length", INT_VAL(0));
+  RETURN_NIL;
+}
+
+NATIVE_METHOD(LinkedList, contains) {
+  assertArgCount("LinkedList::contains(element)", 1, argCount);
+  RETURN_BOOL(linkFindIndex(AS_INSTANCE(receiver), args[0]) != -1);
+}
+
+NATIVE_METHOD(LinkedList, getAt) {
+  assertArgCount("LinkedList::getAt(index)", 1, argCount);
+  assertArgIsInt("LinkedList::getAt(index)", args, 0);
+  RETURN_VAL(linkNode(AS_INSTANCE(receiver), AS_INT(args[0]))->element);
+}
+
+NATIVE_METHOD(LinkedList, getFirst) {
+  assertArgCount("LinkedList::getFirst()", 0, argCount);
+  ObjNode* first = AS_NODE(getObjProperty(AS_INSTANCE(receiver), "first"));
+  RETURN_VAL(first->element);
+}
+
+NATIVE_METHOD(LinkedList, getLast) {
+  assertArgCount("LinkedList::getLast()", 0, argCount);
+  ObjNode* last = AS_NODE(getObjProperty(AS_INSTANCE(receiver), "last"));
+  RETURN_VAL(last->element);
+}
+
+NATIVE_METHOD(LinkedList, indexOf) {
+  assertArgCount("LinkedList::indexOf(element)", 1, argCount);
+  RETURN_INT(linkFindIndex(AS_INSTANCE(receiver), args[0]));
+}
+
+NATIVE_METHOD(LinkedList, __init__) {
+  assertArgCount("LinkedList::__init__()", 0, argCount);
+  ObjInstance* self = AS_INSTANCE(receiver);
+  setObjProperty(self, "first", NIL_VAL);
+  setObjProperty(self, "last", NIL_VAL);
+  setObjProperty(self, "current", NIL_VAL);
+  setObjProperty(self, "length", INT_VAL(0));
+  RETURN_OBJ(self);
+}
+
+NATIVE_METHOD(LinkedList, isEmpty) {
+  assertArgCount("LinkedList::isEmpty()", 0, argCount);
+  RETURN_BOOL(collectionIsEmpty(AS_INSTANCE(receiver)));
+}
+
+NATIVE_METHOD(LinkedList, lastIndexOf) {
+  assertArgCount("LinkedList::lastIndexOf(element)", 1, argCount);
+  RETURN_INT(linkFindLastIndex(AS_INSTANCE(receiver), args[0]));
+}
+
+NATIVE_METHOD(LinkedList, length) {
+  assertArgCount("LinkedList::length()", 0, argCount);
+  Value length = getObjProperty(AS_INSTANCE(receiver), "length");
+  RETURN_INT(length);
+}
+
+NATIVE_METHOD(LinkedList, next) {
+  assertArgCount("LinkedList::next(index)", 1, argCount);
+  ObjInstance* self = AS_INSTANCE(receiver);
+  int length = AS_INT(getObjProperty(self, "length"));
+  if (IS_NIL(args[0])) {
+    if (length == 0) RETURN_FALSE;
+    RETURN_INT(0);
+  }
+
+  assertArgIsInt("LinkedList::next(index)", args, 0);
+  int index = AS_INT(args[0]);
+  if (index >= 0 && index < length - 1) {
+    ObjNode* current = AS_NODE(getObjProperty(self, (index == 0) ? "first" : "current"));
+    setObjProperty(self, "current", OBJ_VAL(current->next));
+    RETURN_INT(index + 1);
+  } else {
+    setObjProperty(self, "current", getObjProperty(self, "first"));
+    RETURN_NIL;
+  }
+}
+
+NATIVE_METHOD(LinkedList, nextValue) {
+  assertArgCount("LinkedList::nextValue(index)", 1, argCount);
+  assertArgIsInt("LinkedList::nextValue(index)", args, 0);
+  ObjInstance* self = AS_INSTANCE(receiver);
+  int length = AS_INT(getObjProperty(self, "length"));
+  int index = AS_INT(args[0]);
+  if (index == 0) RETURN_VAL(AS_NODE(getObjProperty(self, "first"))->element);
+  if (index > 0 && index < length) RETURN_VAL(AS_NODE(getObjProperty(self, "current"))->element);
+  RETURN_NIL;
+}
+
+NATIVE_METHOD(LinkedList, node) {
+  assertArgCount("LinkedList::node(index)", 1, argCount);
+  assertArgIsInt("LinkedList::node(index)", args, 0);
+  RETURN_OBJ(linkNode(AS_INSTANCE(receiver), AS_INT(args[0])));
+}
+
+NATIVE_METHOD(LinkedList, peek) {
+  assertArgCount("LinkedList::peek()", 0, argCount);
+  ObjNode* first = AS_NODE(getObjProperty(AS_INSTANCE(receiver), "first"));
+  RETURN_VAL(first->element);
+}
+
+NATIVE_METHOD(LinkedList, putAt) {
+  assertArgCount("LinkedList::putAt(index, element)", 2, argCount);
+  assertArgIsInt("LinkedList::putAt(index, element)", args, 0);
+  ObjInstance* self = AS_INSTANCE(receiver);
+  int index = AS_INT(args[0]);
+  if (!linkIndexIsValid(self, index)) {
+    THROW_EXCEPTION(luminique::std::lang, IndexOutOfBoundsException, "Index out of bound for LinkedList.");
+  }
+
+  ObjNode* node = linkNode(self, index);
+  Value old = node->element;
+  node->element = args[1];
+  RETURN_VAL(old);
+}
+
+NATIVE_METHOD(LinkedList, remove) {
+  assertArgCount("LinkedList::remove()", 0, argCount);
+  ObjInstance* self = AS_INSTANCE(receiver);
+  Value first = getObjProperty(self, "first");
+  RETURN_VAL(linkRemoveFirst(self, IS_NIL(first) ? NULL : AS_NODE(first)));
+}
+
+NATIVE_METHOD(LinkedList, removeFirst) {
+  assertArgCount("LinkedList::removeFirst()", 0, argCount);
+  ObjInstance* self = AS_INSTANCE(receiver);
+  Value first = getObjProperty(self, "first");
+  RETURN_VAL(linkRemoveFirst(self, IS_NIL(first) ? NULL : AS_NODE(first)));
+}
+
+NATIVE_METHOD(LinkedList, removeLast) {
+  assertArgCount("LinkedList::removeLast()", 0, argCount);
+  ObjInstance* self = AS_INSTANCE(receiver);
+  Value last = getObjProperty(self, "last");
+  RETURN_VAL(linkRemoveLast(self, IS_NIL(last) ? NULL : AS_NODE(last)));
+}
+
+NATIVE_METHOD(LinkedList, toArray) {
+  assertArgCount("LinkedList::toArray()", 0, argCount);
+  ObjInstance* self = AS_INSTANCE(receiver);
+  int length = AS_INT(getObjProperty(AS_INSTANCE(receiver), "length"));
+  ObjArray* array = newArray();
+  push(OBJ_VAL(array));
+
+  if (length > 0) {
+    for (ObjNode* node = AS_NODE(getObjProperty(self, "first")); node != NULL; node = node->next) {
+      writeValueArray(&array->elements, node->element);
+    }
+  }
+
+  pop();
+  RETURN_OBJ(array);
+}
+
+NATIVE_METHOD(LinkedList, __str__) {
+  assertArgCount("LinkedList::__str__()", 0, argCount);
+  ObjInstance* self = AS_INSTANCE(receiver);
+  RETURN_OBJ(linkToString(self));
+}
+
+NATIVE_METHOD(LinkedList, __format__) {
+  assertArgCount("LinkedList::__format__()", 0, argCount);
+  ObjInstance* self = AS_INSTANCE(receiver);
+  RETURN_OBJ(linkToString(self));
+}
+
 void registerCollectionPackage() {
   ObjNamespace* collectionNamespace = defineNativeNamespace("collection", vm.stdNamespace);
   vm.currentNamespace = vm.langNamespace;
@@ -1473,6 +1806,34 @@ void registerCollectionPackage() {
   DEF_METHOD(vm.nodeClass, Node, prev, 0);
   DEF_METHOD(vm.nodeClass, Node, __str__, 0);
   DEF_METHOD(vm.nodeClass, Node, __format__, 0);
+
+  ObjClass* linkedListClass = defineNativeClass("LinkedList");
+  bindSuperclass(linkedListClass, listClass);
+  DEF_METHOD(linkedListClass, LinkedList, __init__, 0);
+  DEF_METHOD(linkedListClass, LinkedList, add, 1);
+  DEF_METHOD(linkedListClass, LinkedList, addAt, 2);
+  DEF_METHOD(linkedListClass, LinkedList, addFirst, 1);
+  DEF_METHOD(linkedListClass, LinkedList, addLast, 1);
+  DEF_METHOD(linkedListClass, LinkedList, clear, 0);
+  DEF_METHOD(linkedListClass, LinkedList, contains, 1);
+  DEF_METHOD(linkedListClass, LinkedList, getAt, 1);
+  DEF_METHOD(linkedListClass, LinkedList, getFirst, 0);
+  DEF_METHOD(linkedListClass, LinkedList, getLast, 0);
+  DEF_METHOD(linkedListClass, LinkedList, indexOf, 1);
+  DEF_METHOD(linkedListClass, LinkedList, isEmpty, 0);
+  DEF_METHOD(linkedListClass, LinkedList, lastIndexOf, 0);
+  DEF_METHOD(linkedListClass, LinkedList, length, 0);
+  DEF_METHOD(linkedListClass, LinkedList, next, 1);
+  DEF_METHOD(linkedListClass, LinkedList, nextValue, 1);
+  DEF_METHOD(linkedListClass, LinkedList, node, 1);
+  DEF_METHOD(linkedListClass, LinkedList, peek, 0);
+  DEF_METHOD(linkedListClass, LinkedList, putAt, 2);
+  DEF_METHOD(linkedListClass, LinkedList, remove, 0);
+  DEF_METHOD(linkedListClass, LinkedList, removeFirst, 0);
+  DEF_METHOD(linkedListClass, LinkedList, removeLast, 0);
+  DEF_METHOD(linkedListClass, LinkedList, toArray, 0);
+  DEF_METHOD(linkedListClass, LinkedList, __str__, 0);
+  DEF_METHOD(linkedListClass, LinkedList, __format__, 0);
 
   ObjClass* stackClass = defineNativeClass("Stack");
   bindSuperclass(stackClass, collectionClass);

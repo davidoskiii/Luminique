@@ -516,6 +516,11 @@ static bool invokeFromClass(ObjClass* klass, ObjString* name, int argCount) {
 
 static bool invoke(ObjString* name, int argCount) {
   Value receiver = peek(argCount);
+  // printf("argc: %d\n", argCount);
+  // for (int i = 0; i < 11; i++) {
+  //   printValue(peek(i));
+  //   printf("\n");
+  // }
 
   if (!IS_OBJ(receiver)) {
     return invokeFromClass(getObjClass(receiver), name, argCount);
@@ -863,8 +868,10 @@ InterpretResult run() {
       case OP_USING: {
         uint8_t namespaceDepth = READ_BYTE();
         Value value = usingNamespace(namespaceDepth);
-        ObjNamespace* enclosingNamespace = AS_NAMESPACE(peek(0));
-        ObjString* shortName = AS_STRING(peek(1));
+        ObjNamespace* enclosingNamespace = AS_NAMESPACE(pop());
+        ObjString* shortName = AS_STRING(pop());
+        pop();
+        push(OBJ_VAL(enclosingNamespace));
 
         if (IS_NIL(value)) {
           ObjString* filePath = resolveNamespacedFile(enclosingNamespace, shortName);
@@ -1134,6 +1141,11 @@ InterpretResult run() {
         if (isFalsey(peek(0))) frame->ip += offset;
         break;
       }
+      case OP_JUMP_IF_EMPTY: {
+        uint16_t offset = READ_SHORT();
+        if (IS_NIL(peek(0)) || IS_UNDEFINED(peek(0))) frame->ip += offset;
+        break;
+      }
       case OP_LOOP: {
         uint16_t offset = READ_SHORT();
         frame->ip -= offset;
@@ -1359,6 +1371,7 @@ InterpretResult run() {
         break;
       case OP_INVOKE: {
         ObjString* method = READ_STRING();
+        // printf("method: %s\n", method->chars);
         int argCount = READ_BYTE();
 
         if (!invoke(method, argCount)) {

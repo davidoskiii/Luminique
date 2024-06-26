@@ -1743,7 +1743,7 @@ static void forStatement() {
     invokeMethod(1, "next", 4);
     setLocal(indexSlot);
     emitByte(OP_POP);
-    int exitJump = emitJump(OP_JUMP_IF_FALSE);
+    int exitJump = emitJump(OP_JUMP_IF_EMPTY);
 
     getLocal(collectionSlot);
     getLocal(indexSlot);

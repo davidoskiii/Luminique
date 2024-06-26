@@ -622,7 +622,7 @@ NATIVE_METHOD(String, next) {
     RETURN_INT(0);
   }
 
-  assertArgIsInt("Stirng::next(index)", args, 0);
+  assertArgIsInt("String::next(index)", args, 0);
   int index = AS_INT(args[0]);
   if (index < 0 || index < self->length - 1) RETURN_INT(index + 1);
   RETURN_NIL;
