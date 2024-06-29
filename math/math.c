@@ -295,6 +295,7 @@ NATIVE_METHOD(Complex, __format__) {
 
   RETURN_STRING(buffer, strlen(buffer));
 }
+
 NATIVE_METHOD(Complex, magnitude) {
   assertArgCount("Complex::magnitude()", 0, argCount);
   ObjInstance* self = AS_INSTANCE(receiver);

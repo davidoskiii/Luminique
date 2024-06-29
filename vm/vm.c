@@ -516,12 +516,6 @@ static bool invokeFromClass(ObjClass* klass, ObjString* name, int argCount) {
 
 static bool invoke(ObjString* name, int argCount) {
   Value receiver = peek(argCount);
-  // printf("argc: %d\n", argCount);
-  // for (int i = 0; i < 11; i++) {
-  //   printValue(peek(i));
-  //   printf("\n");
-  // }
-
   if (!IS_OBJ(receiver)) {
     return invokeFromClass(getObjClass(receiver), name, argCount);
   }
@@ -558,10 +552,24 @@ static bool invokeOperator(ObjString* op, int arity) {
   return invoke(op, arity);
 }
 
+static bool bindGetter(ObjClass* klass, ObjInstance* instance, ObjString* name) {
+  Value method;
+  if (!tableGet(&klass->getters, name, &method)) {
+    return false;
+  }
+
+  Value getter = callReentrant(peek(0), method, NIL_VAL); 
+
+  tableSet(&instance->fields, name, getter);
+
+  pop();
+  push(getter);
+  return true;
+}
+
 static bool bindMethod(ObjClass* klass, ObjString* name) {
   Value method;
   if (!tableGet(&klass->methods, name, &method)) {
-    runtimeError("Undefined property '%s'.", name->chars);
     return false;
   }
 
@@ -614,7 +622,7 @@ static void closeUpvalues(Value* last) {
   }
 }
 
-static void defineMethod(ObjString* name, bool isMethodStatic) {
+static void defineMethod(ObjString* name, bool isMethodStatic, bool isMethodGetter) {
   Value method = peek(0);
   ObjClass* klass = AS_CLASS(peek(1));
 
@@ -622,7 +630,12 @@ static void defineMethod(ObjString* name, bool isMethodStatic) {
     klass = klass->obj.klass;
   }
 
-  tableSet(&klass->methods, name, method);
+  if (isMethodGetter) {
+    tableSet(&klass->getters, name, method);
+  } else {
+    tableSet(&klass->methods, name, method);
+  }
+
   pop();
 }
 
@@ -1265,7 +1278,9 @@ InterpretResult run() {
             push(value);
             break;
           }
-          if (!bindMethod(instance->obj.klass, name)) {
+
+          if (!bindGetter(instance->obj.klass, instance, name) && !bindMethod(instance->obj.klass, name)) {
+            runtimeError("Undefined property '%s'.", name->chars);
             return INTERPRET_RUNTIME_ERROR;
           }
         } else if (IS_CLASS(receiver)) {
@@ -1280,6 +1295,7 @@ InterpretResult run() {
           }
 
           if (!bindMethod(klass->obj.klass, name)) {
+            runtimeError("Undefined property '%s'.", name->chars);
             return INTERPRET_RUNTIME_ERROR;
           }
         } else {
@@ -1292,7 +1308,15 @@ InterpretResult run() {
         Value receiver = peek(1);
         if (IS_INSTANCE(receiver)) {
           ObjInstance* instance = AS_INSTANCE(receiver);
-          tableSet(&instance->fields, READ_STRING(), peek(0));
+          ObjString* name = READ_STRING();
+          Value getter;
+          if (tableGet(&instance->obj.klass->getters, name, &getter)) {
+            runtimeError("Cannot modify a getter.");
+            return INTERPRET_RUNTIME_ERROR;
+          }
+
+          tableSet(&instance->fields, name, peek(0));
+
           Value value = pop();
           pop();
           push(value);
@@ -1376,14 +1400,16 @@ InterpretResult run() {
         break;
       }
       case OP_METHOD:
-        defineMethod(READ_STRING(), false);
+        defineMethod(READ_STRING(), false, false);
         break;
       case OP_STATIC_METHOD:
-        defineMethod(READ_STRING(), true);
+        defineMethod(READ_STRING(), true, false);
+        break;
+      case OP_GETTER:
+        defineMethod(READ_STRING(), false, true);
         break;
       case OP_INVOKE: {
         ObjString* method = READ_STRING();
-        // printf("method: %s\n", method->chars);
         int argCount = READ_BYTE();
 
         if (!invoke(method, argCount)) {

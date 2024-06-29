@@ -225,6 +225,7 @@ static TokenType identifierType() {
         }
       }
       break;
+    case 'g': return checkKeyword(1, 2, "et", TOKEN_GET);
     case 'i': return checkKeyword(1, 1, "f", TOKEN_IF);
     case 'l':
         if (scanner.current - scanner.start > 1) {

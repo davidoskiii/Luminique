@@ -145,6 +145,7 @@ static void blackenObject(Obj* object) {
       markObject((Obj*)klass->namespace_);
       markTable(&klass->fields);
       markTable(&klass->methods);
+      markTable(&klass->getters);
       break;
     }
     case OBJ_ENUM: {
@@ -232,6 +233,7 @@ static void freeObject(Obj* object) {
       ObjClass* klass = (ObjClass*)object;
       freeTable(&klass->fields);
       freeTable(&klass->methods);
+      freeTable(&klass->getters);
       break;
     }
     case OBJ_ENUM: {

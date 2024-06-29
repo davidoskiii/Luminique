@@ -112,6 +112,7 @@ ObjClass* newClass(ObjString* name) {
   klass->isNative = false;
   initTable(&klass->methods);
   initTable(&klass->fields);
+  initTable(&klass->getters);
   return klass;
 }
 

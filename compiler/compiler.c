@@ -71,6 +71,7 @@ typedef enum {
   TYPE_FUNCTION,
   TYPE_INITIALIZER,
   TYPE_METHOD,
+  TYPE_GETTER,
   TYPE_LAMBDA,
   TYPE_SCRIPT
 } FunctionType;
@@ -1475,21 +1476,32 @@ static uint8_t lambdaDepth() {
   return depth;
 }
 
+static void getter() {
+  FunctionType type = TYPE_GETTER;
+  beginScope();
+  
+  function(type);
+  
+  endScope();
+}
+
 static void function(FunctionType type) {
   Compiler compiler;
   initCompiler(&compiler, type);
-  beginScope(); 
+  beginScope();
 
   if (type == TYPE_LAMBDA) {
     lambdaParameters();
-    
-    consume(TOKEN_LEFT_PAREN, "Expect '(' after ':'.");
 
+    consume(TOKEN_LEFT_PAREN, "Expect '(' after ':'.");
     while (!check(TOKEN_RIGHT_PAREN) && !check(TOKEN_EOF)) {
       declaration();
     }
-
     consume(TOKEN_RIGHT_PAREN, "Expect ')' after lambda body.");
+  } else if (type == TYPE_GETTER) {
+    current->function->arity = 0;
+    consume(TOKEN_LEFT_BRACE, "Expect '{' before function body.");
+    block();
   } else {
     functionParameters();
     block();
@@ -1513,6 +1525,8 @@ static void method() {
   if (match(TOKEN_STATIC)) {
     currentClass->isStaticMethod = true;
     opCode = OP_STATIC_METHOD;
+  } else if (match(TOKEN_GET)) {
+    opCode = OP_GETTER;
   } else {
     consume(TOKEN_FUN, "Expect 'function' keyword");
   }
@@ -1525,7 +1539,8 @@ static void method() {
     type = TYPE_INITIALIZER;
   }
 
-  function(type);
+  if (opCode == OP_GETTER) getter();
+  else function(type);
   emitByte(opCode);
   emitShort(constant);
 }

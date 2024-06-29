@@ -178,6 +178,7 @@ struct ObjClass {
   struct ObjClass* superclass;
   Table methods;
   Table fields;
+  Table getters;
   bool isNative;
 };
 
