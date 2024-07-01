@@ -72,6 +72,7 @@ typedef enum {
   TYPE_INITIALIZER,
   TYPE_METHOD,
   TYPE_GETTER,
+  TYPE_SETTER,
   TYPE_LAMBDA,
   TYPE_SCRIPT
 } FunctionType;
@@ -1485,6 +1486,15 @@ static void getter() {
   endScope();
 }
 
+static void setter() {
+  FunctionType type = TYPE_SETTER;
+  beginScope();
+  
+  function(type);
+  
+  endScope();
+}
+
 static void function(FunctionType type) {
   Compiler compiler;
   initCompiler(&compiler, type);
@@ -1500,6 +1510,21 @@ static void function(FunctionType type) {
     consume(TOKEN_RIGHT_PAREN, "Expect ')' after lambda body.");
   } else if (type == TYPE_GETTER) {
     current->function->arity = 0;
+    consume(TOKEN_LEFT_BRACE, "Expect '{' before function body.");
+    block();
+  } else if (type == TYPE_SETTER) {
+    current->function->arity = 1;
+    consume(TOKEN_LEFT_PAREN, "Expect '(' after function name.");
+
+    if (match(TOKEN_CONST)) {
+      uint16_t constant = parseVariable("Expect parameter name.");
+      defineVariable(constant, false);
+    } else {
+      uint16_t constant = parseVariable("Expect parameter name.");
+      defineVariable(constant, true);
+    }
+
+    consume(TOKEN_RIGHT_PAREN, "Expect ')' after parameters.");
     consume(TOKEN_LEFT_BRACE, "Expect '{' before function body.");
     block();
   } else {
@@ -1527,6 +1552,8 @@ static void method() {
     opCode = OP_STATIC_METHOD;
   } else if (match(TOKEN_GET)) {
     opCode = OP_GETTER;
+  } else if (match(TOKEN_SET)) {
+    opCode = OP_SETTER;
   } else {
     consume(TOKEN_FUN, "Expect 'function' keyword");
   }
@@ -1540,7 +1567,9 @@ static void method() {
   }
 
   if (opCode == OP_GETTER) getter();
+  else if (opCode == OP_SETTER) setter();
   else function(type);
+
   emitByte(opCode);
   emitShort(constant);
 }

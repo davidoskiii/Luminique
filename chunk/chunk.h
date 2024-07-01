@@ -66,6 +66,7 @@ typedef enum {
   OP_METHOD,
   OP_STATIC_METHOD,
   OP_GETTER,
+  OP_SETTER,
   OP_ARRAY,
   OP_DICTIONARY,
   OP_RANGE,

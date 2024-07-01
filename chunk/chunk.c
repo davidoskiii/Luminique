@@ -107,6 +107,7 @@ int opCodeOffset(Chunk* chunk, int ip) {
       case OP_METHOD: return 3; 
       case OP_STATIC_METHOD: return 3;
       case OP_GETTER: return 3;
+      case OP_SETTER: return 3;
       case OP_ARRAY: return 2;
       case OP_DICTIONARY: return 2;
       case OP_RANGE: return 2;

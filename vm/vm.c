@@ -622,7 +622,25 @@ static void closeUpvalues(Value* last) {
   }
 }
 
-static void defineMethod(ObjString* name, bool isMethodStatic, bool isMethodGetter) {
+static void defineGetter(ObjString* name) {
+  Value method = peek(0);
+  ObjClass* klass = AS_CLASS(peek(1));
+
+  tableSet(&klass->getters, name, method);
+
+  pop();
+}
+
+static void defineSetter(ObjString* name) {
+  Value method = peek(0);
+  ObjClass* klass = AS_CLASS(peek(1));
+
+  tableSet(&klass->setters, name, method);
+
+  pop();
+}
+
+static void defineMethod(ObjString* name, bool isMethodStatic) {
   Value method = peek(0);
   ObjClass* klass = AS_CLASS(peek(1));
 
@@ -630,12 +648,7 @@ static void defineMethod(ObjString* name, bool isMethodStatic, bool isMethodGett
     klass = klass->obj.klass;
   }
 
-  if (isMethodGetter) {
-    tableSet(&klass->getters, name, method);
-  } else {
-    tableSet(&klass->methods, name, method);
-  }
-
+  tableSet(&klass->methods, name, method);
   pop();
 }
 
@@ -1273,13 +1286,16 @@ InterpretResult run() {
           ObjInstance* instance = AS_INSTANCE(receiver);
           ObjString* name = READ_STRING();
           Value value;
+  
+          bool getterResult = !bindGetter(instance->obj.klass, instance, name);
+
           if (tableGet(&instance->fields, name, &value)) {
             pop();
             push(value);
             break;
           }
 
-          if (!bindGetter(instance->obj.klass, instance, name) && !bindMethod(instance->obj.klass, name)) {
+          if (getterResult && !bindMethod(instance->obj.klass, name)) {
             runtimeError("Undefined property '%s'.", name->chars);
             return INTERPRET_RUNTIME_ERROR;
           }
@@ -1309,17 +1325,31 @@ InterpretResult run() {
         if (IS_INSTANCE(receiver)) {
           ObjInstance* instance = AS_INSTANCE(receiver);
           ObjString* name = READ_STRING();
+
+          Value value = pop();
+
+          Value setter;
+          bool isSetter = tableGet(&instance->obj.klass->setters, name, &setter);
+          if (isSetter) {
+            callReentrant(OBJ_VAL(instance), setter, value);
+            pop();
+            push(value);
+          }
+
           Value getter;
-          if (tableGet(&instance->obj.klass->getters, name, &getter)) {
+          bool isGetter = tableGet(&instance->obj.klass->getters, name, &getter);
+          if (isSetter && isGetter) {
+            // Do nothing
+          } else if (isGetter) {
             runtimeError("Cannot modify a getter.");
             return INTERPRET_RUNTIME_ERROR;
           }
 
-          tableSet(&instance->fields, name, peek(0));
-
-          Value value = pop();
-          pop();
-          push(value);
+          if (!isSetter) {
+            tableSet(&instance->fields, name, value);
+            pop();
+            push(value);
+          }
         } else if (IS_CLASS(receiver)) {
           ObjClass* klass = AS_CLASS(receiver);
           tableSet(&klass->fields, READ_STRING(), peek(0));
@@ -1400,13 +1430,16 @@ InterpretResult run() {
         break;
       }
       case OP_METHOD:
-        defineMethod(READ_STRING(), false, false);
+        defineMethod(READ_STRING(), false);
         break;
       case OP_STATIC_METHOD:
-        defineMethod(READ_STRING(), true, false);
+        defineMethod(READ_STRING(), true);
         break;
       case OP_GETTER:
-        defineMethod(READ_STRING(), false, true);
+        defineGetter(READ_STRING());
+        break;
+      case OP_SETTER:
+        defineSetter(READ_STRING());
         break;
       case OP_INVOKE: {
         ObjString* method = READ_STRING();

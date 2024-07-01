@@ -179,6 +179,7 @@ struct ObjClass {
   Table methods;
   Table fields;
   Table getters;
+  Table setters;
   bool isNative;
 };
 

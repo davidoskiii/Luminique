@@ -113,6 +113,7 @@ ObjClass* newClass(ObjString* name) {
   initTable(&klass->methods);
   initTable(&klass->fields);
   initTable(&klass->getters);
+  initTable(&klass->setters);
   return klass;
 }
 

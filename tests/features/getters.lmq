@@ -1,6 +1,27 @@
 using luminique::std::math;
 
-class Circle {
+class Circle1 {
+  function __init__(radius) {
+    this.radius = radius;
+  }
+
+  get area {
+    return math::pi * (this.radius ** 2);
+  }
+
+  set area(value) {
+    this.radius = math::sqrt(value / math::pi);
+  }
+}
+
+let c1 = Circle1(5);
+println("Area: ${c1.area}");
+
+c1.area = 50;
+println("Radius: ${c1.radius}");
+println("Area (after setter): ${c1.area}");
+
+class Circle2 {
   function __init__(radius) {
     this.radius = radius;
   }
@@ -10,7 +31,8 @@ class Circle {
   }
 }
 
-let c1 = Circle(5);
-println(c1.area);
+let c2 = Circle2(5);
+println("Area: ${c2.area}");
 
-c1.area = 10; // error
+println("\nTrying to set a getter without having a setter will result in a runtime error.");
+c2.area = 50;
