@@ -26,6 +26,9 @@ typedef struct {
   Token rootClass;
   bool hadError;
   bool panicMode;
+
+  Value stack[STACK_MAX];
+  Value* stackTop;
 } Parser;
 
 typedef void (*ParseFn)(bool canAssign);
@@ -103,6 +106,20 @@ ClassCompiler* currentClass = NULL;
 
 static void emitConstant(Value value);
 static uint16_t makeConstant(Value value);
+
+static void ppush(Value value) {
+  *vm.stackTop = value;
+  vm.stackTop++;
+}
+
+static Value ppop() {
+  vm.stackTop--;
+  return *vm.stackTop;
+}
+
+static Value ppeek(int distance) {
+  return vm.stackTop[-1 - distance];
+}
 
 static Chunk* currentChunk() {
   return &current->function->chunk;
@@ -797,9 +814,9 @@ static void coloncolon(bool canAssign) {
 
 static void literal(bool canAssign) {
   switch (parser.previous.type) {
-    case TOKEN_FALSE: emitByte(OP_FALSE); break;
-    case TOKEN_NIL: emitByte(OP_NIL); break;
-    case TOKEN_TRUE: emitByte(OP_TRUE); break;
+    case TOKEN_FALSE: ppush(BOOL_VAL(false)); emitByte(OP_FALSE); break;
+    case TOKEN_NIL: ppush(NIL_VAL); emitByte(OP_NIL); break;
+    case TOKEN_TRUE: ppush(BOOL_VAL(true)); emitByte(OP_TRUE); break;
     default: return; // Unreachable.
   }
 }
@@ -811,29 +828,34 @@ static void grouping(bool canAssign) {
 
 static void integer(bool canAssign) {
   long long int value = strtoll(parser.previous.start, NULL, 10);
+  ppush(INT_VAL(value));
   emitConstant(INT_VAL(value));
 }
 
 static void hex(bool canAssign) {
   char* endptr;
   long long int value = strtoll(parser.previous.start + 2, &endptr, 16);
+  ppush(INT_VAL(value));
   emitConstant(INT_VAL(value));
 }
 
 static void bin(bool canAssign) {
   char* endptr;
   long long int value = strtoll(parser.previous.start + 2, &endptr, 2);
+  ppush(INT_VAL(value));
   emitConstant(INT_VAL(value));
 }
 
 static void octal(bool canAssign) {
   char* endptr;
   long long int value = strtoll(parser.previous.start + 2, &endptr, 8);
+  ppush(INT_VAL(value));
   emitConstant(INT_VAL(value));
 }
 
 static void number(bool canAssign) {
   long double value = strtold(parser.previous.start, NULL);
+  ppush(NUMBER_VAL(value));
   emitConstant(NUMBER_VAL(value));
 }
 
@@ -1139,7 +1161,9 @@ char* parseString() {
 static void string(bool canAssign) {
   char* string = parseString();
   int length = (int)strlen(string);
-  emitConstant(OBJ_VAL(takeString(string, length)));
+  Value vstring = OBJ_VAL(takeString(string, length));
+  ppush(vstring);
+  emitConstant(vstring);
 }
 
 static void interpolation(bool canAssign) {
@@ -1659,8 +1683,11 @@ static void classDeclaration() {
   currentClass = currentClass->enclosing;
 }
 
+
 static void varDeclaration(bool isMutable) {
   uint16_t globals[UINT8_MAX];
+  Value types[UINT8_MAX];
+  Value values[UINT8_MAX];
   int varCount = 0;
 
   do {
@@ -1669,6 +1696,22 @@ static void varDeclaration(bool isMutable) {
       return;
     }
     globals[varCount] = parseVariable("Expect variable name.");
+
+    if (match(TOKEN_COLON)) { 
+      consume(TOKEN_IDENTIFIER, "Expect type name.");
+
+      Value value;
+      Token typeToken = parser.previous;
+      if (!loadGlobal(copyString(typeToken.start, typeToken.length), &value)) {
+        error("Undefined type.");
+        return;
+      } else {
+        types[varCount] = value;    
+      }
+    } else {
+      types[varCount] = NIL_VAL;
+    }
+
     varCount++;
   } while (match(TOKEN_COMMA));
 
@@ -1677,7 +1720,14 @@ static void varDeclaration(bool isMutable) {
     return;
   } else if (match(TOKEN_SEMICOLON)) {
     for (int i = varCount - 1; i >= 0; i--) {
-      emitByte(OP_NIL);
+      if (types[i] == NIL_VAL) {   
+        emitByte(OP_NIL);
+      } else if (types[i] == OBJ_VAL(getNativeClass("luminique::std::lang", "Nil"))) {
+        emitByte(OP_NIL);
+      } else {
+        error("Typed annotated variables must be initialized upon declaration.");
+        return;
+      }
     }
   } else if (match(TOKEN_EQUAL)) {
     int exprCount = 0;
@@ -1688,10 +1738,12 @@ static void varDeclaration(bool isMutable) {
           return;
         }
         expression();
+        values[exprCount] = ppeek(0);
         exprCount++;
       } while (match(TOKEN_COMMA));
     } else {
       expression();
+      values[0] = ppeek(0);
       exprCount = varCount;
     }
 
@@ -1700,9 +1752,18 @@ static void varDeclaration(bool isMutable) {
       return;
     }
 
+    for (int i = 0; i < varCount; i++) {
+      if (types[i] != NIL_VAL && !isObjInstanceOf(values[i], AS_CLASS(types[i]))) {
+        printf("name: %s\nvalue: ", AS_CLASS(types[i])->name->chars);
+        printValue(values[i]);
+printf("\n");
+        error("Type mismatch in variable initialization.");
+        return;
+      }
+    }
+
     consume(TOKEN_SEMICOLON, "Expect ';' after variable declaration.");
   }
-
 
   for (int i = varCount - 1; i >= 0; i--) {
     defineVariable(globals[i], isMutable);

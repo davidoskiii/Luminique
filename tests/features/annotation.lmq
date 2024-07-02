@@ -1,0 +1,14 @@
+class Dog {
+  function __init__(name) {
+    this.name = name;
+  }
+
+  function bark() {
+    println("${name} barked.");
+  }
+}
+
+let value: Float = 2.1;
+let x: Int, y: String = 2, "Hello, World!";
+println(x);
+println(y);
