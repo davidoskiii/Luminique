@@ -285,6 +285,16 @@ static bool match(TokenType type) {
   return true;
 }
 
+bool loadVariables(ObjString* name, Value* value) {
+  if (tableGet(&vm.currentModule->values, name, value)) return true;
+  else if (tableGet(&vm.rootNamespace->values, name, value)) return true;
+  else if (tableGet(&vm.rootNamespace->globals, name, value)) return true;
+  else if (tableGet(&vm.currentNamespace->values, name, value)) return true;
+  else if (tableGet(&vm.currentNamespace->compilerValues, name, value)) return true;
+  else if (tableGet(&vm.currentNamespace->compilerGlobals, name, value)) return true;
+  else return tableGet(&vm.currentNamespace->globals, name, value);
+} 
+
 static void emitByte(uint8_t byte) {
   writeChunk(currentChunk(), byte, parser.previous.line);
 }
@@ -1683,7 +1693,6 @@ static void classDeclaration() {
   currentClass = currentClass->enclosing;
 }
 
-
 static void varDeclaration(bool isMutable) {
   uint16_t globals[UINT8_MAX];
   Value types[UINT8_MAX];
@@ -1702,8 +1711,11 @@ static void varDeclaration(bool isMutable) {
 
       Value value;
       Token typeToken = parser.previous;
-      if (!loadGlobal(copyString(typeToken.start, typeToken.length), &value)) {
+      if (!loadVariables(copyString(typeToken.start, typeToken.length), &value)) {
         error("Undefined type.");
+        return;
+      } else if (!IS_CLASS(value)) {
+        error("Type must be a class.");
         return;
       } else {
         types[varCount] = value;    

@@ -8,7 +8,5 @@ class Dog {
   }
 }
 
-let value: Float = 2.1;
-let x: Int, y: String = 2, "Hello, World!";
-println(x);
-println(y);
+let y = Int;
+let x: y = 2;
