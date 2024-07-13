@@ -35,6 +35,26 @@ ObjClass* defineNativeClass(const char* name) {
   return nativeClass;
 }
 
+ObjEnum* defineNativeEnum(const char* name) {
+  ObjString* enumName = copyString(name, (int)strlen(name));
+  push(OBJ_VAL(enumName));
+  ObjEnum* nativeEnum = newEnum(enumName);
+  nativeEnum->nextValue = 0;
+  push(OBJ_VAL(nativeEnum));
+  tableSet(&vm.currentNamespace->values, AS_STRING(vm.stack[0]), vm.stack[1]);
+  pop();
+  pop();
+  return nativeEnum;
+}
+
+void defineNativeEnumElement(ObjEnum* enum_, const char* name) {
+  ObjString* elementName = copyString(name, (int)strlen(name));
+  push(OBJ_VAL(elementName));
+  int elementValue = enum_->nextValue++;
+  tableSet(&enum_->values, elementName, INT_VAL(elementValue));
+  pop();
+}
+
 void defineNativeMethod(ObjClass* klass, const char* name, int arity, NativeMethod method) {
   ObjString* methodName = copyString(name, (int)strlen(name));
   push(OBJ_VAL(methodName));
