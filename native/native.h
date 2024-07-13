@@ -34,6 +34,9 @@ void defineNativeMethod(ObjClass* klass, const char* name, int arity, NativeMeth
 void defineNativeConstant(ObjNamespace* namespace_, const char* name, Value value);
 ObjNamespace* defineNativeNamespace(const char* name, ObjNamespace* enclosing);
 ObjClass* defineNativeClass(const char* name);
+ObjEnum* defineNativeEnum(const char* name);
+void defineNativeEnumElement(ObjEnum* enum_, const char* name);
+void defineNativeArtificialEnumElement(ObjEnum* enum_, const char* name, Value value);
 ObjClass* getNativeClass(const char* namespaceName, const char* className);
 ObjNativeFunction* getNativeFunction(const char* name);
 ObjNamespace* getNativeNamespace(const char* name);

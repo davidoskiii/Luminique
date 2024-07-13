@@ -1,5 +1,6 @@
 using luminique::std::network::http::HTTPClient;
 using luminique::std::network::http::HTTPRequest;
+using luminique::std::network::http::HTTPRequestType;
 using luminique::std::network::URL;
 
 let flag = false;
@@ -11,7 +12,7 @@ println(client);
 println("");
 
 println("Sending get request to example.com: ");
-const response = client.get(URL.parse("https://example.com"));
+const response = client.getr(URL.parse("https://example.com"));
 
 print("Status: ");
 println(response.status);
@@ -114,7 +115,7 @@ if (flag) {
 println("");
 
 println("Creating a HTTPRequest object: ");
-const request = HTTPRequest("https://mockbin.com/request", HTTPRequest.httpPOST, {"Accept": "*/*", "Content-Type": "application/json"}, {"name" : "Ordland", "age": 34, "location" : "United States"});
+const request = HTTPRequest("https://mockbin.com/request", HTTPRequestType::httpPOST, {"Accept": "*/*", "Content-Type": "application/json"}, {"name" : "Ordland", "age": 34, "location" : "United States"});
 println(str(request));
 println("");
 

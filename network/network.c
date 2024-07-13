@@ -657,9 +657,9 @@ NATIVE_METHOD(HTTPClient, __init__) {
   RETURN_VAL(receiver);
 }
 
-NATIVE_METHOD(HTTPClient, get) {
-  assertArgCount("HTTPClient::get(url)", 1, argCount);
-  assertArgInstanceOfEither("HTTPClient::get(url)", args, 0, "luminique::std::lang", "String", "luminique::std::network", "URL");
+NATIVE_METHOD(HTTPClient, getr) {
+  assertArgCount("HTTPClient::getr(url)", 1, argCount);
+  assertArgInstanceOfEither("HTTPClient::getr(url)", args, 0, "luminique::std::lang", "String", "luminique::std::network", "URL");
   ObjString* url = httpRawURL(args[0]);
 
   CURL* curl = curl_easy_init();
@@ -1222,25 +1222,25 @@ void registerNetworkPackage() {
   DEF_METHOD(socketClass, Socket, __str__, 0);
   DEF_METHOD(socketClass, Socket, __format__, 0);
 
-  ObjClass* socketMetaclass = socketClass->obj.klass;
-  setClassProperty(socketClass, "afUNSPEC", INT_VAL(AF_UNSPEC));
-  setClassProperty(socketClass, "afUNIX", INT_VAL(AF_UNIX));
-  setClassProperty(socketClass, "afINET", INT_VAL(AF_INET));
-  setClassProperty(socketClass, "afIPX", INT_VAL(AF_IPX));
-  setClassProperty(socketClass, "afDECnet", INT_VAL(AF_DECnet));
-  setClassProperty(socketClass, "afAPPLETALK", INT_VAL(AF_APPLETALK));
-  setClassProperty(socketClass, "afINET6", INT_VAL(AF_INET6));
-  setClassProperty(socketClass, "sockSTREAM", INT_VAL(SOCK_STREAM));
-  setClassProperty(socketClass, "sockDGRAM", INT_VAL(SOCK_DGRAM));
-  setClassProperty(socketClass, "sockRAW", INT_VAL(SOCK_RAW));
-  setClassProperty(socketClass, "sockRDM", INT_VAL(SOCK_RDM));
-  setClassProperty(socketClass, "sockSEQPACKET", INT_VAL(SOCK_SEQPACKET));
-  setClassProperty(socketClass, "protoIP", INT_VAL(IPPROTO_IP));
-  setClassProperty(socketClass, "protoICMP", INT_VAL(IPPROTO_ICMP));
-  setClassProperty(socketClass, "protoTCP", INT_VAL(IPPROTO_TCP));
-  setClassProperty(socketClass, "protoUDP", INT_VAL(IPPROTO_UDP));
-  setClassProperty(socketClass, "protoICMPV6", INT_VAL(IPPROTO_ICMPV6));
-  setClassProperty(socketClass, "protoRAW", INT_VAL(IPPROTO_RAW));
+  ObjEnum* socketTypeEnum = defineNativeEnum("SocketType");
+  defineNativeArtificialEnumElement(socketTypeEnum, "afUNSPEC", INT_VAL(AF_UNSPEC));
+  defineNativeArtificialEnumElement(socketTypeEnum, "afUNIX", INT_VAL(AF_UNIX));
+  defineNativeArtificialEnumElement(socketTypeEnum, "afINET", INT_VAL(AF_INET));
+  defineNativeArtificialEnumElement(socketTypeEnum, "afIPX", INT_VAL(AF_IPX));
+  defineNativeArtificialEnumElement(socketTypeEnum, "afDECnet", INT_VAL(AF_DECnet));
+  defineNativeArtificialEnumElement(socketTypeEnum, "afAPPLETALK", INT_VAL(AF_APPLETALK));
+  defineNativeArtificialEnumElement(socketTypeEnum, "afINET6", INT_VAL(AF_INET6));
+  defineNativeArtificialEnumElement(socketTypeEnum, "sockSTREAM", INT_VAL(SOCK_STREAM));
+  defineNativeArtificialEnumElement(socketTypeEnum, "sockDGRAM", INT_VAL(SOCK_DGRAM));
+  defineNativeArtificialEnumElement(socketTypeEnum, "sockRAW", INT_VAL(SOCK_RAW));
+  defineNativeArtificialEnumElement(socketTypeEnum, "sockRDM", INT_VAL(SOCK_RDM));
+  defineNativeArtificialEnumElement(socketTypeEnum, "sockSEQPACKET", INT_VAL(SOCK_SEQPACKET));
+  defineNativeArtificialEnumElement(socketTypeEnum, "protoIP", INT_VAL(IPPROTO_IP));
+  defineNativeArtificialEnumElement(socketTypeEnum, "protoICMP", INT_VAL(IPPROTO_ICMP));
+  defineNativeArtificialEnumElement(socketTypeEnum, "protoTCP", INT_VAL(IPPROTO_TCP));
+  defineNativeArtificialEnumElement(socketTypeEnum, "protoUDP", INT_VAL(IPPROTO_UDP));
+  defineNativeArtificialEnumElement(socketTypeEnum, "protoICMPV6", INT_VAL(IPPROTO_ICMPV6));
+  defineNativeArtificialEnumElement(socketTypeEnum, "protoRAW", INT_VAL(IPPROTO_RAW));
 
   ObjNamespace* httpNamespace = defineNativeNamespace("http", networkNamespace);
   vm.currentNamespace = httpNamespace;
@@ -1250,7 +1250,7 @@ void registerNetworkPackage() {
   DEF_METHOD(httpClientClass, HTTPClient, __init__, 0);
   DEF_METHOD(httpClientClass, HTTPClient, close, 0);
   DEF_METHOD(httpClientClass, HTTPClient, delete, 1);
-  DEF_METHOD(httpClientClass, HTTPClient, get, 1);
+  DEF_METHOD(httpClientClass, HTTPClient, getr, 1);
   DEF_METHOD(httpClientClass, HTTPClient, head, 1);
   DEF_METHOD(httpClientClass, HTTPClient, options, 1);
   DEF_METHOD(httpClientClass, HTTPClient, patch, 2);
@@ -1264,15 +1264,17 @@ void registerNetworkPackage() {
   DEF_METHOD(httpRequestClass, HTTPRequest, __str__, 0);
   DEF_METHOD(httpRequestClass, HTTPRequest, __format__, 0);
 
-  setClassProperty(httpRequestClass, "httpHEAD", INT_VAL(HTTP_HEAD));
-  setClassProperty(httpRequestClass, "httpGET", INT_VAL(HTTP_GET));
-  setClassProperty(httpRequestClass, "httpPOST", INT_VAL(HTTP_POST));
-  setClassProperty(httpRequestClass, "httpPUT", INT_VAL(HTTP_PUT));
-  setClassProperty(httpRequestClass, "httpDELETE", INT_VAL(HTTP_DELETE));
-  setClassProperty(httpRequestClass, "httpPATCH", INT_VAL(HTTP_PATCH));
-  setClassProperty(httpRequestClass, "httpOPTIONS", INT_VAL(HTTP_OPTIONS));
-  setClassProperty(httpRequestClass, "httpTRACE", INT_VAL(HTTP_TRACE));
-  setClassProperty(httpRequestClass, "httpCONNECT", INT_VAL(HTTP_CONNECT));
+
+  ObjEnum* httpRequestTypeEnum = defineNativeEnum("HTTPRequestType");
+  defineNativeArtificialEnumElement(httpRequestTypeEnum, "httpHEAD", INT_VAL(HTTP_HEAD));
+  defineNativeArtificialEnumElement(httpRequestTypeEnum, "httpGET", INT_VAL(HTTP_GET));
+  defineNativeArtificialEnumElement(httpRequestTypeEnum, "httpPOST", INT_VAL(HTTP_POST));
+  defineNativeArtificialEnumElement(httpRequestTypeEnum, "httpPUT", INT_VAL(HTTP_PUT));
+  defineNativeArtificialEnumElement(httpRequestTypeEnum, "httpDELETE", INT_VAL(HTTP_DELETE));
+  defineNativeArtificialEnumElement(httpRequestTypeEnum, "httpPATCH", INT_VAL(HTTP_PATCH));
+  defineNativeArtificialEnumElement(httpRequestTypeEnum, "httpOPTIONS", INT_VAL(HTTP_OPTIONS));
+  defineNativeArtificialEnumElement(httpRequestTypeEnum, "httpTRACE", INT_VAL(HTTP_TRACE));
+  defineNativeArtificialEnumElement(httpRequestTypeEnum, "httpCONNECT", INT_VAL(HTTP_CONNECT));
 
   ObjClass* httpResponseClass = defineNativeClass("HTTPResponse");
   bindSuperclass(httpResponseClass, vm.objectClass);
@@ -1280,16 +1282,17 @@ void registerNetworkPackage() {
   DEF_METHOD(httpResponseClass, HTTPResponse, __str__, 0);
   DEF_METHOD(httpResponseClass, HTTPResponse, __format__, 0);
 
-  setClassProperty(httpResponseClass, "statusOK", INT_VAL(200));
-  setClassProperty(httpResponseClass, "statusFound", INT_VAL(302));
-  setClassProperty(httpResponseClass, "statusBadRequest", INT_VAL(400));
-  setClassProperty(httpResponseClass, "statusUnauthorized", INT_VAL(401));
-  setClassProperty(httpResponseClass, "statusForbidden", INT_VAL(403));
-  setClassProperty(httpResponseClass, "statusNotFound", INT_VAL(404));
-  setClassProperty(httpResponseClass, "statusMethodNotAllowed", INT_VAL(405));
-  setClassProperty(httpResponseClass, "statusInternalError", INT_VAL(500));
-  setClassProperty(httpResponseClass, "statusBadGateway", INT_VAL(502));
-  setClassProperty(httpResponseClass, "statusServiceUnavailable", INT_VAL(503));
+  ObjEnum* httpResponseTypeEnum = defineNativeEnum("HTTPResponseType");
+  defineNativeArtificialEnumElement(httpResponseTypeEnum, "statusOK", INT_VAL(200));
+  defineNativeArtificialEnumElement(httpResponseTypeEnum, "statusFound", INT_VAL(302));
+  defineNativeArtificialEnumElement(httpResponseTypeEnum, "statusBadRequest", INT_VAL(400));
+  defineNativeArtificialEnumElement(httpResponseTypeEnum, "statusUnauthorized", INT_VAL(401));
+  defineNativeArtificialEnumElement(httpResponseTypeEnum, "statusForbidden", INT_VAL(403));
+  defineNativeArtificialEnumElement(httpResponseTypeEnum, "statusNotFound", INT_VAL(404));
+  defineNativeArtificialEnumElement(httpResponseTypeEnum, "statusMethodNotAllowed", INT_VAL(405));
+  defineNativeArtificialEnumElement(httpResponseTypeEnum, "statusInternalError", INT_VAL(500));
+  defineNativeArtificialEnumElement(httpResponseTypeEnum, "statusBadGateway", INT_VAL(502));
+  defineNativeArtificialEnumElement(httpResponseTypeEnum, "statusServiceUnavailable", INT_VAL(503));
 
   vm.currentNamespace = vm.rootNamespace;
 }

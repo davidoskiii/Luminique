@@ -47,6 +47,14 @@ ObjEnum* defineNativeEnum(const char* name) {
   return nativeEnum;
 }
 
+void defineNativeArtificialEnumElement(ObjEnum* enum_, const char* name, Value value) {
+  ObjString* elementName = copyString(name, (int)strlen(name));
+  push(OBJ_VAL(elementName));
+  int elementValue = enum_->nextValue++;
+  tableSet(&enum_->values, elementName, value);
+  pop();
+}
+
 void defineNativeEnumElement(ObjEnum* enum_, const char* name) {
   ObjString* elementName = copyString(name, (int)strlen(name));
   push(OBJ_VAL(elementName));
