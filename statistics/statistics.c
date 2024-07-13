@@ -9,6 +9,7 @@
 #include "../vm/vm.h"
 
 static double mean(double* data, int size);
+static double sum(double* data, int size);
 static double weightedMean(double* data, double* weights, int size);
 static double geometricMean(double* data, int size);
 static double harmonicMean(double* data, int size);
@@ -38,6 +39,21 @@ NATIVE_FUNCTION(mean) {
     data[i] = AS_NUMBER(array->elements.values[i]);
   }
   double result = mean(data, array->elements.count);
+  free(data);
+  RETURN_NUMBER(result);
+}
+
+NATIVE_FUNCTION(sum) {
+  assertArgCount("sum(data)", 1, argCount);
+  assertArgIsArray("sum(data)", args, 0);
+
+  ObjArray* array = AS_ARRAY(args[0]);
+  double* data = (double*)malloc(array->elements.count * sizeof(double));
+  for (int i = 0; i < array->elements.count; i++) {
+    assertIsNumber("sum(data)", array->elements.values[i]);
+    data[i] = AS_NUMBER(array->elements.values[i]);
+  }
+  double result = sum(data, array->elements.count);
   free(data);
   RETURN_NUMBER(result);
 }
@@ -285,6 +301,14 @@ static double mean(double* data, int size) {
   return sum / size;
 }
 
+static double sum(double* data, int size) {
+  double sum = 0.0;
+  for (int i = 0; i < size; i++) {
+    sum += data[i];
+  }
+  return sum;
+}
+
 static double variance(double* data, int size, int isSample) {
   double m = mean(data, size);
   double sum = 0.0;
@@ -419,6 +443,7 @@ void registerStatisticsPackage() {
   ObjNamespace* statisticsNamespace = defineNativeNamespace("statistics", vm.stdNamespace);
   vm.currentNamespace = statisticsNamespace;
 
+  DEF_FUNCTION(sum, 1);
   DEF_FUNCTION(mean, 1);
   DEF_FUNCTION(geometricMean, 1);
   DEF_FUNCTION(weightedMean, 2);

@@ -139,13 +139,17 @@ NATIVE_FUNCTION(println) {
 
 NATIVE_FUNCTION(num) {
   assertArgCount("num(value)", 1, argCount);
-  if (!IS_STRING(args[0]) && !IS_NUMBER(args[0])) {
-    runtimeError("Method num(value) expects argument 1 to be a string or a number.", 1);
+  if (!IS_STRING(args[0]) && !IS_NUMBER(args[0]) && !IS_BOOL(args[0])) {
+    runtimeError("Method num(value) expects argument 1 to be a string, a number or a boolean.", 1);
     exit(70);
   }
 
   if (IS_NUMBER(args[0])) {
     return args[0];
+  }
+
+  if (IS_BOOL(args[0])) {
+    RETURN_NUMBER(AS_BOOL(args[0]));
   }
 
   ObjString* stringValue = AS_STRING(args[0]);
@@ -168,13 +172,17 @@ NATIVE_FUNCTION(num) {
 
 NATIVE_FUNCTION(int) {
   assertArgCount("int(value)", 1, argCount);
-  if (!IS_STRING(args[0]) && !IS_NUMBER(args[0])) {
-    runtimeError("Method int(value) expects argument 1 to be a string or a number.", 1);
+  if (!IS_STRING(args[0]) && !IS_NUMBER(args[0]) && !IS_BOOL(args[0])) {
+    runtimeError("Method int(value) expects argument 1 to be a string, a number or a boolean.", 1);
     exit(70);
   }
 
   if (IS_NUMBER(args[0])) {
     RETURN_INT(AS_NUMBER(args[0]));
+  }
+
+  if (IS_BOOL(args[0])) {
+    RETURN_INT(AS_BOOL(args[0]));
   }
 
   ObjString* stringValue = AS_STRING(args[0]);
@@ -197,13 +205,17 @@ NATIVE_FUNCTION(int) {
 
 NATIVE_FUNCTION(float) {
   assertArgCount("float(value)", 1, argCount);
-  if (!IS_STRING(args[0]) && !IS_NUMBER(args[0])) {
-    runtimeError("Method float(value) expects argument 1 to be a string or a number.", 1);
+  if (!IS_STRING(args[0]) && !IS_NUMBER(args[0]) && !IS_BOOL(args[0])) {
+    runtimeError("Method float(value) expects argument 1 to be a string, a number or a boolean.", 1);
     exit(70);
   }
 
   if (IS_NUMBER(args[0])) {
     RETURN_FLOAT(AS_NUMBER(args[0]));
+  }
+
+  if (IS_BOOL(args[0])) {
+    RETURN_FLOAT(AS_BOOL(args[0]));
   }
 
   ObjString* stringValue = AS_STRING(args[0]);

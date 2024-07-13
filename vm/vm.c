@@ -580,11 +580,11 @@ static bool bindMethod(ObjClass* klass, ObjString* name) {
 }
 
 bool loadGlobal(ObjString* name, Value* value) {
-  if (tableGet(&vm.currentModule->values, name, value)) return true;
-  else if (tableGet(&vm.rootNamespace->values, name, value)) return true;
+  if (tableGet(&vm.rootNamespace->values, name, value)) return true;
   else if (tableGet(&vm.rootNamespace->globals, name, value)) return true;
   else if (tableGet(&vm.currentNamespace->values, name, value)) return true;
-  else return tableGet(&vm.currentNamespace->globals, name, value);
+  else if (tableGet(&vm.currentNamespace->globals, name, value)) return true;
+  else return (tableGet(&vm.currentModule->values, name, value));
 } 
 
 static ObjUpvalue* captureUpvalue(Value* local) {

@@ -5,7 +5,7 @@
 #include "../table/table.h"
 #include "../value/value.h"
 
-#define FRAMES_MAX 512
+#define FRAMES_MAX 512 / 2 
 #define STACK_MAX (FRAMES_MAX * UINT8_COUNT)
 
 typedef struct {

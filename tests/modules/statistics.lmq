@@ -3,6 +3,9 @@ using luminique::std::statistics;
 let data = [1, 1, 1, 2, 2, 3, 2, 2, 1, 1, 1];
 println("Dataset: ${data}");
 
+print("Calculating the sum of the values of the dataset: ");
+println(statistics::sum(data));
+
 print("Calculating the arithmetic mean of the dataset: ");
 println(statistics::mean(data));
 
