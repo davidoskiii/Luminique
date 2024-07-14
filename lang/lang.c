@@ -5,6 +5,7 @@
 
 #include "lang.h"
 #include "../hash/hash.h"
+#include "../interceptor/interceptor.h"
 #include "../assert/assert.h"
 #include "../native/native.h"
 #include "../object/object.h"
@@ -809,9 +810,10 @@ void registerLangPackage() {
   DEF_METHOD(vm.objectClass, Object, memberOf, 1);
   DEF_METHOD(vm.objectClass, Object, __str__, 0);
   DEF_METHOD(vm.objectClass, Object, __format__, 0);
-  DEF_METHOD(vm.objectClass, Object, __undefinedProperty__, 1);
-  DEF_METHOD(vm.objectClass, Object, __undefinedMethod__, 2);
+
   DEF_OPERATOR(vm.objectClass, Object, ==, __equal__, 1);
+  DEF_INTERCEPTOR(vm.objectClass, Object, INTERCEPTOR_UNDEFINED_PROPERTY, __undefinedProperty__, 1);
+  DEF_INTERCEPTOR(vm.objectClass, Object, INTERCEPTOR_UNDEFINED_METHOD, __undefinedMethod__, 2);
 
   vm.classClass = defineNativeClass("Class");
   bindSuperclass(vm.classClass, vm.objectClass);

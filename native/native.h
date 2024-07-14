@@ -2,13 +2,14 @@
 #define cluminique_native_h
 
 #include "../object/object.h"
+#include "../interceptor/interceptor.h"
 #include "../vm/vm.h"
 
 #define NATIVE_FUNCTION(name) static Value name##NativeFunction(int argCount, Value* args)
 #define NATIVE_METHOD(className, name) static Value name##NativeMethodFor##className(Value receiver, int argCount, Value* args)
 #define DEF_FUNCTION(name, arity) defineNativeFunction(#name, arity, name##NativeFunction)
 #define DEF_METHOD(klass, className, name, arity) defineNativeMethod(klass, #name, arity, name##NativeMethodFor##className)
-#define DEF_INTERCEPTOR(klass, className, type, name, arity) defineNativeInterceptor(vm, klass, type, arity, name##NativeMethodFor##className)
+#define DEF_INTERCEPTOR(klass, className, type, name, arity) defineNativeInterceptor(klass, type, arity, name##NativeMethodFor##className)
 
 #define RETURN_NIL return NIL_VAL
 #define RETURN_FALSE return BOOL_VAL(false)
@@ -33,6 +34,7 @@ void loadSourceFile(const char* filePath);
 void defineNativeFunction(const char* name, int arity, NativeFunction functionion);
 void defineNativeMethod(ObjClass* klass, const char* name, int arity, NativeMethod method);
 void defineNativeConstant(ObjNamespace* namespace_, const char* name, Value value);
+void defineNativeInterceptor(ObjClass* klass, InterceptorType type, int arity, NativeMethod method);
 ObjNamespace* defineNativeNamespace(const char* name, ObjNamespace* enclosing);
 ObjClass* defineNativeClass(const char* name);
 ObjEnum* defineNativeEnum(const char* name);

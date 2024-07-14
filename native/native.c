@@ -51,7 +51,7 @@ void defineNativeInterceptor(ObjClass* klass, InterceptorType type, int arity, N
       defineNativeMethod(klass, "__afterInvokeMethod__", 3, method);
       break;
     case INTERCEPTOR_UNDEFINED_PROPERTY:
-      defineNativeMethod(klass, "__undefinedProprety__", 1, method);
+      defineNativeMethod(klass, "__undefinedProperty__", 1, method);
       break;
     case INTERCEPTOR_UNDEFINED_METHOD:
       defineNativeMethod(klass, "__undefinedMethod__", 2, method);

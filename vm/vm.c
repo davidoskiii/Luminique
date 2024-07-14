@@ -83,7 +83,7 @@ char* getLine(const char* source, int argNum) {
     return NULL;
   }
 
-  strncpy(line, start, lineLength);
+  memcpy(line, start, lineLength);
   line[lineLength] = '\0';
 
   return line;
@@ -166,7 +166,7 @@ void runtimeError(const char* format, ...) {
     char* spaces = returnSpaces(digitsInNumber(lineNumber));
     char* arrows = arrowsString(line);
     fprintf(stderr, "   %d |    %s\n   %s |    \033[31;1m%s\033[0m\n   %s |\n", lineNumber, line, spaces, arrows, spaces);
-    if (vm.repl) free(line);
+    if (!vm.repl) free(line);
     free(spaces);
     free(arrows);
   }
@@ -757,7 +757,11 @@ static bool propagateException() {
   char* spaces = returnSpaces(digitsInNumber(lineNumber));
   char* arrows = arrowsString(line);
   fprintf(stderr, "   %d |    %s\n   %s |    \033[31;1m%s\033[0m\n   %s |\n", lineNumber, line, spaces, arrows, spaces);
-  if (vm.repl) free(line);
+
+  if (!vm.repl) {
+    free(line);
+  }
+
   free(spaces);
   free(arrows);
 
@@ -790,7 +794,9 @@ ObjInstance* throwException(ObjClass* exceptionClass, const char* format, ...) {
   push(OBJ_VAL(exception));
   setObjProperty(exception, "message", OBJ_VAL(message));
   setObjProperty(exception, "stacktrace", OBJ_VAL(stacktrace));
-  if (!propagateException()) exit(70);
+  if (!propagateException()) {
+    exit(70);
+  }
   else return exception;
 }
 

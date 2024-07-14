@@ -12,7 +12,7 @@ void handleInterceptorMethod(ObjClass* klass, ObjString* name) {
 
   if (strcmp(name->chars, "__beforeGetProprety__") == 0) SET_CLASS_INTERCEPTOR(klass, INTERCEPTOR_BEFORE_GET_PROPERTY);
   else if (strcmp(name->chars, "__afterGetProprety__") == 0) SET_CLASS_INTERCEPTOR(klass, INTERCEPTOR_AFTER_GET_PROPERTY);
-  else if (strcmp(name->chars, "__undefinedProprety__") == 0) SET_CLASS_INTERCEPTOR(klass, INTERCEPTOR_UNDEFINED_PROPERTY);
+  else if (strcmp(name->chars, "__undefinedProperty__") == 0) SET_CLASS_INTERCEPTOR(klass, INTERCEPTOR_UNDEFINED_PROPERTY);
   else if (strcmp(name->chars, "__undefinedMethod__") == 0) SET_CLASS_INTERCEPTOR(klass, INTERCEPTOR_UNDEFINED_METHOD);
 }
 
@@ -37,7 +37,7 @@ bool interceptAfterGet(ObjClass* klass, ObjString* name) {
 
 bool interceptUndefinedProperty(ObjClass* klass, ObjString* name) {
   Value interceptor;
-  if (tableGet(&klass->methods, newString("__undefinedProprety__"), &interceptor)) {
+  if (tableGet(&klass->methods, newString("__undefinedProperty__"), &interceptor)) {
     push(OBJ_VAL(name));
     return callMethod(interceptor, 1);
   }
