@@ -467,17 +467,17 @@ NATIVE_METHOD(Object, __equal__) {
   RETURN_BOOL(receiver == args[0]);
 }
 
-NATIVE_METHOD(Object, __getProperty__) {
-  assertArgCount("Object::__getProperty__(name)", 1, argCount);
-  assertArgIsString("Object::__getProperty__(name)", args, 0);
+NATIVE_METHOD(Object, __undefinedProperty__) {
+  assertArgCount("Object::__undefinedProperty__(name)", 1, argCount);
+  assertArgIsString("Object::__undefinedProperty__(name)", args, 0);
   THROW_EXCEPTION_FMT(luminique::std::lang, NotImplementedException, "Property %s does not exist in %s.", 
     AS_CSTRING(args[0]), valueToString(receiver));
 }
 
-NATIVE_METHOD(Object, __invokeMethod__) {
-  assertArgCount("Object::__invokeMethod__(name, args)", 2, argCount);
-  assertArgIsString("Object::__invokeMethod__(name, args)", args, 0);
-  assertArgIsArray("Object::__invokeMethod__(name, args)", args, 1);
+NATIVE_METHOD(Object, __undefinedMethod__) {
+  assertArgCount("Object::__undefinedMethod__(name, args)", 2, argCount);
+  assertArgIsString("Object::__undefinedMethod__(name, args)", args, 0);
+  assertArgIsArray("Object::__undefinedMethod__(name, args)", args, 1);
   THROW_EXCEPTION_FMT(luminique::std::lang, NotImplementedException, "Method %s does not exist in class %s.", 
     AS_CSTRING(args[0]), getObjClass(receiver)->name->chars);
 }
@@ -809,8 +809,8 @@ void registerLangPackage() {
   DEF_METHOD(vm.objectClass, Object, memberOf, 1);
   DEF_METHOD(vm.objectClass, Object, __str__, 0);
   DEF_METHOD(vm.objectClass, Object, __format__, 0);
-  DEF_METHOD(vm.objectClass, Object, __getProperty__, 1);
-  DEF_METHOD(vm.objectClass, Object, __invokeMethod__, 2);
+  DEF_METHOD(vm.objectClass, Object, __undefinedProperty__, 1);
+  DEF_METHOD(vm.objectClass, Object, __undefinedMethod__, 2);
   DEF_OPERATOR(vm.objectClass, Object, ==, __equal__, 1);
 
   vm.classClass = defineNativeClass("Class");

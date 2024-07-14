@@ -110,6 +110,8 @@ ObjClass* newClass(ObjString* name) {
   klass->namespace_ = vm.currentNamespace;
   klass->superclass = NULL;
   klass->isNative = false;
+  klass->interceptors = 0;
+
   initTable(&klass->methods);
   initTable(&klass->fields);
   initTable(&klass->getters);

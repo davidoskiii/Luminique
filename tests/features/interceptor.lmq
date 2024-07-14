@@ -1,9 +1,9 @@
 class InterceptObject { 
-  function __getProperty__(name) { 
+  function __undefinedProperty__(name) { 
     println("Accessing undefined property: ${name}");
   }
 
-  function __invokeMethod__(name, args) { 
+  function __undefinedMethod__(name, args) { 
     println("Invoking undefined method: ${name} with ${args.length()} arguments: ${args}");
   }
 }

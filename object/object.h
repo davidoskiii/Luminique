@@ -12,6 +12,9 @@
 #define OBJ_TYPE(value) (AS_OBJ(value)->type)
 #define OBJ_KLASS(value) (AS_OBJ(value)->klass)
 
+#define HAS_CLASS_INTERCEPTOR(klass, interceptor) ((klass->interceptors) & (1 << interceptor))
+#define SET_CLASS_INTERCEPTOR(klass, interceptor) (klass->interceptors = (klass->interceptors) | (1 << interceptor))
+
 #define IS_NAMESPACE(value) isObjType(value, OBJ_NAMESPACE)
 #define IS_MODULE(value) isObjType(value, OBJ_MODULE)
 #define IS_ARRAY(value) isObjType(value, OBJ_ARRAY)
@@ -77,6 +80,19 @@ typedef enum {
   OBJ_WINDOW,
   OBJ_UPVALUE
 } ObjType;
+
+typedef enum {
+  INTERCEPTOR_INIT,
+  INTERCEPTOR_NEW,
+  INTERCEPTOR_BEFORE_GET_PROPERTY,
+  INTERCEPTOR_AFTER_GET_PROPERTY,
+  INTERCEPTOR_UNDEFINED_PROPERTY,
+  INTERCEPTOR_BEFORE_SET_PROPERTY,
+  INTERCEPTOR_AFTER_SET_PROPERTY,
+  INTERCEPTOR_BEFORE_INVOKE_METHOD,
+  INTERCEPTOR_AFTER_INVOKE_METHOD,
+  INTERCEPTOR_UNDEFINED_METHOD
+} InterceptorType;
 
 struct Obj {
   ObjType type;
@@ -176,6 +192,7 @@ struct ObjClass {
   ObjString* name;
   struct ObjNamespace* namespace_;
   struct ObjClass* superclass;
+  uint16_t interceptors;
   Table methods;
   Table fields;
   Table getters;

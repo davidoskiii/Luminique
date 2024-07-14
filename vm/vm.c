@@ -505,7 +505,7 @@ static bool callValue(Value callee, int argCount) {
 
 static bool callGetProperty(ObjClass* klass, ObjString* name) {
   Value interceptor;
-  if (tableGet(&klass->methods, newString("__getProperty__"), &interceptor)) {
+  if (tableGet(&klass->methods, newString("__undefinedProperty__"), &interceptor)) {
     push(OBJ_VAL(name));
     return callMethod(interceptor, 1);
   }
@@ -514,7 +514,7 @@ static bool callGetProperty(ObjClass* klass, ObjString* name) {
 
 static bool callInvokeMethod(ObjClass* klass, ObjString* name, int argCount) {
   Value interceptor;
-  if (tableGet(&klass->methods, newString("__invokeMethod__"), &interceptor)) {
+  if (tableGet(&klass->methods, newString("__undefinedMethod__"), &interceptor)) {
     ObjArray* args = newArray();
     push(OBJ_VAL(args));
     for (int i = argCount; i > 0; i--) { 
@@ -686,6 +686,7 @@ void bindSuperclass(ObjClass* subclass, ObjClass* superclass) {
     return;
   }
   subclass->superclass = superclass;
+  subclass->interceptors = superclass->interceptors;
   tableAddAll(&superclass->methods, &subclass->methods);
 }
 
