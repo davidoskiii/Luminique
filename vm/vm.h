@@ -1,7 +1,6 @@
 #ifndef cluminique_vm_h
 #define cluminique_vm_h
 
-#include "../object/object.h"
 #include "../table/table.h"
 #include "../value/value.h"
 
@@ -14,7 +13,7 @@ typedef struct {
   ObjClass* exceptionClass;
 } ExceptionHandler;
 
-typedef struct {
+typedef struct CallFrame {
   ObjFunction* function;
   ObjClosure* closure;
   uint8_t* ip;

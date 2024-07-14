@@ -9,6 +9,10 @@ typedef struct ObjClass ObjClass;
 typedef struct ObjNamespace ObjNamespace;
 typedef struct ObjNode ObjNode;
 typedef struct ObjString ObjString;
+typedef struct ObjFunction ObjFunction;
+typedef struct ObjClosure ObjClosure;
+typedef struct ObjUpvalue ObjUpvalue;
+typedef struct ObjModule ObjModule;
 
 #ifdef NAN_BOXING
 

@@ -3,6 +3,8 @@
 
 #include <sys/stat.h>
 
+typedef struct CallFrame CallFrame;
+
 #include <SDL2/SDL.h>
 #include "../common.h"
 #include "../table/table.h"
@@ -20,6 +22,7 @@
 #define IS_CLASS(value) isObjType(value, OBJ_CLASS)
 #define IS_CLOSURE(value) isObjType(value, OBJ_CLOSURE)
 #define IS_FUNCTION(value) isObjType(value, OBJ_FUNCTION)
+#define IS_GENERATOR(value) isObjType(value, OBJ_GENERATOR)
 #define IS_INSTANCE(value) isObjType(value, OBJ_INSTANCE)
 #define IS_FILE(value) isObjType(value, OBJ_FILE)
 #define IS_RECORD(value) isObjType(value, OBJ_RECORD)
@@ -40,6 +43,7 @@
 #define AS_CLASS(value) ((ObjClass*)AS_OBJ(value))
 #define AS_CLOSURE(value) ((ObjClosure*)AS_OBJ(value))
 #define AS_FUNCTION(value) ((ObjFunction*)AS_OBJ(value))
+#define AS_GENERATOR(value) ((ObjGenerator*)AS_OBJ(value))
 #define AS_INSTANCE(value) ((ObjInstance*)AS_OBJ(value))
 #define AS_FILE(value) ((ObjFile*)AS_OBJ(value))
 #define AS_RECORD(value) ((ObjRecord*)AS_OBJ(value))
@@ -62,6 +66,7 @@ typedef enum {
   OBJ_CLASS,
   OBJ_CLOSURE,
   OBJ_FUNCTION,
+  OBJ_GENERATOR,
   OBJ_INSTANCE,
   OBJ_FILE,
   OBJ_RECORD,
@@ -85,13 +90,13 @@ struct Obj {
   struct Obj* next;
 };
 
-typedef struct {
+struct ObjFunction {
   Obj obj;
   int arity;
   int upvalueCount;
   Chunk chunk;
   ObjString* name;
-} ObjFunction;
+};
 
 typedef Value (*NativeFunction)(int argCount, Value* args);
 typedef Value (*NativeMethod)(Value receiver, int argCount, Value* args);
@@ -135,11 +140,18 @@ typedef struct ObjFile {
 
 typedef struct {
   Obj obj;
+  ObjString* name;
+  bool isExited;
+  CallFrame* frame;
+} ObjGenerator;
+
+struct ObjModule {
+  Obj obj;
   ObjString* path;
   bool isNative;
   Table values;
   char* source;
-} ObjModule;
+};
 
 struct ObjNamespace {
   Obj obj;
@@ -164,12 +176,12 @@ typedef struct ObjEntry {
   Value value;
 } ObjEntry;
 
-typedef struct {
+struct ObjClosure {
   Obj obj;
   ObjFunction* function;
   ObjUpvalue** upvalues;
   int upvalueCount;
-} ObjClosure;
+};
 
 struct ObjClass {
   Obj obj;
