@@ -503,13 +503,41 @@ static bool callValue(Value callee, int argCount) {
   return callMethod(method, arity);
 }
 
+static bool callGetProperty(ObjClass* klass, ObjString* name) {
+  Value interceptor;
+  if (tableGet(&klass->methods, newString("__getProperty__"), &interceptor)) {
+    push(OBJ_VAL(name));
+    return callMethod(interceptor, 1);
+  }
+  return false;
+}
 
+static bool callInvokeMethod(ObjClass* klass, ObjString* name, int argCount) {
+  Value interceptor;
+  if (tableGet(&klass->methods, newString("__invokeMethod__"), &interceptor)) {
+    ObjArray* args = newArray();
+    push(OBJ_VAL(args));
+    for (int i = argCount; i > 0; i--) { 
+      writeValueArray(&args->elements, vm.stackTop[-i - 1]);
+    }
+    pop();
+
+    vm.stackTop -= argCount;
+    push(OBJ_VAL(name));
+    push(OBJ_VAL(args));
+    return callMethod(interceptor, 2);
+  }
+  return false;
+}
 
 static bool invokeFromClass(ObjClass* klass, ObjString* name, int argCount) {
   Value method;
   if (!tableGet(&klass->methods, name, &method)) {
-    runtimeError("Undefined property '%s'.", name->chars);
-    return false;
+    if (callInvokeMethod(klass, name, argCount)) return true;
+    else { 
+      if (klass != vm.nilClass) runtimeError("Undefined method '%s'.", name->chars);
+      return false;
+    }
   }
   return callMethod(method, argCount);
 }
@@ -1293,9 +1321,9 @@ InterpretResult run() {
       }
       case OP_GET_PROPERTY: {
         Value receiver = peek(0);
+        ObjString* name = READ_STRING();
         if (IS_INSTANCE(receiver)) {
           ObjInstance* instance = AS_INSTANCE(receiver);
-          ObjString* name = READ_STRING();
           Value value;
   
           bool getterResult = !bindGetter(instance->obj.klass, instance, name);
@@ -1307,12 +1335,11 @@ InterpretResult run() {
           }
 
           if (getterResult && !bindMethod(instance->obj.klass, name)) {
-            runtimeError("Undefined property '%s'.", name->chars);
-            return INTERPRET_RUNTIME_ERROR;
+            callGetProperty(instance->obj.klass, name);
+            frame = &vm.frames[vm.frameCount - 1];
           }
         } else if (IS_CLASS(receiver)) {
           ObjClass* klass = AS_CLASS(receiver);
-          ObjString* name = READ_STRING();
           Value value;
 
           if (tableGet(&klass->fields, name, &value)) {
@@ -1322,12 +1349,13 @@ InterpretResult run() {
           }
 
           if (!bindMethod(klass->obj.klass, name)) {
-            runtimeError("Undefined property '%s'.", name->chars);
-            return INTERPRET_RUNTIME_ERROR;
+            callGetProperty(klass->obj.klass, name);
+            frame = &vm.frames[vm.frameCount - 1];
           }
         } else {
-          runtimeError("Only instances and classes can access properties with '.'.");
-          return INTERPRET_RUNTIME_ERROR;
+          if (IS_NIL(receiver)) runtimeError("Undefined property on nil.");
+          callGetProperty(getObjClass(receiver), name);
+          frame = &vm.frames[vm.frameCount - 1];
         }
         break;
       }
@@ -1436,7 +1464,8 @@ InterpretResult run() {
         ObjClass* superclass = AS_CLASS(pop());
 
         if (!bindMethod(superclass, name)) {
-          return INTERPRET_RUNTIME_ERROR;
+          callGetProperty(superclass, name);
+          frame = &vm.frames[vm.frameCount - 1];
         }
         break;
       }
