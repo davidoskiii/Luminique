@@ -10,6 +10,7 @@
 #include "../dsa/dsa.h"
 #include "../common.h"
 #include "../compiler/compiler.h"
+#include "../interceptor/interceptor.h"
 #include "../object/object.h"
 #include "../memory/memory.h"
 #include "../lang/lang.h"
@@ -501,33 +502,6 @@ static bool callValue(Value callee, int argCount) {
   }
   int arity = IS_NATIVE_METHOD(method) ? AS_NATIVE_METHOD(method)->arity : AS_CLOSURE(method)->function->arity;
   return callMethod(method, arity);
-}
-
-static bool interceptUndefinedProperty(ObjClass* klass, ObjString* name) {
-  Value interceptor;
-  if (tableGet(&klass->methods, newString("__undefinedProperty__"), &interceptor)) {
-    push(OBJ_VAL(name));
-    return callMethod(interceptor, 1);
-  }
-  return false;
-}
-
-static bool interceptUndefinedMethod(ObjClass* klass, ObjString* name, int argCount) {
-  Value interceptor;
-  if (tableGet(&klass->methods, newString("__undefinedMethod__"), &interceptor)) {
-    ObjArray* args = newArray();
-    push(OBJ_VAL(args));
-    for (int i = argCount; i > 0; i--) { 
-      writeValueArray(&args->elements, vm.stackTop[-i - 1]);
-    }
-    pop();
-
-    vm.stackTop -= argCount;
-    push(OBJ_VAL(name));
-    push(OBJ_VAL(args));
-    return callMethod(interceptor, 2);
-  }
-  return false;
 }
 
 static bool invokeFromClass(ObjClass* klass, ObjString* name, int argCount) {
