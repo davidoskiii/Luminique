@@ -385,8 +385,14 @@ void printObject(Value value) {
     case OBJ_CLOSURE:
       printFunction(AS_CLOSURE(value)->function);
       break;
+    case OBJ_FRAME: 
+      printf("frame: %s", AS_FRAME(value)->closure->function->name->chars);
+      break;
     case OBJ_FUNCTION:
       printFunction(AS_FUNCTION(value));
+      break;
+    case OBJ_GENERATOR:
+      printf("<generator %s>", AS_GENERATOR(value)->frame->closure->function->name->chars);
       break;
     case OBJ_ENUM:
       printf("<enum %s>", AS_ENUM(value)->name->chars);
