@@ -757,12 +757,35 @@ static bool propagateException() {
   }
 
   ObjString* message = AS_STRING(getObjProperty(exception, "message"));
-  fprintf(stderr, "Unhandled %s: %s\n", exception->obj.klass->name->chars, message->chars);
-  ObjArray* stackTrace = AS_ARRAY(getObjProperty(exception, "stacktrace"));
-  for (int i = 0; i < stackTrace->elements.count; i++) {
-    Value item = stackTrace->elements.values[i];
-    fprintf(stderr, "%s.\n", AS_CSTRING(item));
+  fprintf(stderr, "\n\033[1mUnhandled %s:\033[0m %s", exception->obj.klass->name->chars, message->chars);
+
+  CallFrame* frame = &vm.frames[vm.frameCount];
+  ObjFunction* function = frame->closure->function;
+  size_t instruction = frame->ip - function->chunk.code - 1;
+  int lineNumber = function->chunk.lines[instruction];
+  fprintf(stderr, "\n\033[1m%s:%d in ", vm.currentModule->path->chars, lineNumber);
+  if (function->name == NULL) {
+    fprintf(stderr, "script: \033[0m");
+  } else {
+    fprintf(stderr, "%s(): \033[0m", function->name->chars);
   }
+
+  fprintf(stderr, "%s\n", message->chars);
+
+  char* line;
+  if (vm.repl) {
+    line = vm.currentModule->source;
+  } else {
+    line = getLine(vm.currentModule->source, lineNumber);
+  }
+
+  char* spaces = returnSpaces(digitsInNumber(lineNumber));
+  char* arrows = arrowsString(line);
+  fprintf(stderr, "   %d |    %s\n   %s |    \033[31;1m%s\033[0m\n   %s |\n", lineNumber, line, spaces, arrows, spaces);
+  if (vm.repl) free(line);
+  free(spaces);
+  free(arrows);
+
   fflush(stderr);
   return false;
 }
