@@ -55,7 +55,7 @@ void assertArgIsInt(const char* method, Value* args, int index) {
 
 void assertArgIsArray(const char* method, Value* args, int index) {
   if (!IS_ARRAY(args[index])) {
-    runtimeError("Method %s expects argument %d to be a list.", method, index + 1);
+    runtimeError("Method %s expects argument %d to be an array.", method, index + 1);
     exit(70);
   }
 }

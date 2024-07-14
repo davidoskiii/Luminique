@@ -280,7 +280,7 @@ static int arrayIndexOf(ObjArray* array, Value element) {
 	return -1;
 }
 
-static void arrayAddAll(ObjArray* from, ObjArray* to) {
+void arrayAddAll(ObjArray* from, ObjArray* to) {
 	if (from->elements.count == 0) return;
 	for (int i = 0; i < from->elements.count; i++) {
 		writeValueArray(&to->elements, from->elements.values[i]);
@@ -773,6 +773,13 @@ NATIVE_METHOD(Array, __setSubscript__) {
   self->elements.values[index] = args[1];
   if (index == self->elements.count) self->elements.count++;
   RETURN_OBJ(receiver);
+}
+
+NATIVE_METHOD(Array, __add__) {
+  assertArgCount("Array::+(other)", 1, argCount);
+  assertArgIsArray("Array::+(other)", args, 0);
+	arrayAddAll(AS_ARRAY(args[0]), AS_ARRAY(receiver));
+	return receiver;
 }
 
 NATIVE_METHOD(Array, append) {
@@ -1745,6 +1752,7 @@ void registerCollectionPackage() {
   DEF_METHOD(vm.arrayClass, Array, subArray, 2);
 	DEF_METHOD(vm.arrayClass, Array, __str__, 0);
 	DEF_METHOD(vm.arrayClass, Array, __format__, 0);
+  DEF_OPERATOR(vm.arrayClass, Array, +, __add__, 1);
   DEF_OPERATOR(vm.arrayClass, Array, [], __getSubscript__, 1);
   DEF_OPERATOR(vm.arrayClass, Array, []=, __setSubscript__, 2);
 

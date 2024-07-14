@@ -681,6 +681,16 @@ static void concatenate() {
   push(OBJ_VAL(result));
 }
 
+static void merge() {
+  Value b = peek(0);
+  Value a = peek(1);
+
+	arrayAddAll(AS_ARRAY(b), AS_ARRAY(a));
+  pop();
+  pop();
+  push(OBJ_VAL(a));
+}
+
 ObjArray* getStackTrace() {
   ObjArray* stackTrace = newArray();
   push(OBJ_VAL(stackTrace));
@@ -1062,8 +1072,9 @@ InterpretResult run() {
       case OP_ADD: {
         if (IS_STRING(peek(0)) && IS_STRING(peek(1))) {
           concatenate();
-        }
-        else if (IS_INT(peek(0)) && IS_INT(peek(1))) BINARY_INT_OP(INT_VAL, +);
+        } else if (IS_ARRAY(peek(0)) && IS_ARRAY(peek(1))) {
+          merge();
+        } else if (IS_INT(peek(0)) && IS_INT(peek(1))) BINARY_INT_OP(INT_VAL, +);
         else if (IS_NUMBER(peek(0)) && IS_NUMBER(peek(1))) BINARY_NUMBER_OP(NUMBER_VAL, +);
         else OVERLOAD_OP(+, 1);
         break;
