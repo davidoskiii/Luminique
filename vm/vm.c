@@ -503,7 +503,7 @@ static bool callValue(Value callee, int argCount) {
   return callMethod(method, arity);
 }
 
-static bool callGetProperty(ObjClass* klass, ObjString* name) {
+static bool interceptUndefinedProperty(ObjClass* klass, ObjString* name) {
   Value interceptor;
   if (tableGet(&klass->methods, newString("__undefinedProperty__"), &interceptor)) {
     push(OBJ_VAL(name));
@@ -512,7 +512,7 @@ static bool callGetProperty(ObjClass* klass, ObjString* name) {
   return false;
 }
 
-static bool callInvokeMethod(ObjClass* klass, ObjString* name, int argCount) {
+static bool interceptUndefinedMethod(ObjClass* klass, ObjString* name, int argCount) {
   Value interceptor;
   if (tableGet(&klass->methods, newString("__undefinedMethod__"), &interceptor)) {
     ObjArray* args = newArray();
@@ -533,7 +533,7 @@ static bool callInvokeMethod(ObjClass* klass, ObjString* name, int argCount) {
 static bool invokeFromClass(ObjClass* klass, ObjString* name, int argCount) {
   Value method;
   if (!tableGet(&klass->methods, name, &method)) {
-    if (callInvokeMethod(klass, name, argCount)) return true;
+    if (interceptUndefinedMethod(klass, name, argCount)) return true;
     else { 
       if (klass != vm.nilClass) runtimeError("Undefined method '%s'.", name->chars);
       return false;
@@ -1359,7 +1359,7 @@ InterpretResult run() {
           }
 
           if (getterResult && !bindMethod(instance->obj.klass, name)) {
-            callGetProperty(instance->obj.klass, name);
+            interceptUndefinedProperty(instance->obj.klass, name);
             frame = &vm.frames[vm.frameCount - 1];
           }
         } else if (IS_CLASS(receiver)) {
@@ -1373,12 +1373,12 @@ InterpretResult run() {
           }
 
           if (!bindMethod(klass->obj.klass, name)) {
-            callGetProperty(klass->obj.klass, name);
+            interceptUndefinedProperty(klass->obj.klass, name);
             frame = &vm.frames[vm.frameCount - 1];
           }
         } else {
           if (IS_NIL(receiver)) runtimeError("Undefined property on nil.");
-          callGetProperty(getObjClass(receiver), name);
+          interceptUndefinedProperty(getObjClass(receiver), name);
           frame = &vm.frames[vm.frameCount - 1];
         }
         break;
@@ -1488,7 +1488,7 @@ InterpretResult run() {
         ObjClass* superclass = AS_CLASS(pop());
 
         if (!bindMethod(superclass, name)) {
-          callGetProperty(superclass, name);
+          interceptUndefinedProperty(superclass, name);
           frame = &vm.frames[vm.frameCount - 1];
         }
         break;
