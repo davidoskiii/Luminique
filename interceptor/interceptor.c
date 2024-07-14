@@ -10,15 +10,15 @@
 void handleInterceptorMethod(ObjClass* klass, ObjString* name) {
   if (name->length <= 2 || name->chars[0] != '_' || name->chars[1] != '_') return;
 
-  if (strcmp(name->chars, "__beforeGetProprety__") == 0) SET_CLASS_INTERCEPTOR(klass, INTERCEPTOR_BEFORE_GET_PROPERTY);
-  else if (strcmp(name->chars, "__afterGetProprety__") == 0) SET_CLASS_INTERCEPTOR(klass, INTERCEPTOR_AFTER_GET_PROPERTY);
+  if (strcmp(name->chars, "__beforeGetProperty__") == 0) SET_CLASS_INTERCEPTOR(klass, INTERCEPTOR_BEFORE_GET_PROPERTY);
+  else if (strcmp(name->chars, "__afterGetProperty__") == 0) SET_CLASS_INTERCEPTOR(klass, INTERCEPTOR_AFTER_GET_PROPERTY);
   else if (strcmp(name->chars, "__undefinedProperty__") == 0) SET_CLASS_INTERCEPTOR(klass, INTERCEPTOR_UNDEFINED_PROPERTY);
   else if (strcmp(name->chars, "__undefinedMethod__") == 0) SET_CLASS_INTERCEPTOR(klass, INTERCEPTOR_UNDEFINED_METHOD);
 }
 
 bool interceptBeforeGet(ObjClass* klass, ObjString* name) {
   Value interceptor;
-  if (tableGet(&klass->methods, newString("__beforeGetProprety__"), &interceptor)) {
+  if (tableGet(&klass->methods, newString("__beforeGetProperty__"), &interceptor)) {
     push(OBJ_VAL(name));
     return callMethod(interceptor, 1);
   }
@@ -27,7 +27,7 @@ bool interceptBeforeGet(ObjClass* klass, ObjString* name) {
 
 bool interceptAfterGet(ObjClass* klass, ObjString* name) {
   Value interceptor;
-  if (tableGet(&klass->methods, newString("__afterGetProprety__"), &interceptor)) {
+  if (tableGet(&klass->methods, newString("__afterGetProperty__"), &interceptor)) {
     Value value = peek(0);
     push(OBJ_VAL(name));
     return callMethod(interceptor, 2);

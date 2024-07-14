@@ -651,6 +651,7 @@ static void defineMethod(ObjString* name, bool isMethodStatic) {
   }
 
   tableSet(&klass->methods, name, method);
+  handleInterceptorMethod(klass, name);
   pop();
 }
 

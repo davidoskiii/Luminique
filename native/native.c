@@ -33,16 +33,16 @@ void defineNativeInterceptor(ObjClass* klass, InterceptorType type, int arity, N
       defineNativeMethod(klass, "__new__", arity, method);
       break;
     case INTERCEPTOR_BEFORE_GET_PROPERTY:
-      defineNativeMethod(klass, "__beforeGetProprety__", 1, method);
+      defineNativeMethod(klass, "__beforeGetProperty__", 1, method);
       break;
     case INTERCEPTOR_AFTER_GET_PROPERTY:
-      defineNativeMethod(klass, "__afterGetProprety__", 2, method);
+      defineNativeMethod(klass, "__afterGetProperty__", 2, method);
       break;
     case INTERCEPTOR_BEFORE_SET_PROPERTY:
-      defineNativeMethod(klass, "__beforeSetProprety__", 2, method);
+      defineNativeMethod(klass, "__beforeSetProperty__", 2, method);
       break;
     case INTERCEPTOR_AFTER_SET_PROPERTY: 
-      defineNativeMethod(klass, "__afterSetProprety__", 2, method);
+      defineNativeMethod(klass, "__afterSetProperty__", 2, method);
       break;
     case INTERCEPTOR_BEFORE_INVOKE_METHOD:
       defineNativeMethod(klass, "__beforeInvokeMethod__", 2, method);
