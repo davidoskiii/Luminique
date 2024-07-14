@@ -170,6 +170,7 @@ typedef struct ObjGenerator {
   ObjFrame* frame;
   struct ObjGenerator* parent;
   GeneratorState state;
+  Value current;
 } ObjGenerator;
 
 struct ObjModule {

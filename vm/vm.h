@@ -22,6 +22,7 @@ typedef struct {
   ObjClass* enumClass;
   ObjClass* classClass;
   ObjClass* functionClass;
+  ObjClass* generatorClass;
   ObjClass* namespaceClass;
   ObjClass* methodClass;
   ObjClass* nilClass;
@@ -53,6 +54,7 @@ typedef struct {
   Value stack[STACK_MAX];
   Value* stackTop;
   int apiStackDepth;
+  ObjGenerator* runningGenerator;
   int argc;
   char** argv;
   bool repl;

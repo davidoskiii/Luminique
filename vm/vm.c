@@ -46,6 +46,7 @@ static void resetStack() {
   vm.stackTop = vm.stack;
   vm.frameCount = 0;
   vm.apiStackDepth = 0;
+  vm.runningGenerator = NULL;
   vm.openUpvalues = NULL;
   resetCallFrames();
 }
@@ -410,10 +411,20 @@ bool callClosure(ObjClosure* closure, int argCount) {
     argCount = 1;
   }
 
-  CallFrame* frame = &vm.frames[vm.frameCount++];
-  frame->closure = closure;
-  frame->ip = closure->function->chunk.code;
-  frame->slots = vm.stackTop - argCount - 1;
+  if (closure->function->isGenerator) {
+    CallFrame frame = {
+      .closure = closure,
+      .ip = closure->function->chunk.code,
+      .slots = vm.stackTop - argCount - 1
+    };
+    vm.stackTop -= (size_t)argCount + 1;
+    push(OBJ_VAL(newGenerator(newFrame(&frame), vm.runningGenerator)));
+  } else {
+    CallFrame* frame = &vm.frames[vm.frameCount++];
+    frame->closure = closure;
+    frame->ip = closure->function->chunk.code;
+    frame->slots = vm.stackTop - argCount - 1;
+  }
   return true;
 }
 
@@ -440,25 +451,40 @@ bool callMethod(Value method, int argCount) {
 }
 
 Value callReentrant(Value receiver, Value callee, ...) {
-    push(receiver);
-    int argCount = IS_NATIVE_METHOD(callee) ? AS_NATIVE_METHOD(callee)->arity : AS_CLOSURE(callee)->function->arity;
-    va_list args;
-    va_start(args, callee);
-    for (int i = 0; i < argCount; i++) {
-      push(va_arg(args, Value));
-    }
-    va_end(args);
+  push(receiver);
+  int argCount = IS_NATIVE_METHOD(callee) ? AS_NATIVE_METHOD(callee)->arity : AS_CLOSURE(callee)->function->arity;
+  va_list args;
+  va_start(args, callee);
+  for (int i = 0; i < argCount; i++) {
+    push(va_arg(args, Value));
+  }
+  va_end(args);
 
-    if (IS_CLOSURE(callee)) {
-      vm.apiStackDepth++;
-      callClosure(AS_CLOSURE(callee), argCount);
-      InterpretResult result = run();
-      if (result == INTERPRET_RUNTIME_ERROR) exit(70);
-      vm.apiStackDepth--;
-    } else {
-      callNativeMethod(AS_NATIVE_METHOD(callee)->method, argCount);
-    }
-    return pop();
+  if (IS_CLOSURE(callee)) {
+    vm.apiStackDepth++;
+    callClosure(AS_CLOSURE(callee), argCount);
+    InterpretResult result = run();
+    if (result == INTERPRET_RUNTIME_ERROR) exit(70);
+    vm.apiStackDepth--;
+  } else {
+    callNativeMethod(AS_NATIVE_METHOD(callee)->method, argCount);
+  }
+  return pop();
+}
+
+
+Value callGenerator(ObjGenerator* generator) {
+  ObjGenerator* parentGenerator = vm.runningGenerator;
+  vm.runningGenerator = generator;
+  CallFrame* frame = &vm.frames[vm.frameCount++];
+  frame->closure = generator->frame->closure;
+  frame->ip = generator->frame->ip;
+  frame->slots = generator->frame->slots;
+
+  InterpretResult result = run();
+  if (result == INTERPRET_RUNTIME_ERROR) exit(70);
+  vm.runningGenerator = parentGenerator;
+  return pop();
 }
 
 static bool callValue(Value callee, int argCount) {
@@ -1612,6 +1638,7 @@ InterpretResult run() {
       case OP_RETURN: {
         Value result = pop();
         closeUpvalues(frame->slots);
+        if (vm.runningGenerator != NULL) vm.runningGenerator->state = GENERATOR_RETURN;
         vm.frameCount--;
         if (vm.frameCount == 0) {
           pop();
@@ -1633,6 +1660,7 @@ InterpretResult run() {
         Value result = pop();
         int depth = READ_BYTE();
         closeUpvalues(frame->slots);
+        if (vm.runningGenerator != NULL) vm.runningGenerator->state = GENERATOR_RETURN;
         vm.frameCount -= depth + 1;
         if (vm.frameCount == 0) {
           pop();
@@ -1643,6 +1671,22 @@ InterpretResult run() {
         push(result);
         if (vm.apiStackDepth > 0) return INTERPRET_OK;
         frame = &vm.frames[vm.frameCount - 1];
+        break;
+      }
+      case OP_YIELD: { 
+        printf("Yield control back to caller.\n");
+        Value result = pop();
+        vm.runningGenerator->frame->closure = frame->closure;
+        vm.runningGenerator->frame->ip = frame->ip;
+        vm.runningGenerator->frame->slots = frame->slots;
+        vm.runningGenerator->state = GENERATOR_YIELD;
+        vm.runningGenerator->current = result;
+        vm.frameCount--;
+
+        vm.stackTop = frame->slots;
+        push(result);
+        if (vm.apiStackDepth > 0) return INTERPRET_OK;
+        LOAD_FRAME();
         break;
       }
     }

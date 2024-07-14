@@ -1382,6 +1382,7 @@ ParseRule rules[] = {
   [TOKEN_VAR]           = {NULL,          NULL,         PREC_NONE},
   [TOKEN_CONST]         = {NULL,          NULL,         PREC_NONE},
   [TOKEN_WHILE]         = {NULL,          NULL,         PREC_NONE},
+  [TOKEN_YIELD]         = {NULL,          NULL,         PREC_NONE},
   [TOKEN_ERROR]         = {NULL,          NULL,         PREC_NONE},
   [TOKEN_THROW]         = {NULL,          NULL,         PREC_NONE},
   [TOKEN_TRY]           = {NULL,          NULL,         PREC_NONE},
@@ -2185,6 +2186,23 @@ static void synchronize() {
   }
 }
 
+static void yieldStatement() {
+  if (current->type == TYPE_SCRIPT) {
+    error("Can't yield from top-level code.");
+  } else if (current->type == TYPE_INITIALIZER) {
+    error("Cannot yield from an initializer.");
+  }
+
+  current->function->isGenerator = true;
+  if (match(TOKEN_SEMICOLON)) {
+    emitByte(OP_YIELD);
+  } else {
+    expression();
+    consume(TOKEN_SEMICOLON, "Expect ';' after yield value.");
+    emitByte(OP_YIELD);
+  }
+}
+
 static void declaration() {
   if (match(TOKEN_CLASS)) {
     classDeclaration();
@@ -2230,6 +2248,8 @@ static void statement() {
     returnStatement();
   } else if (match(TOKEN_WHILE)) {
     whileStatement();
+  } else if (match(TOKEN_YIELD)) {
+    yieldStatement();
   } else if (match(TOKEN_DO)) {
     doWhileStatement();
   } else if (match(TOKEN_LEFT_BRACE)) {
