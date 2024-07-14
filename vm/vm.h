@@ -105,6 +105,7 @@ ObjArray* getStackTrace();
 ObjInstance* throwException(ObjClass* exceptionClass, const char* format, ...);
 void push(Value value);
 Value pop();
+Value peek(int distance);
 
 char* arrowsString(const char* input);
 char* returnSpaces(int count);

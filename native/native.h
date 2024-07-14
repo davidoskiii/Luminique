@@ -8,6 +8,7 @@
 #define NATIVE_METHOD(className, name) static Value name##NativeMethodFor##className(Value receiver, int argCount, Value* args)
 #define DEF_FUNCTION(name, arity) defineNativeFunction(#name, arity, name##NativeFunction)
 #define DEF_METHOD(klass, className, name, arity) defineNativeMethod(klass, #name, arity, name##NativeMethodFor##className)
+#define DEF_INTERCEPTOR(klass, className, type, name, arity) defineNativeInterceptor(vm, klass, type, arity, name##NativeMethodFor##className)
 
 #define RETURN_NIL return NIL_VAL
 #define RETURN_FALSE return BOOL_VAL(false)

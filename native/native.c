@@ -9,6 +9,7 @@
 
 #include "native.h"
 #include "../assert/assert.h"
+#include "../interceptor/interceptor.h"
 #include "../memory/memory.h"
 #include "../string/string.h"
 
@@ -22,6 +23,52 @@ void defineNativeFunction(const char* name, int arity, NativeFunction function) 
   pop();
   pop();
 }
+
+void defineNativeInterceptor(ObjClass* klass, InterceptorType type, int arity, NativeMethod method) {
+  switch (type) {
+    case INTERCEPTOR_INIT:
+      defineNativeMethod(klass, "__init__", arity, method);
+      break;
+    case INTERCEPTOR_NEW:
+      defineNativeMethod(klass, "__new__", arity, method);
+      break;
+    case INTERCEPTOR_BEFORE_GET_PROPERTY:
+      defineNativeMethod(klass, "__beforeGetProprety__", 1, method);
+      break;
+    case INTERCEPTOR_AFTER_GET_PROPERTY:
+      defineNativeMethod(klass, "__afterGetProprety__", 2, method);
+      break;
+    case INTERCEPTOR_BEFORE_SET_PROPERTY:
+      defineNativeMethod(klass, "__beforeSetProprety__", 2, method);
+      break;
+    case INTERCEPTOR_AFTER_SET_PROPERTY: 
+      defineNativeMethod(klass, "__afterSetProprety__", 2, method);
+      break;
+    case INTERCEPTOR_BEFORE_INVOKE_METHOD:
+      defineNativeMethod(klass, "__beforeInvokeMethod__", 2, method);
+      break;
+    case INTERCEPTOR_AFTER_INVOKE_METHOD:
+      defineNativeMethod(klass, "__afterInvokeMethod__", 3, method);
+      break;
+    case INTERCEPTOR_UNDEFINED_PROPERTY:
+      defineNativeMethod(klass, "__undefinedProprety__", 1, method);
+      break;
+    case INTERCEPTOR_UNDEFINED_METHOD:
+      defineNativeMethod(klass, "__undefinedMethod__", 2, method);
+      break;
+    case INTERCEPTOR_BEFORE_THROW:
+      defineNativeMethod(klass, "__beforeThrow__", 2, method);
+      break;
+    case INTERCEPTOR_AFTER_THROW:
+      defineNativeMethod(klass, "__afterThrow__", 2, method);
+      break;
+    default: 
+      runtimeError("Unknown interceptor type %d.", type);
+      exit(70);
+  }
+  SET_CLASS_INTERCEPTOR(klass, type);
+}
+
 
 ObjClass* defineNativeClass(const char* name) {
   ObjString* className = copyString(name, (int)strlen(name));
