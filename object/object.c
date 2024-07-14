@@ -171,13 +171,34 @@ ObjClosure* newClosure(ObjFunction* function) {
   return closure;
 }
 
+ObjFrame* newFrame(CallFrame* callFrame) {
+  ObjFrame* frame = ALLOCATE_OBJ(ObjFrame, OBJ_FRAME, NULL);
+  frame->closure = callFrame->closure;
+  frame->ip = callFrame->ip;
+  frame->slots = callFrame->slots;
+  frame->handlerCount = callFrame->handlerCount;
+  for (int i = 0; i < frame->handlerCount; i++) {
+    frame->handlerStack[i] = callFrame->handlerStack[i];
+  }
+  return frame;
+}
+
 ObjFunction* newFunction() {
   ObjFunction* function = ALLOCATE_OBJ(ObjFunction, OBJ_FUNCTION, NULL);
   function->arity = 0;
   function->upvalueCount = 0;
+  function->isGenerator = false;
   function->name = NULL;
   initChunk(&function->chunk);
   return function;
+}
+
+ObjGenerator* newGenerator(ObjFrame* frame, ObjGenerator* parentGenerator) {
+  ObjGenerator* generator = ALLOCATE_OBJ(ObjGenerator, OBJ_GENERATOR, vm.generatorClass);
+  generator->frame = frame;
+  generator->parent = parentGenerator;
+  generator->state = GENERATOR_START;
+  return generator;
 }
 
 ObjInstance* newInstance(ObjClass* klass) {

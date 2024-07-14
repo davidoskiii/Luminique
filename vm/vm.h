@@ -3,15 +3,10 @@
 
 #include "../table/table.h"
 #include "../value/value.h"
+#include "../object/object.h"
 
 #define FRAMES_MAX 512 / 2 
 #define STACK_MAX (FRAMES_MAX * UINT8_COUNT)
-
-typedef struct {
-  uint16_t handlerAddress;
-  uint16_t finallyAddress;
-  ObjClass* exceptionClass;
-} ExceptionHandler;
 
 typedef struct CallFrame {
   ObjFunction* function;

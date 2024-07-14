@@ -163,10 +163,21 @@ static void blackenObject(Obj* object) {
       }
       break;
     }
+    case OBJ_FRAME: {
+      ObjFrame* frame = (ObjFrame*)object;
+      markObject((Obj*)frame->closure);
+      break;
+    }
     case OBJ_FUNCTION: {
       ObjFunction* function = (ObjFunction*)object;
       markObject((Obj*)function->name);
       markArray(&function->chunk.constants);
+      break;
+    }
+    case OBJ_GENERATOR: {
+      ObjGenerator* generator = (ObjGenerator*)object;
+      markObject((Obj*)generator->frame);
+      markObject((Obj*)generator->parent);
       break;
     }
     case OBJ_INSTANCE: {
@@ -277,11 +288,20 @@ static void freeObject(Obj* object) {
       FREE(ObjRecord, object);
       break;
     }
+    case OBJ_FRAME: {
+      ObjFrame* frame = (ObjFrame*)object;
+      FREE(ObjFrame, object);
+      break;
+    }
     case OBJ_FUNCTION: {
       ObjFunction* function = (ObjFunction*)object;
       freeChunk(&function->chunk);
       FREE(ObjFunction, object);
       break;
+    }
+    case OBJ_GENERATOR: {
+      FREE(ObjGenerator, object);
+      break; 
     }
     case OBJ_INSTANCE: {
       ObjInstance* instance = (ObjInstance*)object;
