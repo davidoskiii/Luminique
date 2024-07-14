@@ -2174,6 +2174,7 @@ static void synchronize() {
       case TOKEN_IF:
       case TOKEN_WHILE:
       case TOKEN_RETURN:
+      case TOKEN_YIELD:
         return;
 
       default:

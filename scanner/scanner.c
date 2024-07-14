@@ -284,6 +284,7 @@ static TokenType identifierType() {
       break;
     case 'u': return checkKeyword(1, 4, "sing", TOKEN_USING);
     case 'w': return checkKeyword(1, 4, "hile", TOKEN_WHILE);
+    case 'y': return checkKeyword(1, 4, "ield", TOKEN_YIELD);
   }
 
   return TOKEN_IDENTIFIER;
