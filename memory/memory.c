@@ -79,6 +79,12 @@ static void blackenObject(Obj* object) {
       markArray(&((ObjArray*)object)->elements);
       break;
     }
+    case OBJ_EXCEPTION: {
+      ObjException* exception = (ObjException*)object;
+      markObject((Obj*)exception->message);
+      markObject((Obj*)exception->stacktrace);
+      break;
+    }
     case OBJ_NODE: {
       ObjNode* node = (ObjNode*)object;
       markValue(node->element);
@@ -209,10 +215,15 @@ static void freeObject(Obj* object) {
 // #endif
 
   switch (object->type) {
-    case OBJ_ARRAY:
+    case OBJ_ARRAY: {
       freeValueArray(&((ObjArray*)object)->elements);
       FREE(ObjArray, object);
       break;
+    }
+    case OBJ_EXCEPTION: {
+      FREE(ObjException, object);
+      break;
+    }
     case OBJ_DICTIONARY: {
       ObjDictionary* dict = (ObjDictionary*)object;
       FREE_ARRAY(ObjEntry, dict->entries, dict->capacity);
