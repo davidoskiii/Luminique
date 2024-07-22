@@ -10,6 +10,7 @@ typedef struct CallFrame CallFrame;
 #include "../table/table.h"
 #include "../chunk/chunk.h"
 #include "../value/value.h"
+#include "../exception/exception.h"
 
 #define OBJ_TYPE(value) (AS_OBJ(value)->type)
 #define OBJ_KLASS(value) (AS_OBJ(value)->klass)
@@ -24,6 +25,7 @@ typedef struct CallFrame CallFrame;
 #define IS_FRAME(value) isObjType(value, OBJ_FRAME);
 #define IS_FUNCTION(value) isObjType(value, OBJ_FUNCTION)
 #define IS_GENERATOR(value) isObjType(value, OBJ_GENERATOR)
+#define IS_EXCEPTION(value) isObjType(value, OBJ_EXCEPTION)
 #define IS_INSTANCE(value) isObjType(value, OBJ_INSTANCE)
 #define IS_FILE(value) isObjType(value, OBJ_FILE)
 #define IS_RECORD(value) isObjType(value, OBJ_RECORD)
@@ -46,6 +48,7 @@ typedef struct CallFrame CallFrame;
 #define AS_FRAME(value) ((ObjFrame*)AS_OBJ(value))
 #define AS_FUNCTION(value) ((ObjFunction*)AS_OBJ(value))
 #define AS_GENERATOR(value) ((ObjGenerator*)AS_OBJ(value))
+#define AS_EXCEPTION(value) ((ObjException*)AS_OBJ(value))
 #define AS_INSTANCE(value) ((ObjInstance*)AS_OBJ(value))
 #define AS_FILE(value) ((ObjFile*)AS_OBJ(value))
 #define AS_RECORD(value) ((ObjRecord*)AS_OBJ(value))
@@ -70,6 +73,7 @@ typedef enum {
   OBJ_FRAME,
   OBJ_FUNCTION,
   OBJ_GENERATOR,
+  OBJ_EXCEPTION,
   OBJ_INSTANCE,
   OBJ_FILE,
   OBJ_RECORD,
@@ -93,12 +97,6 @@ typedef enum {
   GENERATOR_RETURN,
   GENERATOR_THROW
 } GeneratorState;
-
-typedef struct ExceptionHandler {
-  uint16_t handlerAddress;
-  uint16_t finallyAddress;
-  ObjClass* exceptionClass;
-} ExceptionHandler;
 
 struct Obj {
   ObjType type;
@@ -165,6 +163,11 @@ typedef struct ObjFrame {
   ExceptionHandler handlerStack[UINT4_MAX];
 } ObjFrame;
 
+struct ObjArray {
+  Obj obj;
+  ValueArray elements;
+};
+
 typedef struct ObjGenerator {
   Obj obj;
   ObjFrame* frame;
@@ -172,6 +175,12 @@ typedef struct ObjGenerator {
   GeneratorState state;
   Value current;
 } ObjGenerator;
+
+struct ObjException {
+  Obj obj;
+  ObjString* message;
+  ObjArray* stacktrace;
+};
 
 struct ObjModule {
   Obj obj;
@@ -242,11 +251,6 @@ typedef struct {
   ObjClosure* method;
 } ObjBoundMethod;
 
-typedef struct ObjArray {
-  Obj obj;
-  ValueArray elements;
-} ObjArray;
-
 typedef struct ObjDictionary {
   Obj obj;
   int capacity;
@@ -280,6 +284,7 @@ ObjBoundMethod* newBoundMethod(Value receiver, ObjClosure* method);
 ObjFrame* newFrame(CallFrame* callFrame);
 ObjFile* newFile(ObjString* name);
 ObjGenerator* newGenerator(ObjFrame* frame, ObjGenerator* parentGenerator);
+ObjException* newException(ObjString* message, ObjClass* klass);
 ObjRecord* newRecord(void* data);
 ObjEntry* newEntry(Value key, Value value);
 ObjArray* newArray();

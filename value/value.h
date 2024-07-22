@@ -13,6 +13,8 @@ typedef struct ObjFunction ObjFunction;
 typedef struct ObjClosure ObjClosure;
 typedef struct ObjUpvalue ObjUpvalue;
 typedef struct ObjModule ObjModule;
+typedef struct ObjArray ObjArray;
+typedef struct ObjException ObjException;
 
 #ifdef NAN_BOXING
 

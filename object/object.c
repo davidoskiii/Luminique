@@ -3,7 +3,6 @@
 #include <stdarg.h>
 
 #include "object.h"
-#include "../native/native.h"
 #include "../memory/memory.h"
 #include "../table/table.h"
 #include "../value/value.h"
@@ -200,6 +199,13 @@ ObjGenerator* newGenerator(ObjFrame* frame, ObjGenerator* parentGenerator) {
   generator->state = GENERATOR_START;
   generator->current = NIL_VAL;
   return generator;
+}
+
+ObjException* newException(ObjString* message, ObjClass* klass) {
+  ObjException* exception = ALLOCATE_OBJ(ObjException, OBJ_EXCEPTION, klass);
+  exception->message = message;
+  exception->stacktrace = newArray();
+  return exception;
 }
 
 ObjInstance* newInstance(ObjClass* klass) {

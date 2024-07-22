@@ -195,6 +195,74 @@ NATIVE_METHOD(Float, __format__) {
   RETURN_STRING_FMT("%g", AS_FLOAT(receiver));
 }
 
+NATIVE_METHOD(Generator, __init__) {
+  assertArgCount("Generator::__init__(closure, args)", 2, argCount);
+  assertArgIsClosure("Generator::__init__(closure, args)", args, 0);
+  assertArgIsArray("Generator::__init__(closure, args)", args, 1);
+
+  ObjGenerator* self = AS_GENERATOR(receiver);
+  ObjClosure* closure = AS_CLOSURE(args[0]);
+  ObjArray* arguments = AS_ARRAY(args[1]);
+
+  CallFrame callFrame = { 
+    .closure = closure, 
+    .ip = closure->function->chunk.code, 
+    .slots = vm.stackTop - arguments->elements.count - 1 
+  };
+
+  ObjFrame* frame = newFrame(&callFrame);
+
+  for (int i = 0; i < arguments->elements.count; i++) {
+    push(arguments->elements.values[i]);
+  }
+
+  self->frame = frame;
+  self->parent = vm.runningGenerator;
+  self->state = GENERATOR_START;
+  RETURN_OBJ(self);
+}
+
+NATIVE_METHOD(Generator, next) {
+  assertArgCount("Generator::next()", 0, argCount);
+  ObjGenerator* self = AS_GENERATOR(receiver);
+  if (self->state == GENERATOR_RETURN) RETURN_NIL;
+  else if (self->state == GENERATOR_RESUME) THROW_EXCEPTION(luminique::std::lang, UnsupportedOperationException, "Generator is already running.");
+  else if (self->state == GENERATOR_THROW) THROW_EXCEPTION(luminique::std::lang, UnsupportedOperationException, "Generator has already thrown an exception.");
+  else {
+    vm.runningGenerator = self;
+    self->state = GENERATOR_RESUME;
+    vm.apiStackDepth++;
+    Value result = callGenerator(self);
+    pop();
+    vm.apiStackDepth--;
+    self->current = result;
+    RETURN_VAL(result);
+  }
+}
+
+NATIVE_METHOD(Generator, returns) {
+  assertArgCount("Generator::returns(value)", 1, argCount);
+  ObjGenerator* self = AS_GENERATOR(receiver);
+  if (self->state == GENERATOR_RETURN) THROW_EXCEPTION(luminique::std::lang, UnsupportedOperationException, "Generator has already returned.");
+  else {
+    self->state = GENERATOR_RETURN;
+    self->current = args[0];
+    RETURN_VAL(args[0]);
+  }
+}
+
+NATIVE_METHOD(Generator, throws) {
+  assertArgCount("Generator::throws(exception)", 1, argCount);
+  assertArgIsException("Generator::throws(exception)", args, 0);
+  ObjGenerator* self = AS_GENERATOR(receiver);
+  if (self->state == GENERATOR_RETURN) THROW_EXCEPTION(luminique::std::lang, UnsupportedOperationException, "Generator has already returned.");
+  else {
+      ObjException* exception = AS_EXCEPTION(args[0]);
+      self->state = GENERATOR_THROW;
+      THROW_EXCEPTION(luminique::std::lang, exception->obj.klass, exception->message->chars);
+  }
+}
+
 // FUNCTION
 
 NATIVE_METHOD(Function, __init__) {

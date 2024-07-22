@@ -26,6 +26,7 @@
 #include "../graphics/graphics.h"
 #include "../network/network.h"
 #include "../statistics/statistics.h"
+#include "../exception/exception.h"
 #include "../debug/debug.h"
 #include "vm.h"
 
@@ -719,112 +720,6 @@ static void merge() {
   pop();
   pop();
   push(OBJ_VAL(a));
-}
-
-ObjArray* getStackTrace() {
-  ObjArray* stackTrace = newArray();
-  push(OBJ_VAL(stackTrace));
-  for (int i = vm.frameCount - 1; i >= 0; i--) {
-    char stackTraceBuffer[UINT8_MAX];
-    CallFrame* frame = &vm.frames[i];
-    ObjFunction* function = frame->closure->function;
-    size_t instruction = frame->ip - function->chunk.code - 1;
-    uint32_t line = function->chunk.lines[instruction];
-
-    uint8_t length = snprintf(stackTraceBuffer, UINT8_MAX, "[line %d] in %s()", line, function->name == NULL ? "script" : function->name->chars);
-    ObjString* stackElement = copyString(stackTraceBuffer, length);
-    writeValueArray(&stackTrace->elements, OBJ_VAL(stackElement));
-  }
-  pop();
-  return stackTrace;
-}
-
-static bool propagateException() {
-  ObjInstance* exception = AS_INSTANCE(peek(0));
-
-  while (vm.frameCount > 0) {
-    CallFrame* frame = &vm.frames[vm.frameCount - 1];
-    for (int i = frame->handlerCount; i > 0; i--) {
-      ExceptionHandler handler = frame->handlerStack[i - 1];
-      if (isObjInstanceOf(OBJ_VAL(exception), handler.exceptionClass)) {
-        frame->ip = &frame->closure->function->chunk.code[handler.handlerAddress];
-        return true;
-      } else if (handler.finallyAddress != UINT16_MAX){
-        push(TRUE_VAL);
-        frame->ip = &frame->closure->function->chunk.code[handler.finallyAddress];
-        return true;
-      }
-    }
-    vm.frameCount--;
-  }
-
-  ObjString* message = AS_STRING(getObjProperty(exception, "message"));
-  fprintf(stderr, "\n\033[1mUnhandled %s:\033[0m %s", exception->obj.klass->name->chars, message->chars);
-
-  CallFrame* frame = &vm.frames[vm.frameCount];
-  ObjFunction* function = frame->closure->function;
-  size_t instruction = frame->ip - function->chunk.code - 1;
-  int lineNumber = function->chunk.lines[instruction];
-  fprintf(stderr, "\n\033[1m%s:%d in ", vm.currentModule->path->chars, lineNumber);
-  if (function->name == NULL) {
-    fprintf(stderr, "script: \033[0m");
-  } else {
-    fprintf(stderr, "%s(): \033[0m", function->name->chars);
-  }
-
-  fprintf(stderr, "%s\n", message->chars);
-
-  char* line;
-  if (vm.repl) {
-    line = vm.currentModule->source;
-  } else {
-    line = getLine(vm.currentModule->source, lineNumber);
-  }
-
-  char* spaces = returnSpaces(digitsInNumber(lineNumber));
-  char* arrows = arrowsString(line);
-  fprintf(stderr, "   %d |    %s\n   %s |    \033[31;1m%s\033[0m\n   %s |\n", lineNumber, line, spaces, arrows, spaces);
-
-  if (!vm.repl) {
-    free(line);
-  }
-
-  free(spaces);
-  free(arrows);
-
-  fflush(stderr);
-  return false;
-}
-
-static void pushExceptionHandler(ObjClass* exceptionClass, uint16_t handlerAddress, uint16_t finallyAddress) {
-  CallFrame* frame = &vm.frames[vm.frameCount - 1];
-  if (frame->handlerCount >= UINT4_MAX) {
-    runtimeError("Too many nested exception handlers.");
-    exit(70);
-  }
-  frame->handlerStack[frame->handlerCount].handlerAddress = handlerAddress;
-  frame->handlerStack[frame->handlerCount].exceptionClass = exceptionClass;
-  frame->handlerStack[frame->handlerCount].finallyAddress = finallyAddress;
-  frame->handlerCount++;
-}
-
-ObjInstance* throwException(ObjClass* exceptionClass, const char* format, ...) {
-  char chars[UINT8_MAX];
-  va_list args;
-  va_start(args, format);
-  int length = vsnprintf(chars, UINT8_MAX, format, args);
-  va_end(args);
-  ObjString* message = copyString(chars, length);
-
-  ObjArray* stacktrace = getStackTrace();
-  ObjInstance* exception = newInstance(exceptionClass);
-  push(OBJ_VAL(exception));
-  setObjProperty(exception, "message", OBJ_VAL(message));
-  setObjProperty(exception, "stacktrace", OBJ_VAL(stacktrace));
-  if (!propagateException()) {
-    exit(70);
-  }
-  else return exception;
 }
 
 InterpretResult run() {
@@ -1686,7 +1581,7 @@ InterpretResult run() {
         vm.stackTop = frame->slots;
         push(result);
         if (vm.apiStackDepth > 0) return INTERPRET_OK;
-        LOAD_FRAME();
+        frame = &vm.frames[vm.frameCount - 1];
         break;
       }
     }
