@@ -33,13 +33,17 @@
 VM vm;
 static Stack namespaceStack;
 
+static void resetCallFrame(int index) {
+  CallFrame* frame = &vm.frames[index];
+  frame->closure = NULL;
+  frame->ip = NULL;
+  frame->slots = NULL;
+  frame->handlerCount = 0;
+}
+
 static void resetCallFrames() {
   for (int i = 0; i < FRAMES_MAX; i++) {
-    CallFrame* frame = &vm.frames[i];
-    frame->closure = NULL;
-    frame->ip = NULL;
-    frame->slots = NULL;
-    frame->handlerCount = 0;
+    resetCallFrame(i);
   }
 }
 
@@ -1571,7 +1575,6 @@ InterpretResult run() {
         break;
       }
       case OP_YIELD: { 
-        printf("Yield control back to caller.\n");
         Value result = pop();
         vm.runningGenerator->frame->closure = frame->closure;
         vm.runningGenerator->frame->ip = frame->ip;
@@ -1581,7 +1584,6 @@ InterpretResult run() {
         vm.frameCount--;
 
         vm.stackTop = frame->slots;
-        push(result);
         if (vm.apiStackDepth > 0) return INTERPRET_OK;
         frame = &vm.frames[vm.frameCount - 1];
         break;

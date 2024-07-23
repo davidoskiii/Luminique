@@ -934,6 +934,18 @@ void registerLangPackage() {
   DEF_METHOD(vm.exceptionClass, Exception, __str__, 0);
   DEF_METHOD(vm.exceptionClass, Exception, __format__, 0);
 
+  vm.generatorClass = defineNativeClass("Generator");
+  bindSuperclass(vm.generatorClass, vm.objectClass);
+  DEF_METHOD(vm.generatorClass, Generator, next, 0);
+  DEF_METHOD(vm.generatorClass, Generator, returns, 1);
+  DEF_METHOD(vm.generatorClass, Generator, throws, 1);
+
+  ObjClass* generatorMetaclass = vm.generatorClass->obj.klass;
+  setClassProperty(vm.generatorClass, "stateStart", INT_VAL(GENERATOR_START));
+  setClassProperty(vm.generatorClass, "stateYield", INT_VAL(GENERATOR_YIELD));
+  setClassProperty(vm.generatorClass, "stateResume", INT_VAL(GENERATOR_RESUME));
+  setClassProperty(vm.generatorClass, "stateReturn", INT_VAL(GENERATOR_RETURN));
+  setClassProperty(vm.generatorClass, "stateThrow", INT_VAL(GENERATOR_THROW));
 
   ObjClass* runtimeExceptionClass = defineNativeException("RuntimeException", vm.exceptionClass);
   defineNativeException("ArithmeticException", runtimeExceptionClass);
