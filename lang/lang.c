@@ -16,7 +16,12 @@
 // BOOL
 
 NATIVE_METHOD(Bool, __init__) {
-  THROW_EXCEPTION(luminique::std::lang, InstantiationException, "Cannot instantiate from class Bool.");
+  assertArgCount("Bool::__init__(value)", 1, argCount);
+  if (isFalsey(args[0])) {
+    RETURN_BOOL(false);
+  } else {
+    RETURN_BOOL(true);
+  }
 }
 
 NATIVE_METHOD(Bool, clone) {
@@ -177,7 +182,9 @@ NATIVE_METHOD(Enum, __format__) {
 // FLOAT
 
 NATIVE_METHOD(Float, __init__) {
-  THROW_EXCEPTION(luminique::std::lang, InstantiationException, "Cannot instantiate from class Float.");
+  assertArgCount("Float::__init__(value)", 1, argCount);
+  assertArgIsNumber("Float::__int__(value)", args, 0);
+  RETURN_FLOAT(args[0]);
 }
 
 NATIVE_METHOD(Float, clone) {
@@ -383,7 +390,9 @@ NATIVE_METHOD(Method, upvalueCount) {
 // INT
 
 NATIVE_METHOD(Int, __init__) {
-  THROW_EXCEPTION(luminique::std::lang, InstantiationException, "Cannot instantiate from class Int.");
+  assertArgCount("Int::__init__(value)", 1, argCount);
+  assertArgIsNumber("Int::__int__(value)", args, 0);
+  RETURN_INT(args[0]);
 }
 
 NATIVE_METHOD(Int, __add__) {
@@ -453,7 +462,9 @@ NATIVE_METHOD(Nil, __format__) {
 // NUMBER
 
 NATIVE_METHOD(Number, __init__) {
-  THROW_EXCEPTION(luminique::std::lang, InstantiationException, "Cannot instantiate from class Number.");
+  assertArgCount("Number::__init__(value)", 1, argCount);
+  assertArgIsNumber("Number::__int__(value)", args, 0);
+  RETURN_NUMBER(args[0]);
 }
 
 NATIVE_METHOD(Number, __equal__) {

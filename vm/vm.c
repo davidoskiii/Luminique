@@ -693,7 +693,9 @@ void bindSuperclass(ObjClass* subclass, ObjClass* superclass) {
 }
 
 bool isFalsey(Value value) {
-  return IS_NIL(value) || (IS_BOOL(value) && !AS_BOOL(value));
+  return IS_NIL(value) || (IS_BOOL(value) && !AS_BOOL(value)) || 
+  (IS_NUMBER(value) && (AS_NUMBER(value) == 0)) || (IS_ARRAY(value) && (AS_ARRAY(value)->elements.count == 0)) ||
+  (IS_DICTIONARY(value) && (AS_DICTIONARY(value)->count == 0));
 }
 
 static void concatenate() {
