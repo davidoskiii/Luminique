@@ -647,7 +647,7 @@ NATIVE_METHOD(Collection, each) {
 
   while (!IS_NIL(index)) {
     Value element = callReentrant(receiver, nextValueMethod, index);
-    Value result = callReentrant(receiver, OBJ_VAL(closure), element);
+    callReentrant(receiver, OBJ_VAL(closure), element);
     index = callReentrant(receiver, nextMethod, index);
   }
 
@@ -729,8 +729,6 @@ NATIVE_METHOD(Collection, select) {
 
 NATIVE_METHOD(Collection, toArray) {
   assertArgCount("Collection::toArray(closure)", 1, argCount);
-  ObjClosure* closure = AS_CLOSURE(args[0]);
-  Value addMethod = getObjMethod(receiver, "append");
   Value nextMethod = getObjMethod(receiver, "next");
   Value nextValueMethod = getObjMethod(receiver, "nextValue");
   Value index = callReentrant(receiver, nextMethod, NIL_VAL);
@@ -1729,6 +1727,7 @@ void registerCollectionPackage() {
 
 	vm.arrayClass = defineNativeClass("Array");
 	bindSuperclass(vm.arrayClass, listClass);
+  vm.arrayClass->classType = OBJ_ARRAY;
 	DEF_METHOD(vm.arrayClass, Array, __init__, 0);
 	DEF_METHOD(vm.arrayClass, Array, append, 1);
   DEF_METHOD(vm.arrayClass, Array, extend, 1);
@@ -1758,6 +1757,7 @@ void registerCollectionPackage() {
 
 	vm.dictionaryClass = defineNativeClass("Dictionary");
 	bindSuperclass(vm.dictionaryClass, collectionClass);
+  vm.dictionaryClass->classType = OBJ_DICTIONARY;
 	DEF_METHOD(vm.dictionaryClass, Dictionary, __init__, 0);
 	DEF_METHOD(vm.dictionaryClass, Dictionary, clear, 0);
 	DEF_METHOD(vm.dictionaryClass, Dictionary, containsKey, 1);
@@ -1779,6 +1779,7 @@ void registerCollectionPackage() {
 
   vm.rangeClass = defineNativeClass("Range");
   bindSuperclass(vm.rangeClass, listClass);
+  vm.rangeClass->classType = OBJ_RANGE;
   DEF_METHOD(vm.rangeClass, Range, __init__, 2);
   DEF_METHOD(vm.rangeClass, Range, append, 1);
   DEF_METHOD(vm.rangeClass, Range, extend, 1);
@@ -1807,6 +1808,7 @@ void registerCollectionPackage() {
 
   vm.nodeClass = defineNativeClass("Node");
   bindSuperclass(vm.nodeClass, vm.objectClass);
+  vm.nodeClass->classType = OBJ_NODE;
   DEF_METHOD(vm.nodeClass, Node, __init__, 3);
   DEF_METHOD(vm.nodeClass, Node, clone, 0);
   DEF_METHOD(vm.nodeClass, Node, element, 0);

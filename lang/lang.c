@@ -46,24 +46,33 @@ NATIVE_METHOD(Bool, __format__) {
 NATIVE_METHOD(Exception, __init__) {
   assertArgCount("Exception::__init__(message)", 1, argCount);
   assertArgIsString("Exception::__init__(message)", args, 0);
-  ObjInstance* exception = AS_INSTANCE(receiver);
-  setObjProperty(exception, "message", args[0]);
-  setObjProperty(exception, "stacktrace", NIL_VAL);
-  RETURN_OBJ(exception);
+  ObjException* self = AS_EXCEPTION(receiver);
+  self->message = AS_STRING(args[0]);
+  RETURN_OBJ(self);
+}
+
+NATIVE_METHOD(Exception, message) {
+  assertArgCount("Exception::message()", 0, argCount);
+  ObjException* self = AS_EXCEPTION(receiver);
+  RETURN_OBJ(self->message);
+}
+
+NATIVE_METHOD(Exception, stacktrace) {
+  assertArgCount("Exception::stacktrace()", 0, argCount);
+  ObjException* self = AS_EXCEPTION(receiver);
+  RETURN_OBJ(self->stacktrace);
 }
 
 NATIVE_METHOD(Exception, __str__) {
   assertArgCount("Exception::__str__()", 0, argCount);
-  ObjInstance* self = AS_INSTANCE(receiver);
-  Value message = getObjProperty(self, "message");
-  RETURN_STRING_FMT("<Exception %s - %s>", self->obj.klass->name->chars, AS_CSTRING(message));
+  ObjException* self = AS_EXCEPTION(receiver);
+  RETURN_STRING_FMT("<Exception %s - %s>", self->obj.klass->name->chars, self->message->chars);
 }
 
 NATIVE_METHOD(Exception, __format__) {
   assertArgCount("Exception::__format__()", 0, argCount);
-  ObjInstance* self = AS_INSTANCE(receiver);
-  Value message = getObjProperty(self, "message");
-  RETURN_STRING_FMT("<Exception %s - %s>", self->obj.klass->name->chars, AS_CSTRING(message));
+  ObjException* self = AS_EXCEPTION(receiver);
+  RETURN_STRING_FMT("<Exception %s - %s>", self->obj.klass->name->chars, self->message->chars);
 }
 
 // CLASS
@@ -72,7 +81,7 @@ NATIVE_METHOD(Class, __init__) {
   assertArgCount("Class::__init__(name, superclass)", 2, argCount);
   assertArgIsString("Class::__init__(name, superclass)", args, 0);
   assertArgIsClass("Class::__init__(name, superclass)", args, 1);
-  ObjClass* klass = newClass(AS_STRING(args[0]));
+  ObjClass* klass = newClass(AS_STRING(args[0]), OBJ_INSTANCE);
   bindSuperclass(klass, AS_CLASS(args[1]));
   RETURN_OBJ(klass);
 }
@@ -879,6 +888,7 @@ void registerLangPackage() {
   vm.currentNamespace = vm.langNamespace;
 
 	vm.objectClass = defineNativeClass("Object");
+  vm.objectClass->classType = OBJ_INSTANCE;
   DEF_METHOD(vm.objectClass, Object, clone, 0);
   DEF_METHOD(vm.objectClass, Object, equals, 1);
   DEF_METHOD(vm.objectClass, Object, getClass, 0);
@@ -896,6 +906,7 @@ void registerLangPackage() {
 
   vm.classClass = defineNativeClass("Class");
   bindSuperclass(vm.classClass, vm.objectClass);
+  vm.classClass->classType = OBJ_CLASS;
   DEF_METHOD(vm.classClass, Class, __init__, 2);
   DEF_METHOD(vm.classClass, Class, clone, 0);
   DEF_METHOD(vm.classClass, Class, getClass, 0);
@@ -911,6 +922,7 @@ void registerLangPackage() {
 
   vm.enumClass = defineNativeClass("Enum");
   bindSuperclass(vm.enumClass, vm.objectClass);
+  vm.enumClass->classType = OBJ_ENUM;
   DEF_METHOD(vm.enumClass, Enum, __init__, 1);
   DEF_METHOD(vm.enumClass, Enum, clone, 0);
   DEF_METHOD(vm.enumClass, Enum, name, 0);
@@ -919,6 +931,7 @@ void registerLangPackage() {
 
   vm.namespaceClass = defineNativeClass("Namespace");
   bindSuperclass(vm.namespaceClass, vm.objectClass);
+  vm.namespaceClass->classType = OBJ_NAMESPACE;
   DEF_METHOD(vm.namespaceClass, Namespace, __init__, 0);
   DEF_METHOD(vm.namespaceClass, Namespace, clone, 0);
   DEF_METHOD(vm.namespaceClass, Namespace, enclosing, 0);
@@ -930,22 +943,12 @@ void registerLangPackage() {
 
   vm.exceptionClass = defineNativeClass("Exception");
   bindSuperclass(vm.exceptionClass, vm.objectClass);
+  vm.exceptionClass->classType = OBJ_EXCEPTION;
   DEF_METHOD(vm.exceptionClass, Exception, __init__, 1);
+  DEF_METHOD(vm.exceptionClass, Exception, message, 0);
+  DEF_METHOD(vm.exceptionClass, Exception, stacktrace, 0);
   DEF_METHOD(vm.exceptionClass, Exception, __str__, 0);
   DEF_METHOD(vm.exceptionClass, Exception, __format__, 0);
-
-  vm.generatorClass = defineNativeClass("Generator");
-  bindSuperclass(vm.generatorClass, vm.objectClass);
-  DEF_METHOD(vm.generatorClass, Generator, next, 0);
-  DEF_METHOD(vm.generatorClass, Generator, returns, 1);
-  DEF_METHOD(vm.generatorClass, Generator, throws, 1);
-
-  ObjClass* generatorMetaclass = vm.generatorClass->obj.klass;
-  setClassProperty(vm.generatorClass, "stateStart", INT_VAL(GENERATOR_START));
-  setClassProperty(vm.generatorClass, "stateYield", INT_VAL(GENERATOR_YIELD));
-  setClassProperty(vm.generatorClass, "stateResume", INT_VAL(GENERATOR_RESUME));
-  setClassProperty(vm.generatorClass, "stateReturn", INT_VAL(GENERATOR_RETURN));
-  setClassProperty(vm.generatorClass, "stateThrow", INT_VAL(GENERATOR_THROW));
 
   ObjClass* runtimeExceptionClass = defineNativeException("RuntimeException", vm.exceptionClass);
   defineNativeException("ArithmeticException", runtimeExceptionClass);
@@ -956,6 +959,20 @@ void registerLangPackage() {
   defineNativeException("AssertException", runtimeExceptionClass);
   defineNativeException("InstantiationException", runtimeExceptionClass);
   defineNativeException("CallException", runtimeExceptionClass);
+
+  vm.generatorClass = defineNativeClass("Generator");
+  bindSuperclass(vm.generatorClass, vm.objectClass);
+  vm.generatorClass->classType = OBJ_GENERATOR;
+  DEF_METHOD(vm.generatorClass, Generator, next, 0);
+  DEF_METHOD(vm.generatorClass, Generator, returns, 1);
+  DEF_METHOD(vm.generatorClass, Generator, throws, 1);
+
+  ObjClass* generatorMetaclass = vm.generatorClass->obj.klass;
+  setClassProperty(vm.generatorClass, "stateStart", INT_VAL(GENERATOR_START));
+  setClassProperty(vm.generatorClass, "stateYield", INT_VAL(GENERATOR_YIELD));
+  setClassProperty(vm.generatorClass, "stateResume", INT_VAL(GENERATOR_RESUME));
+  setClassProperty(vm.generatorClass, "stateReturn", INT_VAL(GENERATOR_RETURN));
+  setClassProperty(vm.generatorClass, "stateThrow", INT_VAL(GENERATOR_THROW));
 
 	vm.nilClass = defineNativeClass("Nil");
 	bindSuperclass(vm.nilClass, vm.objectClass);
@@ -1008,6 +1025,7 @@ void registerLangPackage() {
 
   vm.stringClass = defineNativeClass("String");
   bindSuperclass(vm.stringClass, vm.objectClass);
+  vm.stringClass->classType = OBJ_STRING;
   DEF_METHOD(vm.stringClass, String, __init__, 1);
   DEF_METHOD(vm.stringClass, String, capitalize, 0);
   DEF_METHOD(vm.stringClass, String, clone, 0);
@@ -1040,6 +1058,7 @@ void registerLangPackage() {
 
   vm.functionClass = defineNativeClass("Function");
   bindSuperclass(vm.functionClass, vm.objectClass);
+  vm.functionClass->classType = OBJ_FUNCTION;
   DEF_METHOD(vm.functionClass, Function, __init__, 0);
   DEF_METHOD(vm.functionClass, Function, arity, 0);
   DEF_METHOD(vm.functionClass, Function, clone, 0);
@@ -1052,6 +1071,7 @@ void registerLangPackage() {
 
   vm.methodClass = defineNativeClass("Method");
   bindSuperclass(vm.methodClass, vm.objectClass);
+  vm.methodClass->classType = OBJ_FUNCTION;
   DEF_METHOD(vm.methodClass, Method, __init__, 0);
   DEF_METHOD(vm.methodClass, Method, arity, 0);
   DEF_METHOD(vm.methodClass, Method, clone, 0);

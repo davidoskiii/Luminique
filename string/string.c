@@ -9,8 +9,6 @@
 #include "../vm/vm.h"
 #include "string.h"
 
-#define ALLOCATE_OBJ(type, objectType, objectClass) (type*)allocateObject(sizeof(type), objectType, objectClass)
-
 static ObjString* allocateString(char* chars, int length, uint32_t hash) {
   ObjString* string = ALLOCATE_OBJ(ObjString, OBJ_STRING, vm.stringClass);
   string->length = length;

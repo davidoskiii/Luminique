@@ -103,8 +103,9 @@ ObjDictionary* newDictionary() {
   return dict;
 }
 
-ObjClass* newClass(ObjString* name) {
+ObjClass* newClass(ObjString* name, ObjType classType) {
   ObjClass* klass = ALLOCATE_OBJ(ObjClass, OBJ_CLASS, vm.classClass);
+  klass->classType = classType;
   klass->name = name;
   klass->namespace_ = vm.currentNamespace;
   klass->superclass = NULL;
@@ -417,6 +418,10 @@ void printObject(Value value) {
       #endif
       printf("<object %s>", AS_OBJ(value)->klass->name->chars);
       break;
+    case OBJ_EXCEPTION: {
+      printf("<Exception %s - %s>", AS_EXCEPTION(value)->obj.klass->name->chars, AS_EXCEPTION(value)->message->chars);
+      break;
+    }
     case OBJ_NATIVE_FUNCTION:
       printf("<native function %s>", AS_NATIVE_FUNCTION(value)->name->chars);
       break;

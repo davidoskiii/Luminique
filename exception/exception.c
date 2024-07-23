@@ -96,6 +96,8 @@ ObjException* throwNativeException(const char* namespace_, const char* exception
   ObjException* exception = newException(message, exceptionClass);
   exception->stacktrace = stacktrace;
   push(OBJ_VAL(exception));
-  if (!propagateException()) exit(70);
+  if (!propagateException()) {
+    exit(70); return exception;
+  }
   else return exception;
 }

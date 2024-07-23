@@ -885,7 +885,7 @@ static void dictionary(bool canAssign) {
 
 static void preinc(bool canAssign) {
   if (parser.previous.type == TOKEN_IDENTIFIER) {
-    uint8_t incrementOp, getOp;
+    uint8_t incrementOp;
     bool isConstant = false;
     Token name = parser.previous;
     int arg = resolveLocal(current, &name);
@@ -913,7 +913,7 @@ static void preinc(bool canAssign) {
 
 static void predec(bool canAssign) {
   if (parser.previous.type == TOKEN_IDENTIFIER) {
-    uint8_t decrementOp, getOp;
+    uint8_t decrementOp;
     bool isConstant = false;
     Token name = parser.previous;
     int arg = resolveLocal(current, &name);
@@ -1218,11 +1218,6 @@ static void closure(bool canAssign) {
 
 static void lambda(bool canAssign) {
   function(TYPE_LAMBDA);
-}
-
-static bool isInNamespace() {
-  if (vm.currentNamespace != vm.rootNamespace) return true;
-  else return false;
 }
 
 static void namedVariable(Token name, bool canAssign) {

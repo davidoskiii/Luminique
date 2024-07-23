@@ -492,6 +492,26 @@ Value callGenerator(ObjGenerator* generator) {
   return pop();
 }
 
+static Value createObject(ObjClass* klass, int argCount) {
+  switch (klass->classType) {
+    case OBJ_ARRAY: return OBJ_VAL(newArray());
+    case OBJ_BOUND_METHOD: return OBJ_VAL(newBoundMethod(NIL_VAL, NULL));
+    case OBJ_CLASS: return OBJ_VAL(ALLOCATE_CLASS(klass));
+    case OBJ_CLOSURE: return OBJ_VAL(ALLOCATE_CLOSURE(klass));
+    case OBJ_DICTIONARY: return OBJ_VAL(newDictionary());
+    case OBJ_ENTRY: return OBJ_VAL(newEntry(NIL_VAL, NIL_VAL));
+    case OBJ_EXCEPTION: return OBJ_VAL(newException(emptyString(), klass));
+    case OBJ_FILE: return OBJ_VAL(newFile(NULL));
+    case OBJ_INSTANCE: return OBJ_VAL(newInstance(klass));
+    case OBJ_NAMESPACE: return OBJ_VAL(ALLOCATE_NAMESPACE(klass));
+    case OBJ_NODE: return OBJ_VAL(newNode(NIL_VAL, NULL, NULL));
+    case OBJ_RANGE: return OBJ_VAL(newRange(0, 1));
+    case OBJ_RECORD: return OBJ_VAL(newRecord(NULL));
+    case OBJ_STRING: return OBJ_VAL(ALLOCATE_STRING(0, klass));
+    default: return NIL_VAL;
+  }
+}
+
 static bool callValue(Value callee, int argCount) {
   if (IS_OBJ(callee)) {
     switch (OBJ_TYPE(callee)) {
@@ -502,7 +522,7 @@ static bool callValue(Value callee, int argCount) {
       }
       case OBJ_CLASS: {
         ObjClass* klass = AS_CLASS(callee);
-        vm.stackTop[-argCount - 1] = OBJ_VAL(newInstance(klass));
+        vm.stackTop[-argCount - 1] = createObject(klass, argCount);
         Value initializer;
         if (tableGet(&klass->methods, vm.initString, &initializer)) {
           return callMethod(initializer, argCount);
@@ -693,6 +713,7 @@ void bindSuperclass(ObjClass* subclass, ObjClass* superclass) {
   }
   subclass->superclass = superclass;
   subclass->interceptors = superclass->interceptors;
+  subclass->classType = superclass->classType;
   tableAddAll(&superclass->methods, &subclass->methods);
 }
 
@@ -1211,7 +1232,7 @@ InterpretResult run() {
       }
       case OP_CLASS: {
         ObjString* name = READ_STRING();
-        push(OBJ_VAL(newClass(name)));
+        push(OBJ_VAL(newClass(name, OBJ_INSTANCE)));
         tableSet(&vm.currentNamespace->values, name, peek(0));
         break;
       }
@@ -1472,12 +1493,13 @@ InterpretResult run() {
       }
       case OP_THROW: {
         ObjArray* stackTrace = getStackTrace();
-        Value exception = peek(0);
-        if (!isObjInstanceOf(exception, vm.exceptionClass)) {
+        Value value = peek(0);
+        if (!isObjInstanceOf(value, vm.exceptionClass)) {
           runtimeError("Only instances of class Exception may be thrown.");
           return INTERPRET_RUNTIME_ERROR;
         }
-        setObjProperty(AS_INSTANCE(exception), "stacktrace", OBJ_VAL(stackTrace));
+        ObjException* exception = AS_EXCEPTION(value);
+        exception->stacktrace = stackTrace;
         if (propagateException()) {
           frame = &vm.frames[vm.frameCount - 1];
           break;

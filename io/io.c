@@ -154,7 +154,6 @@ NATIVE_METHOD(File, __init__) {
   assertArgCount("File::__init__(pathname)", 1, argCount);
   assertArgIsString("File::__init__(pathname)", args, 0);
   ObjFile* self = newFile(AS_STRING(args[0]));
-  struct stat fileStat;
   RETURN_OBJ(self);
 }
 
@@ -526,6 +525,7 @@ void registerIOPackage() {
 
   vm.fileClass = defineNativeClass("File");
   bindSuperclass(vm.fileClass, vm.objectClass);
+  vm.fileClass->classType = OBJ_FILE;
   DEF_METHOD(vm.fileClass, File, __init__, 1);
   DEF_METHOD(vm.fileClass, File, create, 0);
   DEF_METHOD(vm.fileClass, File, delete, 0);

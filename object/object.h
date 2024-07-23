@@ -15,6 +15,12 @@ typedef struct CallFrame CallFrame;
 #define OBJ_TYPE(value) (AS_OBJ(value)->type)
 #define OBJ_KLASS(value) (AS_OBJ(value)->klass)
 
+#define ALLOCATE_OBJ(type, objectType, objectClass) (type*)allocateObject(sizeof(type), objectType, objectClass)
+#define ALLOCATE_CLASS(classClass) ALLOCATE_OBJ(ObjClass, OBJ_CLASS, classClass)
+#define ALLOCATE_CLOSURE(closureClass) ALLOCATE_OBJ(ObjClosure, OBJ_CLOSURE, closureClass)
+#define ALLOCATE_NAMESPACE(namespaceClass) ALLOCATE_OBJ(ObjNamespace, OBJ_NAMESPACE, namespaceClass)
+#define ALLOCATE_STRING(length, stringClass) (ObjString*)allocateObject(sizeof(ObjString) + length + 1, OBJ_STRING, stringClass)
+
 #define IS_NAMESPACE(value) isObjType(value, OBJ_NAMESPACE)
 #define IS_MODULE(value) isObjType(value, OBJ_MODULE)
 #define IS_ARRAY(value) isObjType(value, OBJ_ARRAY)
@@ -223,13 +229,19 @@ struct ObjClosure {
 struct ObjClass {
   Obj obj;
   ObjString* name;
+
+  ObjType classType;
+
   struct ObjNamespace* namespace_;
   struct ObjClass* superclass;
+
   uint16_t interceptors;
+
   Table methods;
   Table fields;
   Table getters;
   Table setters;
+
   bool isNative;
 };
 
@@ -290,7 +302,7 @@ ObjEntry* newEntry(Value key, Value value);
 ObjArray* newArray();
 ObjArray* copyArray(ValueArray elements, int fromIndex, int toIndex);
 ObjDictionary* newDictionary();
-ObjClass* newClass(ObjString* name);
+ObjClass* newClass(ObjString* name, ObjType classType);
 ObjEnum* newEnum(ObjString* name);
 ObjModule* newModule(ObjString* path);
 ObjNamespace* newNamespace(ObjString* shortName, ObjNamespace* enclosing);
