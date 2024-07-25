@@ -41,7 +41,7 @@ println(dict["age"]); // fails
 println(dict);
 
 print("Current Length of the dictionary is: ");
-println(dict.length());
+println(dict.length);
 
 println("");
 
@@ -51,7 +51,7 @@ dict.removeAt("isAdmin");
 println(dict);
 print("New Length of the dictionary is: ");
 
-println(dict.length());
+println(dict.length);
 print("Clearing dictionary: ");
 
 dict.clear();

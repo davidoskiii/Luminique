@@ -667,7 +667,7 @@ NATIVE_METHOD(Collection, isEmpty) {
 }
 
 NATIVE_METHOD(Collection, length) {
-  assertArgCount("Collection::length()", 1, argCount);
+  assertArgCount("Collection::length()", 0, argCount);
   Value nextMethod = getObjMethod(receiver, "next");
   Value index = callReentrant(receiver, nextMethod, NIL_VAL);
   
@@ -871,11 +871,6 @@ NATIVE_METHOD(Array, lastIndexOf) {
 	RETURN_INT(arrayLastIndexOf(self, args[0]));
 }
 
-NATIVE_METHOD(Array, length) {
-	assertArgCount("Array::length()", 0, argCount);
-	RETURN_INT(AS_ARRAY(receiver)->elements.count);
-}
-
 NATIVE_METHOD(Array, remove) {
 	assertArgCount("Array::remove(element)", 1, argCount);
 	ObjArray* self = AS_ARRAY(receiver);
@@ -964,6 +959,17 @@ NATIVE_METHOD(Array, __format__) {
 	RETURN_OBJ(arrayToString(AS_ARRAY(receiver)));
 }
 
+NATIVE_METHOD(Array, __undefinedProperty__) {
+  assertArgCount("Array::__undefinedProperty__(name)", 1, argCount);
+  assertArgIsString("Array::__undefinedProperty__(name)", args, 0);
+  ObjString* property = AS_STRING(args[0]);
+
+  if (matchStringName(property, "length", 6)) {
+    RETURN_INT(AS_ARRAY(receiver)->elements.count);
+  } else THROW_EXCEPTION_FMT(luminique::std::lang, NotImplementedException, "Property %s does not exist in %s.", 
+    AS_CSTRING(args[0]), valueToString(receiver));
+}
+
 // DICTIONARY
 
 NATIVE_METHOD(Dictionary, __init__) {
@@ -1029,11 +1035,6 @@ NATIVE_METHOD(Dictionary, isEmpty) {
 	RETURN_BOOL(AS_DICTIONARY(receiver)->count == 0);
 }
 
-NATIVE_METHOD(Dictionary, length) {
-	assertArgCount("Dictionary::length()", 0, argCount);
-  RETURN_INT(dictLength(AS_DICTIONARY(receiver)));
-}
-
 NATIVE_METHOD(Dictionary, next) {
   assertArgCount("Dictionary::next(index)", 1, argCount);
   ObjDictionary* self = AS_DICTIONARY(receiver);
@@ -1095,6 +1096,17 @@ NATIVE_METHOD(Dictionary, __format__) {
 	RETURN_OBJ(dictToString(AS_DICTIONARY(receiver)));
 }
 
+NATIVE_METHOD(Dictionary, __undefinedProperty__) {
+  assertArgCount("Dictionary::__undefinedProperty__(name)", 1, argCount);
+  assertArgIsString("Dictionary::__undefinedProperty__(name)", args, 0);
+  ObjString* property = AS_STRING(args[0]);
+
+  if (matchStringName(property, "length", 6)) {
+    RETURN_INT(AS_DICTIONARY(receiver)->count);
+  } else THROW_EXCEPTION_FMT(luminique::std::lang, NotImplementedException, "Property %s does not exist in %s.", 
+    AS_CSTRING(args[0]), valueToString(receiver));
+}
+
 NATIVE_METHOD(Range, __init__) {
 	assertArgCount("Range::__init__()", 2, argCount);
   assertArgIsInt("Range::__init__(from, to)", args, 0);
@@ -1122,12 +1134,6 @@ NATIVE_METHOD(Range, contains) {
   else RETURN_BOOL(element >= self->to && element <= self->from);
 }
 
-NATIVE_METHOD(Range, from) {
-  assertArgCount("Range::from()", 0, argCount);
-  ObjRange* self = AS_RANGE(receiver);
-  RETURN_INT(self->from);
-}
-
 NATIVE_METHOD(Range, getAt) {
   assertArgCount("Range::getAt(index)", 1, argCount);
   assertArgIsInt("Range::getAt(index)", args, 0);
@@ -1138,12 +1144,6 @@ NATIVE_METHOD(Range, getAt) {
   int max = (self->from < self->to) ? self->to : self->from;
   assertIntWithinRange("Range::getAt(index)", index, min, max, 0);
   RETURN_INT(self->from + index);
-}
-
-NATIVE_METHOD(Range, length) {
-  assertArgCount("Range::length()", 0, argCount);
-  ObjRange* self = AS_RANGE(receiver);
-  RETURN_INT(abs(self->to - self->from) + 1);
 }
 
 NATIVE_METHOD(Range, max) {
@@ -1209,12 +1209,6 @@ NATIVE_METHOD(Range, step) {
   RETURN_NIL;
 }
 
-NATIVE_METHOD(Range, to) {
-  assertArgCount("Range::to()", 0, argCount);
-  ObjRange* self = AS_RANGE(receiver);
-  RETURN_INT(self->to);
-}
-
 NATIVE_METHOD(Range, toArray) {
   assertArgCount("Range::toArray()", 0, argCount);
   ObjRange* self = AS_RANGE(receiver);
@@ -1253,6 +1247,22 @@ NATIVE_METHOD(Range, __format__) {
   assertArgCount("Range::__format__()", 0, argCount);
   ObjRange* self = AS_RANGE(receiver);
   RETURN_STRING_FMT("%d...%d", self->from, self->to);
+}
+
+NATIVE_METHOD(Range, __undefinedProperty__) {
+  assertArgCount("Range::__undefinedProperty__(name)", 1, argCount);
+  assertArgIsString("Range::__undefinedProperty__(name)", args, 0);
+  ObjString* property = AS_STRING(args[0]);
+  ObjRange* self = AS_RANGE(receiver);
+
+  if (matchStringName(property, "length", 6)) {
+    RETURN_INT(abs(self->to - self->from) + 1);
+  } else if (matchStringName(property, "fromv", 5)) {
+    RETURN_INT(self->from);
+  } else if (matchStringName(property, "tov", 3)) {
+    RETURN_INT(self->to);
+  } else THROW_EXCEPTION_FMT(luminique::std::lang, NotImplementedException, "Property %s does not exist in %s.", 
+    AS_CSTRING(args[0]), valueToString(receiver));
 }
 
 NATIVE_METHOD(List, eachIndex) {
@@ -1741,7 +1751,6 @@ void registerCollectionPackage() {
 	DEF_METHOD(vm.arrayClass, Array, insertAt, 2);
   DEF_METHOD(vm.arrayClass, Array, isEmpty, 0);
 	DEF_METHOD(vm.arrayClass, Array, lastIndexOf, 1);
-	DEF_METHOD(vm.arrayClass, Array, length, 0);
   DEF_METHOD(vm.arrayClass, Array, next, 1);
   DEF_METHOD(vm.arrayClass, Array, nextValue, 1);
   DEF_METHOD(vm.arrayClass, Array, putAt, 2);
@@ -1751,9 +1760,11 @@ void registerCollectionPackage() {
   DEF_METHOD(vm.arrayClass, Array, subArray, 2);
 	DEF_METHOD(vm.arrayClass, Array, __str__, 0);
 	DEF_METHOD(vm.arrayClass, Array, __format__, 0);
+
   DEF_OPERATOR(vm.arrayClass, Array, +, __add__, 1);
   DEF_OPERATOR(vm.arrayClass, Array, [], __getSubscript__, 1);
   DEF_OPERATOR(vm.arrayClass, Array, []=, __setSubscript__, 2);
+  DEF_INTERCEPTOR(vm.arrayClass, Array, INTERCEPTOR_UNDEFINED_PROPERTY, __undefinedProperty__, 1);
 
 	vm.dictionaryClass = defineNativeClass("Dictionary");
 	bindSuperclass(vm.dictionaryClass, collectionClass);
@@ -1766,7 +1777,6 @@ void registerCollectionPackage() {
 	DEF_METHOD(vm.dictionaryClass, Dictionary, getAt, 1);
 	DEF_METHOD(vm.dictionaryClass, Dictionary, clone, 0);
 	DEF_METHOD(vm.dictionaryClass, Dictionary, isEmpty, 0);
-	DEF_METHOD(vm.dictionaryClass, Dictionary, length, 0);
   DEF_METHOD(vm.dictionaryClass, Dictionary, next, 1);
   DEF_METHOD(vm.dictionaryClass, Dictionary, nextValue, 1);
 	DEF_METHOD(vm.dictionaryClass, Dictionary, put, 2);
@@ -1774,8 +1784,10 @@ void registerCollectionPackage() {
 	DEF_METHOD(vm.dictionaryClass, Dictionary, removeAt, 1);
 	DEF_METHOD(vm.dictionaryClass, Dictionary, __str__, 0);
 	DEF_METHOD(vm.dictionaryClass, Dictionary, __format__, 0);
+
   DEF_OPERATOR(vm.dictionaryClass, Dictionary, [], __getSubscript__, 1);
   DEF_OPERATOR(vm.dictionaryClass, Dictionary, []=, __setSubscript__, 2);
+  DEF_INTERCEPTOR(vm.dictionaryClass, Dictionary, INTERCEPTOR_UNDEFINED_PROPERTY, __undefinedProperty__, 1);
 
   vm.rangeClass = defineNativeClass("Range");
   bindSuperclass(vm.rangeClass, listClass);
@@ -1785,18 +1797,17 @@ void registerCollectionPackage() {
   DEF_METHOD(vm.rangeClass, Range, extend, 1);
   DEF_METHOD(vm.rangeClass, Range, clone, 0);
   DEF_METHOD(vm.rangeClass, Range, contains, 1);
-  DEF_METHOD(vm.rangeClass, Range, from, 0);
   DEF_METHOD(vm.rangeClass, Range, getAt, 1);
-  DEF_METHOD(vm.rangeClass, Range, length, 0);
   DEF_METHOD(vm.rangeClass, Range, max, 0);
   DEF_METHOD(vm.rangeClass, Range, min, 0);
   DEF_METHOD(vm.rangeClass, Range, next, 1);
   DEF_METHOD(vm.rangeClass, Range, nextValue, 1);
   DEF_METHOD(vm.rangeClass, Range, step, 2);
-  DEF_METHOD(vm.rangeClass, Range, to, 0);
   DEF_METHOD(vm.rangeClass, Range, toArray, 0);
   DEF_METHOD(vm.rangeClass, Range, __str__, 0);
   DEF_METHOD(vm.rangeClass, Range, __format__, 0);
+
+  DEF_INTERCEPTOR(vm.rangeClass, Range, INTERCEPTOR_UNDEFINED_PROPERTY, __undefinedProperty__, 1);
 
   vm.currentNamespace = collectionNamespace;
 

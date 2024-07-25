@@ -24,8 +24,8 @@ array3.append(2);
 
 println(array3);
 
-for (let i = 0; i < array1.length(); i++) {
-  for (let j = 0; j < array2.length(); j++) {
+for (let i = 0; i < array1.length; i++) {
+  for (let j = 0; j < array2.length; j++) {
     if (array1[i] == array2[j]) {
       println(array1[i]);
     }

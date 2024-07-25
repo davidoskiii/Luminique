@@ -257,6 +257,11 @@ ObjString* concatenateStrings(ObjString* str1, ObjString* str2) {
   return takeString(heapChars, newLength);
 }
 
+bool matchStringName(ObjString* sourceString, const char* targetChars, int targetLength) {
+  if (sourceString == NULL || sourceString->length != targetLength) return false;
+  return memcmp(sourceString->chars, targetChars, targetLength) == 0;
+}
+
 ObjString* trimString(ObjString* string) {
   int ltLen = 0, rtLen = 0;
 

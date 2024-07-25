@@ -26,6 +26,7 @@ ObjString* toLowerString(ObjString* string);
 ObjString* toUpperString(ObjString* string);
 ObjString* trimString(ObjString* string);
 ObjString* concatenateStrings(ObjString* str1, ObjString* str2);
+bool matchStringName(ObjString* sourceString, const char* targetChars, int targetLength);
 
 int utf8NumBytes(int value);
 char* utf8Encode(int value);
