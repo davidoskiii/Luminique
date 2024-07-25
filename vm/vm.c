@@ -480,12 +480,12 @@ Value callReentrant(Value receiver, Value callee, ...) {
 
 
 Value callGenerator(ObjGenerator* generator) {
-  ObjGenerator* parentGenerator = vm.runningGenerator;
+  ObjGenerator* outer = vm.runningGenerator;
   vm.runningGenerator = generator;
   loadGeneratorFrame(generator);
   InterpretResult result = run();
   if (result == INTERPRET_RUNTIME_ERROR) exit(70);
-  vm.runningGenerator = parentGenerator;
+  vm.runningGenerator = outer;
   return pop();
 }
 
@@ -1602,6 +1602,21 @@ InterpretResult run() {
         vm.frameCount--;
         if (vm.apiStackDepth > 0) return INTERPRET_OK;
         frame = &vm.frames[vm.frameCount - 1];
+        break;
+      }
+      case OP_YIELD_FROM: {
+        Value result = peek(0);
+        saveGeneratorFrame(vm.runningGenerator, frame, result);
+        if (!IS_GENERATOR(result)) result = loadInnerGenerator();
+        ObjGenerator* generator = AS_GENERATOR(result);
+        yieldFromInnerGenerator(generator);
+
+        if (generator->state == GENERATOR_RETURN) vm.runningGenerator->frame->ip++;
+        else {
+          vm.frameCount--;
+          if (vm.apiStackDepth > 0) return INTERPRET_OK;
+          frame = &vm.frames[vm.frameCount - 1];
+        }
         break;
       }
     }

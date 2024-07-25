@@ -1309,6 +1309,9 @@ static void yield(bool canAssign) {
   if (match(TOKEN_RIGHT_PAREN) || match(TOKEN_RIGHT_BRAKE) || match(TOKEN_RIGHT_BRACE)
       || match(TOKEN_COMMA) || match(TOKEN_SEMICOLON)) {
     emitBytes(OP_NIL, OP_YIELD);
+  } else if (match(TOKEN_FROM)) {
+    expression();
+    emitByte(OP_YIELD_FROM);
   } else {
     expression();
     emitByte(OP_YIELD);
@@ -1395,6 +1398,7 @@ ParseRule rules[] = {
   [TOKEN_VAR]           = {NULL,          NULL,         PREC_NONE},
   [TOKEN_CONST]         = {NULL,          NULL,         PREC_NONE},
   [TOKEN_WHILE]         = {NULL,          NULL,         PREC_NONE},
+  [TOKEN_FROM]          = {NULL,          NULL,         PREC_NONE},
   [TOKEN_YIELD]         = {yield,         NULL,         PREC_NONE},
   [TOKEN_ERROR]         = {NULL,          NULL,         PREC_NONE},
   [TOKEN_THROW]         = {NULL,          NULL,         PREC_NONE},
@@ -2188,6 +2192,7 @@ static void synchronize() {
       case TOKEN_IF:
       case TOKEN_WHILE:
       case TOKEN_RETURN:
+      case TOKEN_FROM:
       case TOKEN_YIELD:
         return;
 
@@ -2209,6 +2214,10 @@ static void yieldStatement() {
   current->function->isGenerator = true;
   if (match(TOKEN_SEMICOLON)) {
     emitBytes(OP_YIELD, OP_POP);
+  } else if (match(TOKEN_FROM)) {
+    expression();
+    consume(TOKEN_SEMICOLON, "Expect ';' after yield value.");
+    emitByte(OP_YIELD_FROM);
   } else {
     expression();
     consume(TOKEN_SEMICOLON, "Expect ';' after yield value.");
