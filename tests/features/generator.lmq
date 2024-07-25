@@ -14,7 +14,7 @@ let generator = fibonacci();
 println(generator);
 let i = 1;
 let n = 0;
-while (i <= 10) {
+while (i <= 46) {
   n = generator.next();
   println("Fibonacci number at index ${i}: ${n}");
   i++;

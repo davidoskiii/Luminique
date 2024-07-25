@@ -484,7 +484,10 @@ Value callGenerator(ObjGenerator* generator) {
   CallFrame* frame = &vm.frames[vm.frameCount++];
   frame->closure = generator->frame->closure;
   frame->ip = generator->frame->ip;
-  frame->slots = generator->frame->slots;
+  frame->slots = vm.stackTop - 1;
+  for (int i = 1; i < generator->frame->slotCount; i++) {
+    push(generator->frame->slots[i]);
+  }
 
   InterpretResult result = run();
   if (result == INTERPRET_RUNTIME_ERROR) exit(70);
@@ -1597,14 +1600,18 @@ InterpretResult run() {
         break;
       }
       case OP_YIELD: { 
-        Value result = pop();
+        Value result = peek(0);
         vm.runningGenerator->frame->closure = frame->closure;
         vm.runningGenerator->frame->ip = frame->ip;
-        vm.runningGenerator->frame->slots = frame->slots;
         vm.runningGenerator->state = GENERATOR_YIELD;
         vm.runningGenerator->current = result;
-        vm.frameCount--;
 
+        vm.runningGenerator->frame->slotCount = 0;
+        for (Value* slot = frame->slots; slot < vm.stackTop - 1; slot++) {
+          vm.runningGenerator->frame->slots[vm.runningGenerator->frame->slotCount++] = *slot;
+        }
+
+        vm.frameCount--;
         resetCallFrame(vm.frameCount);
         if (vm.apiStackDepth > 0) return INTERPRET_OK;
         frame = &vm.frames[vm.frameCount - 1];

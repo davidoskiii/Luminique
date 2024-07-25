@@ -248,7 +248,8 @@ NATIVE_METHOD(Generator, next) {
     self->state = GENERATOR_RESUME;
     vm.apiStackDepth++;
     Value result = callGenerator(self);
-    pop();
+    vm.stackTop -= self->frame->slotCount;
+    push(result);
     vm.apiStackDepth--;
     self->current = result;
     RETURN_VAL(result);
