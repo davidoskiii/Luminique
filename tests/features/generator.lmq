@@ -1,7 +1,6 @@
 function fibonacci() {
   let last = 0;
-  let current = 1;
-  yield current;
+  let current = yield 1;
 
   while (true) { 
     current = last + current;
@@ -13,8 +12,8 @@ function fibonacci() {
 let generator = fibonacci();
 println(generator);
 let i = 1;
-let n = 0;
 while (i <= 46) {
-  println("Fibonacci number at index ${i}: ${generator.next().current()}");
+  generator.next();
+  println("Fibonacci number at index ${i}: ${generator.current()}");
   i++;
 }

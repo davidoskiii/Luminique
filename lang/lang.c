@@ -245,7 +245,6 @@ NATIVE_METHOD(Generator, next) {
   else if (self->state == GENERATOR_RESUME) THROW_EXCEPTION(luminique::std::lang, UnsupportedOperationException, "Generator is already running.");
   else if (self->state == GENERATOR_THROW) THROW_EXCEPTION(luminique::std::lang, UnsupportedOperationException, "Generator has already thrown an exception.");
   else {
-    self->state = GENERATOR_RESUME;
     vm.apiStackDepth++;
     Value result = callGenerator(self);
     vm.stackTop -= self->frame->slotCount;
@@ -253,6 +252,23 @@ NATIVE_METHOD(Generator, next) {
     vm.apiStackDepth--;
     self->current = result;
     RETURN_OBJ(self);
+  }
+}
+
+NATIVE_METHOD(Generator, send) {
+  assertArgCount("Generator::send(value)", 1, argCount);
+  ObjGenerator* self = AS_GENERATOR(receiver);
+  if (self->state == GENERATOR_RETURN) THROW_EXCEPTION(luminique::std::lang, UnsupportedOperationException, "Generator has already returned.");
+  else {
+    self->current = args[0];
+    self->state = GENERATOR_RESUME;
+    vm.apiStackDepth++;
+    Value result = callGenerator(self);
+    vm.stackTop -= self->frame->slotCount;
+    push(result);
+    vm.apiStackDepth--;
+    self->current = result;
+    RETURN_VAL(result);
   }
 }
 
@@ -984,6 +1000,7 @@ void registerLangPackage() {
   DEF_METHOD(vm.generatorClass, Generator, __init__, 1);
   DEF_METHOD(vm.generatorClass, Generator, next, 0);
   DEF_METHOD(vm.generatorClass, Generator, returns, 1);
+  DEF_METHOD(vm.generatorClass, Generator, send, 1);
   DEF_METHOD(vm.generatorClass, Generator, throws, 1);
   DEF_METHOD(vm.generatorClass, Generator, current, 0);
   DEF_METHOD(vm.generatorClass, Generator, state, 0);
@@ -1043,7 +1060,6 @@ void registerLangPackage() {
   DEF_METHOD(vm.floatClass, Float, clone, 0);
   DEF_METHOD(vm.floatClass, Float, __str__, 0);
   DEF_METHOD(vm.floatClass, Float, __format__, 0);
-
 
   vm.stringClass = defineNativeClass("String");
   bindSuperclass(vm.stringClass, vm.objectClass);
