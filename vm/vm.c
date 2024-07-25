@@ -231,6 +231,7 @@ void initVM(int argc, char** argv) {
 
   vm.initString = NULL;
   vm.initString = copyString("__init__", 8);
+  vm.runningGenerator = NULL;
 
   registerLangPackage();
   registerSysPackage();
@@ -481,16 +482,7 @@ Value callReentrant(Value receiver, Value callee, ...) {
 Value callGenerator(ObjGenerator* generator) {
   ObjGenerator* parentGenerator = vm.runningGenerator;
   vm.runningGenerator = generator;
-  CallFrame* frame = &vm.frames[vm.frameCount++];
-  frame->closure = generator->frame->closure;
-  frame->ip = generator->frame->ip;
-  frame->slots = vm.stackTop - 1;
-  for (int i = 1; i < generator->frame->slotCount; i++) {
-    push(generator->frame->slots[i]);
-  }
-  if (generator->state != GENERATOR_START) push(generator->value);
-
-  generator->state = GENERATOR_RESUME;
+  loadGeneratorFrame(generator);
   InterpretResult result = run();
   if (result == INTERPRET_RUNTIME_ERROR) exit(70);
   vm.runningGenerator = parentGenerator;
@@ -1508,7 +1500,7 @@ InterpretResult run() {
         if (propagateException()) {
           frame = &vm.frames[vm.frameCount - 1];
           break;
-        }
+        } else if (vm.runningGenerator != NULL) vm.runningGenerator->state = GENERATOR_THROW;
         return INTERPRET_RUNTIME_ERROR;
       }
       case OP_TRY: {
@@ -1573,7 +1565,7 @@ InterpretResult run() {
           return INTERPRET_OK;
         }
 
-        vm.stackTop = frame->slots;
+        if (vm.runningGenerator == NULL) vm.stackTop = frame->slots;
         if (vm.runModule) {
           vm.runModule = false;
         } else {
@@ -1595,7 +1587,7 @@ InterpretResult run() {
           return INTERPRET_OK;
         }
 
-        vm.stackTop = frame->slots;
+        if (vm.runningGenerator == NULL) vm.stackTop = frame->slots;
         push(result);
         if (vm.apiStackDepth > 0) return INTERPRET_OK;
         frame = &vm.frames[vm.frameCount - 1];
@@ -1603,18 +1595,11 @@ InterpretResult run() {
       }
       case OP_YIELD: { 
         Value result = peek(0);
-        vm.runningGenerator->frame->closure = frame->closure;
-        vm.runningGenerator->frame->ip = frame->ip;
-        vm.runningGenerator->state = GENERATOR_YIELD;
-        vm.runningGenerator->value = result;
-
-        vm.runningGenerator->frame->slotCount = 0;
-        for (Value* slot = frame->slots; slot < vm.stackTop - 1; slot++) {
-          vm.runningGenerator->frame->slots[vm.runningGenerator->frame->slotCount++] = *slot;
-        }
+        ObjString* name = frame->closure->function->name;
+        Value receiver = peek(frame->closure->function->arity);
+        saveGeneratorFrame(vm.runningGenerator, frame, result);
 
         vm.frameCount--;
-        resetCallFrame(vm.frameCount);
         if (vm.apiStackDepth > 0) return INTERPRET_OK;
         frame = &vm.frames[vm.frameCount - 1];
         break;

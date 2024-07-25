@@ -248,6 +248,23 @@ NATIVE_METHOD(Generator, isSuspended) {
   RETURN_BOOL(AS_GENERATOR(receiver)->state == GENERATOR_YIELD);
 }
 
+NATIVE_METHOD(Generator, isReady) { 
+  assertArgCount("Generator::isReady()", 0, argCount);
+  RETURN_BOOL(AS_GENERATOR(receiver)->state == GENERATOR_START);
+}
+
+NATIVE_METHOD(Generator, nextFinished) {
+  assertArgCount("Generator::nextFinished()", 0, argCount);
+  ObjGenerator* self = AS_GENERATOR(receiver);
+  if (self->state == GENERATOR_RETURN) RETURN_TRUE;
+  else if (self->state == GENERATOR_RESUME) THROW_EXCEPTION(luminique::std::lang, UnsupportedOperationException, "Generator is already running.");
+  else if (self->state == GENERATOR_THROW) THROW_EXCEPTION(luminique::std::lang, UnsupportedOperationException, "Generator has already thrown an exception.");
+  else {
+    resumeGenerator(self);
+    RETURN_BOOL(self->state == GENERATOR_RETURN);
+  }
+}
+
 NATIVE_METHOD(Generator, next) {
   assertArgCount("Generator::next()", 0, argCount);
   ObjGenerator* self = AS_GENERATOR(receiver);
@@ -999,6 +1016,8 @@ void registerLangPackage() {
   DEF_METHOD(vm.generatorClass, Generator, __init__, 1);
   DEF_METHOD(vm.generatorClass, Generator, isFinished, 0);
   DEF_METHOD(vm.generatorClass, Generator, isSuspended, 0);
+  DEF_METHOD(vm.generatorClass, Generator, isReady, 0);
+  DEF_METHOD(vm.generatorClass, Generator, nextFinished, 0);
   DEF_METHOD(vm.generatorClass, Generator, next, 0);
   DEF_METHOD(vm.generatorClass, Generator, returns, 1);
   DEF_METHOD(vm.generatorClass, Generator, send, 1);
@@ -1007,12 +1026,13 @@ void registerLangPackage() {
   DEF_METHOD(vm.generatorClass, Generator, state, 0);
   DEF_METHOD(vm.generatorClass, Generator, parent, 0);
 
-  ObjClass* generatorMetaclass = vm.generatorClass->obj.klass;
-  setClassProperty(vm.generatorClass, "stateStart", INT_VAL(GENERATOR_START));
-  setClassProperty(vm.generatorClass, "stateYield", INT_VAL(GENERATOR_YIELD));
-  setClassProperty(vm.generatorClass, "stateResume", INT_VAL(GENERATOR_RESUME));
-  setClassProperty(vm.generatorClass, "stateReturn", INT_VAL(GENERATOR_RETURN));
-  setClassProperty(vm.generatorClass, "stateThrow", INT_VAL(GENERATOR_THROW));
+  ObjEnum* generatorStateClass = defineNativeEnum("GeneratorState");
+  defineNativeArtificialEnumElement(generatorStateClass, "stateStart", INT_VAL(GENERATOR_START));
+  defineNativeArtificialEnumElement(generatorStateClass, "stateStart", INT_VAL(GENERATOR_START));
+  defineNativeArtificialEnumElement(generatorStateClass, "stateYield", INT_VAL(GENERATOR_YIELD));
+  defineNativeArtificialEnumElement(generatorStateClass, "stateResume", INT_VAL(GENERATOR_RESUME));
+  defineNativeArtificialEnumElement(generatorStateClass, "stateReturn", INT_VAL(GENERATOR_RETURN));
+  defineNativeArtificialEnumElement(generatorStateClass, "stateThrow", INT_VAL(GENERATOR_THROW));
 
 	vm.nilClass = defineNativeClass("Nil");
 	bindSuperclass(vm.nilClass, vm.objectClass);

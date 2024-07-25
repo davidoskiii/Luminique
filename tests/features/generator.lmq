@@ -1,19 +1,50 @@
 function fibonacci() {
   let last = 0;
   let current = yield 1;
+  let next = 1;
 
   while (true) { 
     current = last + current;
     last = current - last;
-    yield current;
+    next = yield current;
   }
 }
 
-let generator = fibonacci();
-println(generator);
+const generator = fibonacci();
+println("Testing Infinite Fibonacci number generator: ${generator}");
 let i = 1;
-while (i <= 46) {
-  generator.next();
-  println("Fibonacci number at index ${i}: ${generator.value()}");
+while (i <= 10) {
+  println("Fibonacci number at index ${i}: ${generator.next().value()}");
   i++;
+}
+
+println("");
+
+function innerGenerator() {
+  println("Inner Generator starts...");
+  yield 1;
+  yield 2;
+  yield 3;
+  println("Inner Generator ends...");
+}
+
+function outerGenerator() { 
+  println("Outer Generator start...");
+  yield 0;
+
+  // yield innerGenerator();
+  const inner = innerGenerator();
+  while (!inner.next().isFinished()) { 
+    yield inner.value();
+  }
+
+  yield 4;
+  yield 5;
+  println("Outer Generator ends...");
+}
+
+println("Testing nested generators: ");
+const generator2 = outerGenerator();
+while (!generator2.next().isFinished()) { 
+  println("Generator yield value: ${generator2.value()}");
 }
