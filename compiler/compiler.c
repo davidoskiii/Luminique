@@ -1297,6 +1297,24 @@ static void super_(bool canAssign) {
   }
 }
 
+static void yield(bool canAssign) {
+  if (current->type == TYPE_SCRIPT) {
+    error("Can't yield from top-level code.");
+  } else if (current->type == TYPE_INITIALIZER) {
+    error("Cannot yield from an initializer.");
+  }
+
+  current->function->isGenerator = true;
+
+  if (match(TOKEN_RIGHT_PAREN) || match(TOKEN_RIGHT_BRAKE) || match(TOKEN_RIGHT_BRACE)
+      || match(TOKEN_COMMA) || match(TOKEN_SEMICOLON)) {
+    emitBytes(OP_NIL, OP_YIELD);
+  } else {
+    expression();
+    emitByte(OP_YIELD);
+  }
+}
+
 static void unary(bool canAssign) {
   TokenType operatorType = parser.previous.type;
 
@@ -1377,7 +1395,7 @@ ParseRule rules[] = {
   [TOKEN_VAR]           = {NULL,          NULL,         PREC_NONE},
   [TOKEN_CONST]         = {NULL,          NULL,         PREC_NONE},
   [TOKEN_WHILE]         = {NULL,          NULL,         PREC_NONE},
-  [TOKEN_YIELD]         = {NULL,          NULL,         PREC_NONE},
+  [TOKEN_YIELD]         = {yield,         NULL,         PREC_NONE},
   [TOKEN_ERROR]         = {NULL,          NULL,         PREC_NONE},
   [TOKEN_THROW]         = {NULL,          NULL,         PREC_NONE},
   [TOKEN_TRY]           = {NULL,          NULL,         PREC_NONE},
@@ -2190,11 +2208,11 @@ static void yieldStatement() {
 
   current->function->isGenerator = true;
   if (match(TOKEN_SEMICOLON)) {
-    emitByte(OP_YIELD);
+    emitBytes(OP_YIELD, OP_POP);
   } else {
     expression();
     consume(TOKEN_SEMICOLON, "Expect ';' after yield value.");
-    emitByte(OP_YIELD);
+    emitBytes(OP_YIELD, OP_POP);
   }
 }
 

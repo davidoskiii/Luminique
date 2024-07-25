@@ -249,10 +249,10 @@ NATIVE_METHOD(Generator, next) {
     vm.apiStackDepth++;
     Value result = callGenerator(self);
     vm.stackTop -= self->frame->slotCount;
-    push(result);
+    push(OBJ_VAL(self));
     vm.apiStackDepth--;
     self->current = result;
-    RETURN_VAL(result);
+    RETURN_OBJ(self);
   }
 }
 
@@ -273,10 +273,28 @@ NATIVE_METHOD(Generator, throws) {
   ObjGenerator* self = AS_GENERATOR(receiver);
   if (self->state == GENERATOR_RETURN) THROW_EXCEPTION(luminique::std::lang, UnsupportedOperationException, "Generator has already returned.");
   else {
-      ObjException* exception = AS_EXCEPTION(args[0]);
-      self->state = GENERATOR_THROW;
-      THROW_EXCEPTION(luminique::std::lang, exception->obj.klass, exception->message->chars);
+    ObjException* exception = AS_EXCEPTION(args[0]);
+    self->state = GENERATOR_THROW;
+    THROW_EXCEPTION(luminique::std::lang, exception->obj.klass, exception->message->chars);
   }
+}
+
+NATIVE_METHOD(Generator, current) {
+  assertArgCount("Generator::current()", 0, argCount);
+  ObjGenerator* self = AS_GENERATOR(receiver);
+  return self->current;
+}
+
+NATIVE_METHOD(Generator, state) {
+  assertArgCount("Generator::state()", 0, argCount);
+  ObjGenerator* self = AS_GENERATOR(receiver);
+  RETURN_INT(self->state);
+}
+
+NATIVE_METHOD(Generator, parent) {
+  assertArgCount("Generator::parent()", 0, argCount);
+  ObjGenerator* self = AS_GENERATOR(receiver);
+  RETURN_OBJ(self->parent);
 }
 
 // FUNCTION
@@ -963,9 +981,13 @@ void registerLangPackage() {
   vm.generatorClass = defineNativeClass("Generator");
   bindSuperclass(vm.generatorClass, vm.objectClass);
   vm.generatorClass->classType = OBJ_GENERATOR;
+  DEF_METHOD(vm.generatorClass, Generator, __init__, 1);
   DEF_METHOD(vm.generatorClass, Generator, next, 0);
   DEF_METHOD(vm.generatorClass, Generator, returns, 1);
   DEF_METHOD(vm.generatorClass, Generator, throws, 1);
+  DEF_METHOD(vm.generatorClass, Generator, current, 0);
+  DEF_METHOD(vm.generatorClass, Generator, state, 0);
+  DEF_METHOD(vm.generatorClass, Generator, parent, 0);
 
   ObjClass* generatorMetaclass = vm.generatorClass->obj.klass;
   setClassProperty(vm.generatorClass, "stateStart", INT_VAL(GENERATOR_START));
