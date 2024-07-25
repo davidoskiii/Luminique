@@ -165,6 +165,7 @@ typedef struct ObjFrame {
   ObjClosure* closure;
   uint8_t* ip;
   Value* slots;
+  uint8_t slotHeight;
   uint8_t handlerCount;
   ExceptionHandler handlerStack[UINT4_MAX];
 } ObjFrame;
