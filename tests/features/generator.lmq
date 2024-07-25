@@ -1,3 +1,4 @@
+/*
 function fibonacci() {
   let last = 0;
   let current = yield 1;
@@ -17,28 +18,31 @@ while (i <= 10) {
   println("Fibonacci number at index ${i}: ${generator.next().value()}");
   i++;
 }
+*/
 
 println("");
 
 function innerGenerator() {
   println("Inner Generator starts...");
-  yield 1;
   yield 2;
   yield 3;
   println("Inner Generator ends...");
+}
+
+function middleGenerator(){
+  println("Middle Generator starts...");
+  yield 1;
+  yield from innerGenerator();
+  yield 4;
+  println("Middle Generator ends...");
 }
 
 function outerGenerator() { 
   println("Outer Generator start...");
   yield 0;
 
-  // yield innerGenerator();
-  const inner = innerGenerator();
-  while (!inner.nextFinished()) { 
-    yield inner.value();
-  }
+  yield from middleGenerator();
 
-  yield 4;
   yield 5;
   println("Outer Generator ends...");
 }

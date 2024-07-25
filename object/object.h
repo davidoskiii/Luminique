@@ -171,7 +171,8 @@ struct ObjArray {
 typedef struct ObjGenerator {
   Obj obj;
   ObjFrame* frame;
-  struct ObjGenerator* parent;
+  struct ObjGenerator* outer;
+  struct ObjGenerator* inner;
   GeneratorState state;
   Value value;
 } ObjGenerator;
@@ -289,7 +290,7 @@ Obj* allocateObject(size_t size, ObjType type, ObjClass* klass);
 ObjBoundMethod* newBoundMethod(Value receiver, ObjClosure* method);
 ObjFrame* newFrame(CallFrame* callFrame);
 ObjFile* newFile(ObjString* name);
-ObjGenerator* newGenerator(ObjFrame* frame, ObjGenerator* parentGenerator);
+ObjGenerator* newGenerator(ObjFrame* frame, ObjGenerator* outer);
 ObjException* newException(ObjString* message, ObjClass* klass);
 ObjRecord* newRecord(void* data);
 ObjEntry* newEntry(Value key, Value value);

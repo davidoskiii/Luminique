@@ -175,11 +175,17 @@ ObjFrame* newFrame(CallFrame* callFrame) {
   ObjFrame* frame = ALLOCATE_OBJ(ObjFrame, OBJ_FRAME, NULL);
   frame->closure = callFrame->closure;
   frame->ip = callFrame->ip;
-  frame->slotCount = 0;
+  frame->slotCount = callFrame->closure->function->arity + 1;
   frame->handlerCount = callFrame->handlerCount;
+
+  for (int i = 0; i < frame->slotCount; i++) {
+    frame->slots[i] = peek(callFrame->closure->function->arity - i);
+  }
+
   for (int i = 0; i < frame->handlerCount; i++) {
     frame->handlerStack[i] = callFrame->handlerStack[i];
   }
+
   return frame;
 }
 
@@ -193,10 +199,11 @@ ObjFunction* newFunction() {
   return function;
 }
 
-ObjGenerator* newGenerator(ObjFrame* frame, ObjGenerator* parentGenerator) {
+ObjGenerator* newGenerator(ObjFrame* frame, ObjGenerator* outer) {
   ObjGenerator* generator = ALLOCATE_OBJ(ObjGenerator, OBJ_GENERATOR, vm.generatorClass);
   generator->frame = frame;
-  generator->parent = parentGenerator;
+  generator->outer = outer;
+  generator->inner = NULL;
   generator->state = GENERATOR_START;
   generator->value = NIL_VAL;
   return generator;

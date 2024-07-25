@@ -233,8 +233,10 @@ NATIVE_METHOD(Generator, __init__) {
   }
 
   self->frame = frame;
-  self->parent = vm.runningGenerator;
+  self->outer = vm.runningGenerator;
+  self->inner = NULL;
   self->state = GENERATOR_START;
+  self->value = NIL_VAL;
   RETURN_OBJ(self);
 }
 
@@ -281,6 +283,8 @@ NATIVE_METHOD(Generator, send) {
   assertArgCount("Generator::send(value)", 1, argCount);
   ObjGenerator* self = AS_GENERATOR(receiver);
   if (self->state == GENERATOR_RETURN) THROW_EXCEPTION(luminique::std::lang, UnsupportedOperationException, "Generator has already returned.");
+  else if (self->state == GENERATOR_RESUME) THROW_EXCEPTION(luminique::std::lang, UnsupportedOperationException, "Generator is already running.");
+  else if (self->state == GENERATOR_THROW) THROW_EXCEPTION(luminique::std::lang, UnsupportedOperationException, "Generator has already thrown an exception.");
   else {
     self->value = args[0];
     resumeGenerator(self);
@@ -323,10 +327,35 @@ NATIVE_METHOD(Generator, state) {
   RETURN_INT(self->state);
 }
 
-NATIVE_METHOD(Generator, parent) {
-  assertArgCount("Generator::parent()", 0, argCount);
+NATIVE_METHOD(Generator, outer) {
+  assertArgCount("Generator::outer()", 0, argCount);
   ObjGenerator* self = AS_GENERATOR(receiver);
-  RETURN_OBJ(self->parent);
+  return self->outer != NULL ? OBJ_VAL(self->outer) : NIL_VAL;
+}
+
+NATIVE_METHOD(Generator, __str__) {
+  assertArgCount("Generator::__str__()", 0, argCount);
+  ObjGenerator* self = AS_GENERATOR(receiver);
+  RETURN_STRING_FMT("<generator %s>", self->frame->closure->function->name->chars);
+}
+
+NATIVE_METHOD(Generator, __format__) {
+  assertArgCount("Generator::__format__()", 0, argCount);
+  ObjGenerator* self = AS_GENERATOR(receiver);
+  RETURN_STRING_FMT("<generator %s>", self->frame->closure->function->name->chars);
+}
+
+NATIVE_METHOD(Generator, __invoke__) {
+  if(argCount > 1) THROW_EXCEPTION(luminique::std::lang, UnsupportedOperationException, "Generator::() accepts 0 or 1 argument.");
+  ObjGenerator* self = AS_GENERATOR(receiver);
+  if (self->state == GENERATOR_RETURN) RETURN_OBJ(self);
+  else if (self->state == GENERATOR_RESUME) THROW_EXCEPTION(luminique::std::lang, UnsupportedOperationException, "Generator is already running.");
+  else if (self->state == GENERATOR_THROW) THROW_EXCEPTION(luminique::std::lang, UnsupportedOperationException, "Generator has already thrown an exception.");
+  else {
+    if(argCount == 1) self->value = args[0];
+    resumeGenerator(self);
+    RETURN_OBJ(self);
+  }
 }
 
 // FUNCTION
@@ -1024,7 +1053,10 @@ void registerLangPackage() {
   DEF_METHOD(vm.generatorClass, Generator, throws, 1);
   DEF_METHOD(vm.generatorClass, Generator, value, 0);
   DEF_METHOD(vm.generatorClass, Generator, state, 0);
-  DEF_METHOD(vm.generatorClass, Generator, parent, 0);
+  DEF_METHOD(vm.generatorClass, Generator, outer, 0);
+  DEF_METHOD(vm.generatorClass, Generator, __str__, 0);
+  DEF_METHOD(vm.generatorClass, Generator, __format__, 0);
+  DEF_OPERATOR(vm.generatorClass, Generator, (), __invoke__, -1);
 
   ObjEnum* generatorStateClass = defineNativeEnum("GeneratorState");
   defineNativeArtificialEnumElement(generatorStateClass, "stateStart", INT_VAL(GENERATOR_START));
@@ -1033,6 +1065,7 @@ void registerLangPackage() {
   defineNativeArtificialEnumElement(generatorStateClass, "stateResume", INT_VAL(GENERATOR_RESUME));
   defineNativeArtificialEnumElement(generatorStateClass, "stateReturn", INT_VAL(GENERATOR_RETURN));
   defineNativeArtificialEnumElement(generatorStateClass, "stateThrow", INT_VAL(GENERATOR_THROW));
+  defineNativeArtificialEnumElement(generatorStateClass, "stateError", INT_VAL(GENERATOR_ERROR));
 
 	vm.nilClass = defineNativeClass("Nil");
 	bindSuperclass(vm.nilClass, vm.objectClass);

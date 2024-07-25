@@ -423,8 +423,9 @@ bool callClosure(ObjClosure* closure, int argCount) {
       .ip = closure->function->chunk.code,
       .slots = vm.stackTop - argCount - 1
     };
+    ObjGenerator* generator = newGenerator(newFrame(&frame), vm.runningGenerator);
     vm.stackTop -= (size_t)argCount + 1;
-    push(OBJ_VAL(newGenerator(newFrame(&frame), vm.runningGenerator)));
+    push(OBJ_VAL(generator));
   } else {
     CallFrame* frame = &vm.frames[vm.frameCount++];
     frame->closure = closure;
@@ -1558,14 +1559,14 @@ InterpretResult run() {
       case OP_RETURN: {
         Value result = pop();
         closeUpvalues(frame->slots);
-        if (vm.runningGenerator != NULL) vm.runningGenerator->state = GENERATOR_RETURN;
+        if (frame->closure->function->isGenerator) vm.runningGenerator->state = GENERATOR_RETURN;
         vm.frameCount--;
         if (vm.frameCount == 0) {
           pop();
           return INTERPRET_OK;
         }
 
-        if (vm.runningGenerator == NULL) vm.stackTop = frame->slots;
+        if (frame->closure->function->isGenerator) vm.stackTop = frame->slots;
         if (vm.runModule) {
           vm.runModule = false;
         } else {
@@ -1580,14 +1581,15 @@ InterpretResult run() {
         Value result = pop();
         int depth = READ_BYTE();
         closeUpvalues(frame->slots);
-        if (vm.runningGenerator != NULL) vm.runningGenerator->state = GENERATOR_RETURN;
+        if (frame->closure->function->isGenerator) vm.runningGenerator->state = GENERATOR_RETURN;
+
         vm.frameCount -= depth + 1;
         if (vm.frameCount == 0) {
           pop();
           return INTERPRET_OK;
         }
 
-        if (vm.runningGenerator == NULL) vm.stackTop = frame->slots;
+        if (frame->closure->function->isGenerator) vm.stackTop = frame->slots;
         push(result);
         if (vm.apiStackDepth > 0) return INTERPRET_OK;
         frame = &vm.frames[vm.frameCount - 1];
@@ -1595,8 +1597,6 @@ InterpretResult run() {
       }
       case OP_YIELD: { 
         Value result = peek(0);
-        ObjString* name = frame->closure->function->name;
-        Value receiver = peek(frame->closure->function->arity);
         saveGeneratorFrame(vm.runningGenerator, frame, result);
 
         vm.frameCount--;

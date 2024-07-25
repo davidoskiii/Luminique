@@ -19,6 +19,7 @@ void loadGeneratorFrame(ObjGenerator* generator) {
   frame->closure = generator->frame->closure;
   frame->ip = generator->frame->ip;
   frame->slots = vm.stackTop - 1;
+  frame->slots[0] = generator->frame->slots[0];
 
   for (int i = 1; i < generator->frame->slotCount; i++) {
     push(generator->frame->slots[i]);
@@ -37,4 +38,24 @@ void saveGeneratorFrame(ObjGenerator* generator, CallFrame* frame, Value result)
   for (Value* slot = frame->slots; slot < vm.stackTop - 1; slot++) {
     generator->frame->slots[generator->frame->slotCount++] = *slot;
   }
+}
+
+Value loadInnerGenerator() {
+  if (vm.runningGenerator->inner == NULL) {
+    throwNativeException("luminique::std::lang", "IllegalArgumentException", "Cannot only yield from a generator.");
+  }
+  Value result = vm.runningGenerator->inner != NULL ? OBJ_VAL(vm.runningGenerator->inner) : NIL_VAL;
+  pop();
+  push(result);
+  return result;
+}
+
+void yieldFromInnerGenerator(ObjGenerator* generator) {
+  vm.runningGenerator->frame->ip--;
+  vm.runningGenerator->inner = generator;
+  Value result = callGenerator(generator);
+  for (int i = 0; i < generator->frame->closure->function->arity + 1; i++) {
+    pop();
+  }
+  if (generator->state != GENERATOR_RETURN) push(result);
 }
