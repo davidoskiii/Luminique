@@ -238,10 +238,20 @@ NATIVE_METHOD(Generator, __init__) {
   RETURN_OBJ(self);
 }
 
+NATIVE_METHOD(Generator, isFinished) { 
+  assertArgCount("Generator::isFinished()", 0, argCount);
+  RETURN_BOOL(AS_GENERATOR(receiver)->state == GENERATOR_RETURN);
+}
+
+NATIVE_METHOD(Generator, isSuspended) {
+  assertArgCount("Generator::isSuspended()", 0, argCount);
+  RETURN_BOOL(AS_GENERATOR(receiver)->state == GENERATOR_YIELD);
+}
+
 NATIVE_METHOD(Generator, next) {
   assertArgCount("Generator::next()", 0, argCount);
   ObjGenerator* self = AS_GENERATOR(receiver);
-  if (self->state == GENERATOR_RETURN) RETURN_NIL;
+  if (self->state == GENERATOR_RETURN) RETURN_OBJ(self);
   else if (self->state == GENERATOR_RESUME) THROW_EXCEPTION(luminique::std::lang, UnsupportedOperationException, "Generator is already running.");
   else if (self->state == GENERATOR_THROW) THROW_EXCEPTION(luminique::std::lang, UnsupportedOperationException, "Generator has already thrown an exception.");
   else {
@@ -998,6 +1008,8 @@ void registerLangPackage() {
   bindSuperclass(vm.generatorClass, vm.objectClass);
   vm.generatorClass->classType = OBJ_GENERATOR;
   DEF_METHOD(vm.generatorClass, Generator, __init__, 1);
+  DEF_METHOD(vm.generatorClass, Generator, isFinished, 0);
+  DEF_METHOD(vm.generatorClass, Generator, isSuspended, 0);
   DEF_METHOD(vm.generatorClass, Generator, next, 0);
   DEF_METHOD(vm.generatorClass, Generator, returns, 1);
   DEF_METHOD(vm.generatorClass, Generator, send, 1);
