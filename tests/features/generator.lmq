@@ -22,33 +22,38 @@ while (i <= 10) {
 
 println("");
 
-function innerGenerator() {
-  println("Inner Generator starts...");
-  yield 2;
-  yield 3;
-  println("Inner Generator ends...");
+class MultiGenerator {  
+  function __init__() {
+    this.totalYields = 0;
+  }
+
+  function inner(arg, arg2) { 
+    println("Inner Generator starts...");
+    yield arg;
+    yield arg2;
+    println("Inner Generator ends...");
+  }
+
+  function middle(arg, arg2) { 
+    println("Middle Generator starts...");
+    yield arg;
+    yield from this.inner(2, 3);
+    yield arg2;
+    println("Middle Generator ends...");
+  }
+
+  function outer(arg, arg2) { 
+    println("Outer Generator start...");
+    yield arg;
+    yield from this.middle(1, 4);
+    yield arg2;
+    println("Outer Generator ends..."); 
+  }
 }
 
-function middleGenerator(){
-  println("Middle Generator starts...");
-  yield 1;
-  yield from innerGenerator();
-  yield 4;
-  println("Middle Generator ends...");
-}
-
-function outerGenerator() { 
-  println("Outer Generator start...");
-  yield 0;
-
-  yield from middleGenerator();
-
-  yield 5;
-  println("Outer Generator ends...");
-}
-
-println("Testing nested generators: ");
-const generator2 = outerGenerator();
-while (!generator2.nextFinished()) { 
+println("Testing nested generators:");
+const multi = MultiGenerator();
+const generator2 = multi.outer(0, 5);
+while(!generator2.nextFinished()) { 
   println("Generator yield value: ${generator2.value()}");
 }
