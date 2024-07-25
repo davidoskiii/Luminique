@@ -245,7 +245,6 @@ NATIVE_METHOD(Generator, next) {
   else if (self->state == GENERATOR_RESUME) THROW_EXCEPTION(luminique::std::lang, UnsupportedOperationException, "Generator is already running.");
   else if (self->state == GENERATOR_THROW) THROW_EXCEPTION(luminique::std::lang, UnsupportedOperationException, "Generator has already thrown an exception.");
   else {
-    vm.runningGenerator = self;
     self->state = GENERATOR_RESUME;
     vm.apiStackDepth++;
     Value result = callGenerator(self);
