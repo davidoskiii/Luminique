@@ -34,7 +34,7 @@ function outerGenerator() {
 
   // yield innerGenerator();
   const inner = innerGenerator();
-  while (!inner.next().isFinished()) { 
+  while (!inner.nextFinished()) { 
     yield inner.value();
   }
 
@@ -45,6 +45,6 @@ function outerGenerator() {
 
 println("Testing nested generators: ");
 const generator2 = outerGenerator();
-while (!generator2.next().isFinished()) { 
+while (!generator2.nextFinished()) { 
   println("Generator yield value: ${generator2.value()}");
 }
