@@ -16,6 +16,6 @@ let i = 1;
 let n = 0;
 while (i <= 10) {
   n = generator.next();
-  println("Fibonacci number for index ${i}: ${n}");
+  println("Fibonacci number at index ${i}: ${n}");
   i++;
 }
