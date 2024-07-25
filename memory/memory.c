@@ -359,6 +359,7 @@ static void markRoots() {
   markTable(&vm.modules);
   markCompilerRoots();
   markObject((Obj*)vm.initString);
+  markObject((Obj*)vm.runningGenerator);
 }
 
 static void traceReferences() {
