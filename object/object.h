@@ -10,6 +10,7 @@ typedef struct CallFrame CallFrame;
 #include "../table/table.h"
 #include "../chunk/chunk.h"
 #include "../value/value.h"
+#include "../generator/generator.h"
 #include "../exception/exception.h"
 
 #define OBJ_TYPE(value) (AS_OBJ(value)->type)
@@ -96,14 +97,6 @@ typedef enum {
   OBJ_UPVALUE
 } ObjType;
 
-typedef enum {
-  GENERATOR_START,
-  GENERATOR_YIELD,
-  GENERATOR_RESUME,
-  GENERATOR_RETURN,
-  GENERATOR_THROW
-} GeneratorState;
-
 struct Obj {
   ObjType type;
   ObjClass* klass;
@@ -180,7 +173,7 @@ typedef struct ObjGenerator {
   ObjFrame* frame;
   struct ObjGenerator* parent;
   GeneratorState state;
-  Value current;
+  Value value;
 } ObjGenerator;
 
 struct ObjException {

@@ -14,6 +14,6 @@ println(generator);
 let i = 1;
 while (i <= 46) {
   generator.next();
-  println("Fibonacci number at index ${i}: ${generator.current()}");
+  println("Fibonacci number at index ${i}: ${generator.value()}");
   i++;
 }

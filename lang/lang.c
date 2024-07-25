@@ -255,12 +255,7 @@ NATIVE_METHOD(Generator, next) {
   else if (self->state == GENERATOR_RESUME) THROW_EXCEPTION(luminique::std::lang, UnsupportedOperationException, "Generator is already running.");
   else if (self->state == GENERATOR_THROW) THROW_EXCEPTION(luminique::std::lang, UnsupportedOperationException, "Generator has already thrown an exception.");
   else {
-    vm.apiStackDepth++;
-    Value result = callGenerator(self);
-    vm.stackTop -= self->frame->slotCount;
-    push(OBJ_VAL(self));
-    vm.apiStackDepth--;
-    self->current = result;
+    resumeGenerator(self);
     RETURN_OBJ(self);
   }
 }
@@ -270,15 +265,9 @@ NATIVE_METHOD(Generator, send) {
   ObjGenerator* self = AS_GENERATOR(receiver);
   if (self->state == GENERATOR_RETURN) THROW_EXCEPTION(luminique::std::lang, UnsupportedOperationException, "Generator has already returned.");
   else {
-    self->current = args[0];
-    self->state = GENERATOR_RESUME;
-    vm.apiStackDepth++;
-    Value result = callGenerator(self);
-    vm.stackTop -= self->frame->slotCount;
-    push(result);
-    vm.apiStackDepth--;
-    self->current = result;
-    RETURN_VAL(result);
+    self->value = args[0];
+    resumeGenerator(self);
+    RETURN_OBJ(self);
   }
 }
 
@@ -288,7 +277,7 @@ NATIVE_METHOD(Generator, returns) {
   if (self->state == GENERATOR_RETURN) THROW_EXCEPTION(luminique::std::lang, UnsupportedOperationException, "Generator has already returned.");
   else {
     self->state = GENERATOR_RETURN;
-    self->current = args[0];
+    self->value = args[0];
     RETURN_VAL(args[0]);
   }
 }
@@ -305,10 +294,10 @@ NATIVE_METHOD(Generator, throws) {
   }
 }
 
-NATIVE_METHOD(Generator, current) {
-  assertArgCount("Generator::current()", 0, argCount);
+NATIVE_METHOD(Generator, value) {
+  assertArgCount("Generator::value()", 0, argCount);
   ObjGenerator* self = AS_GENERATOR(receiver);
-  return self->current;
+  return self->value;
 }
 
 NATIVE_METHOD(Generator, state) {
@@ -1014,7 +1003,7 @@ void registerLangPackage() {
   DEF_METHOD(vm.generatorClass, Generator, returns, 1);
   DEF_METHOD(vm.generatorClass, Generator, send, 1);
   DEF_METHOD(vm.generatorClass, Generator, throws, 1);
-  DEF_METHOD(vm.generatorClass, Generator, current, 0);
+  DEF_METHOD(vm.generatorClass, Generator, value, 0);
   DEF_METHOD(vm.generatorClass, Generator, state, 0);
   DEF_METHOD(vm.generatorClass, Generator, parent, 0);
 

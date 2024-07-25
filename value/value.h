@@ -4,6 +4,8 @@
 #include "../common.h"
 #include <string.h>
 
+typedef struct CallFrame CallFrame;
+
 typedef struct Obj Obj;
 typedef struct ObjClass ObjClass;
 typedef struct ObjNamespace ObjNamespace;
@@ -15,6 +17,7 @@ typedef struct ObjUpvalue ObjUpvalue;
 typedef struct ObjModule ObjModule;
 typedef struct ObjArray ObjArray;
 typedef struct ObjException ObjException;
+typedef struct ObjGenerator ObjGenerator;
 
 #ifdef NAN_BOXING
 

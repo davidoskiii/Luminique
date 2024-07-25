@@ -488,7 +488,7 @@ Value callGenerator(ObjGenerator* generator) {
   for (int i = 1; i < generator->frame->slotCount; i++) {
     push(generator->frame->slots[i]);
   }
-  if (generator->state != GENERATOR_START) push(generator->current);
+  if (generator->state != GENERATOR_START) push(generator->value);
 
   generator->state = GENERATOR_RESUME;
   InterpretResult result = run();
@@ -1606,7 +1606,7 @@ InterpretResult run() {
         vm.runningGenerator->frame->closure = frame->closure;
         vm.runningGenerator->frame->ip = frame->ip;
         vm.runningGenerator->state = GENERATOR_YIELD;
-        vm.runningGenerator->current = result;
+        vm.runningGenerator->value = result;
 
         vm.runningGenerator->frame->slotCount = 0;
         for (Value* slot = frame->slots; slot < vm.stackTop - 1; slot++) {
