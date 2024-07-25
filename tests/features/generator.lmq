@@ -1,0 +1,21 @@
+function fibonacci() {
+  let last = 0;
+  let current = 1;
+  yield 1;
+
+  while (true) { 
+    current = last + current;
+    last = current - last;
+    yield current;
+  }
+}
+
+let generator = fibonacci();
+println(generator);
+let i = 1;
+let n = 0;
+while (i <= 10) {
+  n = generator.next();
+  println("Fibonacci number for index ${i}: ${n}");
+  i++;
+}

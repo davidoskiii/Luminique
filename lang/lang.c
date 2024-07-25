@@ -330,7 +330,7 @@ NATIVE_METHOD(Function, __str__) {
   assertArgCount("Function::__str__()", 0, argCount);
 
   if (IS_NATIVE_FUNCTION(receiver)) {
-    RETURN_STRING_FMT("<native fn %s>", AS_NATIVE_FUNCTION(receiver)->name->chars);
+    RETURN_STRING_FMT("<native function %s>", AS_NATIVE_FUNCTION(receiver)->name->chars);
   }
 
   RETURN_STRING_FMT("<fn %s>", AS_CLOSURE(receiver)->function->name->chars);
@@ -340,7 +340,7 @@ NATIVE_METHOD(Function, __format__) {
   assertArgCount("Function::__format_()", 0, argCount);
 
   if (IS_NATIVE_FUNCTION(receiver)) {
-    RETURN_STRING_FMT("<native fn %s>", AS_NATIVE_FUNCTION(receiver)->name->chars);
+    RETURN_STRING_FMT("<native function %s>", AS_NATIVE_FUNCTION(receiver)->name->chars);
   }
 
   RETURN_STRING_FMT("<fn %s>", AS_CLOSURE(receiver)->function->name->chars);

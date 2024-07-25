@@ -1605,7 +1605,7 @@ InterpretResult run() {
         vm.runningGenerator->current = result;
         vm.frameCount--;
 
-        vm.stackTop = frame->slots;
+        resetCallFrame(vm.frameCount);
         if (vm.apiStackDepth > 0) return INTERPRET_OK;
         frame = &vm.frames[vm.frameCount - 1];
         break;
