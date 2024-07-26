@@ -448,6 +448,9 @@ void printObject(Value value) {
     case OBJ_NATIVE_METHOD:
       printf("<native method %s::%s>", AS_NATIVE_METHOD(value)->klass->name->chars, AS_NATIVE_METHOD(value)->name->chars);
       break;
+    case OBJ_PROMISE:
+      printf("<promise: %d>", AS_PROMISE(value)->id);
+      break;
     case OBJ_STRING:
       printf("%s", AS_CSTRING(value));
       break;

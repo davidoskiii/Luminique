@@ -9,6 +9,8 @@
 #define ALLOCATE(type, count) \
     (type*)reallocate(NULL, 0, sizeof(type) * (count))
 
+#define ALLOCATE_STRUCT(type) (type*)malloc(sizeof(type))
+
 #define FREE(type, pointer) reallocate(pointer, sizeof(type), 0)
 
 #define GROW_CAPACITY(capacity) \

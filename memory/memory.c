@@ -133,6 +133,14 @@ static void blackenObject(Obj* object) {
       markTable(&namespace->compilerGlobals);
       break;
     }
+    case OBJ_PROMISE: {
+      ObjPromise* promise = (ObjPromise*)object;
+      markValue(promise->value);
+      markObject((Obj*)promise->exception);
+      markObject((Obj*)promise->executor);
+      markArray(&promise->handlers);
+      break;
+    }
     case OBJ_RECORD:
       break;
     case OBJ_BOUND_METHOD: {
@@ -293,6 +301,12 @@ static void freeObject(Obj* object) {
       ObjFile* file = (ObjFile*)object;
       if (file->file != NULL && file->isOpen) fclose(file->file);
       FREE(ObjFile, object);
+      break;
+    }
+    case OBJ_PROMISE: {
+      ObjPromise* promise = (ObjPromise*)object;
+      freeValueArray(&promise->handlers);
+      FREE(ObjPromise, object);
       break;
     }
     case OBJ_RECORD: {

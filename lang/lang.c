@@ -361,11 +361,98 @@ NATIVE_METHOD(Generator, __undefinedProperty__) {
   ObjGenerator* self = AS_GENERATOR(receiver);
 
   if (matchStringName(property, "outer", 5)) {
-    RETURN_OBJ(self->outer);
+    return self->outer != NULL ? OBJ_VAL(self->outer) : NIL_VAL;
   } else if (matchStringName(property, "state", 5)) {
     RETURN_INT(self->state);
   } else if (matchStringName(property, "value", 5)) {
     return self->value;
+  } else THROW_EXCEPTION_FMT(luminique::std::lang, NotImplementedException, "Property %s does not exist in %s.", 
+    AS_CSTRING(args[0]), valueToString(receiver));
+}
+
+
+NATIVE_METHOD(Promise, __init__) {
+  assertArgCount("Promise::__init__(executor)", 1, argCount);
+  assertArgIsClosure("Promise::__init__(executor)", args, 0);
+  ObjPromise* self = AS_PROMISE(receiver);
+  self->executor = AS_CLOSURE(args[0]);
+
+  Value fulfill;
+  tableGet(&self->obj.klass->methods, copyString("fulfill", 7), &fulfill);
+  Value reject;
+  tableGet(&self->obj.klass->methods, copyString("reject", 6), &reject);
+  callReentrantMethod(OBJ_VAL(self), OBJ_VAL(self->executor), fulfill, reject);
+  RETURN_OBJ(self);
+}
+
+NATIVE_METHOD(Promise, catch) {
+  assertArgCount("Promise::catch(closure)", 1, argCount);
+  assertArgIsClosure("Promise::catch(closure)", args, 0);
+  ObjPromise* self = AS_PROMISE(receiver);
+  if (self->state == PROMISE_REJECTED) callReentrantMethod(OBJ_VAL(self), args[0], OBJ_VAL(self->exception));
+  else self->onCatch = args[0];
+  RETURN_OBJ(self);
+}
+
+NATIVE_METHOD(Promise, finally) {
+  assertArgCount("Promise::finally(closure)", 1, argCount);
+  assertArgIsClosure("Promise::finally(closure)", args, 0);
+  ObjPromise* self = AS_PROMISE(receiver);
+  if (self->state == PROMISE_FULFILLED || self->state == PROMISE_REJECTED) callReentrantMethod(OBJ_VAL(self), args[0], self->value);
+  else self->onCatch = args[0];
+  RETURN_OBJ(self);
+}
+
+NATIVE_METHOD(Promise, fulfill) {
+  assertArgCount("Promise::fulfill(value)", 1, argCount);
+  ObjPromise* self = AS_PROMISE(receiver);
+  self->state = PROMISE_FULFILLED;
+  self->value = args[0];
+  for (int i = 0; i < self->handlers.count; i++) {
+    self->value = callReentrantMethod(OBJ_VAL(self), self->handlers.values[i], self->value);
+  }
+  if (IS_CLOSURE(self->onFinally)) callReentrantMethod(OBJ_VAL(self), self->onFinally, self->value);
+  RETURN_NIL;
+}
+
+NATIVE_METHOD(Promise, isResolved) {
+  assertArgCount("Promise::isResolved()", 0, argCount);
+  ObjPromise* self = AS_PROMISE(receiver);
+  RETURN_BOOL(self->state == PROMISE_FULFILLED || self->state == PROMISE_REJECTED);
+}
+
+NATIVE_METHOD(Promise, reject) {
+  assertArgCount("Promise::reject(exception)", 1, argCount);
+  assertArgIsException("Promise::reject(exception)", args, 0);
+  ObjPromise* self = AS_PROMISE(receiver);
+  self->state = PROMISE_REJECTED;
+  self->exception = AS_EXCEPTION(args[0]);
+  if (IS_CLOSURE(self->onCatch)) callReentrantMethod(OBJ_VAL(self), self->onCatch, OBJ_VAL(self->exception));
+  if (IS_CLOSURE(self->onFinally)) callReentrantMethod(OBJ_VAL(self), self->onFinally, self->value);
+  RETURN_NIL;
+}
+
+NATIVE_METHOD(Promise, then) {
+  assertArgCount("Promise::then(onFulfilled)", 1, argCount);
+  assertArgIsClosure("Promise::then(onFulfilled)", args, 0);
+  ObjPromise* self = AS_PROMISE(receiver);
+  if (self->state == PROMISE_FULFILLED) self->value = callReentrantMethod(OBJ_VAL(self), args[0], self->value);
+  else writeValueArray(&self->handlers, args[0]);
+  RETURN_OBJ(self);
+}
+
+NATIVE_METHOD(Promise, __undefinedProperty__) {
+  assertArgCount("Promise::__undefinedProperty__(name)", 1, argCount);
+  assertArgIsString("Promise::__undefinedProperty__(name)", args, 0);
+  ObjString* property = AS_STRING(args[0]);
+  ObjPromise* self = AS_PROMISE(receiver);
+
+  if (matchStringName(property, "state", 5)) {
+    RETURN_INT(self->state);
+  } else if (matchStringName(property, "value", 5)) {
+    return self->value;
+  } else if (matchStringName(property, "id", 2)) {
+    RETURN_INT(self->id);
   } else THROW_EXCEPTION_FMT(luminique::std::lang, NotImplementedException, "Property %s does not exist in %s.", 
     AS_CSTRING(args[0]), valueToString(receiver));
 }
@@ -1078,14 +1165,32 @@ void registerLangPackage() {
 
   DEF_INTERCEPTOR(vm.generatorClass, Generator, INTERCEPTOR_UNDEFINED_PROPERTY, __undefinedProperty__, 1);
 
-  ObjEnum* generatorStateClass = defineNativeEnum("GeneratorState");
-  defineNativeArtificialEnumElement(generatorStateClass, "stateStart", INT_VAL(GENERATOR_START));
-  defineNativeArtificialEnumElement(generatorStateClass, "stateStart", INT_VAL(GENERATOR_START));
-  defineNativeArtificialEnumElement(generatorStateClass, "stateYield", INT_VAL(GENERATOR_YIELD));
-  defineNativeArtificialEnumElement(generatorStateClass, "stateResume", INT_VAL(GENERATOR_RESUME));
-  defineNativeArtificialEnumElement(generatorStateClass, "stateReturn", INT_VAL(GENERATOR_RETURN));
-  defineNativeArtificialEnumElement(generatorStateClass, "stateThrow", INT_VAL(GENERATOR_THROW));
-  defineNativeArtificialEnumElement(generatorStateClass, "stateError", INT_VAL(GENERATOR_ERROR));
+  ObjEnum* generatorStateEnum = defineNativeEnum("GeneratorState");
+  defineNativeArtificialEnumElement(generatorStateEnum, "stateStart", INT_VAL(GENERATOR_START));
+  defineNativeArtificialEnumElement(generatorStateEnum, "stateStart", INT_VAL(GENERATOR_START));
+  defineNativeArtificialEnumElement(generatorStateEnum, "stateYield", INT_VAL(GENERATOR_YIELD));
+  defineNativeArtificialEnumElement(generatorStateEnum, "stateResume", INT_VAL(GENERATOR_RESUME));
+  defineNativeArtificialEnumElement(generatorStateEnum, "stateReturn", INT_VAL(GENERATOR_RETURN));
+  defineNativeArtificialEnumElement(generatorStateEnum, "stateThrow", INT_VAL(GENERATOR_THROW));
+  defineNativeArtificialEnumElement(generatorStateEnum, "stateError", INT_VAL(GENERATOR_ERROR));
+
+  vm.promiseClass = defineNativeClass("Promise");
+  bindSuperclass(vm.promiseClass, vm.objectClass);
+  vm.promiseClass->classType = OBJ_PROMISE;
+  DEF_METHOD(vm.promiseClass, Promise, __init__, 1);
+  DEF_METHOD(vm.promiseClass, Promise, catch, 1);
+  DEF_METHOD(vm.promiseClass, Promise, finally, 1);
+  DEF_METHOD(vm.promiseClass, Promise, fulfill, 1);
+  DEF_METHOD(vm.promiseClass, Promise, isResolved, 0);
+  DEF_METHOD(vm.promiseClass, Promise, reject, 1);
+  DEF_METHOD(vm.promiseClass, Promise, then, 1);
+
+  DEF_INTERCEPTOR(vm.promiseClass, Promise, INTERCEPTOR_UNDEFINED_PROPERTY, __undefinedProperty__, 1);
+
+  ObjEnum* promiseStateEnum = defineNativeEnum("PromiseState");
+  defineNativeArtificialEnumElement(promiseStateEnum, "statePending", INT_VAL(PROMISE_PENDING));
+  defineNativeArtificialEnumElement(promiseStateEnum, "stateFulfilled", INT_VAL(PROMISE_FULFILLED));
+  defineNativeArtificialEnumElement(promiseStateEnum, "stateRejected", INT_VAL(PROMISE_REJECTED));
 
 	vm.nilClass = defineNativeClass("Nil");
 	bindSuperclass(vm.nilClass, vm.objectClass);
