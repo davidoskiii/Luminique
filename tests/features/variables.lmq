@@ -14,8 +14,6 @@ println("Creating z immutable variable: ${z}");
 print("Initializing more than one variable at once: ");
 let a, b, c = 1, 2, 3;
 
-print("${a}, ");
-print("${b}, ");
-println(c);
+println("${a}, ${b}, ${c}");
 
 // const d, e, f;

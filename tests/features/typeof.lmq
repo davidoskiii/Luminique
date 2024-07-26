@@ -1,5 +1,4 @@
 using luminique::std::math;
-namespace ntypeof;
 
 println("Type of 5: ${typeof 5}");
 println("Type of \"string\": ${typeof "string"}");

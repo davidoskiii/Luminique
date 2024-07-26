@@ -7,7 +7,7 @@ print("Class of string is: ");
 println(string.getClassName());
 
 print("length of string is: ");
-println(string.length());
+println(string.length);
 
 print("String contains 'Hello': ");
 println(string.contains("Hello"));
