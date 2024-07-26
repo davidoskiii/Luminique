@@ -257,6 +257,18 @@ NATIVE_METHOD(Generator, isReady) {
   RETURN_BOOL(AS_GENERATOR(receiver)->state == GENERATOR_START);
 }
 
+NATIVE_METHOD(Generator, getReceiver) {
+  assertArgCount("Generator::getReceiver()", 0, argCount);
+  RETURN_VAL(AS_GENERATOR(receiver)->frame->slots[0]);
+}
+
+NATIVE_METHOD(Generator, setReceiver) {
+  assertArgCount("Generator::setReceiver(receiver)", 1, argCount);
+  ObjGenerator* self = AS_GENERATOR(receiver);
+  self->frame->slots[0] = args[0];
+  RETURN_NIL;
+}
+
 NATIVE_METHOD(Generator, nextFinished) {
   assertArgCount("Generator::nextFinished()", 0, argCount);
   ObjGenerator* self = AS_GENERATOR(receiver);
@@ -1053,6 +1065,8 @@ void registerLangPackage() {
   DEF_METHOD(vm.generatorClass, Generator, isFinished, 0);
   DEF_METHOD(vm.generatorClass, Generator, isSuspended, 0);
   DEF_METHOD(vm.generatorClass, Generator, isReady, 0);
+  DEF_METHOD(vm.generatorClass, Generator, getReceiver, 0);
+  DEF_METHOD(vm.generatorClass, Generator, setReceiver, 1);
   DEF_METHOD(vm.generatorClass, Generator, nextFinished, 0);
   DEF_METHOD(vm.generatorClass, Generator, next, 0);
   DEF_METHOD(vm.generatorClass, Generator, returns, 1);
