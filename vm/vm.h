@@ -39,6 +39,7 @@ typedef struct {
   ObjClass* rangeClass;
   ObjClass* nodeClass;
   ObjClass* windowClass;
+  ObjClass* promiseClass;
 
   ObjNamespace* rootNamespace;
   ObjNamespace* luminiqueNamespace;
@@ -67,6 +68,7 @@ typedef struct {
 
   ObjString* initString;
   ObjUpvalue* openUpvalues;
+  int promiseCount;
 
   size_t bytesAllocated;
   size_t nextGC;
