@@ -228,7 +228,14 @@ static TokenType identifierType() {
       }
       break;
     case 'g': return checkKeyword(1, 2, "et", TOKEN_GET);
-    case 'i': return checkKeyword(1, 1, "f", TOKEN_IF);
+    case 'i':
+        if (scanner.current - scanner.start > 1) {
+        switch (scanner.start[1]) {
+          case 'f': return checkKeyword(2, 0, "", TOKEN_IF);
+          case 'n': return checkKeyword(2, 8, "stanceof", TOKEN_INSTANCEOF);
+        }
+      }
+      break;
     case 'l':
         if (scanner.current - scanner.start > 1) {
         switch (scanner.start[1]) {
