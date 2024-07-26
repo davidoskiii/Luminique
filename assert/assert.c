@@ -117,6 +117,14 @@ Value assertArgIsNamespace(const char* method, Value* args, int index) {
   RETURN_NIL;
 }
 
+Value assertArgIsPromise(const char* method, Value* args, int index) {
+  if (!IS_PROMISE(args[index]) && !isObjInstanceOf(args[index], vm.promiseClass)) {
+    THROW_EXCEPTION_FMT(luminique::std::lang, IllegalArgumentException, "Method %s expects argument %d to be a promise.", 
+      method, index + 1);
+  }
+  RETURN_NIL;
+}
+
 Value assertArgIsMethod(const char* method, Value* args, int index) { 
   if (!IS_NAMESPACE(args[index]) && !isObjInstanceOf(args[index], vm.methodClass)) {
     THROW_EXCEPTION_FMT(luminique::std::lang, IllegalArgumentException, "Method %s expects argument %d to be a method.", 

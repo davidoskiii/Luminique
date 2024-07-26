@@ -15,6 +15,7 @@ Value assertArgIsArray(const char* method, Value* args, int index);
 Value assertArgIsNumber(const char* method, Value* args, int index);
 Value assertArgIsString(const char* method, Value* args, int index);
 Value assertArgIsException(const char* method, Value* args, int index);
+Value assertArgIsPromise(const char* method, Value* args, int index);
 Value assertArgIsFile(const char* method, Value* args, int index);
 Value assertArgIsNamespace(const char* method, Value* args, int index);
 Value assertArgIsMethod(const char* method, Value* args, int index);
