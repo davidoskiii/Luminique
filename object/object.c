@@ -138,6 +138,19 @@ ObjModule* newModule(ObjString* path) {
   return module;
 }
 
+ObjPromise* newPromise(ObjClosure* executor){
+  ObjPromise* promise = ALLOCATE_OBJ(ObjPromise, OBJ_PROMISE, vm.promiseClass);
+  promise->id = ++vm.promiseCount;
+  promise->state = PROMISE_PENDING;
+  promise->value = NIL_VAL;
+  promise->exception = NULL;
+  promise->executor = executor;
+  promise->onCatch = NIL_VAL;
+  promise->onFinally = NIL_VAL;
+  initValueArray(&promise->handlers);
+  return promise;
+}
+
 ObjNamespace* newNamespace(ObjString* shortName, ObjNamespace* enclosing) {
   ObjNamespace* namespace = ALLOCATE_OBJ(ObjNamespace, OBJ_NAMESPACE, vm.namespaceClass);
   namespace->shortName = shortName;
