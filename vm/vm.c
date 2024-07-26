@@ -211,7 +211,9 @@ static bool loadModule(ObjString* filePath) {
 
 void initVM(int argc, char** argv) {
   resetStack();
+  vm.promiseCount = 0;
   vm.currentModule = NULL;
+
   vm.objects = NULL;
   vm.bytesAllocated = 0;
   vm.nextGC = (size_t)1024 * 1024;
@@ -505,6 +507,7 @@ static Value createObject(ObjClass* klass, int argCount) {
     case OBJ_NODE: return OBJ_VAL(newNode(NIL_VAL, NULL, NULL));
     case OBJ_RANGE: return OBJ_VAL(newRange(0, 1));
     case OBJ_RECORD: return OBJ_VAL(newRecord(NULL));
+    case OBJ_PROMISE: return OBJ_VAL(newPromise(NULL));
     case OBJ_STRING: return OBJ_VAL(ALLOCATE_STRING(0, klass));
     default: return NIL_VAL;
   }
