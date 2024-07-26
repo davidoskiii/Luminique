@@ -91,7 +91,8 @@ InterpretResult run();
 void initVM(int argc, char** argv);
 void freeVM();
 
-Value callReentrant(Value receiver, Value callee, ...);
+Value callReentrantFunction(Value callee, ...);
+Value callReentrantMethod(Value receiver, Value callee, ...);
 bool callMethod(Value method, int argCount);
 bool isFalsey(Value value);
 void bindSuperclass(ObjClass* subclass, ObjClass* superclass);

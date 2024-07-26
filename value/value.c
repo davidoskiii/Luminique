@@ -186,10 +186,10 @@ char* valueToString(Value value) {
         #ifdef DEBUG_FORMAT
         if (objMethodExists(value, "__format__")) {
           Value method = getObjMethod(value, "__format__");
-          Value str = callReentrant(value, method);
+          Value str = callReentrantMethod(value, method);
           do {
             Value toStringMethod = getObjMethod(str, "__str__");
-            str = callReentrant(str, toStringMethod);
+            str = callReentrantMethod(str, toStringMethod);
           } while (!IS_STRING(str));
           return AS_CSTRING(str);
         } else 

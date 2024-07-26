@@ -459,7 +459,29 @@ bool callMethod(Value method, int argCount) {
   else return callClosure(AS_CLOSURE(method), argCount);
 }
 
-Value callReentrant(Value receiver, Value callee, ...) {
+static void callReentrantClosure(Value callee, int argCount) {
+  vm.apiStackDepth++;
+  callClosure(AS_CLOSURE(callee), argCount);
+  InterpretResult result = run();
+  if (result == INTERPRET_RUNTIME_ERROR) exit(70);
+  vm.apiStackDepth--;
+}
+
+Value callReentrantFunction(Value callee, ...) {
+  int argCount = IS_NATIVE_FUNCTION(callee) ? AS_NATIVE_FUNCTION(callee)->arity : AS_CLOSURE(callee)->function->arity;
+  va_list args;
+  va_start(args, callee);
+  for (int i = 0; i < argCount; i++) {
+    push(va_arg(args, Value));
+  }
+  va_end(args);
+
+  if (IS_CLOSURE(callee)) callReentrantClosure(callee, argCount);
+  else callNativeFunction(AS_NATIVE_FUNCTION(callee)->function, argCount);
+  return pop();
+}
+
+Value callReentrantMethod(Value receiver, Value callee, ...) {
   push(receiver);
   int argCount = IS_NATIVE_METHOD(callee) ? AS_NATIVE_METHOD(callee)->arity : AS_CLOSURE(callee)->function->arity;
   va_list args;
@@ -469,15 +491,8 @@ Value callReentrant(Value receiver, Value callee, ...) {
   }
   va_end(args);
 
-  if (IS_CLOSURE(callee)) {
-    vm.apiStackDepth++;
-    callClosure(AS_CLOSURE(callee), argCount);
-    InterpretResult result = run();
-    if (result == INTERPRET_RUNTIME_ERROR) exit(70);
-    vm.apiStackDepth--;
-  } else {
-    callNativeMethod(AS_NATIVE_METHOD(callee)->method, argCount);
-  }
+  if (IS_CLOSURE(callee)) callReentrantClosure(callee, argCount);
+  else callNativeMethod(AS_NATIVE_METHOD(callee)->method, argCount);
   return pop();
 }
 
@@ -612,7 +627,7 @@ static bool bindGetter(ObjClass* klass, ObjInstance* instance, ObjString* name) 
     return false;
   }
 
-  Value getter = callReentrant(peek(0), method, NIL_VAL); 
+  Value getter = callReentrantMethod(peek(0), method, NIL_VAL); 
 
   tableSet(&instance->fields, name, getter);
 
@@ -1324,7 +1339,7 @@ InterpretResult run() {
           Value setter;
           bool isSetter = tableGet(&instance->obj.klass->setters, name, &setter);
           if (isSetter) {
-            callReentrant(OBJ_VAL(instance), setter, value);
+            callReentrantMethod(OBJ_VAL(instance), setter, value);
             pop();
             push(value);
           }

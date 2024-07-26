@@ -316,7 +316,7 @@ NATIVE_FUNCTION(str) {
   Value str = args[0];
   do {
     Value toStringMethod = getObjMethod(str, "__str__");
-    str = callReentrant(str, toStringMethod);
+    str = callReentrantMethod(str, toStringMethod);
   } while (!IS_STRING(str));
 
   RETURN_STRING_FMTL(AS_CSTRING(str));

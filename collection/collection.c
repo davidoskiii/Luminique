@@ -363,7 +363,7 @@ Value newCollection(ObjClass* klass) {
     default: {
       ObjInstance* collection = newInstance(klass);
       Value initMethod = getObjMethod(OBJ_VAL(collection), "__init__");
-      callReentrant(OBJ_VAL(collection), initMethod);
+      callReentrantMethod(OBJ_VAL(collection), initMethod);
       return OBJ_VAL(collection);
     }
   }
@@ -587,12 +587,12 @@ NATIVE_METHOD(Collection, extend) {
   Value addMethod = getObjMethod(receiver, "append");
   Value nextMethod = getObjMethod(collection, "next");
   Value nextValueMethod = getObjMethod(collection, "nextValue");
-  Value index = callReentrant(collection, nextMethod, NIL_VAL);
+  Value index = callReentrantMethod(collection, nextMethod, NIL_VAL);
 
   while (!IS_NIL(index)) {
-    Value element = callReentrant(collection, nextValueMethod, index);
-    callReentrant(receiver, addMethod, element);
-    index = callReentrant(collection, nextMethod, index);
+    Value element = callReentrantMethod(collection, nextValueMethod, index);
+    callReentrantMethod(receiver, addMethod, element);
+    index = callReentrantMethod(collection, nextMethod, index);
   }
 
   RETURN_NIL;
@@ -605,15 +605,15 @@ NATIVE_METHOD(Collection, collect) {
   Value addMethod = getObjMethod(receiver, "append");
   Value nextMethod = getObjMethod(receiver, "next");
   Value nextValueMethod = getObjMethod(receiver, "nextValue");
-  Value index = callReentrant(receiver, nextMethod, NIL_VAL);
+  Value index = callReentrantMethod(receiver, nextMethod, NIL_VAL);
 
   Value collected = newCollection(getObjClass(receiver));
   push(collected);
   while (!IS_NIL(index)) {
-    Value element = callReentrant(receiver, nextValueMethod, index);
-    Value result = callReentrant(receiver, OBJ_VAL(closure), element);
-    callReentrant(collected, addMethod, result);
-    index = callReentrant(receiver, nextMethod, index);
+    Value element = callReentrantMethod(receiver, nextValueMethod, index);
+    Value result = callReentrantMethod(receiver, OBJ_VAL(closure), element);
+    callReentrantMethod(collected, addMethod, result);
+    index = callReentrantMethod(receiver, nextMethod, index);
   }
   pop();
   return collected;
@@ -625,13 +625,13 @@ NATIVE_METHOD(Collection, detect) {
   ObjClosure* closure = AS_CLOSURE(args[0]);
   Value nextMethod = getObjMethod(receiver, "next");
   Value nextValueMethod = getObjMethod(receiver, "nextValue");
-  Value index = callReentrant(receiver, nextMethod, NIL_VAL);
+  Value index = callReentrantMethod(receiver, nextMethod, NIL_VAL);
 
   while (!IS_NIL(index)) {
-    Value element = callReentrant(receiver, nextValueMethod, index);
-    Value result = callReentrant(receiver, OBJ_VAL(closure), element);
+    Value element = callReentrantMethod(receiver, nextValueMethod, index);
+    Value result = callReentrantMethod(receiver, OBJ_VAL(closure), element);
     if (!isFalsey(result)) RETURN_VAL(element);
-    index = callReentrant(receiver, nextMethod, index);
+    index = callReentrantMethod(receiver, nextMethod, index);
   }
 
   RETURN_NIL;
@@ -643,12 +643,12 @@ NATIVE_METHOD(Collection, each) {
   ObjClosure* closure = AS_CLOSURE(args[0]);
   Value nextMethod = getObjMethod(receiver, "next");
   Value nextValueMethod = getObjMethod(receiver, "nextValue");
-  Value index = callReentrant(receiver, nextMethod, NIL_VAL);
+  Value index = callReentrantMethod(receiver, nextMethod, NIL_VAL);
 
   while (!IS_NIL(index)) {
-    Value element = callReentrant(receiver, nextValueMethod, index);
-    callReentrant(receiver, OBJ_VAL(closure), element);
-    index = callReentrant(receiver, nextMethod, index);
+    Value element = callReentrantMethod(receiver, nextValueMethod, index);
+    callReentrantMethod(receiver, OBJ_VAL(closure), element);
+    index = callReentrantMethod(receiver, nextMethod, index);
   }
 
   RETURN_NIL;
@@ -662,19 +662,19 @@ NATIVE_METHOD(Collection, __init__) {
 NATIVE_METHOD(Collection, isEmpty) {
   assertArgCount("Collection::isEmpty()", 1, argCount);
   Value nextMethod = getObjMethod(receiver, "next");
-  Value index = callReentrant(receiver, nextMethod, NIL_VAL);
+  Value index = callReentrantMethod(receiver, nextMethod, NIL_VAL);
   RETURN_BOOL(IS_NIL(index));
 }
 
 NATIVE_METHOD(Collection, length) {
   assertArgCount("Collection::length()", 0, argCount);
   Value nextMethod = getObjMethod(receiver, "next");
-  Value index = callReentrant(receiver, nextMethod, NIL_VAL);
+  Value index = callReentrantMethod(receiver, nextMethod, NIL_VAL);
   
   int length = 0;
 
   while (!IS_NIL(index)) {
-    index = callReentrant(receiver, nextMethod, index);
+    index = callReentrantMethod(receiver, nextMethod, index);
     length++;
   }
 
@@ -688,16 +688,16 @@ NATIVE_METHOD(Collection, reject) {
   Value addMethod = getObjMethod(receiver, "append");
   Value nextMethod = getObjMethod(receiver, "next");
   Value nextValueMethod = getObjMethod(receiver, "nextValue");
-  Value index = callReentrant(receiver, nextMethod, NIL_VAL);
+  Value index = callReentrantMethod(receiver, nextMethod, NIL_VAL);
 
   Value rejected = newCollection(getObjClass(receiver));
   push(rejected);
 
   while (!IS_NIL(index)) {
-    Value element = callReentrant(receiver, nextValueMethod, index);
-    Value result = callReentrant(receiver, OBJ_VAL(closure), element);
-    if(isFalsey(result)) callReentrant(rejected, addMethod, element);
-    index = callReentrant(receiver, nextMethod, index);
+    Value element = callReentrantMethod(receiver, nextValueMethod, index);
+    Value result = callReentrantMethod(receiver, OBJ_VAL(closure), element);
+    if(isFalsey(result)) callReentrantMethod(rejected, addMethod, element);
+    index = callReentrantMethod(receiver, nextMethod, index);
   }
 
   pop();
@@ -711,16 +711,16 @@ NATIVE_METHOD(Collection, select) {
   Value addMethod = getObjMethod(receiver, "append");
   Value nextMethod = getObjMethod(receiver, "next");
   Value nextValueMethod = getObjMethod(receiver, "nextValue");
-  Value index = callReentrant(receiver, nextMethod, NIL_VAL);
+  Value index = callReentrantMethod(receiver, nextMethod, NIL_VAL);
 
   Value selected = newCollection(getObjClass(receiver));
   push(selected);
 
   while (!IS_NIL(index)) {
-    Value element = callReentrant(receiver, nextValueMethod, index);
-    Value result = callReentrant(receiver, OBJ_VAL(closure), element);
-    if (!isFalsey(result)) callReentrant(selected, addMethod, element);
-    index = callReentrant(receiver, nextMethod, index);
+    Value element = callReentrantMethod(receiver, nextValueMethod, index);
+    Value result = callReentrantMethod(receiver, OBJ_VAL(closure), element);
+    if (!isFalsey(result)) callReentrantMethod(selected, addMethod, element);
+    index = callReentrantMethod(receiver, nextMethod, index);
   }
 
   pop();
@@ -731,15 +731,15 @@ NATIVE_METHOD(Collection, toArray) {
   assertArgCount("Collection::toArray(closure)", 1, argCount);
   Value nextMethod = getObjMethod(receiver, "next");
   Value nextValueMethod = getObjMethod(receiver, "nextValue");
-  Value index = callReentrant(receiver, nextMethod, NIL_VAL);
+  Value index = callReentrantMethod(receiver, nextMethod, NIL_VAL);
 
   ObjArray* array = newArray();
   push(OBJ_VAL(array));
 
   while (!IS_NIL(index)) {
-    Value element = callReentrant(receiver, nextValueMethod, index);
+    Value element = callReentrantMethod(receiver, nextValueMethod, index);
     writeValueArray(&array->elements, element);
-    index = callReentrant(receiver, nextMethod, index);
+    index = callReentrantMethod(receiver, nextMethod, index);
   }
 
   pop();
@@ -1198,11 +1198,11 @@ NATIVE_METHOD(Range, step) {
   } else {
     if (by > 0) {
       for (double num = from; num <= to; num += by) {
-        callReentrant(receiver, OBJ_VAL(closure), NUMBER_VAL(num));
+        callReentrantMethod(receiver, OBJ_VAL(closure), NUMBER_VAL(num));
       }
     } else {
       for (double num = from; num >= to; num += by) {
-        callReentrant(receiver, OBJ_VAL(closure), NUMBER_VAL(num));
+        callReentrantMethod(receiver, OBJ_VAL(closure), NUMBER_VAL(num));
       }
     }
   }
@@ -1274,9 +1274,9 @@ NATIVE_METHOD(List, eachIndex) {
   Value nextValueMethod = getObjMethod(receiver, "nextValue");
 
   while (index != NIL_VAL) {
-    Value element = callReentrant(receiver, nextValueMethod, index);
-    callReentrant(receiver, OBJ_VAL(closure), index, element);
-    index = callReentrant(receiver, nextMethod, index);
+    Value element = callReentrantMethod(receiver, nextValueMethod, index);
+    callReentrantMethod(receiver, OBJ_VAL(closure), index, element);
+    index = callReentrantMethod(receiver, nextMethod, index);
   }
   RETURN_NIL;
 }
@@ -1290,9 +1290,9 @@ NATIVE_METHOD(List, getAt) {
   Value nextValueMethod = getObjMethod(receiver, "nextValue");
 
   while (index != NIL_VAL) {
-    Value element = callReentrant(receiver, nextValueMethod, index);
+    Value element = callReentrantMethod(receiver, nextValueMethod, index);
     if (index == position) RETURN_VAL(element);
-    index = callReentrant(receiver, nextMethod, index);
+    index = callReentrantMethod(receiver, nextMethod, index);
   }
   RETURN_NIL;
 }

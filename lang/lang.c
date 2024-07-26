@@ -95,7 +95,7 @@ NATIVE_METHOD(Class, __invoke__) {
   Value initMethod;
 
   if (tableGet(&self->methods, vm.initString, &initMethod)) {
-    callReentrant(receiver, initMethod, args);
+    callReentrantMethod(receiver, initMethod, args);
   }
 
   pop();
