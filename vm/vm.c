@@ -915,7 +915,7 @@ InterpretResult run() {
         if (IS_NUMBER(peek(0)) && IS_NUMBER(peek(1))) BINARY_NUMBER_OP(BOOL_VAL, ==);
         else { 
           ObjString* operator = copyString("==", 2);
-          if (!invokeOperator(operator, true)) {
+          if (!invokeOperator(operator, 1)) {
             Value b = pop();
             Value a = pop();
             push(BOOL_VAL(a == b));
@@ -1560,13 +1560,14 @@ InterpretResult run() {
         Value result = pop();
         closeUpvalues(frame->slots);
         if (frame->closure->function->isGenerator) vm.runningGenerator->state = GENERATOR_RETURN;
+
         vm.frameCount--;
         if (vm.frameCount == 0) {
           pop();
           return INTERPRET_OK;
         }
 
-        if (frame->closure->function->isGenerator) vm.stackTop = frame->slots;
+        if (!frame->closure->function->isGenerator) vm.stackTop = frame->slots;
         if (vm.runModule) {
           vm.runModule = false;
         } else {
@@ -1589,7 +1590,7 @@ InterpretResult run() {
           return INTERPRET_OK;
         }
 
-        if (frame->closure->function->isGenerator) vm.stackTop = frame->slots;
+        if (!frame->closure->function->isGenerator) vm.stackTop = frame->slots;
         push(result);
         if (vm.apiStackDepth > 0) return INTERPRET_OK;
         frame = &vm.frames[vm.frameCount - 1];

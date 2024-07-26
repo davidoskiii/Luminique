@@ -51,18 +51,6 @@ NATIVE_METHOD(Exception, __init__) {
   RETURN_OBJ(self);
 }
 
-NATIVE_METHOD(Exception, message) {
-  assertArgCount("Exception::message()", 0, argCount);
-  ObjException* self = AS_EXCEPTION(receiver);
-  RETURN_OBJ(self->message);
-}
-
-NATIVE_METHOD(Exception, stacktrace) {
-  assertArgCount("Exception::stacktrace()", 0, argCount);
-  ObjException* self = AS_EXCEPTION(receiver);
-  RETURN_OBJ(self->stacktrace);
-}
-
 NATIVE_METHOD(Exception, __str__) {
   assertArgCount("Exception::__str__()", 0, argCount);
   ObjException* self = AS_EXCEPTION(receiver);
@@ -73,6 +61,20 @@ NATIVE_METHOD(Exception, __format__) {
   assertArgCount("Exception::__format__()", 0, argCount);
   ObjException* self = AS_EXCEPTION(receiver);
   RETURN_STRING_FMT("<Exception %s - %s>", self->obj.klass->name->chars, self->message->chars);
+}
+
+NATIVE_METHOD(Exception, __undefinedProperty__) {
+  assertArgCount("Exception::__undefinedProperty__(name)", 1, argCount);
+  assertArgIsString("Exception::__undefinedProperty__(name)", args, 0);
+  ObjString* property = AS_STRING(args[0]);
+  ObjException* self = AS_EXCEPTION(receiver);
+
+  if (matchStringName(property, "message", 7)) {
+    RETURN_OBJ(self->message);
+  } else if (matchStringName(property, "stacktrace", 10)) {
+    RETURN_OBJ(self->stacktrace);
+  } else THROW_EXCEPTION_FMT(luminique::std::lang, NotImplementedException, "Property %s does not exist in %s.", 
+    AS_CSTRING(args[0]), valueToString(receiver));
 }
 
 // CLASS
@@ -315,24 +317,6 @@ NATIVE_METHOD(Generator, throws) {
   }
 }
 
-NATIVE_METHOD(Generator, value) {
-  assertArgCount("Generator::value()", 0, argCount);
-  ObjGenerator* self = AS_GENERATOR(receiver);
-  return self->value;
-}
-
-NATIVE_METHOD(Generator, state) {
-  assertArgCount("Generator::state()", 0, argCount);
-  ObjGenerator* self = AS_GENERATOR(receiver);
-  RETURN_INT(self->state);
-}
-
-NATIVE_METHOD(Generator, outer) {
-  assertArgCount("Generator::outer()", 0, argCount);
-  ObjGenerator* self = AS_GENERATOR(receiver);
-  return self->outer != NULL ? OBJ_VAL(self->outer) : NIL_VAL;
-}
-
 NATIVE_METHOD(Generator, __str__) {
   assertArgCount("Generator::__str__()", 0, argCount);
   ObjGenerator* self = AS_GENERATOR(receiver);
@@ -358,6 +342,22 @@ NATIVE_METHOD(Generator, __invoke__) {
   }
 }
 
+NATIVE_METHOD(Generator, __undefinedProperty__) {
+  assertArgCount("Generator::__undefinedProperty__(name)", 1, argCount);
+  assertArgIsString("Generator::__undefinedProperty__(name)", args, 0);
+  ObjString* property = AS_STRING(args[0]);
+  ObjGenerator* self = AS_GENERATOR(receiver);
+
+  if (matchStringName(property, "outer", 5)) {
+    RETURN_OBJ(self->outer);
+  } else if (matchStringName(property, "state", 5)) {
+    RETURN_INT(self->state);
+  } else if (matchStringName(property, "value", 5)) {
+    return self->value;
+  } else THROW_EXCEPTION_FMT(luminique::std::lang, NotImplementedException, "Property %s does not exist in %s.", 
+    AS_CSTRING(args[0]), valueToString(receiver));
+}
+
 // FUNCTION
 
 NATIVE_METHOD(Function, __init__) {
@@ -377,16 +377,6 @@ NATIVE_METHOD(Function, __invoke__) {
   RETURN_NIL;
 }
 
-NATIVE_METHOD(Function, arity) {
-  assertArgCount("Function::arity()", 0, argCount);
-
-  if (IS_NATIVE_FUNCTION(receiver)) {
-     RETURN_INT(AS_NATIVE_FUNCTION(receiver)->arity);
-  }
-
-  RETURN_INT(AS_CLOSURE(receiver)->function->arity);
-}
-
 NATIVE_METHOD(Function, clone) {
   assertArgCount("Function::clone()", 0, argCount);
   return receiver;
@@ -395,14 +385,6 @@ NATIVE_METHOD(Function, clone) {
 NATIVE_METHOD(Function, isNative) {
   assertArgCount("Function::isNative()", 0, argCount);
   RETURN_BOOL(IS_NATIVE_FUNCTION(receiver));
-}
-
-NATIVE_METHOD(Function, name) {
-  assertArgCount("Function::name()", 0, argCount);
-  if (IS_NATIVE_FUNCTION(receiver)) {
-    RETURN_OBJ(AS_NATIVE_FUNCTION(receiver)->name);
-  }
-  RETURN_OBJ(AS_CLOSURE(receiver)->function->name);
 }
 
 NATIVE_METHOD(Function, __str__) {
@@ -425,9 +407,28 @@ NATIVE_METHOD(Function, __format__) {
   RETURN_STRING_FMT("<fn %s>", AS_CLOSURE(receiver)->function->name->chars);
 }
 
-NATIVE_METHOD(Function, upvalueCount) {
-  assertArgCount("Function::upvalueCount()", 0, argCount);
-  RETURN_INT(AS_CLOSURE(receiver)->upvalueCount);
+NATIVE_METHOD(Function, __undefinedProperty__) {
+  assertArgCount("Function::__undefinedProperty__(name)", 1, argCount);
+  assertArgIsString("Function::__undefinedProperty__(name)", args, 0);
+  ObjString* property = AS_STRING(args[0]);
+  ObjClosure* self = AS_CLOSURE(receiver);
+
+  if (matchStringName(property, "name", 4)) {
+    if (IS_NATIVE_FUNCTION(receiver)) {
+      RETURN_OBJ(AS_NATIVE_FUNCTION(receiver)->name);
+    }
+
+    RETURN_OBJ(self->function->name);
+  } else if (matchStringName(property, "arity", 5)) {
+    if (IS_NATIVE_FUNCTION(receiver)) {
+      RETURN_INT(AS_NATIVE_FUNCTION(receiver)->arity);
+    }
+
+    RETURN_INT(self->function->arity);
+  } else if (matchStringName(property, "upvalueCount", 12)) {
+    RETURN_INT(self->upvalueCount);
+  } else THROW_EXCEPTION_FMT(luminique::std::lang, NotImplementedException, "Property %s does not exist in %s.", 
+    AS_CSTRING(args[0]), valueToString(receiver));
 }
 
 // METHOD
@@ -437,25 +438,9 @@ NATIVE_METHOD(Method, __init__) {
   THROW_EXCEPTION(luminique::std::lang, InstantiationException, "Cannot instantiate from class Method.");
 }
 
-NATIVE_METHOD(Method, arity) {
-  assertArgCount("Method::arity()", 0, argCount);
-  RETURN_INT(AS_BOUND_METHOD(receiver)->method->function->arity);
-}
-
 NATIVE_METHOD(Method, clone) {
   assertArgCount("Method::clone()", 0, argCount);
   return receiver;
-}
-
-NATIVE_METHOD(Method, name) {
-  assertArgCount("Method::name()", 0, argCount);
-  ObjBoundMethod* bound = AS_BOUND_METHOD(receiver);
-  RETURN_STRING_FMT("%s::%s", getObjClass(bound->receiver)->name->chars, bound->method->function->name->chars);
-}
-
-NATIVE_METHOD(Method, receiver) {
-  assertArgCount("Method::receiver()", 0, argCount);
-  RETURN_VAL(AS_BOUND_METHOD(receiver)->receiver);
 }
 
 NATIVE_METHOD(Method, __str__) {
@@ -470,9 +455,24 @@ NATIVE_METHOD(Method, __format__) {
   RETURN_STRING_FMT("<method %s::%s>", getObjClass(bound->receiver)->name->chars, bound->method->function->name->chars);
 }
 
-NATIVE_METHOD(Method, upvalueCount) {
-  assertArgCount("Function::upvalueCount()", 0, argCount);
-  RETURN_INT(AS_BOUND_METHOD(receiver)->method->upvalueCount);
+NATIVE_METHOD(Method, __undefinedProperty__) {
+  assertArgCount("Method::__undefinedProperty__(name)", 1, argCount);
+  assertArgIsString("Method::__undefinedProperty__(name)", args, 0);
+  ObjString* property = AS_STRING(args[0]);
+  ObjBoundMethod* self = AS_BOUND_METHOD(receiver);
+
+  if (matchStringName(property, "receiver", 8)) {
+    RETURN_OBJ(self->receiver);
+  } else if (matchStringName(property, "func", 4)) {
+    RETURN_OBJ(self->method);
+  } else if (matchStringName(property, "name", 4)) {
+    RETURN_STRING_FMT("%s::%s", getObjClass(self->receiver)->name->chars, self->method->function->name->chars);
+  } else if (matchStringName(property, "arity", 5)) {
+    RETURN_INT(self->method->function->arity);
+  } else if (matchStringName(property, "upvalueCount", 12)) {
+    RETURN_INT(self->method->upvalueCount);
+  } else THROW_EXCEPTION_FMT(luminique::std::lang, NotImplementedException, "Property %s does not exist in %s.", 
+    AS_CSTRING(args[0]), valueToString(receiver));
 }
 
 // INT
@@ -792,11 +792,6 @@ NATIVE_METHOD(String, search) {
   RETURN_INT(searchString(haystack, needle, 0));
 }
 
-NATIVE_METHOD(String, length) {
-  assertArgCount("String::length()", 0, argCount);
-  RETURN_INT(AS_STRING(receiver)->length);
-}
-
 NATIVE_METHOD(String, next) {
   assertArgCount("String::next(index)", 1, argCount);
   ObjString* self = AS_STRING(receiver);
@@ -896,6 +891,18 @@ NATIVE_METHOD(String, upper) {
 NATIVE_METHOD(String, trim) {
   assertArgCount("String::trim()", 0, argCount);
   RETURN_OBJ(trimString(AS_STRING(receiver)));
+}
+
+NATIVE_METHOD(String, __undefinedProperty__) {
+  assertArgCount("String::__undefinedProperty__(name)", 1, argCount);
+  assertArgIsString("String::__undefinedProperty__(name)", args, 0);
+  ObjString* property = AS_STRING(args[0]);
+  ObjString* self = AS_STRING(receiver);
+
+  if (matchStringName(property, "length", 6)) {
+    RETURN_INT(self->length);
+  } else THROW_EXCEPTION_FMT(luminique::std::lang, NotImplementedException, "Property %s does not exist in %s.", 
+    AS_CSTRING(args[0]), valueToString(receiver));
 }
 
 NATIVE_METHOD(Namespace, __init__) {
@@ -1024,10 +1031,10 @@ void registerLangPackage() {
   bindSuperclass(vm.exceptionClass, vm.objectClass);
   vm.exceptionClass->classType = OBJ_EXCEPTION;
   DEF_METHOD(vm.exceptionClass, Exception, __init__, 1);
-  DEF_METHOD(vm.exceptionClass, Exception, message, 0);
-  DEF_METHOD(vm.exceptionClass, Exception, stacktrace, 0);
   DEF_METHOD(vm.exceptionClass, Exception, __str__, 0);
   DEF_METHOD(vm.exceptionClass, Exception, __format__, 0);
+
+  DEF_INTERCEPTOR(vm.exceptionClass, Exception, INTERCEPTOR_UNDEFINED_PROPERTY, __undefinedProperty__, 1);
 
   ObjClass* runtimeExceptionClass = defineNativeException("RuntimeException", vm.exceptionClass);
   defineNativeException("ArithmeticException", runtimeExceptionClass);
@@ -1051,12 +1058,11 @@ void registerLangPackage() {
   DEF_METHOD(vm.generatorClass, Generator, returns, 1);
   DEF_METHOD(vm.generatorClass, Generator, send, 1);
   DEF_METHOD(vm.generatorClass, Generator, throws, 1);
-  DEF_METHOD(vm.generatorClass, Generator, value, 0);
-  DEF_METHOD(vm.generatorClass, Generator, state, 0);
-  DEF_METHOD(vm.generatorClass, Generator, outer, 0);
   DEF_METHOD(vm.generatorClass, Generator, __str__, 0);
   DEF_METHOD(vm.generatorClass, Generator, __format__, 0);
   DEF_OPERATOR(vm.generatorClass, Generator, (), __invoke__, -1);
+
+  DEF_INTERCEPTOR(vm.generatorClass, Generator, INTERCEPTOR_UNDEFINED_PROPERTY, __undefinedProperty__, 1);
 
   ObjEnum* generatorStateClass = defineNativeEnum("GeneratorState");
   defineNativeArtificialEnumElement(generatorStateClass, "stateStart", INT_VAL(GENERATOR_START));
@@ -1126,7 +1132,6 @@ void registerLangPackage() {
   DEF_METHOD(vm.stringClass, String, ends, 1);
   DEF_METHOD(vm.stringClass, String, subscript, 1);
   DEF_METHOD(vm.stringClass, String, search, 1);
-  DEF_METHOD(vm.stringClass, String, length, 0);
   DEF_METHOD(vm.stringClass, String, next, 1);
   DEF_METHOD(vm.stringClass, String, nextValue, 1);
   DEF_METHOD(vm.stringClass, String, replace, 2);
@@ -1139,8 +1144,10 @@ void registerLangPackage() {
   DEF_METHOD(vm.stringClass, String, __format__, 0);
   DEF_METHOD(vm.stringClass, String, upper, 0);
   DEF_METHOD(vm.stringClass, String, trim, 0);
+
   DEF_OPERATOR(vm.stringClass, String, +, __add__, 1);
   DEF_OPERATOR(vm.stringClass, String, [], __getSubscript__, 1);
+  DEF_INTERCEPTOR(vm.stringClass, String, INTERCEPTOR_UNDEFINED_PROPERTY, __undefinedProperty__, 1);
 
   for (int i = 0; i < vm.strings.capacity; i++) {
     Entry* entry = &vm.strings.entries[i];
@@ -1152,26 +1159,23 @@ void registerLangPackage() {
   bindSuperclass(vm.functionClass, vm.objectClass);
   vm.functionClass->classType = OBJ_FUNCTION;
   DEF_METHOD(vm.functionClass, Function, __init__, 0);
-  DEF_METHOD(vm.functionClass, Function, arity, 0);
   DEF_METHOD(vm.functionClass, Function, clone, 0);
   DEF_METHOD(vm.functionClass, Function, isNative, 0);
-  DEF_METHOD(vm.functionClass, Function, name, 0);
   DEF_METHOD(vm.functionClass, Function, __str__, 0);
   DEF_METHOD(vm.functionClass, Function, __format__, 0);
-  DEF_METHOD(vm.functionClass, Function, upvalueCount, 0);
   DEF_OPERATOR(vm.functionClass, Function, (), __invoke__, -1);
+
+  DEF_INTERCEPTOR(vm.functionClass, Function, INTERCEPTOR_UNDEFINED_PROPERTY, __undefinedProperty__, 1);
 
   vm.methodClass = defineNativeClass("Method");
   bindSuperclass(vm.methodClass, vm.objectClass);
   vm.methodClass->classType = OBJ_FUNCTION;
   DEF_METHOD(vm.methodClass, Method, __init__, 0);
-  DEF_METHOD(vm.methodClass, Method, arity, 0);
   DEF_METHOD(vm.methodClass, Method, clone, 0);
-  DEF_METHOD(vm.methodClass, Method, name, 0);
-  DEF_METHOD(vm.methodClass, Method, receiver, 0);
   DEF_METHOD(vm.methodClass, Method, __str__, 0);
   DEF_METHOD(vm.methodClass, Method, __format__, 0);
-  DEF_METHOD(vm.methodClass, Method, upvalueCount, 0);
+
+  DEF_INTERCEPTOR(vm.methodClass, Method, INTERCEPTOR_UNDEFINED_PROPERTY, __undefinedProperty__, 1);
 
   vm.currentNamespace = vm.rootNamespace;
 }

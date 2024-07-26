@@ -382,7 +382,7 @@ void printObject(Value value) {
       printf("<file \"%s\">", AS_FILE(value)->name->chars);
       break;
     case OBJ_RECORD:
-      printf("record");
+      printf("<record>");
       break;
     case OBJ_DICTIONARY: 
       printDictionary(AS_DICTIONARY(value));
@@ -400,7 +400,7 @@ void printObject(Value value) {
       printFunction(AS_CLOSURE(value)->function);
       break;
     case OBJ_FRAME: 
-      printf("frame: %s", AS_FRAME(value)->closure->function->name->chars);
+      printf("<frame: %s>", AS_FRAME(value)->closure->function->name->chars);
       break;
     case OBJ_FUNCTION:
       printFunction(AS_FUNCTION(value));
@@ -439,7 +439,7 @@ void printObject(Value value) {
       printf("%s", AS_CSTRING(value));
       break;
     case OBJ_UPVALUE:
-      printf("upvalue");
+      printf("<upvalue>");
       break;
   }
 }

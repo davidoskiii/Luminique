@@ -15,7 +15,7 @@ const generator = fibonacci();
 println("Testing Infinite Fibonacci number generator: ${generator}");
 let i = 1;
 while (i <= 10) {
-  println("Fibonacci number at index ${i}: ${generator.next().value()}");
+  println("Fibonacci number at index ${i}: ${generator.next().value}");
   i++;
 }
 */
@@ -23,10 +23,6 @@ while (i <= 10) {
 println("");
 
 class MultiGenerator {  
-  function __init__() {
-    this.totalYields = 0;
-  }
-
   function inner(arg, arg2) { 
     println("Inner Generator starts...");
     yield arg;
@@ -55,5 +51,5 @@ println("Testing nested generators:");
 const multi = MultiGenerator();
 const generator2 = multi.outer(0, 5);
 while(!generator2.nextFinished()) { 
-  println("Generator yield value: ${generator2.value()}");
+  println("Generator yield value: ${generator2.value}");
 }

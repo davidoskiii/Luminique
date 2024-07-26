@@ -8,5 +8,7 @@ void registerCollectionPackage();
 bool dictGet(ObjDictionary* dict, Value key, Value* value);
 bool dictSet(ObjDictionary* dict, Value key, Value value);
 void arrayAddAll(ObjArray* from, ObjArray* to);
+ObjString* arrayToString(ObjArray* array);
+ObjString* dictToString(ObjDictionary* dict);
 
 #endif

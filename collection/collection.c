@@ -320,7 +320,7 @@ static Value arrayRemoveAt(ObjArray* array, int index) {
 	return element;
 }
 
-static ObjString* arrayToString(ObjArray* array) {
+ObjString* arrayToString(ObjArray* array) {
 	if (array->elements.count == 0) return copyString("[]", 2);
 	else {
 		char string[UINT8_MAX] = "";
@@ -1257,9 +1257,9 @@ NATIVE_METHOD(Range, __undefinedProperty__) {
 
   if (matchStringName(property, "length", 6)) {
     RETURN_INT(abs(self->to - self->from) + 1);
-  } else if (matchStringName(property, "fromv", 5)) {
+  } else if (matchStringName(property, "start", 5)) {
     RETURN_INT(self->from);
-  } else if (matchStringName(property, "tov", 3)) {
+  } else if (matchStringName(property, "end", 3)) {
     RETURN_INT(self->to);
   } else THROW_EXCEPTION_FMT(luminique::std::lang, NotImplementedException, "Property %s does not exist in %s.", 
     AS_CSTRING(args[0]), valueToString(receiver));
@@ -1317,21 +1317,6 @@ NATIVE_METHOD(Node, clone) {
   RETURN_OBJ(node);
 }
 
-NATIVE_METHOD(Node, element) {
-  assertArgCount("Node::element()", 0, argCount);
-  RETURN_VAL(AS_NODE(receiver)->element);
-}
-
-NATIVE_METHOD(Node, next) {
-  assertArgCount("Node::next()", 0, argCount);
-  RETURN_OBJ(AS_NODE(receiver)->next);
-}
-
-NATIVE_METHOD(Node, prev) {
-  assertArgCount("Node::prev()", 0, argCount);
-  RETURN_OBJ(AS_NODE(receiver)->prev);
-}
-
 NATIVE_METHOD(Node, __str__) {
   assertArgCount("Node::__str__()", 0, argCount);
   char nodeString[UINT8_MAX] = "";
@@ -1357,6 +1342,23 @@ NATIVE_METHOD(Node, __format__) {
   nodeString[nodeLength + 6] = '\0';
   RETURN_STRING(nodeString, (int)nodeLength + 6);
 }
+
+NATIVE_METHOD(Node, __undefinedProperty__) {
+  assertArgCount("Node::__undefinedProperty__(name)", 1, argCount);
+  assertArgIsString("Node::__undefinedProperty__(name)", args, 0);
+  ObjString* property = AS_STRING(args[0]);
+  ObjNode* self = AS_NODE(receiver);
+
+  if (matchStringName(property, "element", 7)) {
+    RETURN_OBJ(self->element);
+  } else if (matchStringName(property, "prev", 4)) {
+    RETURN_OBJ(self->prev);
+  } else if (matchStringName(property, "next", 4)) {
+    RETURN_OBJ(self->next);
+  } else THROW_EXCEPTION_FMT(luminique::std::lang, NotImplementedException, "Property %s does not exist in %s.", 
+    AS_CSTRING(args[0]), valueToString(receiver));
+}
+
 
 NATIVE_METHOD(Stack, clear) {
   assertArgCount("Stack::clear()", 0, argCount);
@@ -1822,11 +1824,10 @@ void registerCollectionPackage() {
   vm.nodeClass->classType = OBJ_NODE;
   DEF_METHOD(vm.nodeClass, Node, __init__, 3);
   DEF_METHOD(vm.nodeClass, Node, clone, 0);
-  DEF_METHOD(vm.nodeClass, Node, element, 0);
-  DEF_METHOD(vm.nodeClass, Node, next, 0);
-  DEF_METHOD(vm.nodeClass, Node, prev, 0);
   DEF_METHOD(vm.nodeClass, Node, __str__, 0);
   DEF_METHOD(vm.nodeClass, Node, __format__, 0);
+
+  DEF_INTERCEPTOR(vm.nodeClass, Node, INTERCEPTOR_UNDEFINED_PROPERTY, __undefinedProperty__, 1);
 
   ObjClass* linkedListClass = defineNativeClass("LinkedList");
   bindSuperclass(linkedListClass, listClass);
