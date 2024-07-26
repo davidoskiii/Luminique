@@ -1,0 +1,19 @@
+println("Is 5 an instance of Int: ${5 instanceof Int}");
+println("Is 5 an instance of Number: ${5 instanceof Number}");
+println("Is 5 an instance of Object: ${5 instanceof Object}");
+println("Is \"string\" an instance of String: ${"string" instanceof String}");
+println("Is nil an instance of Object: ${nil instanceof Object}");
+
+class A {
+  function method() {
+    return nil;
+  }
+}
+println("Defining class A: ${A}");
+
+println("Is A an instance of Class: ${A instanceof Class}");
+
+let x = A();
+println("Defining instance x: ${x}");
+
+println("Is x an instanceof A: ${x instanceof A}");
