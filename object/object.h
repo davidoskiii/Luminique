@@ -24,6 +24,7 @@ typedef struct CallFrame CallFrame;
 
 #define IS_NAMESPACE(value) isObjType(value, OBJ_NAMESPACE)
 #define IS_MODULE(value) isObjType(value, OBJ_MODULE)
+#define IS_PROMISE(value) isObjType(value, OBJ_PROMISE)
 #define IS_ARRAY(value) isObjType(value, OBJ_ARRAY)
 #define IS_DICTIONARY(value) isObjType(value, OBJ_DICTIONARY)
 #define IS_BOUND_METHOD(value) isObjType(value, OBJ_BOUND_METHOD)
@@ -47,6 +48,7 @@ typedef struct CallFrame CallFrame;
 
 #define AS_NAMESPACE(value) ((ObjNamespace*)AS_OBJ(value))
 #define AS_MODULE(value) ((ObjModule*)AS_OBJ(value))
+#define AS_PROMISE(value) ((ObjPromise*)AS_OBJ(value))
 #define AS_ARRAY(value) ((ObjArray*)AS_OBJ(value))
 #define AS_DICTIONARY(value) ((ObjDictionary*)AS_OBJ(value))
 #define AS_BOUND_METHOD(value) ((ObjBoundMethod*)AS_OBJ(value))
@@ -74,6 +76,7 @@ typedef struct CallFrame CallFrame;
 typedef enum {
   OBJ_NAMESPACE,
   OBJ_MODULE,
+  OBJ_PROMISE,
   OBJ_BOUND_METHOD,
   OBJ_CLASS,
   OBJ_CLOSURE,
@@ -190,6 +193,24 @@ struct ObjModule {
   Table values;
   char* source;
 };
+
+typedef enum {
+  PROMISE_PENDING,
+  PROMISE_FULFILLED,
+  PROMISE_REJECTED
+} PromiseState;
+
+typedef struct {
+  Obj obj;
+  int id;
+  PromiseState state;
+  Value value;
+  ObjException* exception;
+  ObjClosure* executor;
+  ValueArray handlers;
+  Value onCatch;
+  Value onFinally;
+} ObjPromise;
 
 struct ObjNamespace {
   Obj obj;
