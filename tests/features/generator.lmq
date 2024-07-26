@@ -1,12 +1,11 @@
 function fibonacci() {
   let last = 0;
   let current = yield 1;
-  let next = 1;
 
   while (true) { 
     current = last + current;
     last = current - last;
-    next = yield current;
+    yield current;
   }
 }
 
