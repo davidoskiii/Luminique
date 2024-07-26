@@ -731,6 +731,11 @@ static void typeof_(bool canAssign) {
   emitByte(OP_TYPEOF);
 }
 
+static void instanceof(bool canAssign) {
+  expression();
+  emitByte(OP_INSTANCEOF);
+}
+
 static void showel(bool canAssign) {
   TokenType operatorType = parser.previous.type;
   parsePrecedence(PREC_SHIFT);
@@ -1347,6 +1352,7 @@ ParseRule rules[] = {
   [TOKEN_DOT]           = {NULL,          dot,          PREC_CALL},
   [TOKEN_COLON_COLON]   = {NULL,          coloncolon,   PREC_CALL},
   [TOKEN_DOT_DOT_DOT]   = {NULL,          binary,       PREC_CALL},
+  [TOKEN_INSTANCEOF]    = {NULL,          instanceof,   PREC_CALL},
   [TOKEN_MINUS_MINUS]   = {unary,         postdec,      PREC_CALL},
   [TOKEN_MINUS]         = {unary,         binary,       PREC_TERM},
   [TOKEN_PLUS_PLUS]     = {unary,         postinc,      PREC_CALL},

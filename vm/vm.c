@@ -1556,6 +1556,18 @@ InterpretResult run() {
         }
         break;
       }
+      case OP_INSTANCEOF: {
+        Value klass = pop();
+        Value value = pop();
+
+        if (!IS_CLASS(klass)) {
+          runtimeError("Right-hand side of 'instanceof' must be a class.");
+          return INTERPRET_RUNTIME_ERROR;
+        }
+
+        push(BOOL_VAL(isObjInstanceOf(value, AS_CLASS(klass))));
+        break;
+      }
       case OP_RETURN: {
         Value result = pop();
         closeUpvalues(frame->slots);
