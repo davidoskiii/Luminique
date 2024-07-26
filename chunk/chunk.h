@@ -55,6 +55,7 @@ typedef enum {
   OP_LOOP,
   OP_CALL,
   OP_TYPEOF,
+  OP_INSTANCEOF,
   OP_INVOKE,
   OP_SUPER_INVOKE,
   OP_CLOSURE,

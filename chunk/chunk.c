@@ -92,6 +92,7 @@ int opCodeOffset(Chunk* chunk, int ip) {
       case OP_LOOP: return 3;
       case OP_CALL: return 2;
       case OP_TYPEOF: return 1;
+      case OP_INSTANCEOF: return 1;
       case OP_INVOKE: return 3;
       case OP_SUPER_INVOKE: return 3;
       case OP_CLOSURE: {

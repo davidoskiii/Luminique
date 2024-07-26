@@ -187,6 +187,8 @@ int disassembleInstruction(Chunk* chunk, int offset) {
       return simpleInstruction("OP_END_NAMESPACE", offset);
     case OP_TYPEOF:
       return simpleInstruction("OP_TYPEOF", offset);
+    case OP_INSTANCEOF:
+      return simpleInstruction("OP_INSTANCEOF", offset);
     case OP_GET_SUPER:
       return constantValueInstruction16("OP_GET_SUPER", chunk, offset);
     case OP_CLOSURE: {
