@@ -151,6 +151,12 @@ static void blackenObject(Obj* object) {
       markObject((Obj*)bound->method);
       break;
     }
+    case OBJ_METHOD: {
+      ObjMethod* method = (ObjMethod*)object;
+      markObject((Obj*)method->behavior);
+      markObject((Obj*)method->closure);
+      break;
+    }
     case OBJ_UPVALUE:
       markValue(((ObjUpvalue*)object)->closed);
       break;
@@ -269,9 +275,14 @@ static void freeObject(Obj* object) {
       FREE(ObjWindow, object);
       break;
     }
-    case OBJ_BOUND_METHOD:
+    case OBJ_BOUND_METHOD: {
       FREE(ObjBoundMethod, object);
       break;
+    }
+    case OBJ_METHOD: {
+      FREE(ObjMethod, object);
+      break;
+    }
     case OBJ_CLASS: {
       FREE(ObjClass, object);
       ObjClass* klass = (ObjClass*)object;

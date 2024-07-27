@@ -497,6 +497,7 @@ Value createObject(ObjClass* klass, int argCount) {
   switch (klass->classType) {
     case OBJ_ARRAY: return OBJ_VAL(newArray());
     case OBJ_BOUND_METHOD: return OBJ_VAL(newBoundMethod(NIL_VAL, NIL_VAL));
+    case OBJ_METHOD: return OBJ_VAL(newMethod(NULL, NULL));
     case OBJ_CLASS: return OBJ_VAL(ALLOCATE_CLASS(klass));
     case OBJ_CLOSURE: return OBJ_VAL(ALLOCATE_CLOSURE(klass));
     case OBJ_DICTIONARY: return OBJ_VAL(newDictionary());

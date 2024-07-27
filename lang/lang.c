@@ -373,7 +373,7 @@ NATIVE_METHOD(Generator, __undefinedProperty__) {
 
 NATIVE_METHOD(Promise, __init__) {
   assertArgCount("Promise::__init__(executor)", 1, argCount);
-  assertArgIsClosure("Promise::__init__(executor)", args, 0);
+  assertArgInstanceOfEither("Promise::__init__(executor)", args, 0, "luminique::std::lang", "BoundMethod", "luminique::std::lang", "Function");
   ObjPromise* self = AS_PROMISE(receiver);
   self->executor = args[0];
 
@@ -381,7 +381,9 @@ NATIVE_METHOD(Promise, __init__) {
   tableGet(&self->obj.klass->methods, copyString("fulfill", 7), &fulfill);
   Value reject;
   tableGet(&self->obj.klass->methods, copyString("reject", 6), &reject);
-  callReentrantMethod(OBJ_VAL(self), OBJ_VAL(self->executor), fulfill, reject);
+  ObjBoundMethod* onFulfill = newBoundMethod(receiver, fulfill);
+  ObjBoundMethod* onReject = newBoundMethod(receiver, reject);
+  callReentrantMethod(receiver, self->executor, OBJ_VAL(onFulfill), OBJ_VAL(onReject));
   RETURN_OBJ(self);
 }
 
@@ -457,6 +459,32 @@ NATIVE_METHOD(Promise, __undefinedProperty__) {
     AS_CSTRING(args[0]), valueToString(receiver));
 }
 
+NATIVE_METHOD(PromiseClass, fulfill) {
+  assertArgCount("Promise class::fulfill(value)", 1, argCount);
+  ObjClass* klass = AS_CLASS(receiver);
+  if (IS_PROMISE(args[0])) RETURN_VAL(args[0]);
+  else {
+    Value fulfill;
+    tableGet(&klass->methods, copyString("fulfill", 7), &fulfill);
+    ObjPromise* promise = newPromise(fulfill);
+    promise->state = PROMISE_FULFILLED;
+    promise->value = args[0];
+    RETURN_OBJ(promise);
+  }
+}
+
+NATIVE_METHOD(PromiseClass, reject) {
+  assertArgCount("Promise class::reject(exception)", 1, argCount);
+  assertArgIsException("Promise class::reject(exception)", args, 0);
+  ObjClass* klass = AS_CLASS(receiver);
+  Value reject;
+  tableGet(&klass->methods, copyString("reject", 6), &reject);
+  ObjPromise* promise = newPromise(reject);
+  promise->state = PROMISE_REJECTED;
+  promise->exception = AS_EXCEPTION(args[0]);
+  RETURN_OBJ(promise);
+}
+
 // FUNCTION
 
 NATIVE_METHOD(Function, __init__) {
@@ -530,46 +558,226 @@ NATIVE_METHOD(Function, __undefinedProperty__) {
     AS_CSTRING(args[0]), valueToString(receiver));
 }
 
+// BOUND METHOD
+
+NATIVE_METHOD(BoundMethod, __init__) {
+  assertArgCount("BoundMethod::__init__(object, method)", 2, argCount);
+  if (IS_METHOD(args[1])) {
+    ObjMethod* method = AS_METHOD(args[1]);
+    if (!isObjInstanceOf(args[0], method->behavior)) {
+      THROW_EXCEPTION(luminique::std::lang, UnsupportedOperationException, "Cannot bound method to object.");
+    }
+
+    ObjBoundMethod* boundMethod = AS_BOUND_METHOD(receiver);
+    boundMethod->receiver = args[0];
+    boundMethod->method = OBJ_VAL(method->closure);
+    RETURN_OBJ(boundMethod);
+  } else if (IS_STRING(args[1])) {
+    ObjClass* klass = getObjClass(args[0]);
+    Value value;
+    if (!tableGet(&klass->methods, AS_STRING(args[1]), &value)) {
+      THROW_EXCEPTION(luminique::std::lang, UnsupportedOperationException, "Cannot bound method to object.");
+    }
+
+    ObjBoundMethod* boundMethod = AS_BOUND_METHOD(receiver);
+    boundMethod->receiver = args[0];
+    boundMethod->method = value;
+    RETURN_OBJ(boundMethod);
+  } else {
+    THROW_EXCEPTION(luminique::std::lang, IllegalArgumentException, "Method BoundMethod::__init__(object, method) expects argument 2 to be a method or string.");
+  }
+}
+
+NATIVE_METHOD(BoundMethod, arity) {
+  assertArgCount("BoundMethod::arity()", 0, argCount);
+  Value method = AS_BOUND_METHOD(receiver)->method;
+  RETURN_INT(IS_NATIVE_METHOD(method) ? AS_NATIVE_METHOD(method)->arity : AS_CLOSURE(method)->function->arity);
+}
+
+NATIVE_METHOD(BoundMethod, clone) {
+  assertArgCount("BoundMethod::clone()", 0, argCount);
+  RETURN_OBJ(receiver);
+}
+
+NATIVE_METHOD(BoundMethod, isNative) { 
+  assertArgCount("BoundMethod::isNative()", 0, argCount);
+  RETURN_BOOL(AS_BOUND_METHOD(receiver)->isNative);
+}
+
+NATIVE_METHOD(BoundMethod, isVariadic) {
+  assertArgCount("BoundMethod::isVariadic()", 0, argCount);
+  Value method = AS_BOUND_METHOD(receiver)->method;
+  int arity = IS_NATIVE_METHOD(method) ? AS_NATIVE_METHOD(method)->arity : AS_CLOSURE(method)->function->arity;
+  RETURN_BOOL(arity == -1);
+}
+
+NATIVE_METHOD(BoundMethod, name) {
+  assertArgCount("BoundMethod::name()", 0, argCount);
+  ObjBoundMethod* boundMethod = AS_BOUND_METHOD(receiver);
+  char* methodName = IS_NATIVE_METHOD(boundMethod->method) ? AS_NATIVE_METHOD(boundMethod->method)->name->chars : AS_CLOSURE(boundMethod->method)->function->name->chars;
+  RETURN_STRING_FMT("%s::%s", getObjClass(boundMethod->receiver)->name->chars, methodName);
+}
+
+NATIVE_METHOD(BoundMethod, receiver) {
+  assertArgCount("BoundMethod::receiver()", 0, argCount);
+  RETURN_VAL(AS_BOUND_METHOD(receiver)->receiver);
+}
+
+NATIVE_METHOD(BoundMethod, __str__) {
+  assertArgCount("BoundMethod::__str__()", 0, argCount);
+  ObjBoundMethod* boundMethod = AS_BOUND_METHOD(receiver);
+  char* methodName = IS_NATIVE_METHOD(boundMethod->method) ? AS_NATIVE_METHOD(boundMethod->method)->name->chars : AS_CLOSURE(boundMethod->method)->function->name->chars;
+  RETURN_STRING_FMT("<bound method %s::%s>", getObjClass(boundMethod->receiver)->name->chars, methodName);
+}
+
+NATIVE_METHOD(BoundMethod, __format__) {
+  assertArgCount("BoundMethod::__format__()", 0, argCount);
+  ObjBoundMethod* boundMethod = AS_BOUND_METHOD(receiver);
+  char* methodName = IS_NATIVE_METHOD(boundMethod->method) ? AS_NATIVE_METHOD(boundMethod->method)->name->chars : AS_CLOSURE(boundMethod->method)->function->name->chars;
+  RETURN_STRING_FMT("<bound method %s::%s>", getObjClass(boundMethod->receiver)->name->chars, methodName);
+}
+
+NATIVE_METHOD(BoundMethod, upvalueCount) {
+  assertArgCount("BoundMethod::upvalueCount()", 0, argCount);
+  Value method = AS_BOUND_METHOD(receiver)->method;
+  if (!IS_CLOSURE(method)) RETURN_INT(0);
+  RETURN_INT(AS_CLOSURE(method)->upvalueCount);
+}
+
+NATIVE_METHOD(BoundMethod, __invoke__) {
+  ObjBoundMethod* self = AS_BOUND_METHOD(receiver);
+  RETURN_VAL(callMethod(self->method, argCount));
+}
+
+NATIVE_METHOD(BoundMethod, __undefinedProperty__) {
+  assertArgCount("BoundMethod::__undefinedProperty__(name)", 1, argCount);
+  assertArgIsString("BoundMethod::__undefinedProperty__(name)", args, 0);
+  ObjString* property = AS_STRING(args[0]);
+  ObjBoundMethod* self = AS_BOUND_METHOD(receiver);
+
+  if (matchStringName(property, "method", 6)) {
+    RETURN_OBJ(self->method);
+  } else if (matchStringName(property, "arity", 5)) {
+    RETURN_INT(AS_CLOSURE(self->method)->function->arity);
+  } else if (matchStringName(property, "name", 4)) {
+    RETURN_OBJ(AS_CLOSURE(self->method)->function->name);
+  } else if (matchStringName(property, "receiver", 8)) {
+    RETURN_OBJ(self->receiver);
+  } else THROW_EXCEPTION_FMT(luminique::std::lang, NotImplementedException, "Property %s does not exist in %s.", 
+    AS_CSTRING(args[0]), valueToString(receiver));
+}
+
 // METHOD
 
 
 NATIVE_METHOD(Method, __init__) {
-  THROW_EXCEPTION(luminique::std::lang, InstantiationException, "Cannot instantiate from class Method.");
+  assertArgCount("Method::__init__(behavior, name, closure)", 3, argCount);
+  assertArgIsClass("Method::__init__(behavior, name, closure)", args, 0);
+  assertArgIsString("Method::__init__(behavior, name, closure)", args, 1);
+  assertArgIsClosure("Method::__init__(behavior, name, closure)", args, 2);
+
+  ObjMethod* self = AS_METHOD(receiver);
+  ObjClass* behavior = AS_CLASS(args[0]);
+  ObjString* name = AS_STRING(args[1]);
+  ObjClosure* closure = AS_CLOSURE(args[2]);
+
+  Value value;
+  if (tableGet(&behavior->methods, name, &value)) {
+    THROW_EXCEPTION_FMT(luminique::std::lang, UnsupportedOperationException, "Method %s already exists in behavior %s.", name->chars, behavior->name->chars);
+  }
+  tableSet(&behavior->methods, name, OBJ_VAL(closure));
+
+  self->behavior = behavior;
+  self->closure = closure;
+  self->closure->function->name = name;
+  RETURN_OBJ(self);
+}
+
+NATIVE_METHOD(Method, arity) {
+  assertArgCount("Method::arity()", 0, argCount);
+  if (IS_NATIVE_METHOD(receiver)) {
+    RETURN_INT(AS_NATIVE_METHOD(receiver)->arity);
+  }
+  RETURN_INT(AS_METHOD(receiver)->closure->function->arity);
+}
+
+NATIVE_METHOD(Method, behavior) {
+  assertArgCount("Method::behavior()", 0, argCount);
+  if (IS_NATIVE_METHOD(receiver)) {
+    RETURN_OBJ(AS_NATIVE_METHOD(receiver)->klass);
+  }
+  RETURN_OBJ(AS_METHOD(receiver)->behavior);
+}
+
+NATIVE_METHOD(Method, bind) {
+  assertArgCount("Method::bind(receiver)", 1, argCount);
+  Value method = IS_NATIVE_METHOD(receiver) ? receiver : OBJ_VAL(AS_METHOD(receiver)->closure);
+  RETURN_OBJ(newBoundMethod(args[1], method));
 }
 
 NATIVE_METHOD(Method, clone) {
   assertArgCount("Method::clone()", 0, argCount);
-  return receiver;
+  RETURN_OBJ(receiver);
+}
+
+NATIVE_METHOD(Method, isNative) {
+  assertArgCount("method::isNative()", 0, argCount);
+  RETURN_BOOL(IS_NATIVE_METHOD(receiver));
+}
+
+NATIVE_METHOD(Method, isVariadic) {
+  assertArgCount("Method::isVariadic()", 0, argCount);
+  RETURN_BOOL(AS_METHOD(receiver)->closure->function->arity == -1);
+}
+
+NATIVE_METHOD(Method, name) {
+  assertArgCount("Method::name()", 0, argCount);
+  if (IS_NATIVE_METHOD(receiver)) {
+    ObjNativeMethod* nativeMethod = AS_NATIVE_METHOD(receiver);
+    RETURN_STRING_FMT("%s::%s", nativeMethod->klass->name->chars, nativeMethod->name->chars);
+  }
+  ObjMethod* method = AS_METHOD(receiver);
+  RETURN_STRING_FMT("%s::%s", method->behavior->name->chars, method->closure->function->name->chars);
 }
 
 NATIVE_METHOD(Method, __str__) {
   assertArgCount("Method::__str__()", 0, argCount);
-  ObjBoundMethod* bound = AS_BOUND_METHOD(receiver);
-  RETURN_STRING_FMT("<method %s::%s>", getObjClass(bound->receiver)->name->chars, AS_CLOSURE(bound->method)->function->name->chars);
+  if (IS_NATIVE_METHOD(receiver)) {
+    ObjNativeMethod* nativeMethod = AS_NATIVE_METHOD(receiver);
+    RETURN_STRING_FMT("<method: %s::%s>", nativeMethod->klass->name->chars, nativeMethod->name->chars);
+  }
+  ObjMethod* method = AS_METHOD(receiver);
+  RETURN_STRING_FMT("<method %s::%s>", method->behavior->name->chars, method->closure->function->name->chars);
 }
 
 NATIVE_METHOD(Method, __format__) {
   assertArgCount("Method::__format__()", 0, argCount);
-  ObjBoundMethod* bound = AS_BOUND_METHOD(receiver);
-  RETURN_STRING_FMT("<method %s::%s>", getObjClass(bound->receiver)->name->chars, AS_CLOSURE(bound->method)->function->name->chars);
+  if (IS_NATIVE_METHOD(receiver)) {
+    ObjNativeMethod* nativeMethod = AS_NATIVE_METHOD(receiver);
+    RETURN_STRING_FMT("<method: %s::%s>", nativeMethod->klass->name->chars, nativeMethod->name->chars);
+  }
+  ObjMethod* method = AS_METHOD(receiver);
+  RETURN_STRING_FMT("<method %s::%s>", method->behavior->name->chars, method->closure->function->name->chars);
 }
 
 NATIVE_METHOD(Method, __undefinedProperty__) {
   assertArgCount("Method::__undefinedProperty__(name)", 1, argCount);
   assertArgIsString("Method::__undefinedProperty__(name)", args, 0);
   ObjString* property = AS_STRING(args[0]);
-  ObjBoundMethod* self = AS_BOUND_METHOD(receiver);
+  ObjMethod* self = AS_METHOD(receiver);
 
-  if (matchStringName(property, "receiver", 8)) {
-    RETURN_OBJ(self->receiver);
-  } else if (matchStringName(property, "func", 4)) {
-    RETURN_OBJ(self->method);
-  } else if (matchStringName(property, "name", 4)) {
-    RETURN_STRING_FMT("%s::%s", getObjClass(self->receiver)->name->chars, AS_CLOSURE(self->method)->function->name->chars);
+  if (matchStringName(property, "name", 4)) {
+    if (IS_NATIVE_METHOD(receiver)) {
+      RETURN_OBJ(AS_NATIVE_METHOD(receiver)->name);
+    }
+    RETURN_OBJ(self->closure->function->name);
+  } else if (matchStringName(property, "behavior", 8)) {
+    RETURN_OBJ(self->behavior);
   } else if (matchStringName(property, "arity", 5)) {
-    RETURN_INT(AS_CLOSURE(self->method)->function->arity);
-  } else if (matchStringName(property, "upvalueCount", 12)) {
-    RETURN_INT(AS_CLOSURE(self->method)->upvalueCount);
+    if (IS_NATIVE_METHOD(receiver)) {
+      RETURN_INT(AS_NATIVE_METHOD(receiver)->arity);
+    }
+    RETURN_INT(self->closure->function->arity);
   } else THROW_EXCEPTION_FMT(luminique::std::lang, NotImplementedException, "Property %s does not exist in %s.", 
     AS_CSTRING(args[0]), valueToString(receiver));
 }
@@ -1193,6 +1401,10 @@ void registerLangPackage() {
   defineNativeArtificialEnumElement(promiseStateEnum, "stateFulfilled", INT_VAL(PROMISE_FULFILLED));
   defineNativeArtificialEnumElement(promiseStateEnum, "stateRejected", INT_VAL(PROMISE_REJECTED));
 
+  ObjClass* promiseMetaclass = vm.promiseClass->obj.klass;
+  DEF_METHOD(promiseMetaclass, PromiseClass, fulfill, 1);
+  DEF_METHOD(promiseMetaclass, PromiseClass, reject, 1);
+
 	vm.nilClass = defineNativeClass("Nil");
 	bindSuperclass(vm.nilClass, vm.objectClass);
 	DEF_METHOD(vm.nilClass, Nil, __init__, 0);
@@ -1289,13 +1501,36 @@ void registerLangPackage() {
 
   vm.methodClass = defineNativeClass("Method");
   bindSuperclass(vm.methodClass, vm.objectClass);
-  vm.methodClass->classType = OBJ_FUNCTION;
-  DEF_METHOD(vm.methodClass, Method, __init__, 0);
+  vm.methodClass->classType = OBJ_METHOD;
+  DEF_INTERCEPTOR(vm.methodClass, Method, INTERCEPTOR_INIT, __init__, 0);
+  DEF_METHOD(vm.methodClass, Method, arity, 0);
+  DEF_METHOD(vm.methodClass, Method, behavior, 0);
+  DEF_METHOD(vm.methodClass, Method, bind, 1);
   DEF_METHOD(vm.methodClass, Method, clone, 0);
+  DEF_METHOD(vm.methodClass, Method, isNative, 0);
+  DEF_METHOD(vm.methodClass, Method, isVariadic, 0);
+  DEF_METHOD(vm.methodClass, Method, name, 0);
   DEF_METHOD(vm.methodClass, Method, __str__, 0);
   DEF_METHOD(vm.methodClass, Method, __format__, 0);
 
   DEF_INTERCEPTOR(vm.methodClass, Method, INTERCEPTOR_UNDEFINED_PROPERTY, __undefinedProperty__, 1);
+
+  vm.boundMethodClass = defineNativeClass("BoundMethod");
+  bindSuperclass(vm.boundMethodClass, vm.objectClass);
+  vm.boundMethodClass->classType = OBJ_BOUND_METHOD;
+  DEF_INTERCEPTOR(vm.boundMethodClass, BoundMethod, INTERCEPTOR_INIT, __init__, 2);
+  DEF_METHOD(vm.boundMethodClass, BoundMethod, arity, 0);
+  DEF_METHOD(vm.boundMethodClass, BoundMethod, clone, 0);
+  DEF_METHOD(vm.boundMethodClass, BoundMethod, isNative, 0);
+  DEF_METHOD(vm.boundMethodClass, BoundMethod, isVariadic, 0);
+  DEF_METHOD(vm.boundMethodClass, BoundMethod, name, 0);
+  DEF_METHOD(vm.boundMethodClass, BoundMethod, receiver, 0);
+  DEF_METHOD(vm.boundMethodClass, BoundMethod, upvalueCount, 0);
+  DEF_METHOD(vm.boundMethodClass, BoundMethod, __str__, 0);
+  DEF_METHOD(vm.boundMethodClass, BoundMethod, __format__, 0);
+  DEF_OPERATOR(vm.boundMethodClass, BoundMethod, (), __invoke__, -1);
+
+  DEF_INTERCEPTOR(vm.boundMethodClass, BoundMethod, INTERCEPTOR_UNDEFINED_PROPERTY, __undefinedProperty__, 1);
 
   vm.currentNamespace = vm.rootNamespace;
 }

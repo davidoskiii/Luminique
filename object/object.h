@@ -29,6 +29,7 @@ typedef struct CallFrame CallFrame;
 #define IS_ARRAY(value) isObjType(value, OBJ_ARRAY)
 #define IS_DICTIONARY(value) isObjType(value, OBJ_DICTIONARY)
 #define IS_BOUND_METHOD(value) isObjType(value, OBJ_BOUND_METHOD)
+#define IS_METHOD(value) isObjType(value, OBJ_METHOD)
 #define IS_CLASS(value) isObjType(value, OBJ_CLASS)
 #define IS_CLOSURE(value) isObjType(value, OBJ_CLOSURE)
 #define IS_FRAME(value) isObjType(value, OBJ_FRAME);
@@ -54,6 +55,7 @@ typedef struct CallFrame CallFrame;
 #define AS_ARRAY(value) ((ObjArray*)AS_OBJ(value))
 #define AS_DICTIONARY(value) ((ObjDictionary*)AS_OBJ(value))
 #define AS_BOUND_METHOD(value) ((ObjBoundMethod*)AS_OBJ(value))
+#define AS_METHOD(value) ((ObjMethod*)AS_OBJ(value))
 #define AS_CLASS(value) ((ObjClass*)AS_OBJ(value))
 #define AS_CLOSURE(value) ((ObjClosure*)AS_OBJ(value))
 #define AS_FRAME(value) ((ObjFrame*)AS_OBJ(value))
@@ -81,6 +83,7 @@ typedef enum {
   OBJ_MODULE,
   OBJ_PROMISE,
   OBJ_BOUND_METHOD,
+  OBJ_METHOD,
   OBJ_CLASS,
   OBJ_CLOSURE,
   OBJ_FRAME,
@@ -151,6 +154,12 @@ typedef struct ObjUpvalue {
   Value closed;
   struct ObjUpvalue* next;
 } ObjUpvalue;
+
+typedef struct {
+  Obj obj;
+  ObjClass* behavior;
+  ObjClosure* closure;
+} ObjMethod;
 
 typedef struct ObjFile {
   Obj obj;
@@ -342,6 +351,7 @@ ObjNode* newNode(Value element, ObjNode* prev, ObjNode* next);
 ObjWindow* newWindow(const char* title, int width, int height);
 ObjClosure* newClosure(ObjFunction* function);
 ObjFunction* newFunction();
+ObjMethod* newMethod(ObjClass* behavior, ObjClosure* closure);
 ObjInstance* newInstance(ObjClass* klass);
 ObjNativeFunction* newNativeFunction(ObjString* name, int arity, NativeFunction function);
 ObjNativeMethod* newNativeMethod(ObjClass* klass, ObjString* name, int arity, NativeMethod method);

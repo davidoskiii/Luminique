@@ -165,6 +165,11 @@ char* valueToString(Value value) {
         else return formattedString("<bound method %s::%s>", AS_OBJ(boundMethod->receiver)->klass->name->chars, AS_CLOSURE(boundMethod->method)->function->name->chars)->chars;
         break;
       }
+      case OBJ_METHOD: { 
+        ObjMethod* method = AS_METHOD(value);
+        return formattedString("<method %s::%s>", method->behavior->name->chars, method->closure->function->name->chars)->chars;
+        break;
+      }
       case OBJ_CLASS: {
         ObjClass* klass = AS_CLASS(value);
         if (klass->namespace_->isRoot) return formattedString("<class %s>", klass->name->chars)->chars;

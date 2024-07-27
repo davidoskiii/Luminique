@@ -36,6 +36,12 @@ ObjBoundMethod* newBoundMethod(Value receiver, Value method) {
   return bound;
 }
 
+ObjMethod* newMethod(ObjClass* behavior, ObjClosure* closure) {
+  ObjMethod* method = ALLOCATE_OBJ(ObjMethod, OBJ_METHOD, vm.methodClass);
+  method->behavior = behavior;
+  method->closure = closure;
+  return method;
+}
 
 ObjFile* newFile(ObjString* name) {
   ObjFile* file = ALLOCATE_OBJ(ObjFile, OBJ_FILE, vm.fileClass);
@@ -430,6 +436,11 @@ void printObject(Value value) {
       if (IS_NATIVE_METHOD(boundMethod->method)) printf("<bound method %s::%s>", 
           AS_OBJ(boundMethod->receiver)->klass->name->chars, AS_NATIVE_METHOD(boundMethod->method)->name->chars);
       else printf("<bound method %s::%s>", AS_OBJ(boundMethod->receiver)->klass->name->chars, AS_CLOSURE(boundMethod->method)->function->name->chars);
+      break;
+    }
+    case OBJ_METHOD: { 
+      ObjMethod* method = AS_METHOD(value);
+      printf("<method %s::%s>", method->behavior->name->chars, method->closure->function->name->chars);
       break;
     }
     case OBJ_CLASS: {
