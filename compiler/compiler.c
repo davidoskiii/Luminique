@@ -554,7 +554,7 @@ static int resolveUpvalue(Compiler* compiler, Token* name) {
 
   int upvalue = resolveUpvalue(compiler->enclosing, name);
   if (upvalue != -1) {
-    return addUpvalue(compiler, (uint8_t)upvalue, false, compiler->enclosing->locals[local].isMutable);
+    return addUpvalue(compiler, (uint8_t)upvalue, false, compiler->enclosing->upvalues[upvalue].isMutable);
   }
 
   return -1;
