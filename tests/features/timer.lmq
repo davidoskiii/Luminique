@@ -1,9 +1,9 @@
 using luminique::std::chrono::Timer;
 
 println("Creating timers that run after delays...");
-const timer1 = Timer(lambda () : ( println("Timer finishes..."); ), 1000, 0).run();
-const timer2 = Timer(lambda () : ( println("Timer2 finishes..."); ), 2000, 0).run();
-const timer3 = Timer.timeout(lambda () : ( println("Timer3 finishes..."); ), 500);
+const timer1 = Timer(lambda [] { println("Timer finishes..."); }, 1000, 0).run();
+const timer2 = Timer(lambda [] { println("Timer2 finishes..."); }, 2000, 0).run();
+const timer3 = Timer.timeout(lambda [] { println("Timer3 finishes..."); }, 500);
 println(timer1);
 println(timer2);
 println(timer3);
@@ -11,9 +11,9 @@ println("");
 
 let count = 0;
 println("Creating timers that run at certain interval...");
-const timer4 = Timer.interval(lambda (timer) : (
+const timer4 = Timer.interval(lambda [timer] {
   count++;
   println("Timer4 runs ${count} times...");
   if (count == 5) timer.clear();
-), 1000);
+}, 1000);
 println(timer4);

@@ -1,8 +1,8 @@
 using luminique::std::chrono::Timer;
 
 const promise = Promise(function (fulfill, reject) {
-  Timer.timeout(lambda () : (fulfill("hello world"); ), 1000);
+  Timer.timeout(lambda [] { fulfill("hello world"); }, 1000);
 });
 
 println("Promise created: ${promise}");
-promise.then(lambda (value) : ( println("Promise resolved: ${value}"); ));
+promise.then(lambda [value] { println("Promise resolved: ${value}"); });

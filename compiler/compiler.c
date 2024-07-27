@@ -1481,14 +1481,13 @@ static void functionParameters() {
 }
 
 static void lambdaParameters() {
-  consume(TOKEN_LEFT_PAREN, "Expect '(' after function name.");
+  consume(TOKEN_LEFT_BRAKE, "Expect '[' after function name.");
 
-  if (!check(TOKEN_RIGHT_PAREN)) {
+  if (!check(TOKEN_RIGHT_BRAKE)) {
     parameterList();
   }
 
-  consume(TOKEN_RIGHT_PAREN, "Expect ')' after parameters.");
-  consume(TOKEN_COLON, "Expect ':' after ')'.");
+  consume(TOKEN_RIGHT_BRAKE, "Expect ']' after parameters.");
 }
 
 static uint8_t lambdaDepth() {
@@ -1527,11 +1526,11 @@ static void function(FunctionType type) {
   if (type == TYPE_LAMBDA) {
     lambdaParameters();
 
-    consume(TOKEN_LEFT_PAREN, "Expect '(' after ':'.");
-    while (!check(TOKEN_RIGHT_PAREN) && !check(TOKEN_EOF)) {
+    consume(TOKEN_LEFT_BRACE, "Expect lambda body after ']'.");
+    while (!check(TOKEN_RIGHT_BRACE) && !check(TOKEN_EOF)) {
       declaration();
     }
-    consume(TOKEN_RIGHT_PAREN, "Expect ')' after lambda body.");
+    consume(TOKEN_RIGHT_BRACE, "Expect '}' after lambda body.");
   } else if (type == TYPE_GETTER) {
     current->function->arity = 0;
     consume(TOKEN_LEFT_BRACE, "Expect '{' before function body.");
