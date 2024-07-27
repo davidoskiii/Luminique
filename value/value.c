@@ -215,6 +215,9 @@ char* valueToString(Value value) {
       case OBJ_PROMISE:
         return formattedString("<promise: %d>", AS_PROMISE(value)->id)->chars;
         break;
+      case OBJ_TIMER:
+        return formattedString("<timer: %d>", AS_TIMER(value)->id)->chars;
+        break;
       default:
         return "";
         break;

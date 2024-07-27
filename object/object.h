@@ -2,10 +2,11 @@
 #define cluminique_object_h
 
 #include <sys/stat.h>
+#include <SDL2/SDL.h>
+#include <uv.h>
 
 typedef struct CallFrame CallFrame;
 
-#include <SDL2/SDL.h>
 #include "../common.h"
 #include "../table/table.h"
 #include "../chunk/chunk.h"
@@ -42,6 +43,7 @@ typedef struct CallFrame CallFrame;
 #define IS_NODE(value) isObjType(value, OBJ_NODE)
 #define IS_ENUM(value) isObjType(value, OBJ_ENUM)
 #define IS_WINDOW(value) isObjType(value, OBJ_WINDOW)
+#define IS_TIMER(value) isObjType(value, OBJ_TIMER)
 #define IS_NATIVE_FUNCTION(value) isObjType(value, OBJ_NATIVE_FUNCTION)
 #define IS_NATIVE_METHOD(value) isObjType(value, OBJ_NATIVE_METHOD)
 #define IS_STRING(value) isObjType(value, OBJ_STRING)
@@ -66,6 +68,7 @@ typedef struct CallFrame CallFrame;
 #define AS_NODE(value) ((ObjNode*)AS_OBJ(value))
 #define AS_ENUM(value) ((ObjEnum*)AS_OBJ(value))
 #define AS_WINDOW(value) ((ObjWindow*)AS_OBJ(value))
+#define AS_TIMER(value) ((ObjTimer*)AS_OBJ(value))
 #define AS_NATIVE_FUNCTION(value) ((ObjNativeFunction*)AS_OBJ(value))
 #define AS_NATIVE_METHOD(value) ((ObjNativeMethod*)AS_OBJ(value))
 #define AS_STRING(value) ((ObjString*)AS_OBJ(value))
@@ -89,6 +92,7 @@ typedef enum {
   OBJ_RECORD,
   OBJ_ENUM,
   OBJ_ARRAY,
+  OBJ_TIMER,
   OBJ_ENTRY,
   OBJ_DICTIONARY,
   OBJ_NATIVE_FUNCTION,
@@ -212,6 +216,21 @@ typedef struct {
   Value onFinally;
 } ObjPromise;
 
+typedef struct {
+  VM* vm;
+  Value receiver;
+  ObjClosure* closure;
+  int delay;
+  int interval;
+} TimerData;
+
+typedef struct {
+  Obj obj;
+  uv_timer_t* timer;
+  int id;
+  bool isRunning;
+} ObjTimer;
+
 struct ObjNamespace {
   Obj obj;
   ObjString* shortName;
@@ -322,6 +341,7 @@ ObjClass* newClass(ObjString* name, ObjType classType);
 ObjEnum* newEnum(ObjString* name);
 ObjModule* newModule(ObjString* path);
 ObjPromise* newPromise(ObjClosure* executor);
+ObjTimer* newTimer(ObjClosure* closure, int delay, int interval);
 ObjNamespace* newNamespace(ObjString* shortName, ObjNamespace* enclosing);
 ObjRange* newRange(int from, int to);
 ObjNode* newNode(Value element, ObjNode* prev, ObjNode* next);

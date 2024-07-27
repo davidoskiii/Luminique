@@ -169,6 +169,15 @@ static void blackenObject(Obj* object) {
       markTable(&enum_->values);
       break;
     }
+    case OBJ_TIMER: { 
+      ObjTimer* timer = (ObjTimer*)object;
+      if (timer->timer != NULL && timer->timer->data != NULL) {
+        TimerData* data = (TimerData*)timer->timer->data;
+        markValue(data->receiver);
+        markObject((Obj*)data->closure);
+      }
+      break;
+    }
     case OBJ_CLOSURE: {
       ObjClosure* closure = (ObjClosure*)object;
       markObject((Obj*)closure->function);
@@ -274,6 +283,11 @@ static void freeObject(Obj* object) {
       FREE(ObjEnum, object);
       ObjEnum* enum_ = (ObjEnum*)object;
       freeTable(&enum_->values);
+      break;
+    }
+    case OBJ_TIMER: { 
+      ObjTimer* timer = (ObjTimer*)object;
+      FREE(ObjTimer, object);
       break;
     }
     case OBJ_MODULE: {

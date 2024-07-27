@@ -1138,6 +1138,7 @@ void registerLangPackage() {
   ObjClass* runtimeExceptionClass = defineNativeException("RuntimeException", vm.exceptionClass);
   defineNativeException("ArithmeticException", runtimeExceptionClass);
   defineNativeException("IllegalArgumentException", runtimeExceptionClass);
+  defineNativeException("OutOfMemoryException", runtimeExceptionClass);
   defineNativeException("IndexOutOfBoundsException", runtimeExceptionClass);
   defineNativeException("UnsupportedOperationException", runtimeExceptionClass);
   defineNativeException("NotImplementedException", runtimeExceptionClass);

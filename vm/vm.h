@@ -17,7 +17,7 @@ typedef struct CallFrame {
   ExceptionHandler handlerStack[UINT4_MAX];
 } CallFrame;
 
-typedef struct {
+struct VM {
   ObjClass* objectClass;
   ObjClass* enumClass;
   ObjClass* classClass;
@@ -40,6 +40,7 @@ typedef struct {
   ObjClass* nodeClass;
   ObjClass* windowClass;
   ObjClass* promiseClass;
+  ObjClass* timerClass;
 
   ObjNamespace* rootNamespace;
   ObjNamespace* luminiqueNamespace;
@@ -76,7 +77,7 @@ typedef struct {
   int grayCount;
   int grayCapacity;
   Obj** grayStack;
-} VM;
+};
 
 typedef enum {
   INTERPRET_OK,

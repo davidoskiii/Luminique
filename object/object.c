@@ -252,6 +252,28 @@ ObjNativeMethod* newNativeMethod(ObjClass* klass, ObjString* name, int arity, Na
   return nativeMethod;
 }
 
+ObjTimer* newTimer(ObjClosure* closure, int delay, int interval) {
+  ObjTimer* timer = ALLOCATE_OBJ(ObjTimer, OBJ_TIMER, vm.timerClass);
+  TimerData* data = ALLOCATE_STRUCT(TimerData);
+  if (data != NULL) {
+    data->receiver = NIL_VAL;
+    data->vm = &vm;
+    data->closure = closure;
+    data->delay = delay;
+    data->interval = interval;
+
+    timer->timer = ALLOCATE_STRUCT(uv_timer_t);
+    if (timer->timer != NULL) {
+      timer->timer->data = data;
+      timer->id = 0;
+      timer->isRunning = false;
+    }
+    else throwNativeException("luminique::std::lang", "OutOfMemoryException", "Not enough memory to allocate timer object.");
+  }
+  else throwNativeException("luminique::std::lang", "OutOfMemoryException", "Not enough memory to allocate timer data.");
+  return timer;
+}
+
 ObjUpvalue* newUpvalue(Value* slot) {
   ObjUpvalue* upvalue = ALLOCATE_OBJ(ObjUpvalue, OBJ_UPVALUE, NULL);
   upvalue->closed = NIL_VAL;
@@ -450,6 +472,9 @@ void printObject(Value value) {
       break;
     case OBJ_PROMISE:
       printf("<promise: %d>", AS_PROMISE(value)->id);
+      break;
+    case OBJ_TIMER:
+      printf("<timer: %d>", AS_TIMER(value)->id);
       break;
     case OBJ_STRING:
       printf("%s", AS_CSTRING(value));
