@@ -1,7 +1,7 @@
 let range = 0...4;
 println("Creating an object of range: ${range}");
 println("Length of range: ${range.length}");
-println("Object range goes from ${range.start} to ${range.end}");
+println("Object range goes from ${range.from} to ${range.to}");
 
 print("Values in Range: ( ");
 

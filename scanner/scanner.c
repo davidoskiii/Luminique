@@ -158,6 +158,8 @@ static TokenType checkKeyword(int start, int length,
 }
 
 static TokenType identifierType() {
+  if (scanner.start[-1] == '.') return TOKEN_IDENTIFIER;
+
   switch (scanner.start[0]) {
     case 'a':
       if (scanner.current - scanner.start > 1) {
@@ -303,6 +305,16 @@ static Token identifier() {
   return makeToken(identifierType());
 }
 
+static Token keywordIdentifier() {
+  advance();
+  while (isAlpha(peek()) || isDigit(peek())) advance();
+  if (peek() == '`') {
+    advance();
+    return makeToken(TOKEN_IDENTIFIER);
+  }
+  else return errorToken("Keyword identifiers must end with a closing backtick.");
+}
+
 static Token number(char cur) {
   if (cur == '0' && (peek() == 'c' || peek() == 'C')) {
     advance();
@@ -427,7 +439,7 @@ Token scanToken() {
       } else {
         return makeToken(TOKEN_PIPE);
       }
-
+    case '`': return keywordIdentifier();
     case '"': return string();
   }
 

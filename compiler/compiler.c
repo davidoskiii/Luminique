@@ -335,7 +335,9 @@ static void patchJump(int offset) {
 }
 
 uint16_t identifierConstant(Token* name) {
-  return makeConstant(OBJ_VAL(copyString(name->start, name->length)));
+  const char* start = name->start[0] != '`' ? name->start : name->start + 1;
+  int length = name->start[0] != '`' ? name->length : name->length - 2;
+  return makeConstant(OBJ_VAL(copyString(start, length)));
 }
 
 static void emitIdentifier(Token* token) {

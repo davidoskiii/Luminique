@@ -1257,9 +1257,9 @@ NATIVE_METHOD(Range, __undefinedProperty__) {
 
   if (matchStringName(property, "length", 6)) {
     RETURN_INT(abs(self->to - self->from) + 1);
-  } else if (matchStringName(property, "start", 5)) {
+  } else if (matchStringName(property, "from", 4)) {
     RETURN_INT(self->from);
-  } else if (matchStringName(property, "end", 3)) {
+  } else if (matchStringName(property, "to", 2)) {
     RETURN_INT(self->to);
   } else THROW_EXCEPTION_FMT(luminique::std::lang, NotImplementedException, "Property %s does not exist in %s.", 
     AS_CSTRING(args[0]), valueToString(receiver));

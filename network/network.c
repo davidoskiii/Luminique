@@ -657,9 +657,9 @@ NATIVE_METHOD(HTTPClient, __init__) {
   RETURN_VAL(receiver);
 }
 
-NATIVE_METHOD(HTTPClient, getr) {
-  assertArgCount("HTTPClient::getr(url)", 1, argCount);
-  assertArgInstanceOfEither("HTTPClient::getr(url)", args, 0, "luminique::std::lang", "String", "luminique::std::network", "URL");
+NATIVE_METHOD(HTTPClient, get) {
+  assertArgCount("HTTPClient::get(url)", 1, argCount);
+  assertArgInstanceOfEither("HTTPClient::get(url)", args, 0, "luminique::std::lang", "String", "luminique::std::network", "URL");
   ObjString* url = httpRawURL(args[0]);
 
   CURL* curl = curl_easy_init();
@@ -1250,7 +1250,7 @@ void registerNetworkPackage() {
   DEF_METHOD(httpClientClass, HTTPClient, __init__, 0);
   DEF_METHOD(httpClientClass, HTTPClient, close, 0);
   DEF_METHOD(httpClientClass, HTTPClient, delete, 1);
-  DEF_METHOD(httpClientClass, HTTPClient, getr, 1);
+  DEF_METHOD(httpClientClass, HTTPClient, get, 1);
   DEF_METHOD(httpClientClass, HTTPClient, head, 1);
   DEF_METHOD(httpClientClass, HTTPClient, options, 1);
   DEF_METHOD(httpClientClass, HTTPClient, patch, 2);
