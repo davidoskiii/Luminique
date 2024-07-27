@@ -427,6 +427,14 @@ bool callMethod(Value method, int argCount) {
   else return callClosure(AS_CLOSURE(method), argCount);
 }
 
+static int getCalleeArity(Value callee) {
+  if (IS_CLOSURE(callee)) return AS_CLOSURE(callee)->function->arity;
+  else if (IS_NATIVE_METHOD(callee)) return AS_NATIVE_METHOD(callee)->arity;
+  else if (IS_NATIVE_FUNCTION(callee)) return AS_NATIVE_FUNCTION(callee)->arity;
+  else if (IS_BOUND_METHOD(callee)) return getCalleeArity(AS_BOUND_METHOD(callee)->method);
+  else return 0;
+}
+
 static void callReentrantClosure(Value callee, int argCount) {
   vm.apiStackDepth++;
   callClosure(AS_CLOSURE(callee), argCount);
@@ -453,7 +461,7 @@ static bool callClass(ObjClass* klass, int argCount) {
 }
 
 Value callReentrantFunction(Value callee, ...) {
-  int argCount = IS_NATIVE_FUNCTION(callee) ? AS_NATIVE_FUNCTION(callee)->arity : AS_CLOSURE(callee)->function->arity;
+  int argCount = getCalleeArity(callee);
   va_list args;
   va_start(args, callee);
   for (int i = 0; i < argCount; i++) {
@@ -468,7 +476,7 @@ Value callReentrantFunction(Value callee, ...) {
 
 Value callReentrantMethod(Value receiver, Value callee, ...) {
   push(receiver);
-  int argCount = IS_NATIVE_METHOD(callee) ? AS_NATIVE_METHOD(callee)->arity : AS_CLOSURE(callee)->function->arity;
+  int argCount = getCalleeArity(callee);
   va_list args;
   va_start(args, callee);
   for (int i = 0; i < argCount; i++) {
@@ -1103,7 +1111,7 @@ InterpretResult run() {
         break;
       }
       case OP_DIVIDE: {
-        if (IS_INT(peek(0)) && AS_INT(peek(0)) == 0) {
+        if (IS_NUMBER(peek(1)) && IS_INT(peek(0)) && AS_INT(peek(0)) == 0) {
           ObjClass* exceptionClass = getNativeClass("luminique::std::lang", "ArithmeticException");
           throwException(exceptionClass, "Divide by 0 is illegal.");
         } else if (IS_NUMBER(peek(0)) && IS_NUMBER(peek(1))) {
@@ -1122,7 +1130,7 @@ InterpretResult run() {
         break;
       }
       case OP_POWER: {
-        if (IS_NUMBER(peek(0)) || IS_NUMBER(peek(1))) {
+        if (IS_NUMBER(peek(0)) && IS_NUMBER(peek(1))) {
           double b = AS_NUMBER(pop());
           double a = AS_NUMBER(pop());
           push(NUMBER_VAL(pow(a, b)));
