@@ -3,6 +3,7 @@
 #include <string.h>
 #include <readline/readline.h>
 #include <readline/history.h>
+#include <uv.h>
 
 #include "common.h"
 #include "string/string.h"
@@ -82,6 +83,7 @@ int main(int argc, char *argv[]) {
     runFile(argv[1]);
   }
 
+  uv_run(vm.eventLoop, UV_RUN_DEFAULT);
   freeVM();
   return 0;
 }

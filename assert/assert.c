@@ -36,6 +36,14 @@ Value assertArgIsClosure(const char* method, Value* args, int index) {
   RETURN_NIL;
 }
 
+Value assertArgIsTimer(const char* method, Value* args, int index) {
+  if (!IS_TIMER(args[index]) && !isObjInstanceOf(args[index], vm.timerClass)) {
+    THROW_EXCEPTION_FMT(luminique::std::lang, IllegalArgumentException, "Method %s expects argument %d to be a timer.", 
+      method, index + 1);
+  }
+  RETURN_NIL;
+}
+
 Value assertArgIsDictionary(const char* method, Value* args, int index) {
   if (!IS_DICTIONARY(args[index])) {
     THROW_EXCEPTION_FMT(luminique::std::lang, IllegalArgumentException, "Method %s expects argument %d to be a dictionary.", 

@@ -193,6 +193,7 @@ struct ObjException {
 struct ObjModule {
   Obj obj;
   ObjString* path;
+  ObjClosure* closure;
   bool isNative;
   Table values;
   char* source;
@@ -210,19 +211,11 @@ typedef struct {
   PromiseState state;
   Value value;
   ObjException* exception;
-  ObjClosure* executor;
+  Value executor;
   ValueArray handlers;
   Value onCatch;
   Value onFinally;
 } ObjPromise;
-
-typedef struct {
-  VM* vm;
-  Value receiver;
-  ObjClosure* closure;
-  int delay;
-  int interval;
-} TimerData;
 
 typedef struct {
   Obj obj;
@@ -295,7 +288,8 @@ typedef struct {
 typedef struct {
   Obj obj;
   Value receiver;
-  ObjClosure* method;
+  Value method;
+  bool isNative;
 } ObjBoundMethod;
 
 typedef struct ObjDictionary {
@@ -327,7 +321,7 @@ typedef struct {
 } ObjWindow;
 
 Obj* allocateObject(size_t size, ObjType type, ObjClass* klass);
-ObjBoundMethod* newBoundMethod(Value receiver, ObjClosure* method);
+ObjBoundMethod* newBoundMethod(Value receiver, Value method);
 ObjFrame* newFrame(CallFrame* callFrame);
 ObjFile* newFile(ObjString* name);
 ObjGenerator* newGenerator(ObjFrame* frame, ObjGenerator* outer);
@@ -340,7 +334,7 @@ ObjDictionary* newDictionary();
 ObjClass* newClass(ObjString* name, ObjType classType);
 ObjEnum* newEnum(ObjString* name);
 ObjModule* newModule(ObjString* path);
-ObjPromise* newPromise(ObjClosure* executor);
+ObjPromise* newPromise(Value executor);
 ObjTimer* newTimer(ObjClosure* closure, int delay, int interval);
 ObjNamespace* newNamespace(ObjString* shortName, ObjNamespace* enclosing);
 ObjRange* newRange(int from, int to);

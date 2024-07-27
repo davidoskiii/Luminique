@@ -8,6 +8,23 @@
 #define FRAMES_MAX 512 / 2 
 #define STACK_MAX (FRAMES_MAX * UINT8_COUNT)
 
+#define ABORT_IFNULL(pointer, message, ...) \
+  do {\
+    if (pointer == NULL) { \
+      fprintf(stderr, message, ##__VA_ARGS__); \
+      exit(74); \
+    } \
+  } while (false)
+
+#define ABORT_IFTRUE(condition, message, ...) \
+  do {\
+    if (condition) { \
+      fprintf(stderr, message, ##__VA_ARGS__); \
+      exit(74); \
+    } \
+  } while (false)
+
+
 typedef struct CallFrame {
   ObjFunction* function;
   ObjClosure* closure;
@@ -41,6 +58,7 @@ struct VM {
   ObjClass* windowClass;
   ObjClass* promiseClass;
   ObjClass* timerClass;
+  ObjClass* boundMethodClass;
 
   ObjNamespace* rootNamespace;
   ObjNamespace* luminiqueNamespace;
@@ -57,6 +75,7 @@ struct VM {
   Value* stackTop;
   int apiStackDepth;
   ObjGenerator* runningGenerator;
+  uv_loop_t* eventLoop;
   int argc;
   char** argv;
   bool repl;
@@ -103,6 +122,7 @@ void runtimeError(const char* format, ...);
 bool callClosure(ObjClosure* closure, int argCount);
 ObjArray* getStackTrace();
 Value callGenerator(ObjGenerator* generator);
+Value createObject(ObjClass* klass, int argCount);
 void push(Value value);
 Value pop();
 Value peek(int distance);

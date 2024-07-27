@@ -13,6 +13,7 @@ Value assertArgIsInt(const char* method, Value* args, int index);
 Value assertArgIsClosure(const char* method, Value* args, int index);
 Value assertArgIsArray(const char* method, Value* args, int index);
 Value assertArgIsNumber(const char* method, Value* args, int index);
+Value assertArgIsTimer(const char* method, Value* args, int index);
 Value assertArgIsString(const char* method, Value* args, int index);
 Value assertArgIsException(const char* method, Value* args, int index);
 Value assertArgIsPromise(const char* method, Value* args, int index);

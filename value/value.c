@@ -158,9 +158,13 @@ char* valueToString(Value value) {
       case OBJ_DICTIONARY: 
         return dictToString(AS_DICTIONARY(value))->chars;
         break;
-      case OBJ_BOUND_METHOD:
-        return functionToString(AS_BOUND_METHOD(value)->method->function);
+      case OBJ_BOUND_METHOD: { 
+        ObjBoundMethod* boundMethod = AS_BOUND_METHOD(value);
+        if (IS_NATIVE_METHOD(boundMethod->method)) return formattedString("<bound method %s::%s>", 
+            AS_OBJ(boundMethod->receiver)->klass->name->chars, AS_NATIVE_METHOD(boundMethod->method)->name->chars)->chars;
+        else return formattedString("<bound method %s::%s>", AS_OBJ(boundMethod->receiver)->klass->name->chars, AS_CLOSURE(boundMethod->method)->function->name->chars)->chars;
         break;
+      }
       case OBJ_CLASS: {
         ObjClass* klass = AS_CLASS(value);
         if (klass->namespace_->isRoot) return formattedString("<class %s>", klass->name->chars)->chars;

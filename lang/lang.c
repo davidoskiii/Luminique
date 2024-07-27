@@ -375,7 +375,7 @@ NATIVE_METHOD(Promise, __init__) {
   assertArgCount("Promise::__init__(executor)", 1, argCount);
   assertArgIsClosure("Promise::__init__(executor)", args, 0);
   ObjPromise* self = AS_PROMISE(receiver);
-  self->executor = AS_CLOSURE(args[0]);
+  self->executor = args[0];
 
   Value fulfill;
   tableGet(&self->obj.klass->methods, copyString("fulfill", 7), &fulfill);
@@ -545,13 +545,13 @@ NATIVE_METHOD(Method, clone) {
 NATIVE_METHOD(Method, __str__) {
   assertArgCount("Method::__str__()", 0, argCount);
   ObjBoundMethod* bound = AS_BOUND_METHOD(receiver);
-  RETURN_STRING_FMT("<method %s::%s>", getObjClass(bound->receiver)->name->chars, bound->method->function->name->chars);
+  RETURN_STRING_FMT("<method %s::%s>", getObjClass(bound->receiver)->name->chars, AS_CLOSURE(bound->method)->function->name->chars);
 }
 
 NATIVE_METHOD(Method, __format__) {
   assertArgCount("Method::__format__()", 0, argCount);
   ObjBoundMethod* bound = AS_BOUND_METHOD(receiver);
-  RETURN_STRING_FMT("<method %s::%s>", getObjClass(bound->receiver)->name->chars, bound->method->function->name->chars);
+  RETURN_STRING_FMT("<method %s::%s>", getObjClass(bound->receiver)->name->chars, AS_CLOSURE(bound->method)->function->name->chars);
 }
 
 NATIVE_METHOD(Method, __undefinedProperty__) {
@@ -565,11 +565,11 @@ NATIVE_METHOD(Method, __undefinedProperty__) {
   } else if (matchStringName(property, "func", 4)) {
     RETURN_OBJ(self->method);
   } else if (matchStringName(property, "name", 4)) {
-    RETURN_STRING_FMT("%s::%s", getObjClass(self->receiver)->name->chars, self->method->function->name->chars);
+    RETURN_STRING_FMT("%s::%s", getObjClass(self->receiver)->name->chars, AS_CLOSURE(self->method)->function->name->chars);
   } else if (matchStringName(property, "arity", 5)) {
-    RETURN_INT(self->method->function->arity);
+    RETURN_INT(AS_CLOSURE(self->method)->function->arity);
   } else if (matchStringName(property, "upvalueCount", 12)) {
-    RETURN_INT(self->method->upvalueCount);
+    RETURN_INT(AS_CLOSURE(self->method)->upvalueCount);
   } else THROW_EXCEPTION_FMT(luminique::std::lang, NotImplementedException, "Property %s does not exist in %s.", 
     AS_CSTRING(args[0]), valueToString(receiver));
 }

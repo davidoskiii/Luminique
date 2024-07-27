@@ -1,9 +1,11 @@
 #include <time.h>
 #include <unistd.h>
+#include <uv.h>
 
 #include "time.h"
 #include "../assert/assert.h"
 #include "../native/native.h"
+#include "../loop/loop.h"
 #include "../object/object.h"
 #include "../string/string.h"
 #include "../value/value.h"
@@ -385,6 +387,100 @@ NATIVE_METHOD(Duration, __format__) {
 	RETURN_STRING_FMT("%d days, %02d hours, %02d minutes, %02d seconds", AS_INT(days), AS_INT(hours), AS_INT(minutes), AS_INT(seconds));
 }
 
+NATIVE_METHOD(Timer, __init__) {
+  assertArgCount("Timer::__init__(closure, delay, interval)", 3, argCount);
+  assertArgIsClosure("Timer::__init__(closure, delay, interval)", args, 0);
+  assertArgIsInt("Timer::__init__(closure, delay, interval)", args, 1);
+  assertArgIsInt("Timer::__init__(closure, delay, interval)", args, 2);
+  ObjTimer* self = AS_TIMER(receiver);
+  TimerData* data = (TimerData*)self->timer->data;
+  data->receiver = receiver;
+  data->closure = AS_CLOSURE(args[0]);
+  data->delay = AS_INT(args[1]);
+  data->interval = AS_INT(args[2]);
+  RETURN_OBJ(self);
+}
+
+NATIVE_METHOD(Timer, clear) {
+  assertArgCount("Timer::clear()", 0, argCount);
+  ObjTimer* self = AS_TIMER(receiver);
+  uv_timer_stop(self->timer);
+  RETURN_NIL;
+}
+
+NATIVE_METHOD(Timer, info) {
+  assertArgCount("Timer::info()", 0, argCount);
+  RETURN_STRING_FMT("<timer: %d>", AS_TIMER(receiver)->id);
+}
+
+NATIVE_METHOD(Timer, isRunning) {
+  assertArgCount("Timer::isRunning()", 0, argCount);
+  RETURN_BOOL(AS_TIMER(receiver)->isRunning);
+}
+
+NATIVE_METHOD(Timer, run) {
+  assertArgCount("Timer::run()", 0, argCount);
+  ObjTimer* self = AS_TIMER(receiver);
+  if (self->isRunning) THROW_EXCEPTION_FMT(luminique::std::lang, UnsupportedOperationException, "Timer ID: %d is already running...", self->id);
+  else {
+    TimerData* data = (TimerData*)self->timer->data;
+    uv_timer_init(vm.eventLoop, self->timer);
+    uv_timer_start(self->timer, timerRun, data->delay, data->interval);
+    self->id = (int)self->timer->start_id;
+    RETURN_OBJ(self);
+  }
+}
+
+NATIVE_METHOD(Timer, __str__) {
+  assertArgCount("Timer::__str__()", 0, argCount);
+  ObjTimer* self = AS_TIMER(receiver);
+  TimerData* data = (TimerData*)self->timer->data;
+  if (data->delay != 0 && data->interval == 0) RETURN_STRING_FMT("Timer: delay after %dms", data->delay);
+  if (data->delay == 0 && data->interval != 0) RETURN_STRING_FMT("Timer: interval at %dms", data->interval);
+  RETURN_STRING_FMT("Timer: delay after %dms, interval at %dms", data->delay, data->interval);
+}
+
+NATIVE_METHOD(Timer, __format__) {
+  assertArgCount("Timer::__format__()", 0, argCount);
+  ObjTimer* self = AS_TIMER(receiver);
+  TimerData* data = (TimerData*)self->timer->data;
+  if (data->delay != 0 && data->interval == 0) RETURN_STRING_FMT("Timer: delay after %dms", data->delay);
+  if (data->delay == 0 && data->interval != 0) RETURN_STRING_FMT("Timer: interval at %dms", data->interval);
+  RETURN_STRING_FMT("Timer: delay after %dms, interval at %dms", data->delay, data->interval);
+}
+
+NATIVE_METHOD(TimerClass, interval) {
+  assertArgCount("Timer class::interval(closure, interval)", 2, argCount);
+  assertArgIsClosure("Timer class::interval(closure, interval)", args, 0);
+  assertArgIsInt("Timer class::interval(closure, interval)", args, 1);
+
+  ObjClass* self = AS_CLASS(receiver);
+  ObjTimer* timer = newTimer(AS_CLOSURE(args[0]), 0, AS_INT(args[1]));
+  TimerData* data = (TimerData*)timer->timer->data;
+  timer->obj.klass = self;
+  data->receiver = OBJ_VAL(timer);
+  uv_timer_init(vm.eventLoop, timer->timer);
+  uv_timer_start(timer->timer, timerRun, 0, (uint64_t)data->interval);
+  timer->id = (int)timer->timer->start_id;
+  RETURN_OBJ(timer);
+}
+
+NATIVE_METHOD(TimerClass, timeout) {
+  assertArgCount("Timer class::timeout(closure, delay)", 2, argCount);
+  assertArgIsClosure("Timer class::timeout(closure, delay)", args, 0);
+  assertArgIsInt("Timer class::timeout(closure, delay)", args, 1);
+
+  ObjClass* self = AS_CLASS(receiver);
+  ObjTimer* timer = newTimer(AS_CLOSURE(args[0]), AS_INT(args[1]), 0);
+  TimerData* data = (TimerData*)timer->timer->data;
+  timer->obj.klass = self;
+  data->receiver = OBJ_VAL(timer);
+  uv_timer_init(vm.eventLoop, timer->timer);
+  uv_timer_start(timer->timer, timerRun, (uint64_t)data->delay, 0);
+  timer->id = (int)timer->timer->start_id;
+  RETURN_OBJ(timer);
+}
+
 NATIVE_FUNCTION(sleep) {
   assertArgCount("sleep(seconds)", 1, argCount);
   assertArgIsNumber("sleep(seconds)", args, 0);
@@ -470,6 +566,21 @@ void registerTimePackage() {
 	DEF_METHOD(durationClass, Duration, getTotalSeconds, 0);
 	DEF_METHOD(durationClass, Duration, __str__, 0);
 	DEF_METHOD(durationClass, Duration, __format__, 0);
+
+  vm.timerClass = defineNativeClass("Timer");
+  bindSuperclass(vm.timerClass, vm.objectClass);
+  vm.timerClass->classType = OBJ_TIMER;
+  DEF_INTERCEPTOR(vm.timerClass, Timer, INTERCEPTOR_INIT, __init__, 3);
+  DEF_METHOD(vm.timerClass, Timer, clear, 0);
+  DEF_METHOD(vm.timerClass, Timer, isRunning, 0);
+  DEF_METHOD(vm.timerClass, Timer, run, 0);
+  DEF_METHOD(vm.timerClass, Timer, info, 0);
+  DEF_METHOD(vm.timerClass, Timer, __str__, 0);
+  DEF_METHOD(vm.timerClass, Timer, __format__, 0);
+
+  ObjClass* timerMetaclass = vm.timerClass->obj.klass;
+  DEF_METHOD(timerMetaclass, TimerClass, interval, 2);
+  DEF_METHOD(timerMetaclass, TimerClass, timeout, 2);
 
   vm.currentNamespace = vm.rootNamespace;
 }

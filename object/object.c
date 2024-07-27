@@ -3,6 +3,7 @@
 #include <stdarg.h>
 
 #include "object.h"
+#include "../loop/loop.h"
 #include "../memory/memory.h"
 #include "../table/table.h"
 #include "../value/value.h"
@@ -27,10 +28,11 @@ Obj* allocateObject(size_t size, ObjType type, ObjClass* klass) {
   return object;
 }
 
-ObjBoundMethod* newBoundMethod(Value receiver, ObjClosure* method) {
-  ObjBoundMethod* bound = ALLOCATE_OBJ(ObjBoundMethod, OBJ_BOUND_METHOD, vm.methodClass);
+ObjBoundMethod* newBoundMethod(Value receiver, Value method) {
+  ObjBoundMethod* bound = ALLOCATE_OBJ(ObjBoundMethod, OBJ_BOUND_METHOD, vm.boundMethodClass);
   bound->receiver = receiver;
   bound->method = method;
+  bound->isNative = IS_NATIVE_METHOD(method);
   return bound;
 }
 
@@ -131,6 +133,7 @@ ObjModule* newModule(ObjString* path) {
   ObjModule* module = ALLOCATE_OBJ(ObjModule, OBJ_MODULE, NULL);
   module->path = path;
   module->isNative = false;
+  module->closure = NULL;
   module->source = NULL;
   initTable(&module->values);
   tableAddAll(&vm.langNamespace->values, &module->values);
@@ -138,7 +141,7 @@ ObjModule* newModule(ObjString* path) {
   return module;
 }
 
-ObjPromise* newPromise(ObjClosure* executor){
+ObjPromise* newPromise(Value executor){
   ObjPromise* promise = ALLOCATE_OBJ(ObjPromise, OBJ_PROMISE, vm.promiseClass);
   promise->id = ++vm.promiseCount;
   promise->state = PROMISE_PENDING;
@@ -422,9 +425,13 @@ void printObject(Value value) {
     case OBJ_DICTIONARY: 
       printDictionary(AS_DICTIONARY(value));
       break;
-    case OBJ_BOUND_METHOD:
-      printFunction(AS_BOUND_METHOD(value)->method->function);
+    case OBJ_BOUND_METHOD: { 
+      ObjBoundMethod* boundMethod = AS_BOUND_METHOD(value);
+      if (IS_NATIVE_METHOD(boundMethod->method)) printf("<bound method %s::%s>", 
+          AS_OBJ(boundMethod->receiver)->klass->name->chars, AS_NATIVE_METHOD(boundMethod->method)->name->chars);
+      else printf("<bound method %s::%s>", AS_OBJ(boundMethod->receiver)->klass->name->chars, AS_CLOSURE(boundMethod->method)->function->name->chars);
       break;
+    }
     case OBJ_CLASS: {
       ObjClass* klass = AS_CLASS(value);
       if (klass->namespace_->isRoot) printf("<class %s>", klass->name->chars);
@@ -473,9 +480,14 @@ void printObject(Value value) {
     case OBJ_PROMISE:
       printf("<promise: %d>", AS_PROMISE(value)->id);
       break;
-    case OBJ_TIMER:
-      printf("<timer: %d>", AS_TIMER(value)->id);
+    case OBJ_TIMER: {
+      ObjTimer* self = AS_TIMER(value);
+      TimerData* data = (TimerData*)self->timer->data;
+      if (data->delay != 0 && data->interval == 0) { printf("Timer: delay after %dms", data->delay); return; }
+      if (data->delay == 0 && data->interval != 0) { printf("Timer: interval at %dms", data->interval); return; }
+      printf("Timer: delay after %dms, interval at %dms", data->delay, data->interval);
       break;
+    }
     case OBJ_STRING:
       printf("%s", AS_CSTRING(value));
       break;

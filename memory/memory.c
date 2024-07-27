@@ -1,6 +1,7 @@
 #include <stdlib.h>
 
 #include "../compiler/compiler.h"
+#include "../loop/loop.h"
 #include "memory.h"
 #include "../vm/vm.h"
 
@@ -120,6 +121,7 @@ static void blackenObject(Obj* object) {
     case OBJ_MODULE: {
       ObjModule* module = (ObjModule*)object;
       markObject((Obj*)module->path);
+      if (module->closure != NULL) markObject((Obj*)module->closure);
       markTable(&module->values);
       break;
     }
@@ -137,7 +139,7 @@ static void blackenObject(Obj* object) {
       ObjPromise* promise = (ObjPromise*)object;
       markValue(promise->value);
       markObject((Obj*)promise->exception);
-      markObject((Obj*)promise->executor);
+      markValue(promise->executor);
       markArray(&promise->handlers);
       break;
     }
