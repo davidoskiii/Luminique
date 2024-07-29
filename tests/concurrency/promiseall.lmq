@@ -1,0 +1,23 @@
+using luminique::std::chrono::Timer;
+
+const promise1 = Promise(lambda [fulfill, reject] { 
+  Timer.timeout(function () { 
+    fulfill(1); 
+  }, 500);
+});
+
+const promise2 = Promise(lambda [fulfill, reject] { 
+  Timer.timeout(function () { 
+    fulfill(2); 
+  }, 1000);
+});
+
+const promise3 = Promise(lambda [fulfill, reject] { 
+  Timer.timeout(function () { 
+    fulfill(3); 
+  }, 300);
+});
+
+Promise.all([promise1, promise2, promise3])
+       .then(lambda [result] { println("promise all fulfilled with result: ${result}") })
+       .catch(lambda [exception] { println("promise all failed: ${exception.message}") });

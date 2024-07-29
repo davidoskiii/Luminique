@@ -502,12 +502,11 @@ NATIVE_METHOD(PromiseClass, fulfill) {
   ObjClass* klass = AS_CLASS(receiver);
   if (IS_PROMISE(args[0])) RETURN_VAL(args[0]);
   else {
-    Value fulfill;
-    tableGet(&klass->methods, copyString("fulfill", 7), &fulfill);
-    ObjPromise* promise = newPromise(fulfill);
+    ObjPromise* promise = newPromise(NIL_VAL);
     promise->state = PROMISE_FULFILLED;
     promise->obj.klass = klass;
     promise->value = args[0];
+    promise->executor = getObjMethod(receiver, "fulfill");
     RETURN_OBJ(promise);
   }
 }
@@ -516,15 +515,20 @@ NATIVE_METHOD(Promise, thenAll) {
   assertArgCount("Promise::thenAll(result)", 1, argCount);
   ObjPromise* self = AS_PROMISE(receiver);
   ObjArray* promises = AS_ARRAY(self->capturedValues->elements.values[0]);
-  ObjArray* results = AS_ARRAY(self->capturedValues->elements.values[1]);
-  int numCompleted = AS_INT(self->capturedValues->elements.values[2]);
-  int index = AS_INT(self->capturedValues->elements.values[3]);
+  ObjPromise* allPromise = AS_PROMISE(self->capturedValues->elements.values[1]);
+  ObjArray* results = AS_ARRAY(self->capturedValues->elements.values[2]);
+  int remainingCount = AS_INT(self->capturedValues->elements.values[3]);
+  int index = AS_INT(self->capturedValues->elements.values[4]);
 
   valueArrayPut(&results->elements, index, args[0]);
-  self->capturedValues->elements.values[2] = INT_VAL(numCompleted++);
-  if (numCompleted == promises->elements.count) {
-    ObjBoundMethod* fulfill = AS_BOUND_METHOD(self->capturedValues->elements.values[4]);
-    callReentrantMethod(fulfill->receiver, fulfill->method, OBJ_VAL(results));
+  remainingCount--;
+  for (int i = 0; i < promises->elements.count; i++) {
+    ObjPromise* promise = AS_PROMISE(promises->elements.values[i]);
+    promise->capturedValues->elements.values[3] = INT_VAL(remainingCount);
+  }
+
+  if (remainingCount <= 0 && allPromise->state == PROMISE_PENDING) {
+    promiseFulfill(allPromise, OBJ_VAL(results));
   }
   RETURN_OBJ(self);
 }

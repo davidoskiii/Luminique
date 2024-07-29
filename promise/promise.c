@@ -7,23 +7,34 @@
 #include "../vm/vm.h"
 
 ObjPromise* promiseAll(ObjClass* klass, ObjArray* promises) {
-  ObjArray* results = newArray();
-  push(OBJ_VAL(results));
-  int numCompleted = 0;
-  for (int i = 0; i < promises->elements.count; i++) {
-    promiseCapture(AS_PROMISE(promises->elements.values[i]), 4, OBJ_VAL(promises), OBJ_VAL(results), INT_VAL(numCompleted), INT_VAL(i));
-  }
-  pop();
+  int remainingCount = promises->elements.count;
 
   ObjPromise* allPromise = newPromise(NIL_VAL);
   push(OBJ_VAL(allPromise));
   allPromise->obj.klass = klass;
-  Value execute = getObjMethod(OBJ_VAL(allPromise), "execute");
-  ObjBoundMethod* executor = newBoundMethod(OBJ_VAL(allPromise), execute);
-  allPromise->executor = OBJ_VAL(executor);
+  if (remainingCount == 0) allPromise->state = PROMISE_FULFILLED;
+  else {
+    ObjArray* results = newArray();
+    push(OBJ_VAL(results));
+    for (int i = 0; i < promises->elements.count; i++) {
+      promiseCapture(AS_PROMISE(promises->elements.values[i]), 5, OBJ_VAL(promises), 
+                     OBJ_VAL(allPromise), OBJ_VAL(results), INT_VAL(remainingCount), INT_VAL(i));
+    }
+    pop();
 
-  promiseCapture(allPromise, 3, OBJ_VAL(promises), OBJ_VAL(results), INT_VAL(numCompleted));
-  promiseExecute(allPromise);
+    for (int i = 0; i < promises->elements.count; i++) {
+      ObjPromise* promise = AS_PROMISE(promises->elements.values[i]);
+      Value then = getObjMethod(OBJ_VAL(promise), "then");
+      Value thenAll = getObjMethod(OBJ_VAL(promise), "thenAll");
+      ObjBoundMethod* thenAllMethod = newBoundMethod(OBJ_VAL(promise), thenAll);
+      callReentrantMethod(OBJ_VAL(promise), then, OBJ_VAL(thenAllMethod));
+
+      Value catch = getObjMethod(OBJ_VAL(promise), "catch");
+      Value catchAll = getObjMethod(OBJ_VAL(promise), "catchAll");
+      ObjBoundMethod* catchAllMethod = newBoundMethod(OBJ_VAL(promise), catchAll);
+      callReentrantMethod(OBJ_VAL(promise), catch, OBJ_VAL(catchAllMethod));
+    }
+  }
   pop();
   return allPromise;
 }
