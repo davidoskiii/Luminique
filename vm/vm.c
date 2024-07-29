@@ -938,6 +938,7 @@ InterpretResult run() {
           loadModule(filePath);
           frame = &vm.frames[vm.frameCount - 1];
         }
+        pop();
         push(value);
         break;
       }
@@ -952,8 +953,13 @@ InterpretResult run() {
         break;
       }
       case OP_EQUAL: {
-        if (IS_NUMBER(peek(0)) && IS_NUMBER(peek(1))) BINARY_NUMBER_OP(BOOL_VAL, ==);
+        if (IS_INT(peek(0)) && IS_INT(peek(1))) BINARY_INT_OP(BOOL_VAL, ==);
+        else if (IS_NUMBER(peek(0)) && IS_NUMBER(peek(1))) BINARY_NUMBER_OP(BOOL_VAL, ==);
         else { 
+          printValue(peek(0));
+          printf("\n");
+          printValue(peek(1));
+          printf("\n");
           ObjString* operator = copyString("==", 2);
           if (!invokeOperator(operator, 1)) {
             Value b = pop();
