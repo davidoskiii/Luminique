@@ -239,7 +239,7 @@ NATIVE_FUNCTION(num) {
   double value = strtod(str, &endptr);
 
   if (endptr == str) {
-    RETURN_NIL;
+    THROW_EXCEPTION_FMT(luminique::std::lang, IllegalArgumentException, "Can't convert '%s' to a number.", endptr);
   } else {
     RETURN_NUMBER(value);
   }
@@ -272,7 +272,7 @@ NATIVE_FUNCTION(int) {
   double value = strtod(str, &endptr);
 
   if (endptr == str) {
-    RETURN_NIL;
+    THROW_EXCEPTION_FMT(luminique::std::lang, IllegalArgumentException, "Can't convert '%s' to an integer.", endptr);
   } else {
     RETURN_INT(value);
   }
@@ -305,7 +305,7 @@ NATIVE_FUNCTION(float) {
   double value = strtod(str, &endptr);
 
   if (endptr == str) {
-    RETURN_NIL;
+    THROW_EXCEPTION_FMT(luminique::std::lang, IllegalArgumentException, "Can't convert '%s' to a floating point number.", endptr);
   } else {
     RETURN_FLOAT(value);
   }
