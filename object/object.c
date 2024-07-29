@@ -156,6 +156,7 @@ ObjPromise* newPromise(Value executor){
   promise->executor = executor;
   promise->onCatch = NIL_VAL;
   promise->onFinally = NIL_VAL;
+  promise->capturedValues = newArray();
   initValueArray(&promise->handlers);
   return promise;
 }

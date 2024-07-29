@@ -10,5 +10,6 @@ bool dictSet(ObjDictionary* dict, Value key, Value value);
 void arrayAddAll(ObjArray* from, ObjArray* to);
 ObjString* arrayToString(ObjArray* array);
 ObjString* dictToString(ObjDictionary* dict);
+void valueArrayPut(ValueArray* array, int index, Value value);
 
 #endif

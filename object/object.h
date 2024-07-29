@@ -9,6 +9,7 @@ typedef struct CallFrame CallFrame;
 
 #include "../common.h"
 #include "../table/table.h"
+#include "../promise/promise.h"
 #include "../chunk/chunk.h"
 #include "../value/value.h"
 #include "../generator/generator.h"
@@ -208,23 +209,18 @@ struct ObjModule {
   char* source;
 };
 
-typedef enum {
-  PROMISE_PENDING,
-  PROMISE_FULFILLED,
-  PROMISE_REJECTED
-} PromiseState;
-
-typedef struct {
+struct ObjPromise {
   Obj obj;
   int id;
   PromiseState state;
   Value value;
+  ObjArray* capturedValues;
   ObjException* exception;
   Value executor;
   ValueArray handlers;
   Value onCatch;
   Value onFinally;
-} ObjPromise;
+};
 
 typedef struct {
   Obj obj;

@@ -320,6 +320,16 @@ static Value arrayRemoveAt(ObjArray* array, int index) {
 	return element;
 }
 
+void valueArrayPut(ValueArray* array, int index, Value value) {
+  if (index < array->count) array->values[index] = value;
+  else {
+    for (int i = array->count; i < index; i++) {
+      writeValueArray(array, NIL_VAL);
+    }
+    writeValueArray(array, value);
+  }
+}
+
 ObjString* arrayToString(ObjArray* array) {
 	if (array->elements.count == 0) return copyString("[]", 2);
 	else {

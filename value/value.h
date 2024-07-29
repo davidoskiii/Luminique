@@ -18,6 +18,7 @@ typedef struct ObjModule ObjModule;
 typedef struct ObjArray ObjArray;
 typedef struct ObjException ObjException;
 typedef struct ObjGenerator ObjGenerator;
+typedef struct ObjPromise ObjPromise;
 
 #ifdef NAN_BOXING
 
