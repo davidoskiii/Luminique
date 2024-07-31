@@ -747,7 +747,7 @@ static void defineMethod(ObjString* name, bool isMethodStatic) {
 void bindSuperclass(ObjClass* subclass, ObjClass* superclass) {
   if (superclass == NULL) {
     runtimeError("Superclass cannot be null for class %s", subclass->name);
-    return;
+    exit(70);
   }
   subclass->superclass = superclass;
   subclass->interceptors = superclass->interceptors;

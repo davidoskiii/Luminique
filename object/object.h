@@ -339,7 +339,7 @@ ObjDictionary* newDictionary();
 ObjClass* newClass(ObjString* name, ObjType classType);
 ObjEnum* newEnum(ObjString* name);
 ObjModule* newModule(ObjString* path);
-ObjPromise* newPromise(Value executor);
+ObjPromise* newPromise(PromiseState state, Value value, Value executor);
 ObjTimer* newTimer(ObjClosure* closure, int delay, int interval);
 ObjNamespace* newNamespace(ObjString* shortName, ObjNamespace* enclosing);
 ObjRange* newRange(int from, int to);

@@ -147,11 +147,11 @@ ObjModule* newModule(ObjString* path) {
   return module;
 }
 
-ObjPromise* newPromise(Value executor){
+ObjPromise* newPromise(PromiseState state, Value value, Value executor) {
   ObjPromise* promise = ALLOCATE_OBJ(ObjPromise, OBJ_PROMISE, vm.promiseClass);
   promise->id = ++vm.promiseCount;
-  promise->state = PROMISE_PENDING;
-  promise->value = NIL_VAL;
+  promise->state = state;
+  promise->value = value;
   promise->exception = NULL;
   promise->executor = executor;
   promise->onCatch = NIL_VAL;
@@ -314,6 +314,7 @@ Value getObjMethod(Value object, char* name) {
   Value method;
   if (!tableGet(&klass->methods, newString(name), &method)) {
     runtimeError("Method %s::%s does not exist.", klass->name->chars, name);
+    exit(70);
   }
   return method;
 }

@@ -14,6 +14,10 @@ void handleInterceptorMethod(ObjClass* klass, ObjString* name) {
   else if (strcmp(name->chars, "__afterGetProperty__") == 0) SET_CLASS_INTERCEPTOR(klass, INTERCEPTOR_AFTER_GET_PROPERTY);
   else if (strcmp(name->chars, "__undefinedProperty__") == 0) SET_CLASS_INTERCEPTOR(klass, INTERCEPTOR_UNDEFINED_PROPERTY);
   else if (strcmp(name->chars, "__undefinedMethod__") == 0) SET_CLASS_INTERCEPTOR(klass, INTERCEPTOR_UNDEFINED_METHOD);
+  else {
+    runtimeError("Invalid interceptor method specified.");
+    exit(70);
+  }
 }
 
 bool interceptBeforeGet(ObjClass* klass, ObjString* name) {

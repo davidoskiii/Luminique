@@ -9,9 +9,9 @@
 ObjPromise* promiseAll(ObjClass* klass, ObjArray* promises) {
   int remainingCount = promises->elements.count;
 
-  ObjPromise* allPromise = newPromise(NIL_VAL);
-  push(OBJ_VAL(allPromise));
+  ObjPromise* allPromise = newPromise(PROMISE_PENDING, NIL_VAL, NIL_VAL);
   allPromise->obj.klass = klass;
+  push(OBJ_VAL(allPromise));
   if (remainingCount == 0) allPromise->state = PROMISE_FULFILLED;
   else {
     ObjArray* results = newArray();
@@ -62,13 +62,13 @@ void promiseFulfill(ObjPromise* promise, Value value) {
   promise->state = PROMISE_FULFILLED;
   promise->value = value;
   for (int i = 0; i < promise->handlers.count; i++) {
-    promise->value = callReentrantMethod(OBJ_VAL(promise), promise->handlers.values[i], promise->value);
+    callReentrantMethod(OBJ_VAL(promise), promise->handlers.values[i], promise->value);
   }
   if (IS_CLOSURE(promise->onFinally)) callReentrantMethod(OBJ_VAL(promise), promise->onFinally, promise->value);
 }
 
 ObjPromise* promiseRace(ObjClass* klass, ObjArray* promises) {
-  ObjPromise* racePromise = newPromise(NIL_VAL);
+  ObjPromise* racePromise = newPromise(PROMISE_PENDING, NIL_VAL, NIL_VAL);
   racePromise->obj.klass = klass;
   push(OBJ_VAL(racePromise));
 
@@ -100,15 +100,11 @@ void promiseThen(ObjPromise* promise, Value value) {
 }
 
 ObjPromise* promiseWithFulfilled(Value value) {
-  ObjPromise* promise = newPromise(NIL_VAL);
-  promise->state = PROMISE_FULFILLED;
-  promise->value = value;
-  return promise;
+  return newPromise(PROMISE_FULFILLED, value, NIL_VAL);
 }
 
 ObjPromise* promiseWithRejected(ObjException* exception) {
-  ObjPromise* promise = newPromise(NIL_VAL);
-  promise->state = PROMISE_REJECTED;
+  ObjPromise* promise = newPromise(PROMISE_REJECTED, NIL_VAL, NIL_VAL);
   promise->exception = exception;
   return promise;
 }
