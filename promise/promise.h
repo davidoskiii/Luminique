@@ -17,5 +17,7 @@ void promiseFulfill(ObjPromise* promise, Value value);
 ObjPromise* promiseRace(ObjClass* klass, ObjArray* promises);
 void promiseReject(ObjPromise* promise, Value exception);
 void promiseThen(ObjPromise* promise, Value value);
+ObjPromise* promiseWithFulfilled(Value value);
+ObjPromise* promiseWithRejected(ObjException* exception);
 
 #endif
