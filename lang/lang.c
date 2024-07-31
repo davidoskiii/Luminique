@@ -436,7 +436,9 @@ NATIVE_METHOD(Promise, then) {
     if (IS_PROMISE(self->value)) RETURN_VAL(self->value);
     else RETURN_OBJ(promiseWithFulfilled(self->value));
   } else {
-    ObjPromise* thenPromise = newPromise(PROMISE_PENDING, NIL_VAL, NIL_VAL);
+    ObjPromise* thenPromise = (self->capturedValues->elements.count == 0)
+      ? newPromise(PROMISE_PENDING, NIL_VAL, NIL_VAL)
+      : AS_PROMISE(self->capturedValues->elements.values[0]);
     Value thenChain = getObjMethod(receiver, "thenChain");
     ObjBoundMethod* thenChainMethod = newBoundMethod(receiver, thenChain);
     if (self->capturedValues->elements.count == 0) promiseCapture(self, 2, OBJ_VAL(thenPromise), args[0]);
