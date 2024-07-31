@@ -517,7 +517,7 @@ Value createObject(ObjClass* klass, int argCount) {
     case OBJ_NODE: return OBJ_VAL(newNode(NIL_VAL, NULL, NULL));
     case OBJ_RANGE: return OBJ_VAL(newRange(0, 1));
     case OBJ_RECORD: return OBJ_VAL(newRecord(NULL));
-    case OBJ_PROMISE: return OBJ_VAL(newPromise(NIL_VAL));
+    case OBJ_PROMISE: return OBJ_VAL(newPromise(PROMISE_PENDING, NIL_VAL, NIL_VAL));
     case OBJ_TIMER: return OBJ_VAL(newTimer(NULL, 0, 0));
     case OBJ_STRING: return OBJ_VAL(ALLOCATE_STRING(0, klass));
     default: return NIL_VAL;

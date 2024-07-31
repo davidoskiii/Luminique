@@ -108,3 +108,8 @@ ObjPromise* promiseWithRejected(ObjException* exception) {
   promise->exception = exception;
   return promise;
 }
+
+void promisePushHandler(ObjPromise* promise, Value handler, ObjPromise* thenPromise) {
+  if (promise->state == PROMISE_FULFILLED)  callReentrantMethod(OBJ_VAL(thenPromise), handler, promise->value);
+  else writeValueArray(&promise->handlers, handler);
+}

@@ -19,5 +19,6 @@ void promiseReject(ObjPromise* promise, Value exception);
 void promiseThen(ObjPromise* promise, Value value);
 ObjPromise* promiseWithFulfilled(Value value);
 ObjPromise* promiseWithRejected(ObjException* exception);
+void promisePushHandler(ObjPromise* promise, Value handler, ObjPromise* thenPromise);
 
 #endif
