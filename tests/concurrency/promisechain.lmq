@@ -1,0 +1,15 @@
+using luminique::std::chrono::Timer;
+
+const promise = Promise(function (fulfill, reject) {
+  Timer.timeout(lambda [] { fulfill("hello world") }, 1000);
+});
+
+println("Promise created: ${promise}");
+promise.then(function (value) { 
+           println("Promise fulfilled: ${value}"); 
+           return Promise(function (fulfill, reject){ 
+             Timer.timeout(lambda [] { fulfill("hello world again") }, 2000);
+           });
+       })
+       .then(lambda [value] { println("Promise fulfilled: ${value}") })
+       .catch(lambda [exception] { println("promise failed: ${exception.message}") });

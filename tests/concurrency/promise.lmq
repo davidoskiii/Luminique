@@ -1,9 +1,15 @@
 using luminique::std::chrono::Timer;
 
-const promise = Promise(function (fulfill, reject) {
-  Timer.timeout(lambda [] { fulfill("hello world"); }, 1000);
+const promise1 = Promise(function (fulfill, reject) {
+  Timer.timeout(lambda [] { fulfill("hello world") }, 1000);
 });
 
-println("Promise created: ${promise}");
-let result = promise.then(lambda [value] { println("Promise resolved: ${value}") })
-                    .catch(lambda [exception] { println("promise failed: ${exception.message}") });
+const promise2 = Promise(function (fulfill, reject) {
+  Timer.timeout(lambda [] { fulfill("hello world 2") }, 500);
+});
+
+println("Promise created: ${promise1}");
+promise1.then(lambda [value] { println("Promise fulfilled: ${value}") })
+       .catch(lambda [exception] { println("promise failed: ${exception.message}") });
+promise2.then(lambda [value] { println("Promise2 fulfilled: ${value}") })
+        .catch(lambda [exception] { println("promise2 failed: ${exception.message}") });

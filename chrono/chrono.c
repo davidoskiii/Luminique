@@ -410,7 +410,11 @@ NATIVE_METHOD(Timer, clear) {
 
 NATIVE_METHOD(Timer, info) {
   assertArgCount("Timer::info()", 0, argCount);
-  RETURN_STRING_FMT("<timer: %d>", AS_TIMER(receiver)->id);
+  ObjTimer* self = AS_TIMER(receiver);
+  TimerData* data = (TimerData*)self->timer->data;
+  if (data->delay != 0 && data->interval == 0) printf("Timer: delay after %dms", data->delay);
+  if (data->delay == 0 && data->interval != 0) printf("Timer: interval at %dms", data->interval);
+  RETURN_STRING_FMT("Timer: delay after %dms, interval at %dms", data->delay, data->interval);
 }
 
 NATIVE_METHOD(Timer, isRunning) {
@@ -433,20 +437,12 @@ NATIVE_METHOD(Timer, run) {
 
 NATIVE_METHOD(Timer, __str__) {
   assertArgCount("Timer::__str__()", 0, argCount);
-  ObjTimer* self = AS_TIMER(receiver);
-  TimerData* data = (TimerData*)self->timer->data;
-  if (data->delay != 0 && data->interval == 0) RETURN_STRING_FMT("Timer: delay after %dms", data->delay);
-  if (data->delay == 0 && data->interval != 0) RETURN_STRING_FMT("Timer: interval at %dms", data->interval);
-  RETURN_STRING_FMT("Timer: delay after %dms, interval at %dms", data->delay, data->interval);
+  RETURN_STRING_FMT("<timer: %d>", AS_TIMER(receiver)->id);
 }
 
 NATIVE_METHOD(Timer, __format__) {
   assertArgCount("Timer::__format__()", 0, argCount);
-  ObjTimer* self = AS_TIMER(receiver);
-  TimerData* data = (TimerData*)self->timer->data;
-  if (data->delay != 0 && data->interval == 0) RETURN_STRING_FMT("Timer: delay after %dms", data->delay);
-  if (data->delay == 0 && data->interval != 0) RETURN_STRING_FMT("Timer: interval at %dms", data->interval);
-  RETURN_STRING_FMT("Timer: delay after %dms, interval at %dms", data->delay, data->interval);
+  RETURN_STRING_FMT("<timer: %d>", AS_TIMER(receiver)->id);
 }
 
 NATIVE_METHOD(TimerClass, interval) {

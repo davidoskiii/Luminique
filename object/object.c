@@ -489,15 +489,12 @@ void printObject(Value value) {
     case OBJ_NATIVE_METHOD:
       printf("<native method %s::%s>", AS_NATIVE_METHOD(value)->klass->name->chars, AS_NATIVE_METHOD(value)->name->chars);
       break;
-    case OBJ_PROMISE:
+    case OBJ_PROMISE: {
       printf("<promise: %d>", AS_PROMISE(value)->id);
       break;
+    }
     case OBJ_TIMER: {
-      ObjTimer* self = AS_TIMER(value);
-      TimerData* data = (TimerData*)self->timer->data;
-      if (data->delay != 0 && data->interval == 0) { printf("Timer: delay after %dms", data->delay); return; }
-      if (data->delay == 0 && data->interval != 0) { printf("Timer: interval at %dms", data->interval); return; }
-      printf("Timer: delay after %dms, interval at %dms", data->delay, data->interval);
+      printf("<timer: %d>", AS_TIMER(value)->id);
       break;
     }
     case OBJ_STRING:

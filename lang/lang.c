@@ -448,6 +448,38 @@ NATIVE_METHOD(Promise, raceAll) {
   RETURN_NIL;
 }
 
+NATIVE_METHOD(Promise, thenAll) {
+  assertArgCount("Promise::thenAll(result)", 1, argCount);
+  ObjPromise* self = AS_PROMISE(receiver);
+  ObjArray* promises = AS_ARRAY(self->capturedValues->elements.values[0]);
+  ObjPromise* allPromise = AS_PROMISE(self->capturedValues->elements.values[1]);
+  ObjArray* results = AS_ARRAY(self->capturedValues->elements.values[2]);
+  int remainingCount = AS_INT(self->capturedValues->elements.values[3]);
+  int index = AS_INT(self->capturedValues->elements.values[4]);
+
+  valueArrayPut(&results->elements, index, args[0]);
+  remainingCount--;
+  for (int i = 0; i < promises->elements.count; i++) {
+    ObjPromise* promise = AS_PROMISE(promises->elements.values[i]);
+    promise->capturedValues->elements.values[3] = INT_VAL(remainingCount);
+  }
+
+  if (remainingCount <= 0 && allPromise->state == PROMISE_PENDING) {
+    promiseThen(allPromise, OBJ_VAL(results));
+  }
+  RETURN_OBJ(self);
+}
+
+NATIVE_METHOD(Promise, __str__) {
+  assertArgCount("Promise::__str__()", 0, argCount);
+  RETURN_STRING_FMT("<promise: %d>", AS_PROMISE(receiver)->id);
+}
+
+NATIVE_METHOD(Promise, __format__) {
+  assertArgCount("Promise::__format__()", 0, argCount);
+  RETURN_STRING_FMT("<promise: %d>", AS_PROMISE(receiver)->id);
+}
+
 NATIVE_METHOD(Promise, __undefinedProperty__) {
   assertArgCount("Promise::__undefinedProperty__(name)", 1, argCount);
   assertArgIsString("Promise::__undefinedProperty__(name)", args, 0);
@@ -476,28 +508,6 @@ NATIVE_METHOD(PromiseClass, fulfill) {
     promise->executor = getObjMethod(receiver, "fulfill");
     RETURN_OBJ(promise);
   }
-}
-
-NATIVE_METHOD(Promise, thenAll) {
-  assertArgCount("Promise::thenAll(result)", 1, argCount);
-  ObjPromise* self = AS_PROMISE(receiver);
-  ObjArray* promises = AS_ARRAY(self->capturedValues->elements.values[0]);
-  ObjPromise* allPromise = AS_PROMISE(self->capturedValues->elements.values[1]);
-  ObjArray* results = AS_ARRAY(self->capturedValues->elements.values[2]);
-  int remainingCount = AS_INT(self->capturedValues->elements.values[3]);
-  int index = AS_INT(self->capturedValues->elements.values[4]);
-
-  valueArrayPut(&results->elements, index, args[0]);
-  remainingCount--;
-  for (int i = 0; i < promises->elements.count; i++) {
-    ObjPromise* promise = AS_PROMISE(promises->elements.values[i]);
-    promise->capturedValues->elements.values[3] = INT_VAL(remainingCount);
-  }
-
-  if (remainingCount <= 0 && allPromise->state == PROMISE_PENDING) {
-    promiseThen(allPromise, OBJ_VAL(results));
-  }
-  RETURN_OBJ(self);
 }
 
 NATIVE_METHOD(PromiseClass, all) {
@@ -1437,6 +1447,8 @@ void registerLangPackage() {
   DEF_METHOD(vm.promiseClass, Promise, reject, 1);
   DEF_METHOD(vm.promiseClass, Promise, then, 1);
   DEF_METHOD(vm.promiseClass, Promise, thenAll, 1);
+  DEF_METHOD(vm.promiseClass, Promise, __str__, 0);
+  DEF_METHOD(vm.promiseClass, Promise, __format__, 0);
 
   DEF_INTERCEPTOR(vm.promiseClass, Promise, INTERCEPTOR_UNDEFINED_PROPERTY, __undefinedProperty__, 1);
 
