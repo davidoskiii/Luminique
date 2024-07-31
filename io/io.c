@@ -26,8 +26,15 @@
 #include "../string/string.h"
 #include "../vm/vm.h"
 
-static bool fileExists(ObjFile* file, struct stat* fileStat) {
-  return (stat(file->name->chars, fileStat) == 0);
+static bool loadFileStat(ObjFile* file, uv_fs_t* fStat) {
+  return (uv_fs_stat(vm.eventLoop, fStat, file->name->chars, NULL) == 0);
+}
+
+static bool fileExists(ObjFile* file) {
+  uv_fs_t fStat;
+  bool fileExists = loadFileStat(file, &fStat);
+  uv_fs_req_cleanup(&fStat);
+  return fileExists;
 }
 
 static ObjFile* getFileArgument(Value arg) {
@@ -41,40 +48,37 @@ static ObjFile* getFileProperty(ObjInstance* object, char* field) {
   return AS_FILE(getObjProperty(object, field));
 }
 
-
-static void setFileProperty(ObjInstance* object, ObjFile* file, char* mode) {
-  file->file = fopen(file->name->chars, mode);
-
-  if (file->file == NULL) {
-    assertError("Cannot create IOStream, file either does not exist or require additional permission to access.");
-  }
-
+static bool setFileProperty(ObjInstance* object, ObjFile* file, char* mode) {
+  fopen_s(&file->file, file->name->chars, mode);
+  if (file->file == NULL) return false;
   file->isOpen = true;
   file->mode = newString(mode);
   setObjProperty(object, "file", OBJ_VAL(file));
+  return true;
 }
-
 
 NATIVE_METHOD(BinaryReadStream, __init__) {
   assertArgCount("BinaryReadStream::__init__(file)", 1, argCount);
   ObjInstance* self = AS_INSTANCE(receiver);
   ObjFile* file = getFileArgument(args[0]);
   if (file == NULL) assertError("Method BinaryReadStream::__init__(file) expects argument 1 to be a string or file.");
-  setFileProperty(AS_INSTANCE(receiver), file, "rb");
+  if (!setFileProperty(AS_INSTANCE(receiver), file, "rb")) {
+    THROW_EXCEPTION(luminique::std::io, IOException, "Cannot create BinaryReadStream, file either does not exist or require additional permission to access.");
+  }
   RETURN_OBJ(self);
 }
 
 NATIVE_METHOD(BinaryReadStream, next) {
   assertArgCount("BinaryReadStream::next()", 0, argCount);
   ObjFile* file = getFileProperty(AS_INSTANCE(receiver), "file");
-  if (!file->isOpen) assertError("Cannot read the next byte because file is already closed.");
+  if (!file->isOpen) THROW_EXCEPTION(luminique::std::io, IOException, "Cannot read the next byte because file is already closed.");
   if (file->file == NULL) RETURN_NIL;
   else {
-    unsigned char byte;
-    if (fread(&byte, sizeof(char), 1, file->file) > 0) {
-      RETURN_INT((int)byte);
-    }
-    RETURN_NIL;
+      unsigned char byte;
+      if (fread(&byte, sizeof(char), 1, file->file) > 0) {
+          RETURN_INT((int)byte);
+      }
+      RETURN_NIL;
   }
   RETURN_NIL;
 }
@@ -82,11 +86,11 @@ NATIVE_METHOD(BinaryReadStream, next) {
 NATIVE_METHOD(BinaryReadStream, nextBytes) {
   assertArgCount("BinaryReadStream::nextBytes(length)", 1, argCount);
   assertArgIsInt("BinaryReadStream::nextBytes(length)", args, 0);
-  assertNumberPositive("BinaryReadStream::nextBytes(length)", AS_NUMBER(args[0]), 0);
   int length = AS_INT(args[0]);
+  if (length < 0) THROW_EXCEPTION_FMT(luminique::std::lang, IllegalArgumentException, "method BinaryReadStream::nextBytes(length) expects argument 1 to be a positive integer but got %g.", length);
 
   ObjFile* file = getFileProperty(AS_INSTANCE(receiver), "file");
-  if (!file->isOpen) assertError("Cannot read the next byte because file is already closed.");
+  if (!file->isOpen) THROW_EXCEPTION(luminique::std::io, IOException, "Cannot read the next byte because file is already closed.");
   if (file->file == NULL) RETURN_NIL;
   else {
     ObjArray* bytes = newArray();
@@ -96,7 +100,7 @@ NATIVE_METHOD(BinaryReadStream, nextBytes) {
       if (fread(&byte, sizeof(char), 1, file->file) == 0) break;
       writeValueArray(&bytes->elements, INT_VAL((int)byte));
     }
-    pop(vm);
+    pop();
     RETURN_OBJ(bytes);
   }
 }
@@ -106,18 +110,20 @@ NATIVE_METHOD(BinaryWriteStream, __init__) {
   ObjInstance* self = AS_INSTANCE(receiver);
   ObjFile* file = getFileArgument(args[0]);
   if (file == NULL) assertError("Method BinaryWriteStream::__init__(file) expects argument 1 to be a string or file.");
-  setFileProperty(AS_INSTANCE(receiver), file, "wb");
+  if (!setFileProperty(AS_INSTANCE(receiver), file, "wb")) {
+      THROW_EXCEPTION(luminique::std::io, IOException, "Cannot create BinaryWriteStream, file either does not exist or require additional permission to access.");
+  }
   RETURN_OBJ(self);
 }
 
 NATIVE_METHOD(BinaryWriteStream, put) {
   assertArgCount("BinaryWriteStream::put(byte)", 1, argCount);
-  assertArgIsInt("BinaryWriteStream::put(bytes)", args, 0);
+  assertArgIsInt("BinaryWriteStream::put(byte)", args, 0);
   int byte = AS_INT(args[0]);
   assertIntWithinRange("BinaryWriteStream::put(byte)", byte, 0, 255, 0);
 
   ObjFile* file = getFileProperty(AS_INSTANCE(receiver), "file");
-  if (!file->isOpen) assertError("Cannot write byte to stream because file is already closed.");
+  if (!file->isOpen) THROW_EXCEPTION(luminique::std::io, IOException, "Cannot write byte to stream because file is already closed.");
   if (file->file == NULL) RETURN_NIL;
   else {
     unsigned char bytes[1] = { (unsigned char)byte };
@@ -127,19 +133,19 @@ NATIVE_METHOD(BinaryWriteStream, put) {
 }
 
 NATIVE_METHOD(BinaryWriteStream, putBytes) {
-  assertArgCount("BinaryWriteStream::putBytes(bytes)", 1, argCount);
-  assertArgIsArray("BinaryWriteStream::putBytes(bytes)", args, 0);
+  assertArgCount("BinaryWriteStream::put(bytes)", 1, argCount);
+  assertArgIsArray("BinaryWriteStream::put(bytes)", args, 0);
   ObjArray* bytes = AS_ARRAY(args[0]);
-  if (bytes->elements.count == 0) assertError("Cannot write empty byte array to stream.");
+  if (bytes->elements.count == 0) THROW_EXCEPTION(luminique::std::io, IOException, "Cannot write empty byte array to stream.");
 
   ObjFile* file = getFileProperty(AS_INSTANCE(receiver), "file");
-  if (!file->isOpen) assertError("Cannot write bytes to stream because file is already closed.");
+  if (!file->isOpen) THROW_EXCEPTION(luminique::std::io, IOException, "Cannot write bytes to stream because file is already closed.");
   if (file->file == NULL) RETURN_NIL;
   else {
     unsigned char* byteArray = (unsigned char*)malloc(bytes->elements.count);
     if (byteArray != NULL) {
       for (int i = 0; i < bytes->elements.count; i++) {
-        if (!IS_INT(bytes->elements.values[i])) assertError("Cannot write bytes to stream because data is corrupted.");
+        if (!IS_INT(bytes->elements.values[i])) THROW_EXCEPTION(luminique::std::io, IOException, "Cannot write bytes to stream because data is corrupted.");
         int byte = AS_INT(bytes->elements.values[i]);
         byteArray[i] = (unsigned char)byte;
       }
@@ -153,17 +159,22 @@ NATIVE_METHOD(BinaryWriteStream, putBytes) {
 NATIVE_METHOD(File, __init__) {
   assertArgCount("File::__init__(pathname)", 1, argCount);
   assertArgIsString("File::__init__(pathname)", args, 0);
-  ObjFile* self = newFile(AS_STRING(args[0]));
+  ObjFile* self = AS_FILE(receiver);
+  self->name = AS_STRING(args[0]);
+  self->mode = emptyString();
+  self->isOpen = false;
   RETURN_OBJ(self);
 }
-
 
 NATIVE_METHOD(File, create) {
   assertArgCount("File::create()", 0, argCount);
   ObjFile* self = AS_FILE(receiver);
-  struct stat fileStat;
-  if (fileExists(self, &fileStat)) THROW_EXCEPTION(luminique::std::lang, InstantiationException, "File or directory already exist.");
-  FILE* file = fopen(self->name->chars, "w");
+  if (fileExists(self)) {
+    THROW_EXCEPTION(luminique::std::io, IOException, "Cannot create new file because it already exists");
+  }
+
+  FILE* file;
+  fopen_s(&file, self->name->chars, "w");
   if (file != NULL) {
     fclose(file);
     RETURN_TRUE;
@@ -174,23 +185,20 @@ NATIVE_METHOD(File, create) {
 NATIVE_METHOD(File, delete) {
   assertArgCount("File::delete()", 0, argCount);
   ObjFile* self = AS_FILE(receiver);
-  struct stat fileStat;
-  if (!fileExists(self, &fileStat)) RETURN_FALSE;
+  if (!fileExists(self)) RETURN_FALSE;
   RETURN_BOOL(remove(self->name->chars) == 0);
 }
 
 NATIVE_METHOD(File, exists) {
   assertArgCount("File::exists()", 0, argCount);
-  ObjFile* self = AS_FILE(receiver);
-  struct stat fileStat;
-  RETURN_BOOL(fileExists(self, &fileStat));
+  RETURN_BOOL(fileExists(AS_FILE(receiver)));
 }
 
 NATIVE_METHOD(File, getAbsolutePath) {
   assertArgCount("File::getAbsolutePath()", 0, argCount);
   ObjFile* self = AS_FILE(receiver);
   uv_fs_t fRealPath;
-  if (uv_fs_realpath(vm.eventLoop, &fRealPath, self->name->chars, NULL) == NULL) {
+  if (uv_fs_realpath(vm.eventLoop, &fRealPath, self->name->chars, NULL) != 0) {
     THROW_EXCEPTION(luminique::std::io, FileNotFoundException, "Cannot get file absolute path because it does not exist.");
   }
   ObjString* realPath = newString((const char*)fRealPath.ptr);
@@ -200,64 +208,77 @@ NATIVE_METHOD(File, getAbsolutePath) {
 NATIVE_METHOD(File, isDirectory) {
   assertArgCount("File::isDirectory()", 0, argCount);
   ObjFile* self = AS_FILE(receiver);
-  struct stat fileStat;
-  if (!fileExists(self, &fileStat)) RETURN_FALSE;
-  RETURN_BOOL(fileStat.st_mode & S_IFDIR);
+  uv_fs_t fStat;
+  if (!loadFileStat(self, &fStat)) RETURN_FALSE;
+  uint64_t mode = fStat.statbuf.st_mode;
+  uv_fs_req_cleanup(&fStat);
+  RETURN_BOOL(mode & S_IFDIR);
 }
 
 NATIVE_METHOD(File, isExecutable) {
   assertArgCount("File::isExecutable()", 0, argCount);
   ObjFile* self = AS_FILE(receiver);
-  struct stat fileStat;
-  if (!fileExists(self, &fileStat)) RETURN_FALSE;
-  RETURN_BOOL(fileStat.st_mode & S_IEXEC);
+  uv_fs_t fStat;
+  if (!loadFileStat(self, &fStat)) RETURN_FALSE;
+  uint64_t mode = fStat.statbuf.st_mode;
+  uv_fs_req_cleanup(&fStat);
+  RETURN_BOOL(mode & S_IEXEC);
 }
 
 NATIVE_METHOD(File, isFile) {
   assertArgCount("File::isFile()", 0, argCount);
   ObjFile* self = AS_FILE(receiver);
-  struct stat fileStat;
-  if (!fileExists(self, &fileStat)) RETURN_FALSE;
-  RETURN_BOOL(fileStat.st_mode & S_IFREG);
+  uv_fs_t fStat;
+  if (!loadFileStat(self, &fStat)) RETURN_FALSE;
+  uint64_t mode = fStat.statbuf.st_mode;
+  uv_fs_req_cleanup(&fStat);
+  RETURN_BOOL(mode & S_IFREG);
 }
 
 NATIVE_METHOD(File, isReadable) {
   assertArgCount("File::isReadable()", 0, argCount);
   ObjFile* self = AS_FILE(receiver);
-  struct stat fileStat;
-  if (!fileExists(self, &fileStat)) RETURN_FALSE;
-  RETURN_BOOL(fileStat.st_mode & S_IREAD);
+  uv_fs_t fStat;
+  if (!loadFileStat(self, &fStat)) RETURN_FALSE;
+  uint64_t mode = fStat.statbuf.st_mode;
+  uv_fs_req_cleanup(&fStat);
+  RETURN_BOOL(mode & S_IREAD);
 }
 
 NATIVE_METHOD(File, isWritable) {
   assertArgCount("File::isWritable()", 0, argCount);
   ObjFile* self = AS_FILE(receiver);
-  struct stat fileStat;
-  if (!fileExists(self, &fileStat)) RETURN_FALSE;
-  RETURN_BOOL(fileStat.st_mode & S_IWRITE);
+  uv_fs_t fStat;
+  if (!loadFileStat(self, &fStat)) RETURN_FALSE;
+  uint64_t mode = fStat.statbuf.st_mode;
+  uv_fs_req_cleanup(&fStat);
+  RETURN_BOOL(mode & S_IWRITE);
 }
 
 NATIVE_METHOD(File, lastAccessed) {
   assertArgCount("File::lastAccessed()", 0, argCount);
   ObjFile* self = AS_FILE(receiver);
-  struct stat fileStat;
-  if (!fileExists(self, &fileStat)) assertError("Cannot get file last accessed date because it does not exist.");
-  RETURN_INT(fileStat.st_atime);
+  uv_fs_t fStat;
+  if (!loadFileStat(self, &fStat)) THROW_EXCEPTION(luminique::std::io, FileNotFoundException, "Cannot get file last accessed date because it does not exist.");
+  int fAccessTime = fStat.statbuf.st_atim.tv_sec;
+  uv_fs_req_cleanup(&fStat);
+  RETURN_INT(fAccessTime);
 }
 
 NATIVE_METHOD(File, lastModified) {
   assertArgCount("File::lastModified()", 0, argCount);
   ObjFile* self = AS_FILE(receiver);
-  struct stat fileStat;
-  if (!fileExists(self, &fileStat)) assertError("Cannot get file last modified date because it does not exist.");
-  RETURN_INT(fileStat.st_mtime);
+  uv_fs_t fStat;
+  if (!loadFileStat(self, &fStat)) THROW_EXCEPTION(luminique::std::io, FileNotFoundException, "Cannot get file last modified date because it does not exist.");
+  int fModifiedTime = fStat.statbuf.st_mtim.tv_sec;
+  uv_fs_req_cleanup(&fStat);
+  RETURN_INT(fModifiedTime);
 }
 
 NATIVE_METHOD(File, mkdir) {
   assertArgCount("File::mkdir()", 0, argCount);
   ObjFile* self = AS_FILE(receiver);
-  struct stat fileStat;
-  if (fileExists(self, &fileStat)) RETURN_FALSE;
+  if (fileExists(self)) RETURN_FALSE;
   RETURN_BOOL(_mkdir(self->name->chars) == 0);
 }
 
@@ -270,16 +291,14 @@ NATIVE_METHOD(File, rename) {
   assertArgCount("File::rename(name)", 1, argCount);
   assertArgIsString("File::rename(name)", args, 0);
   ObjFile* self = AS_FILE(receiver);
-  struct stat fileStat;
-  if (!fileExists(self, &fileStat)) RETURN_FALSE;
+  if (!fileExists(self)) RETURN_FALSE;
   RETURN_BOOL(rename(self->name->chars, AS_STRING(args[0])->chars) == 0);
 }
 
 NATIVE_METHOD(File, rmdir) {
   assertArgCount("File::rmdir()", 0, argCount);
   ObjFile* self = AS_FILE(receiver);
-  struct stat fileStat;
-  if (!fileExists(self, &fileStat)) RETURN_FALSE;
+  if (!fileExists(self)) RETURN_FALSE;
   RETURN_BOOL(_rmdir(self->name->chars) == 0);
 }
 
@@ -287,18 +306,16 @@ NATIVE_METHOD(File, setExecutable) {
   assertArgCount("File::setExecutable(canExecute)", 1, argCount);
   assertArgIsBool("File::setExecutable(canExecute)", args, 0);
   ObjFile* self = AS_FILE(receiver);
-  struct stat fileStat;
-  if (!fileExists(self, &fileStat)) RETURN_FALSE;
+  if (!fileExists(self)) RETURN_FALSE;
   if (AS_BOOL(args[0])) RETURN_BOOL(_chmod(self->name->chars, S_IEXEC));
   else RETURN_BOOL(_chmod(self->name->chars, ~S_IEXEC));
 }
 
 NATIVE_METHOD(File, setReadable) {
   assertArgCount("File::setReadable(canRead)", 1, argCount);
-  assertArgIsBool("File::setReadable(canRead)", args, 0);
+  assertArgIsBool("File::setReadable(canWrite)", args, 0);
   ObjFile* self = AS_FILE(receiver);
-  struct stat fileStat;
-  if (!fileExists(self, &fileStat)) RETURN_FALSE;
+  if (!fileExists(self)) RETURN_FALSE;
   if (AS_BOOL(args[0])) RETURN_BOOL(_chmod(self->name->chars, S_IREAD));
   else RETURN_BOOL(_chmod(self->name->chars, ~S_IREAD));
 }
@@ -307,19 +324,19 @@ NATIVE_METHOD(File, setWritable) {
   assertArgCount("File::setWritable(canWrite)", 1, argCount);
   assertArgIsBool("File::setWritable(canWrite)", args, 0);
   ObjFile* self = AS_FILE(receiver);
-  struct stat fileStat;
-  if (!fileExists(self, &fileStat)) RETURN_FALSE;
+  if (!fileExists(self)) RETURN_FALSE;
   if (AS_BOOL(args[0])) RETURN_BOOL(_chmod(self->name->chars, S_IWRITE));
   else RETURN_BOOL(_chmod(self->name->chars, ~S_IWRITE));
 }
 
-
 NATIVE_METHOD(File, size) {
   assertArgCount("File::size()", 0, argCount);
   ObjFile* self = AS_FILE(receiver);
-  struct stat fileStat;
-  if (!fileExists(self, &fileStat)) THROW_EXCEPTION(luminique::std::lang, InstantiationException, "File or directory doesn't exist.");
-  RETURN_NUMBER(fileStat.st_size);
+  uv_fs_t fStat;
+  if (!loadFileStat(self, &fStat)) THROW_EXCEPTION(luminique::std::io, FileNotFoundException, "Cannot get file size because it does not exist.");
+  int fSize = fStat.statbuf.st_size;
+  uv_fs_req_cleanup(&fStat);
+  RETURN_NUMBER(fSize);
 }
 
 NATIVE_METHOD(File, __str__) {
@@ -332,18 +349,48 @@ NATIVE_METHOD(File, __format__) {
   RETURN_OBJ(AS_FILE(receiver)->name);
 }
 
+NATIVE_METHOD(FileClass, open) {
+  assertArgCount("File class::open(pathname, mode)", 2, argCount);
+  assertArgIsString("File class::open(pathname, mode)", args, 0);
+  assertArgIsString("File class::open(pathname, mode)", args, 1);
+  ObjString* mode = AS_STRING(args[1]);
+  ObjFile* file = newFile(AS_STRING(args[0]));
+  push(OBJ_VAL(file));
+  if (mode->chars == "r") {
+    ObjInstance* fileReadStream = newInstance(getNativeClass("luminique::std::io", "FileReadStream"));
+    if (!setFileProperty(fileReadStream, file, "r")) {
+      THROW_EXCEPTION(luminique::std::io, IOException, "Cannot open FileReadStream, file either does not exist or require additional permission to access.");
+    }
+    pop();
+    RETURN_OBJ(fileReadStream);
+  } else if (mode->chars == "w") {
+    ObjInstance* fileWriteStream = newInstance(getNativeClass("luminique::std::io", "FileWriteStream"));
+    if (!setFileProperty(fileWriteStream, file, "w")) {
+    THROW_EXCEPTION(luminique::std::io, IOException, "Cannot open FileWriteStream, file either does not exist or require additional permission to access.");
+    }
+    pop();
+    RETURN_OBJ(fileWriteStream);
+  } else {
+    assertError("Invalid file open mode specified.");
+    RETURN_NIL;
+  }
+}
+
 NATIVE_METHOD(FileReadStream, __init__) {
   assertArgCount("FileReadStream::__init__(file)", 1, argCount);
   ObjInstance* self = AS_INSTANCE(receiver);
   ObjFile* file = getFileArgument(args[0]);
-  if (file == NULL) THROW_EXCEPTION(luminique::std::lang, IllegalArgumentException, "Method FileReadStream::__init__(file) expects argument 1 to be a string or file.");
-  setFileProperty(AS_INSTANCE(receiver), file, "r");  RETURN_OBJ(self);
+  if (file == NULL) assertError("Method FileReadStream::__init__(file) expects argument 1 to be a string or file.");
+  if (!setFileProperty(AS_INSTANCE(receiver), file, "r")) {
+    THROW_EXCEPTION(luminique::std::io, IOException, "Cannot create FileReadStream, file either does not exist or require additional permission to access.");
+  }
+  RETURN_OBJ(self);
 }
 
 NATIVE_METHOD(FileReadStream, next) {
   assertArgCount("FileReadStream::next()", 0, argCount);
   ObjFile* file = getFileProperty(AS_INSTANCE(receiver), "file");
-  if (!file->isOpen) assertError("Cannot read the next char because file is already closed.");
+  if (!file->isOpen) THROW_EXCEPTION(luminique::std::io, IOException, "Cannot read the next char because file is already closed.");
   if (file->file == NULL) RETURN_NIL;
   else {
     int c = fgetc(file->file);
@@ -356,7 +403,7 @@ NATIVE_METHOD(FileReadStream, next) {
 NATIVE_METHOD(FileReadStream, nextLine) {
   assertArgCount("FileReadStream::nextLine()", 0, argCount);
   ObjFile* file = getFileProperty(AS_INSTANCE(receiver), "file");
-  if (!file->isOpen) assertError("Cannot read the next line because file is already closed.");
+  if (!file->isOpen) THROW_EXCEPTION(luminique::std::io, IOException, "Cannot read the next line because file is already closed.");
   if (file->file == NULL) RETURN_NIL;
   else {
     char line[UINT8_MAX];
@@ -368,7 +415,7 @@ NATIVE_METHOD(FileReadStream, nextLine) {
 NATIVE_METHOD(FileReadStream, peek) {
   assertArgCount("FileReadStream::peek()", 0, argCount);
   ObjFile* file = getFileProperty(AS_INSTANCE(receiver), "file");
-  if (!file->isOpen) assertError("Cannot peek the next char because file is already closed.");
+  if (!file->isOpen) THROW_EXCEPTION(luminique::std::io, IOException, "Cannot peek the next char because file is already closed.");
   if (file->file == NULL) RETURN_NIL;
   else {
     int c = fgetc(file->file);
@@ -383,8 +430,10 @@ NATIVE_METHOD(FileWriteStream, __init__) {
   assertArgCount("FileWriteStream::__init__(file)", 1, argCount);
   ObjInstance* self = AS_INSTANCE(receiver);
   ObjFile* file = getFileArgument(args[0]);
-  if (file == NULL) THROW_EXCEPTION(luminique::std::lang, IllegalArgumentException, "Method FileWriteStream::__init__(file) expects argument 1 to be a string or file.");
-  setFileProperty(AS_INSTANCE(receiver), file, "w");
+  if (file == NULL) assertError("Method FileWriteStream::__init__(file) expects argument 1 to be a string or file.");
+  if (!setFileProperty(AS_INSTANCE(receiver), file, "w")) {
+    THROW_EXCEPTION(luminique::std::io, IOException, "Cannot create FileWriteStream, file either does not exist or require additional permission to access.");
+  }
   RETURN_OBJ(self);
 }
 
@@ -392,30 +441,28 @@ NATIVE_METHOD(FileWriteStream, put) {
   assertArgCount("FileWriteStream::put(char)", 1, argCount);
   assertArgIsString("FileWriteStream::put(char)", args, 0);
   ObjFile* file = getFileProperty(AS_INSTANCE(receiver), "file");
-  if (!file->isOpen) assertError("Cannot write character to stream because file is already closed.");
-  if (file->file == NULL) RETURN_NIL;
-
-  ObjString* character = AS_STRING(args[0]);
-  if (character->length != 1) assertError("Method FileWriteStream::put(char) expects argument 1 to be a character(string of length 1)");
-  fputc(character->chars[0], file->file);
+  if (!file->isOpen) THROW_EXCEPTION(luminique::std::io, IOException, "Cannot write character to stream because file is already closed.");
+  if (file->file != NULL) {
+    ObjString* character = AS_STRING(args[0]);
+    if (character->length != 1) assertError("Method FileWriteStream::put(char) expects argument 1 to be a character(string of length 1)");
+    fputc(character->chars[0], file->file);
+  }
   RETURN_NIL;
 }
 
 NATIVE_METHOD(FileWriteStream, putLine) {
   assertArgCount("FileWriteStream::putLine()", 0, argCount);
   ObjFile* file = getFileProperty(AS_INSTANCE(receiver), "file");
-  if (!file->isOpen) assertError("Cannot write new line to stream because file is already closed.");
-  if (file->file == NULL) RETURN_NIL;
-  fputc('\n', file->file);
+  if (!file->isOpen) THROW_EXCEPTION(luminique::std::io, IOException, "Cannot write new line to stream because file is already closed.");
+  if (file->file != NULL) fputc('\n', file->file);
   RETURN_NIL;
 }
 
 NATIVE_METHOD(FileWriteStream, putSpace) {
   assertArgCount("FileWriteStream::putSpace()", 0, argCount);
   ObjFile* file = getFileProperty(AS_INSTANCE(receiver), "file");
-  if (!file->isOpen) assertError("Cannot write empty space to stream because file is already closed.");
-  if (file->file == NULL) RETURN_NIL;
-  fputc(' ', file->file);
+  if (!file->isOpen) THROW_EXCEPTION(luminique::std::io, IOException, "Cannot write empty space to stream because file is already closed.");
+  if (file->file != NULL) fputc(' ', file->file);
   RETURN_NIL;
 }
 
@@ -423,17 +470,16 @@ NATIVE_METHOD(FileWriteStream, putString) {
   assertArgCount("FileWriteStream::putString(string)", 1, argCount);
   assertArgIsString("FileWriteStream::putString(string)", args, 0);
   ObjFile* file = getFileProperty(AS_INSTANCE(receiver), "file");
-  if (!file->isOpen) assertError("Cannot write string to stream because file is already closed.");
-  if (file->file == NULL) RETURN_NIL;
-
-  ObjString* string = AS_STRING(args[0]);
-  fputs(string->chars, file->file);
+  if (!file->isOpen) THROW_EXCEPTION(luminique::std::io, IOException, "Cannot write string to stream because file is already closed.");
+  if (file->file != NULL) {
+    ObjString* string = AS_STRING(args[0]);
+    fputs(string->chars, file->file);
+  }
   RETURN_NIL;
 }
 
-
 NATIVE_METHOD(IOStream, __init__) {
-  THROW_EXCEPTION(luminique::std::lang, InstantiationException, "Cannot instantiate from class IOStream.");
+  assertError("Cannot instantiate from class IOStream.");
   RETURN_NIL;
 }
 
@@ -444,7 +490,6 @@ NATIVE_METHOD(IOStream, close) {
   RETURN_BOOL(fclose(file->file) == 0);
 }
 
-
 NATIVE_METHOD(IOStream, file) {
   assertArgCount("IOStream::file()", 0, argCount);
   RETURN_OBJ(getFileProperty(AS_INSTANCE(receiver), "file"));
@@ -453,7 +498,7 @@ NATIVE_METHOD(IOStream, file) {
 NATIVE_METHOD(IOStream, getPosition) {
   assertArgCount("IOStream::getPosition()", 0, argCount);
   ObjFile* file = getFileProperty(AS_INSTANCE(receiver), "file");
-  if (!file->isOpen) assertError("Cannot get stream position because file is already closed.");
+  if (!file->isOpen) THROW_EXCEPTION(luminique::std::io, IOException, "Cannot get stream position because file is already closed.");
   if (file->file == NULL) RETURN_INT(0);
   else RETURN_INT(ftell(file->file));
 }
@@ -461,19 +506,18 @@ NATIVE_METHOD(IOStream, getPosition) {
 NATIVE_METHOD(IOStream, reset) {
   assertArgCount("IOStream::reset()", 0, argCount);
   ObjFile* file = getFileProperty(AS_INSTANCE(receiver), "file");
-  if (!file->isOpen) assertError("Cannot reset stream because file is already closed.");
+  if (!file->isOpen) THROW_EXCEPTION(luminique::std::io, IOException, "Cannot reset stream because file is already closed.");
   if (file->file != NULL) rewind(file->file);
   RETURN_NIL;
 }
 
-
 NATIVE_METHOD(ReadStream, __init__) {
-  THROW_EXCEPTION(luminique::std::lang, InstantiationException, "Cannot instantiate from class ReadStream.");
+  assertError("Cannot instantiate from class ReadStream.");
   RETURN_NIL;
 }
 
 NATIVE_METHOD(ReadStream, isAtEnd) {
-  assertArgCount("ReadStream::isAtEnd()", 0, argCount);
+  assertArgCount("ReadStream::next()", 0, argCount);
   ObjFile* file = getFileProperty(AS_INSTANCE(receiver), "file");
   if (!file->isOpen || file->file == NULL) RETURN_FALSE;
   else {
@@ -484,7 +528,7 @@ NATIVE_METHOD(ReadStream, isAtEnd) {
 }
 
 NATIVE_METHOD(ReadStream, next) {
-  THROW_EXCEPTION(luminique::std::lang, CallException, "Cannot call method ReadStream::next(), it must be implemented by subclasses.");
+  assertError("Cannot call method ReadStream::next(), it must be implemented by subclasses.");
   RETURN_NIL;
 }
 
@@ -492,26 +536,31 @@ NATIVE_METHOD(ReadStream, skip) {
   assertArgCount("ReadStream::skip(offset)", 1, argCount);
   assertArgIsInt("ReadStream::skip(offset)", args, 0);
   ObjFile* file = getFileProperty(AS_INSTANCE(receiver), "file");
-  if (!file->isOpen) assertError("Cannot skip stream by offset because file is already closed.");
+  if (!file->isOpen) THROW_EXCEPTION(luminique::std::io, IOException, "Cannot skip stream by offset because file is already closed.");
   if (file->file == NULL) RETURN_FALSE;
   RETURN_BOOL(fseek(file->file, (long)AS_INT(args[0]), SEEK_CUR));
+}
+
+NATIVE_METHOD(TClosable, close) {
+  assertArgCount("IOStream::close()", 0, argCount);
+  THROW_EXCEPTION(luminique::std::lang, NotImplementedException, "Not implemented, subclass responsibility.");
+}
+
+NATIVE_METHOD(WriteStream, __init__) {
+  assertError("Cannot instantiate from class WriteStream.");
+  RETURN_NIL;
 }
 
 NATIVE_METHOD(WriteStream, flush) {
   assertArgCount("WriteStream::flush()", 0, argCount);
   ObjFile* file = getFileProperty(AS_INSTANCE(receiver), "file");
-  if (!file->isOpen) assertError("Cannot flush stream because file is already closed.");
+  if (!file->isOpen) THROW_EXCEPTION(luminique::std::io, IOException, "Cannot flush stream because file is already closed.");
   if (file->file == NULL) RETURN_FALSE;
   RETURN_BOOL(fflush(file->file) == 0);
 }
 
-NATIVE_METHOD(WriteStream, __init__) {
-  THROW_EXCEPTION(luminique::std::lang, InstantiationException, "Cannot instantiate from class WriteStream.");
-  RETURN_NIL;
-}
-
 NATIVE_METHOD(WriteStream, put) {
-  THROW_EXCEPTION(luminique::std::lang, CallException, "Cannot call method WriteStream::put(param), it must be implemented by subclasses.");
+  assertError("Cannot call method WriteStream::put(param), it must be implemented by subclasses.");
   RETURN_NIL;
 }
 
