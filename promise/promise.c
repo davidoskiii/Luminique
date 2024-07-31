@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "promise.h"
+#include "../collection/collection.h"
 #include "../object/object.h"
 #include "../vm/vm.h"
 
@@ -17,8 +18,12 @@ ObjPromise* promiseAll(ObjClass* klass, ObjArray* promises) {
     ObjArray* results = newArray();
     push(OBJ_VAL(results));
     for (int i = 0; i < promises->elements.count; i++) {
-      promiseCapture(AS_PROMISE(promises->elements.values[i]), 5, OBJ_VAL(promises), 
-                     OBJ_VAL(allPromise), OBJ_VAL(results), INT_VAL(remainingCount), INT_VAL(i));
+      ObjPromise* promise = AS_PROMISE(promises->elements.values[i]);
+      promiseCapture(promise, "promises", OBJ_VAL(promises));
+      promiseCapture(promise, "allPromise", OBJ_VAL(allPromise));
+      promiseCapture(promise, "results", OBJ_VAL(results));
+      promiseCapture(promise, "remainingCount", INT_VAL(remainingCount));
+      promiseCapture(promise, "index", INT_VAL(i));
     }
     pop();
 
@@ -39,14 +44,16 @@ ObjPromise* promiseAll(ObjClass* klass, ObjArray* promises) {
   return allPromise;
 }
 
-void promiseCapture(ObjPromise* promise, int count, ...) {
-  va_list args;
-  va_start(args, count);
-  for (int i = 0; i < count; i++) {
-    Value value = va_arg(args, Value);
-    writeValueArray(&promise->capturedValues->elements, value);
-  }
-  va_end(args);
+bool promiseCapture(ObjPromise* promise, const char* name, Value value) {
+  ObjString* key = newString(name);
+  return dictSet(promise->captures, OBJ_VAL(key), value);
+}
+
+Value promiseLoad(ObjPromise* promise, const char* name) {
+  ObjString* key = newString(name);
+  Value value;
+  if (!dictGet(promise->captures, OBJ_VAL(key), &value)) return NIL_VAL;
+  else return value;
 }
 
 void promiseExecute(ObjPromise* promise) {
@@ -75,7 +82,7 @@ ObjPromise* promiseRace(ObjClass* klass, ObjArray* promises) {
 
   for (int i = 0; i < promises->elements.count; i++) {
     ObjPromise* promise = AS_PROMISE(promises->elements.values[i]);
-    promiseCapture(promise, 1, OBJ_VAL(racePromise));
+    promiseCapture(promise, "racePromise", OBJ_VAL(racePromise));
     Value then = getObjMethod(OBJ_VAL(promise), "then");
     Value raceAll = getObjMethod(OBJ_VAL(promise), "raceAll");
     ObjBoundMethod* raceAllMethod = newBoundMethod(OBJ_VAL(promise), raceAll);
@@ -83,6 +90,12 @@ ObjPromise* promiseRace(ObjClass* klass, ObjArray* promises) {
   }
   pop();
   return racePromise;
+}
+
+ObjPromise* promiseWithThen(ObjPromise* promise) {
+  if (promise->captures->count == 0) return newPromise(PROMISE_PENDING, NIL_VAL, NIL_VAL);
+  Value thenPromise = promiseLoad(promise, "thenPromise");
+  return IS_NIL(thenPromise) ? newPromise(PROMISE_PENDING, NIL_VAL, NIL_VAL) : AS_PROMISE(thenPromise);
 }
 
 void promiseReject(ObjPromise* promise, Value exception) {
