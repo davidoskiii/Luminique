@@ -394,7 +394,10 @@ NATIVE_METHOD(Promise, catchAll) {
   assertArgCount("Promise::catchAll(exception)", 1, argCount);
   assertArgIsException("Promise::catchAll(exception)", args, 0);
   ObjPromise* self = AS_PROMISE(receiver);
-  ObjBoundMethod* reject = AS_BOUND_METHOD(self->capturedValues->elements.values[5]);
+  if (self->captures->count == 0) {
+    THROW_EXCEPTION(luminique::std::lang, UnsupportedOperationException, "Method Promise::catchAll(exception) can only be called internally by Promise class::all(promises).");
+  }
+  ObjBoundMethod* reject = AS_BOUND_METHOD(promiseLoad(self, "reject"));
   callReentrantMethod(reject->receiver, reject->method, args[0]);
   RETURN_OBJ(self);
 }
@@ -436,12 +439,11 @@ NATIVE_METHOD(Promise, then) {
     if (IS_PROMISE(self->value)) RETURN_VAL(self->value);
     else RETURN_OBJ(promiseWithFulfilled(self->value));
   } else {
-    ObjPromise* thenPromise = (self->capturedValues->elements.count == 0)
-      ? newPromise(PROMISE_PENDING, NIL_VAL, NIL_VAL)
-      : AS_PROMISE(self->capturedValues->elements.values[0]);
+    ObjPromise* thenPromise = promiseWithThen(self);
     Value thenChain = getObjMethod(receiver, "thenChain");
     ObjBoundMethod* thenChainMethod = newBoundMethod(receiver, thenChain);
-    if (self->capturedValues->elements.count == 0) promiseCapture(self, 2, OBJ_VAL(thenPromise), args[0]);
+    promiseCapture(self, "thenPromise", OBJ_VAL(thenPromise));
+    promiseCapture(self, "onFulfilled", args[0]);
     promisePushHandler(self, OBJ_VAL(thenChainMethod), thenPromise);
     RETURN_OBJ(thenPromise);
   }
@@ -450,7 +452,11 @@ NATIVE_METHOD(Promise, then) {
 NATIVE_METHOD(Promise, raceAll) {
   assertArgCount("Promise::raceAll(result)", 1, argCount);
   ObjPromise* self = AS_PROMISE(receiver);
-  ObjPromise* racePromise = AS_PROMISE(self->capturedValues->elements.values[0]);
+  if (self->captures->count == 0) {
+    THROW_EXCEPTION(luminique::std::lang, UnsupportedOperationException, "Method Promise::raceAll(result) can only be called internally by Promise class::race(promises).");
+  }
+
+  ObjPromise* racePromise = AS_PROMISE(promiseLoad(self, "racePromise"));
   if (racePromise->state == PROMISE_PENDING) { 
     self->value = args[0];
     self->state = PROMISE_FULFILLED;
@@ -462,17 +468,21 @@ NATIVE_METHOD(Promise, raceAll) {
 NATIVE_METHOD(Promise, thenAll) {
   assertArgCount("Promise::thenAll(result)", 1, argCount);
   ObjPromise* self = AS_PROMISE(receiver);
-  ObjArray* promises = AS_ARRAY(self->capturedValues->elements.values[0]);
-  ObjPromise* allPromise = AS_PROMISE(self->capturedValues->elements.values[1]);
-  ObjArray* results = AS_ARRAY(self->capturedValues->elements.values[2]);
-  int remainingCount = AS_INT(self->capturedValues->elements.values[3]);
-  int index = AS_INT(self->capturedValues->elements.values[4]);
+  if (self->captures->count == 0) {
+    THROW_EXCEPTION(luminique::std::lang, UnsupportedOperationException, "Method Promise::thenAll(result) can only be called internally by Promise class::all(promises).");
+  }
+
+  ObjArray* promises = AS_ARRAY(promiseLoad(self, "promises"));
+  ObjPromise* allPromise = AS_PROMISE(promiseLoad(self, "allPromise"));
+  ObjArray* results = AS_ARRAY(promiseLoad(self, "results"));
+  int remainingCount = AS_INT(promiseLoad(self, "remainingCount"));
+  int index = AS_INT(promiseLoad(self, "index"));
 
   valueArrayPut(&results->elements, index, args[0]);
   remainingCount--;
   for (int i = 0; i < promises->elements.count; i++) {
     ObjPromise* promise = AS_PROMISE(promises->elements.values[i]);
-    promise->capturedValues->elements.values[3] = INT_VAL(remainingCount);
+    promiseCapture(promise, "remainingCount", INT_VAL(remainingCount));
   }
 
   if (remainingCount <= 0 && allPromise->state == PROMISE_PENDING) {
@@ -484,15 +494,20 @@ NATIVE_METHOD(Promise, thenAll) {
 NATIVE_METHOD(Promise, thenChain) {
   assertArgCount("Promise::thenChain(result)", 1, argCount);
   ObjPromise* self = AS_PROMISE(receiver);
-  ObjPromise* thenPromise = AS_PROMISE(self->capturedValues->elements.values[0]);
-  Value onFulfilled = self->capturedValues->elements.values[1];
+  if (self->captures->count == 0) {
+    THROW_EXCEPTION(luminique::std::lang, UnsupportedOperationException, "Method Promise::thenChain(result) can only be called internally by Promise::then(onFulfilled).");
+  }
+
+  ObjPromise* thenPromise = AS_PROMISE(promiseLoad(self, "thenPromise"));
+  Value onFulfilled = promiseLoad(self, "onFulfilled");
   Value result = callReentrantMethod(OBJ_VAL(thenPromise), onFulfilled, args[0]);
   if (IS_PROMISE(result)) {
     ObjPromise* resultPromise = AS_PROMISE(result);
     Value then = getObjMethod(result, "then");
     Value thenFulfill = getObjMethod(receiver, "thenFulfill");
     ObjBoundMethod* thenFulfillMethod = newBoundMethod(result, thenFulfill);
-    promiseCapture(resultPromise, 2, OBJ_VAL(thenPromise), OBJ_VAL(thenFulfillMethod));
+    promiseCapture(resultPromise, "thenPromise", OBJ_VAL(thenPromise));
+    promiseCapture(resultPromise, "onFulfilled", OBJ_VAL(thenFulfillMethod));
     callReentrantMethod(OBJ_VAL(resultPromise), then, OBJ_VAL(thenFulfillMethod));
   } else promiseFulfill(thenPromise, result);
   RETURN_NIL;
@@ -501,7 +516,11 @@ NATIVE_METHOD(Promise, thenChain) {
 NATIVE_METHOD(Promise, thenFulfill) {
   assertArgCount("Promise::thenFulfill(value)", 1, argCount);
   ObjPromise* self = AS_PROMISE(receiver);
-  ObjPromise* thenPromise = AS_PROMISE(self->capturedValues->elements.values[0]);
+  if (self->captures->count == 0) {
+    THROW_EXCEPTION(luminique::std::lang, UnsupportedOperationException, "Method Promise::thenFulfill(value) can only be called internally by Promise::thenChain(result).");
+  }
+
+  ObjPromise* thenPromise = AS_PROMISE(promiseLoad(self, "thenPromise"));
   promiseFulfill(thenPromise, args[0]);
   RETURN_VAL(args[0]);
 }

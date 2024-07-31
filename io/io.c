@@ -189,16 +189,12 @@ NATIVE_METHOD(File, exists) {
 NATIVE_METHOD(File, getAbsolutePath) {
   assertArgCount("File::getAbsolutePath()", 0, argCount);
   ObjFile* self = AS_FILE(receiver);
-  struct stat fileStat;
-  if (!fileExists(self, &fileStat)) {
-    assertError("Cannot get file absolute path because it does not exist.");
+  uv_fs_t fRealPath;
+  if (uv_fs_realpath(vm.eventLoop, &fRealPath, self->name->chars, NULL) == NULL) {
+    THROW_EXCEPTION(luminique::std::io, FileNotFoundException, "Cannot get file absolute path because it does not exist.");
   }
-  char buf[PATH_MAX];
-  char *res = realpath(self->name->chars, buf);
-  if (res == NULL) {
-    assertError("Failed to retrieve the absolute path of the file.");
-  }
-  RETURN_OBJ(copyString(res, strlen(res)));
+  ObjString* realPath = newString((const char*)fRealPath.ptr);
+  RETURN_OBJ(realPath);
 }
 
 NATIVE_METHOD(File, isDirectory) {
@@ -522,6 +518,10 @@ NATIVE_METHOD(WriteStream, put) {
 void registerIOPackage() {
   ObjNamespace* ioNamespace = defineNativeNamespace("io", vm.stdNamespace);
   vm.currentNamespace = ioNamespace;
+
+  ObjClass* ioExceptionClass = defineNativeException("IOException", vm.exceptionClass);
+  defineNativeException("EOFException", ioExceptionClass);
+  defineNativeException("FileNotFoundException", ioExceptionClass);
 
   vm.fileClass = defineNativeClass("File");
   bindSuperclass(vm.fileClass, vm.objectClass);
