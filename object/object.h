@@ -214,7 +214,7 @@ struct ObjPromise {
   int id;
   PromiseState state;
   Value value;
-  ObjArray* capturedValues;
+  ObjDictionary* captures;
   ObjException* exception;
   Value executor;
   ValueArray handlers;
@@ -297,12 +297,12 @@ typedef struct {
   bool isNative;
 } ObjBoundMethod;
 
-typedef struct ObjDictionary {
+struct ObjDictionary {
   Obj obj;
   int capacity;
   int count;
   ObjEntry* entries;
-} ObjDictionary;
+};
 
 typedef struct {
   Obj obj;
