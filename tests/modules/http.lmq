@@ -12,7 +12,7 @@ println(client);
 println("");
 
 println("Sending get request to example.com: ");
-const response = client.getr(URL.parse("https://example.com"));
+const response = client.get(URL.parse("https://example.com"));
 
 print("Status: ");
 println(response.status);

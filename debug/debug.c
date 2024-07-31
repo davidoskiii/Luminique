@@ -103,6 +103,8 @@ int disassembleInstruction(Chunk* chunk, int offset) {
       return byteInstruction("OP_SUBNAMESPACE", chunk, offset);
     case OP_POP:
       return simpleInstruction("OP_POP", offset);
+    case OP_DUP:
+      return simpleInstruction("OP_DUP", offset);
     case OP_INCREMENT_LOCAL:
       return byteInstruction("OP_INCREMENT_LOCAL", chunk, offset);
     case OP_INCREMENT_GLOBAL:

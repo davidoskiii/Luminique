@@ -938,7 +938,6 @@ InterpretResult run() {
           loadModule(filePath);
           frame = &vm.frames[vm.frameCount - 1];
         }
-        pop();
         push(value);
         break;
       }
