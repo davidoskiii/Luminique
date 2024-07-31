@@ -15,5 +15,7 @@ void promiseCapture(ObjPromise* promise, int count, ...);
 void promiseExecute(ObjPromise* promise);
 void promiseFulfill(ObjPromise* promise, Value value);
 ObjPromise* promiseRace(ObjClass* klass, ObjArray* promises);
+void promiseReject(ObjPromise* promise, Value exception);
+void promiseThen(ObjPromise* promise, Value value);
 
 #endif

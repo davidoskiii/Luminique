@@ -59,11 +59,12 @@ void promiseExecute(ObjPromise* promise) {
 }
 
 void promiseFulfill(ObjPromise* promise, Value value) {
+  promise->state = PROMISE_FULFILLED;
+  promise->value = value;
   for (int i = 0; i < promise->handlers.count; i++) {
-    ObjBoundMethod* handler = newBoundMethod(OBJ_VAL(promise), promise->handlers.values[i]);
-    callReentrantMethod(OBJ_VAL(promise), handler->method, value);
+    promise->value = callReentrantMethod(OBJ_VAL(promise), promise->handlers.values[i], promise->value);
   }
-  initValueArray(&promise->handlers);
+  if (IS_CLOSURE(promise->onFinally)) callReentrantMethod(OBJ_VAL(promise), promise->onFinally, promise->value);
 }
 
 ObjPromise* promiseRace(ObjClass* klass, ObjArray* promises) {
@@ -81,4 +82,19 @@ ObjPromise* promiseRace(ObjClass* klass, ObjArray* promises) {
   }
   pop();
   return racePromise;
+}
+
+void promiseReject(ObjPromise* promise, Value exception) {
+  promise->state = PROMISE_REJECTED;
+  promise->exception = AS_EXCEPTION(exception);
+  if (IS_CLOSURE(promise->onCatch)) callReentrantMethod(OBJ_VAL(promise), promise->onCatch, exception);
+  if (IS_CLOSURE(promise->onFinally)) callReentrantMethod(OBJ_VAL(promise), promise->onFinally, promise->value);
+}
+
+void promiseThen(ObjPromise* promise, Value value) {
+  for (int i = 0; i < promise->handlers.count; i++) {
+    ObjBoundMethod* handler = newBoundMethod(OBJ_VAL(promise), promise->handlers.values[i]);
+    callReentrantMethod(OBJ_VAL(promise), handler->method, value);
+  }
+  initValueArray(&promise->handlers);
 }
