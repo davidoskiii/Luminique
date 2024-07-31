@@ -436,15 +436,13 @@ NATIVE_METHOD(Promise, then) {
     if (IS_PROMISE(self->value)) RETURN_VAL(self->value);
     else RETURN_OBJ(promiseWithFulfilled(self->value));
   } else {
-    // writeValueArray(&self->handlers, args[0]);
-    ObjPromise* thenPromise = newPromise(PROMISE_PENDING, NIL_VAL, NIL_VAL);
+    ObjPromise* thenPromise = self->capturedValues->elements.count > 0 ? AS_PROMISE(self->capturedValues->elements.values[0]) : newPromise(PROMISE_PENDING, NIL_VAL, NIL_VAL);
     Value thenChain = getObjMethod(receiver, "thenChain");
     ObjBoundMethod* thenChainMethod = newBoundMethod(receiver, thenChain);
     promiseCapture(self, 2, OBJ_VAL(thenPromise), args[0]);
-    writeValueArray(&self->handlers, OBJ_VAL(thenChainMethod));
+    promisePushHandler(self, OBJ_VAL(thenChainMethod), thenPromise);
     RETURN_OBJ(thenPromise);
   }
-  // RETURN_OBJ(self);
 }
 
 NATIVE_METHOD(Promise, raceAll) {
@@ -486,14 +484,14 @@ NATIVE_METHOD(Promise, thenChain) {
   ObjPromise* self = AS_PROMISE(receiver);
   ObjPromise* thenPromise = AS_PROMISE(self->capturedValues->elements.values[0]);
   Value onFulfilled = self->capturedValues->elements.values[1];
-  Value result = callReentrantMethod(receiver, onFulfilled, args[0]);
+  Value result = callReentrantMethod(OBJ_VAL(thenPromise), onFulfilled, args[0]);
   if (IS_PROMISE(result)) {
-    printf("then chain promise: %d.\n", self->id);
+    ObjPromise* resultPromise = AS_PROMISE(result);
     Value then = getObjMethod(result, "then");
     Value thenFulfill = getObjMethod(receiver, "thenFulfill");
     ObjBoundMethod* thenFulfillMethod = newBoundMethod(result, thenFulfill);
-    promiseCapture(AS_PROMISE(result), 2, OBJ_VAL(thenPromise), onFulfilled);
-    callReentrantMethod(OBJ_VAL(result), then, OBJ_VAL(thenFulfillMethod));
+    promiseCapture(resultPromise, 2, OBJ_VAL(thenPromise), onFulfilled);
+    callReentrantMethod(OBJ_VAL(resultPromise), then, OBJ_VAL(thenFulfillMethod));
   }
   else promiseFulfill(thenPromise, result);
   RETURN_OBJ(thenPromise);
@@ -503,7 +501,7 @@ NATIVE_METHOD(Promise, thenFulfill) {
   assertArgCount("Promise::thenFulfill()", 0, argCount);
   ObjPromise* self = AS_PROMISE(receiver);
   ObjPromise* thenPromise = AS_PROMISE(self->capturedValues->elements.values[0]);
-  promiseFulfill(self, NIL_VAL);
+  promiseFulfill(thenPromise, NIL_VAL);
   RETURN_OBJ(self);
 }
 
