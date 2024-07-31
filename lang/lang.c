@@ -399,29 +399,6 @@ NATIVE_METHOD(Promise, catchAll) {
   RETURN_OBJ(self);
 }
 
-NATIVE_METHOD(Promise, execute) {
-  assertArgCount("Promise::execute(fulfill, reject)", 2, argCount);
-  assertArgInstanceOfEither("Promise::execute(fulfill, reject)", args, 0, "luminique::std::lang", "Function", "luminique::std::lang", "BoundMethod");
-  assertArgInstanceOfEither("Promise::execute(fulfill, reject)", args, 1, "luminique::std::lang", "Function", "luminique::std::lang", "BoundMethod");
-  ObjPromise* self = AS_PROMISE(receiver);
-  ObjArray* promises = AS_ARRAY(self->capturedValues->elements.values[0]);
-  writeValueArray(&self->capturedValues->elements, args[0]);
-  writeValueArray(&self->capturedValues->elements, args[1]);
-  self->value = OBJ_VAL(promises);
-
-  Value then = getObjMethod(receiver, "then");
-  Value thenAll = getObjMethod(receiver, "thenAll");
-  Value catch = getObjMethod(receiver, "catch");
-  Value catchAll = getObjMethod(receiver, "catchAll");
-
-  for (int i = 0; i < promises->elements.count; i++) {
-    ObjPromise* promise = AS_PROMISE(promises->elements.values[i]);
-    callReentrantMethod(OBJ_VAL(promise), then, OBJ_VAL(newBoundMethod(OBJ_VAL(promise), thenAll)));
-    callReentrantMethod(OBJ_VAL(promise), catch, OBJ_VAL(newBoundMethod(OBJ_VAL(promise), catchAll)));
-  }
-  RETURN_OBJ(self);
-}
-
 NATIVE_METHOD(Promise, finally) {
   assertArgCount("Promise::finally(closure)", 1, argCount);
   assertArgInstanceOfEither("Promise::finally(closure)", args, 0, "luminique::std::lang", "Function", "luminique::std::lang", "BoundMethod");
@@ -433,13 +410,7 @@ NATIVE_METHOD(Promise, finally) {
 
 NATIVE_METHOD(Promise, fulfill) {
   assertArgCount("Promise::fulfill(value)", 1, argCount);
-  ObjPromise* self = AS_PROMISE(receiver);
-  self->state = PROMISE_FULFILLED;
-  self->value = args[0];
-  for (int i = 0; i < self->handlers.count; i++) {
-    self->value = callReentrantMethod(OBJ_VAL(self), self->handlers.values[i], self->value);
-  }
-  if (IS_CLOSURE(self->onFinally)) callReentrantMethod(OBJ_VAL(self), self->onFinally, self->value);
+  promiseFulfill(AS_PROMISE(receiver), args[0]);
   RETURN_NIL;
 }
 
@@ -452,11 +423,7 @@ NATIVE_METHOD(Promise, isResolved) {
 NATIVE_METHOD(Promise, reject) {
   assertArgCount("Promise::reject(exception)", 1, argCount);
   assertArgIsException("Promise::reject(exception)", args, 0);
-  ObjPromise* self = AS_PROMISE(receiver);
-  self->state = PROMISE_REJECTED;
-  self->exception = AS_EXCEPTION(args[0]);
-  if (IS_CLOSURE(self->onCatch)) callReentrantMethod(OBJ_VAL(self), self->onCatch, OBJ_VAL(self->exception));
-  if (IS_CLOSURE(self->onFinally)) callReentrantMethod(OBJ_VAL(self), self->onFinally, self->value);
+  promiseReject(AS_PROMISE(receiver), args[0]);
   RETURN_NIL;
 }
 
@@ -476,7 +443,7 @@ NATIVE_METHOD(Promise, raceAll) {
   if (racePromise->state == PROMISE_PENDING) { 
     self->value = args[0];
     self->state = PROMISE_FULFILLED;
-    promiseFulfill(racePromise, args[0]);
+    promiseThen(racePromise, args[0]);
   }
   RETURN_NIL;
 }
@@ -528,7 +495,7 @@ NATIVE_METHOD(Promise, thenAll) {
   }
 
   if (remainingCount <= 0 && allPromise->state == PROMISE_PENDING) {
-    promiseFulfill(allPromise, OBJ_VAL(results));
+    promiseThen(allPromise, OBJ_VAL(results));
   }
   RETURN_OBJ(self);
 }
@@ -1463,7 +1430,6 @@ void registerLangPackage() {
   DEF_METHOD(vm.promiseClass, Promise, __init__, 1);
   DEF_METHOD(vm.promiseClass, Promise, catch, 1);
   DEF_METHOD(vm.promiseClass, Promise, catchAll, 1);
-  DEF_METHOD(vm.promiseClass, Promise, execute, 2);
   DEF_METHOD(vm.promiseClass, Promise, finally, 1);
   DEF_METHOD(vm.promiseClass, Promise, fulfill, 1);
   DEF_METHOD(vm.promiseClass, Promise, isResolved, 0);
