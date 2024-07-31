@@ -436,10 +436,10 @@ NATIVE_METHOD(Promise, then) {
     if (IS_PROMISE(self->value)) RETURN_VAL(self->value);
     else RETURN_OBJ(promiseWithFulfilled(self->value));
   } else {
-    ObjPromise* thenPromise = self->capturedValues->elements.count > 0 ? AS_PROMISE(self->capturedValues->elements.values[0]) : newPromise(PROMISE_PENDING, NIL_VAL, NIL_VAL);
+    ObjPromise* thenPromise = newPromise(PROMISE_PENDING, NIL_VAL, NIL_VAL);
     Value thenChain = getObjMethod(receiver, "thenChain");
     ObjBoundMethod* thenChainMethod = newBoundMethod(receiver, thenChain);
-    promiseCapture(self, 2, OBJ_VAL(thenPromise), args[0]);
+    if (self->capturedValues->elements.count == 0) promiseCapture(self, 2, OBJ_VAL(thenPromise), args[0]);
     promisePushHandler(self, OBJ_VAL(thenChainMethod), thenPromise);
     RETURN_OBJ(thenPromise);
   }
@@ -490,19 +490,18 @@ NATIVE_METHOD(Promise, thenChain) {
     Value then = getObjMethod(result, "then");
     Value thenFulfill = getObjMethod(receiver, "thenFulfill");
     ObjBoundMethod* thenFulfillMethod = newBoundMethod(result, thenFulfill);
-    promiseCapture(resultPromise, 2, OBJ_VAL(thenPromise), onFulfilled);
+    promiseCapture(resultPromise, 2, OBJ_VAL(thenPromise), OBJ_VAL(thenFulfillMethod));
     callReentrantMethod(OBJ_VAL(resultPromise), then, OBJ_VAL(thenFulfillMethod));
-  }
-  else promiseFulfill(thenPromise, result);
-  RETURN_OBJ(thenPromise);
+  } else promiseFulfill(thenPromise, result);
+  RETURN_NIL;
 }
 
 NATIVE_METHOD(Promise, thenFulfill) {
-  assertArgCount("Promise::thenFulfill()", 0, argCount);
+  assertArgCount("Promise::thenFulfill(value)", 1, argCount);
   ObjPromise* self = AS_PROMISE(receiver);
   ObjPromise* thenPromise = AS_PROMISE(self->capturedValues->elements.values[0]);
-  promiseFulfill(thenPromise, NIL_VAL);
-  RETURN_OBJ(self);
+  promiseFulfill(thenPromise, args[0]);
+  RETURN_VAL(args[0]);
 }
 
 NATIVE_METHOD(Promise, __str__) {
@@ -1482,7 +1481,7 @@ void registerLangPackage() {
   DEF_METHOD(vm.promiseClass, Promise, then, 1);
   DEF_METHOD(vm.promiseClass, Promise, thenAll, 1);
   DEF_METHOD(vm.promiseClass, Promise, thenChain, 1);
-  DEF_METHOD(vm.promiseClass, Promise, thenFulfill, 0);
+  DEF_METHOD(vm.promiseClass, Promise, thenFulfill, 1);
   DEF_METHOD(vm.promiseClass, Promise, __str__, 0);
   DEF_METHOD(vm.promiseClass, Promise, __format__, 0);
 
