@@ -1,0 +1,35 @@
+using luminique::std::network;
+
+const ip = network::IPAddress("127.0.0.1");
+
+println("IP Address: ${ip}");
+println("IP is v4: ${ip.isIPV4()}");
+
+print("IP to array: ");
+println(ip.toArray());
+
+const ip2 = network::IPAddress("2001:0db8:85a3:0000:0000:8a2e:0370:7334");
+
+println("IP2 Address: ${ip2}");
+println("IP2 is v6: ${ip2.isIPV6()}");
+
+print("IP2 to array: ");
+println(ip2.toArray());
+
+println("");
+
+const domain = network::Domain("google.com");
+println("Domain name: ${domain}");
+domain.getIPAddressesAsync()
+      .then(lambda [ipAddresses] { 
+        println("Domain IPs: ${ipAddresses}");
+      })
+      .catch(lambda [exception] { println("Error: ${exception.message}") });
+
+const ip3 = network::IPAddress("204.15.11.70");
+println("IP3 address: ${ip3}");
+ip3.getDomainAsync()
+   .then(lambda [domain] { 
+     println("IP3 host: ${domain}");
+   })
+   .catch(lambda [exception] { println("Error: ${exception.message}") });

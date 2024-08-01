@@ -26,10 +26,7 @@ NATIVE_METHOD(Socket, __init__) {
   assertArgIsInt("Socket::__init__(addressFamily, socketType, protocolType)", args, 2);
 
   socklen_t descriptor = socket(AS_INT(args[0]), AS_INT(args[1]), AS_INT(args[2]));
-  if (descriptor == INVALID_SOCKET) {
-    runtimeError("Socket creation failed...");
-    RETURN_NIL;
-  }
+  if (descriptor == INVALID_SOCKET) THROW_EXCEPTION(luminique::std::network, SocketException, "Socket creation failed...");
   ObjInstance* self = AS_INSTANCE(receiver);
   setObjProperty(self, "addressFamily", args[0]);
   setObjProperty(self, "socketType", args[1]);
@@ -58,13 +55,12 @@ NATIVE_METHOD(Socket, connect) {
   socketAddress.sin_port = htons(AS_INT(getObjProperty(ipAddress, "port")));
 
   if (inet_pton(AF_INET, ipString->chars, &socketAddress.sin_addr) <= 0) {
-    runtimeError("Invalid socket address provided.");
-    RETURN_NIL;
+    THROW_EXCEPTION(luminique::std::network, SocketException, "Invalid socket address provided.");
   }
 
   int descriptor = AS_INT(getObjProperty(self, "descriptor")); 
   if (connect(descriptor, (struct sockaddr*)&socketAddress, sizeof(socketAddress)) < 0) {
-    runtimeError("Socket connection failed.");
+    THROW_EXCEPTION(luminique::std::network, SocketException, "Socket connection failed.");
   }
   RETURN_NIL;
 }
@@ -75,8 +71,7 @@ NATIVE_METHOD(Socket, receive) {
   int descriptor = AS_INT(getObjProperty(self, "descriptor"));
   char message[UINT8_MAX] = "";
   if (recv(descriptor, message, UINT8_MAX, 0) < 0) {
-    runtimeError("Failed to receive message from socket.");
-    RETURN_NIL;
+    THROW_EXCEPTION(luminique::std::network, SocketException, "Failed to receive message from socket.");
   }
   RETURN_STRING(message, (int)strlen(message));
 }
@@ -87,7 +82,7 @@ NATIVE_METHOD(Socket, send) {
   ObjInstance* self = AS_INSTANCE(receiver);
   ObjString* message = AS_STRING(args[0]);
   int descriptor = AS_INT(getObjProperty(self, "descriptor"));
-  if (send(descriptor, message->chars, message->length, 0) < 0) runtimeError("Failed to send message to socket.");
+  if (send(descriptor, message->chars, message->length, 0) < 0) THROW_EXCEPTION(luminique::std::network, SocketException, "Failed to send message to socket.");
   RETURN_NIL;
 }
 
@@ -109,6 +104,114 @@ NATIVE_METHOD(Socket, __format__) {
   RETURN_STRING_FMT("Socket - AddressFamily: %d, SocketType: %d, ProtocolType: %d", AS_INT(addressFamily), AS_INT(socketType), AS_INT(protocolType));
 }
 
+NATIVE_METHOD(SocketAddress, __init__) {
+  assertArgCount("SocketAddress::__init__(address, family, port)", 3, argCount);
+  assertArgIsString("SocketAddress::__init__(address, family, port)", args, 0);
+  assertArgIsInt("SocketAddress::__init__(address, family, port)", args, 1);
+  assertArgIsInt("SocketAddress::__init__(address, family, port)", args, 2);
+  ObjInstance* self = AS_INSTANCE(receiver);
+  setObjProperty(self, "address", args[0]);
+  setObjProperty(self, "family", args[1]);
+  setObjProperty(self, "port", args[2]);
+  RETURN_OBJ(self);
+}
+
+NATIVE_METHOD(SocketAddress, ipAddress) {
+  assertArgCount("SocketAddress::ipAddress()", 0, argCount);
+  ObjInstance* self = AS_INSTANCE(receiver);
+  Value address = getObjProperty(self, "address");
+
+  ObjInstance* ipAddress = newInstance(getNativeClass("luminique::std::lang", "IPAddress"));
+  push(OBJ_VAL(ipAddress));
+  Value value = getObjProperty(self, "address");
+  setObjProperty(ipAddress, "address", value);
+  pop();
+  RETURN_OBJ(ipAddress);
+}
+
+NATIVE_METHOD(SocketAddress, toString) {
+  assertArgCount("SocketAddress::toString()", 0, argCount);
+  ObjInstance* self = AS_INSTANCE(receiver);
+  char* address = AS_CSTRING(getObjProperty(self, "address"));
+  int port = AS_INT(getObjProperty(self, "port"));
+  RETURN_STRING_FMT("%s:%d", address, port);
+}
+
+NATIVE_METHOD(SocketClient, connect) {
+  assertArgCount("SocketClient::connect(socketAddress)", 1, argCount);
+  assertObjInstanceOfClass("SocketClient::connect(socketAddress)", args[0], "luminique::std::lang", "SocketAddress", 0);
+  ObjInstance* self = AS_INSTANCE(receiver);
+  ObjInstance* socketAddress = AS_INSTANCE(args[0]);
+
+  struct sockaddr_in sockAddr = { 0 };
+  ObjString* ipAddress = AS_STRING(getObjProperty(socketAddress, "address"));
+  int addressFamily = AS_INT(getObjProperty(socketAddress, "family"));
+  if (inet_pton(addressFamily, ipAddress->chars, &sockAddr.sin_addr) <= 0) {
+    THROW_EXCEPTION(luminique::std::network, SocketException, "Invalid socket address provided.");
+  }
+
+  int descriptor = AS_INT(getObjProperty(self, "descriptor"));
+  if (connect(descriptor, (struct sockaddr*)&sockAddr, sizeof(sockAddr)) <= 0) {
+    THROW_EXCEPTION(luminique::std::network, SocketException, "Socket connection failed.");
+  }
+  RETURN_NIL;
+}
+
+NATIVE_METHOD(SocketServer, accept) {
+  assertArgCount("SocketServer::accept()", 0, argCount);
+  ObjInstance* self = AS_INSTANCE(receiver);
+  int descriptor = AS_INT(getObjProperty(self, "descriptor"));
+  struct sockaddr_in socketAddress = { 0 };
+  int clientSize = sizeof(socketAddress);
+  if (accept(descriptor, (struct sockaddr*)&socketAddress, &clientSize)) {
+    THROW_EXCEPTION(luminique::std::network, SocketException, "Failed to accept client connection.");
+  }
+  char ipAddress[UINT8_MAX];
+  inet_ntop(socketAddress.sin_family, (struct sockaddr*)&socketAddress, ipAddress, UINT8_MAX);
+
+  ObjInstance* clientAddress = newInstance(getNativeClass("luminique::std::network", "SocketAddress"));
+  push(OBJ_VAL(clientAddress));
+  setObjProperty(clientAddress, "address", OBJ_VAL(newString(ipAddress)));
+  setObjProperty(clientAddress, "family", INT_VAL(socketAddress.sin_family));
+  setObjProperty(clientAddress, "port", INT_VAL(socketAddress.sin_port));
+  pop();
+  RETURN_OBJ(clientAddress);
+}
+
+NATIVE_METHOD(SocketServer, bind) {
+  assertArgCount("SocketServer::bind(serverAddress)", 1, argCount);
+  assertObjInstanceOfClass("SocketClient::bind(serverAddress)", args[0], "luminique::std::network", "SocketAddress", 0);
+  ObjInstance* self = AS_INSTANCE(receiver);
+  ObjInstance* serverAddress = AS_INSTANCE(args[0]);
+
+  int descriptor = AS_INT(getObjProperty(self, "descriptor"));
+  ObjString* ipAddress = AS_STRING(getObjProperty(serverAddress, "address"));
+  int addressFamily = AS_INT(getObjProperty(serverAddress, "family"));
+  int port = AS_INT(getObjProperty(serverAddress, "port"));
+  struct sockaddr_in socketAddress = {
+    .sin_family = addressFamily,
+    .sin_port = htons(port)
+  };
+
+  if (inet_pton(addressFamily, ipAddress->chars, &socketAddress.sin_addr) <= 0) {
+    THROW_EXCEPTION(luminique::std::network, SocketException, "Invalid socket address provided.");
+  } else if (bind(descriptor, (struct sockaddr*)&socketAddress, sizeof(socketAddress)) < 0) {
+    THROW_EXCEPTION(luminique::std::network, SocketException, "Failed to bind to port on socket address.");
+  }
+  RETURN_NIL;
+}
+
+NATIVE_METHOD(SocketServer, listen) {
+  assertArgCount("SocketServer::listen()", 0, argCount);
+  ObjInstance* self = AS_INSTANCE(receiver);
+  int descriptor = AS_INT(getObjProperty(self, "descriptor"));
+
+  if (listen(descriptor, 1) < 0) {
+    THROW_EXCEPTION(luminique::std::network, SocketException, "Failed to listen for incoming connections.");
+  }
+  RETURN_NIL;
+}
+
 NATIVE_METHOD(Domain, __init__) {
   assertArgCount("Domain::__init__(name)", 1, argCount);
   assertArgIsString("Domain::__init__(name)", args, 0);
@@ -117,17 +220,16 @@ NATIVE_METHOD(Domain, __init__) {
   RETURN_OBJ(self);
 }
 
-NATIVE_METHOD(Domain, getIpAddresses) {
-  assertArgCount("Domain::getIpAddresses()", 0, argCount);
+NATIVE_METHOD(Domain, getIPAddresses) {
+  assertArgCount("Domain::getIPAddresses()", 0, argCount);
   ObjInstance* self = AS_INSTANCE(receiver);
   ObjString* name = AS_STRING(getObjProperty(self, "name"));
 
   int status = -1;
   struct addrinfo* result = dnsGetDomainInfo(name->chars, &status);
-  if (result == NULL) printf("unable to get domain info.");
+  if (result == NULL) THROW_EXCEPTION(luminique::std::network, DomainHostException, "Unable to get domain info due to out of memory.");
   if (status) {
-      runtimeError("Failed to get IP address information for domain.");
-      RETURN_NIL;
+    THROW_EXCEPTION(luminique::std::network, IPAddressException, "Failed to get IP address information for domain.");
   }
 
   ObjArray* ipAddresses = dnsGetIPAddressesFromDomain(result);
@@ -135,8 +237,8 @@ NATIVE_METHOD(Domain, getIpAddresses) {
   RETURN_OBJ(ipAddresses);
 }
 
-NATIVE_METHOD(Domain, getIpAddressesAsync) {
-  assertArgCount("Domain::getIpAddressesAsync()", 0, argCount);
+NATIVE_METHOD(Domain, getIPAddressesAsync) {
+  assertArgCount("Domain::getIPAddressesAsync()", 0, argCount);
   ObjInstance* self = AS_INSTANCE(receiver);
   ObjPromise* promise = dnsGetDomainInfoAsync(self, dnsOnGetAddrInfo);
   if (promise == NULL) THROW_EXCEPTION(luminique::std::network, DomainHostException, "Failed to get IP Addresses from Domain.");
@@ -170,16 +272,14 @@ NATIVE_METHOD(HTTPClient, delete) {
 
   CURL* curl = curl_easy_init();
   if (curl == NULL) {
-    runtimeError("Failed to initiate a DELETE request using CURL.");
-    RETURN_NIL;
+    THROW_EXCEPTION(luminique::std::network, HTTPException, "Failed to initiate a DELETE request using CURL.");
   }
 
   CURLResponse curlResponse;
   CURLcode curlCode = httpSendRequest(url, HTTP_DELETE, NULL, curl, &curlResponse);
   if (curlCode != CURLE_OK) {
-    runtimeError("Failed to complete a DELETE request from URL.");
     curl_easy_cleanup(curl);
-    RETURN_NIL;
+    THROW_EXCEPTION(luminique::std::network, HTTPException, "Failed to complete a DELETE request from URL.");
   }
 
   ObjInstance* httpResponse = httpCreateResponse(url, curl, curlResponse);
@@ -200,16 +300,14 @@ NATIVE_METHOD(HTTPClient, get) {
 
   CURL* curl = curl_easy_init();
   if (curl == NULL) {
-    runtimeError("Failed to initiate a GET request using CURL.");
-    RETURN_NIL;
+    THROW_EXCEPTION(luminique::std::network, HTTPException, "Failed to initiate a GET request using CURL.");
   }
 
   CURLResponse curlResponse;
   CURLcode curlCode = httpSendRequest(url, HTTP_GET, NULL, curl, &curlResponse);
   if (curlCode != CURLE_OK) {
-    runtimeError("Failed to complete a GET request from URL.");
     curl_easy_cleanup(curl);
-    RETURN_NIL;
+    THROW_EXCEPTION(luminique::std::network, HTTPException, "Failed to complete a GET request from URL.");
   }
 
   ObjInstance* httpResponse = httpCreateResponse(url, curl, curlResponse);
@@ -224,16 +322,14 @@ NATIVE_METHOD(HTTPClient, head) {
 
   CURL* curl = curl_easy_init();
   if (curl == NULL) {
-    runtimeError("Failed to initiate a HEAD request using CURL.");
-    RETURN_NIL;
+    THROW_EXCEPTION(luminique::std::network, HTTPException, "Failed to initiate a HEAD request using CURL.");
   }
 
   CURLResponse curlResponse;
   CURLcode curlCode = httpSendRequest(url, HTTP_HEAD, NULL, curl, &curlResponse);
   if (curlCode != CURLE_OK) {
-    runtimeError("Failed to complete a HEAD request from URL.");
     curl_easy_cleanup(curl);
-    RETURN_NIL;
+    THROW_EXCEPTION(luminique::std::network, HTTPException, "Failed to complete a HEAD request from URL.");
   }
 
   ObjInstance* httpResponse = httpCreateResponse(url, curl, curlResponse);
@@ -250,16 +346,14 @@ NATIVE_METHOD(HTTPClient, post) {
 
   CURL* curl = curl_easy_init();
   if (curl == NULL) {
-    runtimeError("Failed to initiate a POST request using CURL.");
-    RETURN_NIL;
+    THROW_EXCEPTION(luminique::std::network, HTTPException, "Failed to initiate an POST request using CURL.");
   }
 
   CURLResponse curlResponse;
   CURLcode curlCode = httpSendRequest(url, HTTP_POST, data, curl, &curlResponse);
   if (curlCode != CURLE_OK) {
-    runtimeError("Failed to complete a POST request from URL.");
     curl_easy_cleanup(curl);
-    RETURN_NIL;
+    THROW_EXCEPTION(luminique::std::network, HTTPException, "Failed to complete an POST request from URL.");
   }
 
   ObjInstance* httpResponse = httpCreateResponse(url, curl, curlResponse);
@@ -274,16 +368,14 @@ NATIVE_METHOD(HTTPClient, options) {
 
   CURL* curl = curl_easy_init();
   if (curl == NULL) {
-    runtimeError("Failed to initiate an OPTIONS request using CURL.");
-    RETURN_NIL;
+    THROW_EXCEPTION(luminique::std::network, HTTPException, "Failed to initiate an OPTIONS request using CURL.");
   }
 
   CURLResponse curlResponse;
   CURLcode curlCode = httpSendRequest(url, HTTP_OPTIONS, NULL, curl, &curlResponse);
   if (curlCode != CURLE_OK) {
-    runtimeError("Failed to complete an OPTIONS request from URL.");
     curl_easy_cleanup(curl);
-    RETURN_NIL;
+    THROW_EXCEPTION(luminique::std::network, HTTPException, "Failed to complete an OPTIONS request from URL.");
   }
 
   ObjInstance* httpResponse = httpCreateResponse(url, curl, curlResponse);
@@ -300,16 +392,14 @@ NATIVE_METHOD(HTTPClient, patch) {
 
   CURL* curl = curl_easy_init();
   if (curl == NULL) {
-    runtimeError("Failed to initiate a PATCH request using CURL.");
-    RETURN_NIL;
+    THROW_EXCEPTION(luminique::std::network, HTTPException, "Failed to initiate a PATCH request using CURL.");
   }
 
   CURLResponse curlResponse;
   CURLcode curlCode = httpSendRequest(url, HTTP_PATCH, data, curl, &curlResponse);
   if (curlCode != CURLE_OK) {
-    runtimeError("Failed to complete a PATCH request from URL.");
     curl_easy_cleanup(curl);
-    RETURN_NIL;
+    THROW_EXCEPTION(luminique::std::network, HTTPException, "Failed to complete a PATCH request from URL.");
   }
 
   ObjInstance* httpResponse = httpCreateResponse(url, curl, curlResponse);
@@ -326,16 +416,14 @@ NATIVE_METHOD(HTTPClient, put) {
 
   CURL* curl = curl_easy_init();
   if (curl == NULL) {
-    runtimeError("Failed to initiate a PUT request using CURL.");
-    RETURN_NIL;
+    THROW_EXCEPTION(luminique::std::network, HTTPException, "Failed to initiate a PUT request using CURL.");
   }
 
   CURLResponse curlResponse;
   CURLcode curlCode = httpSendRequest(url, HTTP_PATCH, data, curl, &curlResponse);
   if (curlCode != CURLE_OK) {
-    runtimeError("Failed to complete a PUT request from URL.");
     curl_easy_cleanup(curl);
-    RETURN_NIL;
+  THROW_EXCEPTION(luminique::std::network, HTTPException, "Failed to complete a PUT request from URL.");
   }
 
   ObjInstance* httpResponse = httpCreateResponse(url, curl, curlResponse);
@@ -349,8 +437,7 @@ NATIVE_METHOD(HTTPClient, send) {
 
   CURL* curl = curl_easy_init();
   if (curl == NULL) {
-    runtimeError("Failed to initiate a PUT request using CURL.");
-    RETURN_NIL;
+    THROW_EXCEPTION(luminique::std::network, HTTPException, "Failed to initiate an HTTP request using CURL.");
   }
 
   ObjInstance* request = AS_INSTANCE(args[0]);
@@ -364,9 +451,8 @@ NATIVE_METHOD(HTTPClient, send) {
   CURLcode curlCode = httpSendRequest(url, method, data, curl, &curlResponse);
   curl_slist_free_all(curlHeaders);
   if (curlCode != CURLE_OK) {
-    runtimeError("Failed to complete a PUT request from URL.");
     curl_easy_cleanup(curl);
-    RETURN_NIL;
+    THROW_EXCEPTION(luminique::std::network, HTTPException, "Failed to complete an HTTP request from URL.");
   }
 
   ObjInstance* httpResponse = httpCreateResponse(url, curl, curlResponse);
@@ -447,10 +533,7 @@ NATIVE_METHOD(IPAddress, getDomain) {
 
   int status = -1;
   ObjString* domain = dnsGetDomainFromIPAddress(address->chars, &status);
-  if (status) {
-    runtimeError("Failed to get domain information for IP Address.");
-    RETURN_NIL;
-  }
+  if (status) THROW_EXCEPTION(luminique::std::network, DomainHostException, "Failed to get domain information for IP Address.");
   RETURN_OBJ(domain);
 }
 
@@ -476,8 +559,7 @@ NATIVE_METHOD(IPAddress, __init__) {
   } else if (extractIPv6AndPort(address->chars, ip, &port)) {
     version = 6;
   } else {
-    runtimeError("Invalid IP address specified.");
-    RETURN_NIL;
+    THROW_EXCEPTION(luminique::std::network, IPAddressException, "Invalid IP address specified.");
   }
 
   setObjProperty(self, "address", OBJ_VAL(copyString(ip, strlen(ip))));
@@ -614,8 +696,7 @@ NATIVE_METHOD(URL, pathArray) {
     char* paths[UINT4_MAX];
     int length = yuarel_split_path(path->chars, paths, 3);
     if (length == -1) {
-      runtimeError("Failed to parse path from URL.");
-      RETURN_NIL;
+      THROW_EXCEPTION(luminique::std::network, URLException, "Failed to parse path from URL.");
     }
 
     ObjArray* pathArray = newArray();
@@ -637,10 +718,7 @@ NATIVE_METHOD(URL, queryDict) {
   else {
     struct yuarel_param params[UINT4_MAX];
     int length = yuarel_parse_query(query->chars, '&', params, UINT4_MAX);
-    if (length == -1) {
-      runtimeError("Failed to parse query parameters from URL.");
-      RETURN_NIL;
-    }
+    if (length == -1) THROW_EXCEPTION(luminique::std::network, URLException, "Failed to parse query parameters from URL.");
 
     ObjDictionary* queryDict = newDictionary();
     push(OBJ_VAL(queryDict));
@@ -706,8 +784,7 @@ NATIVE_METHOD(URLClass, parse) {
 
   struct yuarel component;
   if (yuarel_parse(&component, url->chars) == -1) {
-    runtimeError("Failed to parse url.");
-    RETURN_NIL;
+    THROW_EXCEPTION(luminique::std::network, URLException, "Failed to parse the supplied url.");
   }
 
   setObjProperty(instance, "scheme", OBJ_VAL(newString(component.scheme != NULL ? component.scheme : "")));
@@ -759,8 +836,8 @@ void registerNetworkPackage() {
   ObjClass* domainClass = defineNativeClass("Domain");
   bindSuperclass(domainClass, vm.objectClass);
   DEF_METHOD(domainClass, Domain, __init__, 1);
-  DEF_METHOD(domainClass, Domain, getIpAddresses, 0);
-  DEF_METHOD(domainClass, Domain, getIpAddressesAsync, 0);
+  DEF_METHOD(domainClass, Domain, getIPAddresses, 0);
+  DEF_METHOD(domainClass, Domain, getIPAddressesAsync, 0);
   DEF_METHOD(domainClass, Domain, __str__, 0);
   DEF_METHOD(domainClass, Domain, __format__, 0);
 

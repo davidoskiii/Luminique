@@ -19,7 +19,7 @@ const domain = Domain("google.com");
 print("Domain name: ");
 println(str(domain));
 print("Domain IPs: ");
-println(domain.getIpAddresses());
+println(domain.getIPAddresses());
 
 const ip3 = IPAddress("204.15.11.70:69");
 println("IP3 address: ${ip3}");
