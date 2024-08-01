@@ -217,9 +217,9 @@ void dnsOnGetAddrInfo(uv_getaddrinfo_t* netGetAddrInfo, int status, struct addri
   LOOP_PUSH_DATA(data);
 
   if (status < 0) {
-    ObjString* exceptionMessage = newString("Failed to resolve IP addresses for domain.");
-    ObjClass* exceptionClass = getNativeClass("luminique::std::network", "DomainHostException");
-    promiseReject(data->promise, OBJ_VAL(newException(exceptionMessage, exceptionClass)));
+      ObjException* exception = createException(getNativeClass("luminique::std::network", "DomainHostException"), 
+                                                "Failed to resolve IP addresses for domain.");
+      promiseReject(data->promise, OBJ_VAL(exception));
   } else {
     ObjArray* ipAddresses = dnsGetIPAddressesFromDomain(result);
     promiseFulfill(data->promise, OBJ_VAL(ipAddresses));
@@ -261,8 +261,14 @@ ObjArray* dnsGetIPAddressesFromDomain(struct addrinfo* result) {
 void dnsOnGetNameInfo(uv_getnameinfo_t* netGetNameInfo, int status, const char* hostName, const char* service) {
   NetworkData* data = netGetNameInfo->data;
   LOOP_PUSH_DATA(data);
-  ObjString* domain = newString(netGetNameInfo->host);
-  promiseFulfill(data->promise, OBJ_VAL(domain));
+  if (status < 0) {
+    ObjException* exception = createException(getNativeClass("luminique::std::network", "IPAddressException"), 
+                                              "Failed to get domain name for IP Address.");
+    promiseReject(data->promise, OBJ_VAL(exception));
+  } else {
+    ObjString* domain = newString(netGetNameInfo->host);
+    promiseFulfill(data->promise, OBJ_VAL(domain));
+  }
   free(netGetNameInfo);
   LOOP_POP_DATA(data);
 }

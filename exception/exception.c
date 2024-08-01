@@ -102,3 +102,17 @@ ObjException* throwNativeException(const char* namespace_, const char* exception
   }
   else return exception;
 }
+
+ObjException* createException(ObjClass* exceptionClass, const char* format, ...) {
+  char chars[UINT8_MAX];
+  va_list args;
+  va_start(args, format);
+  int length = vsnprintf(chars, UINT8_MAX, format, args);
+  va_end(args);
+  ObjString* message = copyString(chars, length);
+  ObjArray* stacktrace = getStackTrace();
+
+  ObjException* exception = newException(message, exceptionClass);
+  exception->stacktrace = stacktrace;
+  return exception;
+}

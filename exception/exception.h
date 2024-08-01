@@ -17,5 +17,6 @@ ObjArray* getStackTrace();
 ObjException* throwException(ObjClass* exceptionClass, const char* format, ...);
 ObjException* throwNativeException(const char* namespace_, const char* exceptionClassName, const char* format, ...);
 ObjException* throwException(ObjClass* exceptionClass, const char* format, ...);
+ObjException* createException(ObjClass* exceptionClass, const char* format, ...);
 
 #endif
