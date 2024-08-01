@@ -251,19 +251,21 @@ ObjInstance* newInstance(ObjClass* klass) {
   return instance;
 }
 
-ObjNativeFunction* newNativeFunction(ObjString* name, int arity, NativeFunction function) {
+ObjNativeFunction* newNativeFunction(ObjString* name, int arity, bool isAsync, NativeFunction function) {
   ObjNativeFunction* nativeFunction = ALLOCATE_OBJ(ObjNativeFunction, OBJ_NATIVE_FUNCTION, vm.functionClass);
   nativeFunction->name = name;
   nativeFunction->arity = arity;
+  nativeFunction->isAsync = isAsync;
   nativeFunction->function = function;
   return nativeFunction;
 }
 
-ObjNativeMethod* newNativeMethod(ObjClass* klass, ObjString* name, int arity, NativeMethod method) {
+ObjNativeMethod* newNativeMethod(ObjClass* klass, ObjString* name, int arity, bool isAsync, NativeMethod method) {
   ObjNativeMethod* nativeMethod = ALLOCATE_OBJ(ObjNativeMethod, OBJ_NATIVE_METHOD, NULL);
   nativeMethod->klass = klass;
   nativeMethod->name = name;
   nativeMethod->arity = arity;
+  nativeMethod->isAsync = isAsync;
   nativeMethod->method = method;
   return nativeMethod;
 }

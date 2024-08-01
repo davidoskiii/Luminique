@@ -132,6 +132,7 @@ struct ObjNativeFunction {
   Obj obj;
   ObjString* name;
   int arity;
+  bool isAsync;
   NativeFunction function;
 };
 
@@ -140,6 +141,7 @@ struct ObjNativeMethod {
   ObjClass* klass;
   ObjString* name;
   int arity;
+  bool isAsync;
   NativeMethod method;
 };
 
@@ -354,8 +356,8 @@ ObjClosure* newClosure(ObjFunction* function);
 ObjFunction* newFunction();
 ObjMethod* newMethod(ObjClass* behavior, ObjClosure* closure);
 ObjInstance* newInstance(ObjClass* klass);
-ObjNativeFunction* newNativeFunction(ObjString* name, int arity, NativeFunction function);
-ObjNativeMethod* newNativeMethod(ObjClass* klass, ObjString* name, int arity, NativeMethod method);
+ObjNativeFunction* newNativeFunction(ObjString* name, int arity, bool isAsync, NativeFunction function);
+ObjNativeMethod* newNativeMethod(ObjClass* klass, ObjString* name, int arity, bool isAsync, NativeMethod method);
 ObjUpvalue* newUpvalue(Value* slot);
 void printObject(Value value);
 bool objMethodExists(Value object, char* name);

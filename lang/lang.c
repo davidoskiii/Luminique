@@ -724,7 +724,7 @@ NATIVE_METHOD(BoundMethod, clone) {
 NATIVE_METHOD(BoundMethod, isAsync) {
   assertArgCount("BoundMethod::isAsync()", 0, argCount);
   Value method = AS_BOUND_METHOD(receiver)->method;
-  RETURN_BOOL(IS_NATIVE_METHOD(method) ? false : AS_CLOSURE(method)->function->isAsync);
+  RETURN_BOOL(IS_NATIVE_METHOD(method) ? AS_NATIVE_METHOD(method)->isAsync : AS_CLOSURE(method)->function->isAsync);
 }
 
 NATIVE_METHOD(BoundMethod, isNative) { 
