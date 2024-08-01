@@ -24,4 +24,4 @@ println(domain.ipAddresses());
 const ip3 = IPAddress("204.15.11.70:69");
 println("IP3 address: ${ip3}");
 print("IP3 host: ");
-println(ip3.domain());
+println(ip3.getDomain());

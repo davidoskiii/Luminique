@@ -432,8 +432,8 @@ NATIVE_METHOD(HTTPResponse, __format__) {
   RETURN_STRING_FMT("HTTPResponse - URL: %s; Status: %d; ContentType: %s", url->chars, status, contentType->chars);
 }
 
-NATIVE_METHOD(IPAddress, domain) {
-  assertArgCount("IPAddress::domain", 0, argCount);
+NATIVE_METHOD(IPAddress, getDomain) {
+  assertArgCount("IPAddress::getDomain()", 0, argCount);
   ObjInstance* self = AS_INSTANCE(receiver);
   ObjString* address = AS_STRING(getObjProperty(self, "address"));
 
@@ -725,7 +725,7 @@ void registerNetworkPackage() {
   ObjClass* ipAddressClass = defineNativeClass("IPAddress");
   bindSuperclass(ipAddressClass, vm.objectClass);
   DEF_METHOD(ipAddressClass, IPAddress, __init__, 1);
-  DEF_METHOD(ipAddressClass, IPAddress, domain, 0);
+  DEF_METHOD(ipAddressClass, IPAddress, getDomain, 0);
   DEF_METHOD(ipAddressClass, IPAddress, isIPV4, 0);
   DEF_METHOD(ipAddressClass, IPAddress, isIPV6, 0);
   DEF_METHOD(ipAddressClass, IPAddress, toArray, 0);
