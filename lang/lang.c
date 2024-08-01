@@ -848,8 +848,13 @@ NATIVE_METHOD(Method, clone) {
   RETURN_OBJ(receiver);
 }
 
+NATIVE_METHOD(Method, isAsync) {
+  assertArgCount("Method::isAsync()", 0, argCount);
+  RETURN_BOOL(IS_NATIVE_METHOD(receiver) ? AS_NATIVE_METHOD(receiver)->isAsync : AS_METHOD(receiver)->closure->function->isAsync);
+}
+
 NATIVE_METHOD(Method, isNative) {
-  assertArgCount("method::isNative()", 0, argCount);
+  assertArgCount("Method::isNative()", 0, argCount);
   RETURN_BOOL(IS_NATIVE_METHOD(receiver));
 }
 
@@ -1647,6 +1652,7 @@ void registerLangPackage() {
   DEF_METHOD(vm.methodClass, Method, behavior, 0);
   DEF_METHOD(vm.methodClass, Method, bind, 1);
   DEF_METHOD(vm.methodClass, Method, clone, 0);
+  DEF_METHOD(vm.methodClass, Method, isAsync, 0);
   DEF_METHOD(vm.methodClass, Method, isNative, 0);
   DEF_METHOD(vm.methodClass, Method, isVariadic, 0);
   DEF_METHOD(vm.methodClass, Method, name, 0);

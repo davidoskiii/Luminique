@@ -7,8 +7,11 @@
 
 #define NATIVE_FUNCTION(name) static Value name##NativeFunction(int argCount, Value* args)
 #define NATIVE_METHOD(className, name) static Value name##NativeMethodFor##className(Value receiver, int argCount, Value* args)
-#define DEF_FUNCTION(name, arity) defineNativeFunction(#name, arity, name##NativeFunction)
-#define DEF_METHOD(klass, className, name, arity) defineNativeMethod(klass, #name, arity, name##NativeMethodFor##className)
+#define DEF_FUNCTION(name, arity) defineNativeFunction(#name, arity, false, name##NativeFunction)
+#define DEF_FUNCTION_ASYNC(name, arity) defineNativeFunction(#name, arity, true, name##NativeFunction)
+#define DEF_METHOD(klass, className, name, arity) defineNativeMethod(klass, #name, arity, false, name##NativeMethodFor##className)
+#define DEF_METHOD_ASYNC(klass, className, name, arity) defineNativeMethod(klass, #name, arity, true, name##NativeMethodFor##className)
+#define DEF_OPERATOR(klass, className, symbol, name, arity) defineNativeMethod(klass, #symbol, arity, false, name##NativeMethodFor##className)
 #define DEF_INTERCEPTOR(klass, className, type, name, arity) defineNativeInterceptor(klass, type, arity, name##NativeMethodFor##className)
 
 #define RETURN_NIL return NIL_VAL
@@ -27,14 +30,13 @@
 #define THROW_EXCEPTION(namespace_, klass, message) return OBJ_VAL(throwNativeException(#namespace_, #klass, message))
 #define THROW_EXCEPTION_FMT(namespace_, klass, message, ...) return OBJ_VAL(throwNativeException(#namespace_, #klass, message, __VA_ARGS__))
 #define RETURN_VAL(value) return value
-#define DEF_OPERATOR(klass, className, symbol, name, arity) defineNativeMethod(klass, #symbol, arity, name##NativeMethodFor##className)
 
 
 void initNatives();
 void initNativePackage(const char* filePath);
 void loadSourceFile(const char* filePath);
-void defineNativeFunction(const char* name, int arity, NativeFunction functionion);
-void defineNativeMethod(ObjClass* klass, const char* name, int arity, NativeMethod method);
+void defineNativeFunction(const char* name, int arity, bool isAsync, NativeFunction functionion);
+void defineNativeMethod(ObjClass* klass, const char* name, int arity, bool isAsync, NativeMethod method);
 void defineNativeConstant(ObjNamespace* namespace_, const char* name, Value value);
 void defineNativeInterceptor(ObjClass* klass, InterceptorType type, int arity, NativeMethod method);
 ObjNamespace* defineNativeNamespace(const char* name, ObjNamespace* enclosing);

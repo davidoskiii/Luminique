@@ -834,7 +834,7 @@ void registerNetworkPackage() {
   bindSuperclass(ipAddressClass, vm.objectClass);
   DEF_METHOD(ipAddressClass, IPAddress, __init__, 1);
   DEF_METHOD(ipAddressClass, IPAddress, getDomain, 0);
-  DEF_METHOD(ipAddressClass, IPAddress, getDomainAsync, 0);
+  DEF_METHOD_ASYNC(ipAddressClass, IPAddress, getDomainAsync, 0);
   DEF_METHOD(ipAddressClass, IPAddress, isIPV4, 0);
   DEF_METHOD(ipAddressClass, IPAddress, isIPV6, 0);
   DEF_METHOD(ipAddressClass, IPAddress, toArray, 0);
@@ -845,7 +845,7 @@ void registerNetworkPackage() {
   bindSuperclass(domainClass, vm.objectClass);
   DEF_METHOD(domainClass, Domain, __init__, 1);
   DEF_METHOD(domainClass, Domain, getIPAddresses, 0);
-  DEF_METHOD(domainClass, Domain, getIPAddressesAsync, 0);
+  DEF_METHOD_ASYNC(domainClass, Domain, getIPAddressesAsync, 0);
   DEF_METHOD(domainClass, Domain, __str__, 0);
   DEF_METHOD(domainClass, Domain, __format__, 0);
 

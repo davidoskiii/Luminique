@@ -16,10 +16,10 @@
 
 static unsigned int seed = 0;
 
-void defineNativeFunction(const char* name, int arity, NativeFunction function) {
+void defineNativeFunction(const char* name, int arity, bool isAsync, NativeFunction function) {
   ObjString* functionName = copyString(name, (int)strlen(name));
   push(OBJ_VAL(functionName));
-  push(OBJ_VAL(newNativeFunction(functionName, arity, function)));
+  push(OBJ_VAL(newNativeFunction(functionName, arity, isAsync, function)));
   tableSet(&vm.currentNamespace->values, AS_STRING(vm.stack[0]), vm.stack[1]);
   pop();
   pop();
@@ -28,40 +28,40 @@ void defineNativeFunction(const char* name, int arity, NativeFunction function) 
 void defineNativeInterceptor(ObjClass* klass, InterceptorType type, int arity, NativeMethod method) {
   switch (type) {
     case INTERCEPTOR_INIT:
-      defineNativeMethod(klass, "__init__", arity, method);
+      defineNativeMethod(klass, "__init__", arity, false, method);
       break;
     case INTERCEPTOR_NEW:
-      defineNativeMethod(klass, "__new__", arity, method);
+      defineNativeMethod(klass, "__new__", arity, false, method);
       break;
     case INTERCEPTOR_BEFORE_GET_PROPERTY:
-      defineNativeMethod(klass, "__beforeGetProperty__", 1, method);
+      defineNativeMethod(klass, "__beforeGetProperty__", 1, false, method);
       break;
     case INTERCEPTOR_AFTER_GET_PROPERTY:
-      defineNativeMethod(klass, "__afterGetProperty__", 2, method);
+      defineNativeMethod(klass, "__afterGetProperty__", 2, false, method);
       break;
     case INTERCEPTOR_BEFORE_SET_PROPERTY:
-      defineNativeMethod(klass, "__beforeSetProperty__", 2, method);
+      defineNativeMethod(klass, "__beforeSetProperty__", 2, false, method);
       break;
     case INTERCEPTOR_AFTER_SET_PROPERTY: 
-      defineNativeMethod(klass, "__afterSetProperty__", 2, method);
+      defineNativeMethod(klass, "__afterSetProperty__", 2, false, method);
       break;
     case INTERCEPTOR_BEFORE_INVOKE_METHOD:
-      defineNativeMethod(klass, "__beforeInvokeMethod__", 2, method);
+      defineNativeMethod(klass, "__beforeInvokeMethod__", 2, false, method);
       break;
     case INTERCEPTOR_AFTER_INVOKE_METHOD:
-      defineNativeMethod(klass, "__afterInvokeMethod__", 3, method);
+      defineNativeMethod(klass, "__afterInvokeMethod__", 3, false, method);
       break;
     case INTERCEPTOR_UNDEFINED_PROPERTY:
-      defineNativeMethod(klass, "__undefinedProperty__", 1, method);
+      defineNativeMethod(klass, "__undefinedProperty__", 1, false, method);
       break;
     case INTERCEPTOR_UNDEFINED_METHOD:
-      defineNativeMethod(klass, "__undefinedMethod__", 2, method);
+      defineNativeMethod(klass, "__undefinedMethod__", 2, false, method);
       break;
     case INTERCEPTOR_BEFORE_THROW:
-      defineNativeMethod(klass, "__beforeThrow__", 2, method);
+      defineNativeMethod(klass, "__beforeThrow__", 2, false, method);
       break;
     case INTERCEPTOR_AFTER_THROW:
-      defineNativeMethod(klass, "__afterThrow__", 2, method);
+      defineNativeMethod(klass, "__afterThrow__", 2, false, method);
       break;
     default: 
       runtimeError("Unknown interceptor type %d.", type);
@@ -111,10 +111,10 @@ void defineNativeEnumElement(ObjEnum* enum_, const char* name) {
   pop();
 }
 
-void defineNativeMethod(ObjClass* klass, const char* name, int arity, NativeMethod method) {
+void defineNativeMethod(ObjClass* klass, const char* name, int arity, bool isAsync, NativeMethod method) {
   ObjString* methodName = copyString(name, (int)strlen(name));
   push(OBJ_VAL(methodName));
-  ObjNativeMethod* nativeMethod = newNativeMethod(klass, methodName, arity, method);
+  ObjNativeMethod* nativeMethod = newNativeMethod(klass, methodName, arity, isAsync, method);
   push(OBJ_VAL(nativeMethod));
   tableSet(&klass->methods, methodName, OBJ_VAL(nativeMethod));
   pop();
