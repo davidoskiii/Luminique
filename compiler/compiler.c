@@ -447,7 +447,7 @@ static void endScope() {
 
 static void expression();
 static void block();
-static void function(FunctionType type);
+static void function(FunctionType type, bool isAsync);
 static void statement();
 static void declaration();
 static ParseRule* getRule(TokenType type);
@@ -1220,11 +1220,11 @@ static void assertStatement() {
 }
 
 static void closure(bool canAssign) {
-  function(TYPE_FUNCTION);
+  function(TYPE_FUNCTION, false);
 }
 
 static void lambda(bool canAssign) {
-  function(TYPE_LAMBDA);
+  function(TYPE_LAMBDA, false);
 }
 
 static void namedVariable(Token name, bool canAssign) {
@@ -1343,6 +1343,14 @@ static void unary(bool canAssign) {
   }
 }
 
+static void await(bool canAssign) {
+  if (current->type != TYPE_SCRIPT && !current->function->isAsync) {
+    error("Cannot use await unless in top level code or inside async functions/methods.");
+  }
+  expression();
+  emitByte(OP_AWAIT);
+}
+
 ParseRule rules[] = {
   [TOKEN_LEFT_BRAKE]    = {array,         subscript,    PREC_CALL}, 
   [TOKEN_RIGHT_BRAKE]   = {NULL,          NULL,         PREC_NONE},
@@ -1390,6 +1398,8 @@ ParseRule rules[] = {
   [TOKEN_FALSE]         = {literal,       NULL,         PREC_NONE},
   [TOKEN_FOR]           = {NULL,          NULL,         PREC_NONE},
   [TOKEN_ASSERT]        = {NULL,          NULL,         PREC_NONE},
+  [TOKEN_ASYNC]         = {NULL,          NULL,         PREC_NONE},
+  [TOKEN_AWAIT]         = {await,         NULL,         PREC_NONE},
   [TOKEN_FUN]           = {closure,       NULL,         PREC_NONE},
   [TOKEN_LAMBDA]        = {lambda,        NULL,         PREC_NONE},
   [TOKEN_IF]            = {NULL,          NULL,         PREC_NONE},
@@ -1502,25 +1512,25 @@ static uint8_t lambdaDepth() {
   return depth;
 }
 
-static void getter() {
+static void getter(bool isAsync) {
   FunctionType type = TYPE_GETTER;
   beginScope();
   
-  function(type);
+  function(type, isAsync);
   
   endScope();
 }
 
-static void setter() {
+static void setter(bool isAsync) {
   FunctionType type = TYPE_SETTER;
   beginScope();
   
-  function(type);
+  function(type, isAsync);
   
   endScope();
 }
 
-static void function(FunctionType type) {
+static void function(FunctionType type, bool isAsync) {
   Compiler compiler;
   initCompiler(&compiler, type);
   beginScope();
@@ -1558,6 +1568,7 @@ static void function(FunctionType type) {
   }
 
   ObjFunction* function = endCompiler();
+  function->isAsync = isAsync;
   uint16_t constant = makeConstant(OBJ_VAL(function));
   emitByte(OP_CLOSURE);
   emitShort(constant);
@@ -1569,6 +1580,8 @@ static void function(FunctionType type) {
 }
 
 static void method() {
+  bool isAsync = false;
+  if (match(TOKEN_ASYNC)) isAsync = true;
   uint8_t opCode = OP_METHOD;
   currentClass->isStaticMethod = false;
 
@@ -1591,9 +1604,9 @@ static void method() {
     type = TYPE_INITIALIZER;
   }
 
-  if (opCode == OP_GETTER) getter();
-  else if (opCode == OP_SETTER) setter();
-  else function(type);
+  if (opCode == OP_GETTER) getter(isAsync);
+  else if (opCode == OP_SETTER) setter(isAsync);
+  else function(type, isAsync);
 
   emitByte(opCode);
   emitShort(constant);
@@ -1737,7 +1750,7 @@ static void varDeclaration(bool isMutable) {
 static void funDeclaration() {
   uint16_t global = parseVariable("Expect function name.");
   markInitialized(false);
-  function(TYPE_FUNCTION);
+  function(TYPE_FUNCTION, false);
   defineVariable(global, false);
 }
 
@@ -2185,6 +2198,7 @@ static void synchronize() {
     if (parser.previous.type == TOKEN_SEMICOLON) return;
     switch (parser.current.type) {
       case TOKEN_CLASS:
+      case TOKEN_AWAIT:
       case TOKEN_ASSERT:
       case TOKEN_NAMESPACE:
       case TOKEN_USING:

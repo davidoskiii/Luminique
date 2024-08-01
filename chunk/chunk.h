@@ -86,6 +86,7 @@ typedef enum {
   OP_RETURN_NONLOCAL,
   OP_YIELD,
   OP_YIELD_FROM,
+  OP_AWAIT,
   OP_END
 } OpCode;
 

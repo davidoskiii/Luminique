@@ -264,6 +264,8 @@ int disassembleInstruction(Chunk* chunk, int offset) {
       return simpleInstruction("OP_YIELD", offset);
     case OP_YIELD_FROM:
       return simpleInstruction("OP_YIELD_FROM", offset);
+    case OP_AWAIT:
+      return simpleInstruction("OP_AWAIT", offset);
     default:
       printf("Unknown opcode %d\n", instruction);
       return offset + 1;
