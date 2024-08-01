@@ -223,6 +223,7 @@ ObjFunction* newFunction() {
   function->upvalueCount = 0;
   function->isGenerator = false;
   function->name = NULL;
+  function->isAsync = false;
   initChunk(&function->chunk);
   return function;
 }
