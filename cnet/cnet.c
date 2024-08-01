@@ -5,9 +5,31 @@
 
 #include "cnet.h"
 #include "../string/string.h"
+#include "../memory/memory.h"
 #include "../native/native.h"
 #include "../value/value.h"
 #include "../vm/vm.h"
+
+static NetworkData* networkLoadData(ObjInstance* network, ObjPromise* promise) {
+  NetworkData* data = ALLOCATE_STRUCT(NetworkData);
+  if (data != NULL) {
+    data->vm = &vm;
+    data->network = network;
+    data->promise = promise;
+  }
+  return data;
+}
+
+static void networkPopData(NetworkData* data) {
+  pop();
+  data->vm->frameCount--;
+  free(data);
+}
+
+static void networkPushData(NetworkData* data) {
+  push(OBJ_VAL(data->vm->currentModule->closure));
+  data->vm->frameCount++;
+}
 
 ObjArray* httpCreateCookies(CURL* curl) {
   struct curl_slist* cookies = NULL;
@@ -154,6 +176,23 @@ struct addrinfo* dnsGetDomainInfo(const char* domainName, int* status) {
   return netGetAddrInfo.addrinfo;
 }
 
+ObjPromise* dnsGetDomainFromIPAddressAsync(ObjInstance* ipAddress, uv_getnameinfo_cb callback) {
+  uv_getnameinfo_t* netGetNameInfo = ALLOCATE_STRUCT(uv_getnameinfo_t);
+  ObjPromise* promise = newPromise(PROMISE_PENDING, NIL_VAL, NIL_VAL);
+  if (netGetNameInfo == NULL) return NULL;
+  else {
+    netGetNameInfo->data = networkLoadData(ipAddress, promise);
+    char* address = AS_CSTRING(getObjProperty(ipAddress, "address"));
+    struct sockaddr_in socketAddress;
+    memset(&socketAddress, 0, sizeof(socketAddress));
+    socketAddress.sin_family = AF_INET;
+    inet_pton(AF_INET, address, &socketAddress.sin_addr);
+    uv_getnameinfo(vm.eventLoop, netGetNameInfo, callback, (struct sockaddr*)&socketAddress, 0);
+    return promise;
+  }
+  return newPromise(PROMISE_FULFILLED, NIL_VAL, NIL_VAL);
+}
+
 ObjString* dnsGetDomainFromIPAddress(const char* ipAddress, int* status) {
   struct sockaddr_in socketAddress;
   memset(&socketAddress, 0, sizeof(socketAddress));
@@ -191,6 +230,15 @@ ObjArray* dnsGetIPAddressesFromDomain(struct addrinfo* result) {
 
   pop();
   return ipAddresses;
+}
+
+void dnsOnGetNameInfo(uv_getnameinfo_t* netGetNameInfo, int status, const char* hostName, const char* service) {
+  NetworkData* data = netGetNameInfo->data;
+  networkPushData(data);
+  ObjString* domain = newString(netGetNameInfo->host);
+  promiseFulfill(data->promise, OBJ_VAL(domain));
+  free(netGetNameInfo);
+  networkPopData(data);
 }
 
 bool isValidPort(const char* portStr) {

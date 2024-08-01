@@ -440,10 +440,18 @@ NATIVE_METHOD(IPAddress, getDomain) {
   int status = -1;
   ObjString* domain = dnsGetDomainFromIPAddress(address->chars, &status);
   if (status) {
-      runtimeError("Failed to get domain information for IP Address.");
-      RETURN_NIL;
+    runtimeError("Failed to get domain information for IP Address.");
+    RETURN_NIL;
   }
   RETURN_OBJ(domain);
+}
+
+NATIVE_METHOD(IPAddress, getDomainAsync) {
+  assertArgCount("IPAddress::getDomainAsync()", 0, argCount);
+  ObjInstance* self = AS_INSTANCE(receiver);
+  ObjPromise* promise = dnsGetDomainFromIPAddressAsync(self, dnsOnGetNameInfo);
+  if (promise == NULL) THROW_EXCEPTION(luminique::std::network, IPAddressException, "Failed to get domain name from IP Address.");
+  RETURN_OBJ(promise);
 }
 
 NATIVE_METHOD(IPAddress, __init__) {
@@ -708,6 +716,13 @@ void registerNetworkPackage() {
   ObjNamespace* networkNamespace = defineNativeNamespace("network", vm.stdNamespace);
   vm.currentNamespace = networkNamespace;
 
+  ObjClass* networkExceptionClass = defineNativeException("NetworkException", vm.exceptionClass);
+  defineNativeException("DomainHostException", networkExceptionClass);
+  defineNativeException("HTTPException", networkExceptionClass);
+  defineNativeException("IPAddressException", networkExceptionClass);
+  defineNativeException("SocketException", networkExceptionClass);
+  defineNativeException("URLException", networkExceptionClass);
+
   ObjClass* urlClass = defineNativeClass("URL");
   bindSuperclass(urlClass, vm.objectClass);
   DEF_METHOD(urlClass, URL, __init__, 6);
@@ -726,6 +741,7 @@ void registerNetworkPackage() {
   bindSuperclass(ipAddressClass, vm.objectClass);
   DEF_METHOD(ipAddressClass, IPAddress, __init__, 1);
   DEF_METHOD(ipAddressClass, IPAddress, getDomain, 0);
+  DEF_METHOD(ipAddressClass, IPAddress, getDomainAsync, 0);
   DEF_METHOD(ipAddressClass, IPAddress, isIPV4, 0);
   DEF_METHOD(ipAddressClass, IPAddress, isIPV6, 0);
   DEF_METHOD(ipAddressClass, IPAddress, toArray, 0);
