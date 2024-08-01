@@ -1,37 +1,61 @@
 using luminique::std::io::File;
 
-let file = File("tests/io_output/file_input.txt");
+const file = File("tests/io_output/file_input.txt");
 
-println("Creating new file object: ");
+println("Creating an file object for an existing .txt file: ");
 println(file);
 
-print("File exists: ");
-println(file.exists());
+println("File exists: ${file.exists()}");
 
-print("File is file: ");
-println(file.isFile());
+println("File is file: ${file.isFile()}");
 
-print("File is directory: ");
-println(file.isDirectory());
+println("File is directory: ${file.isDirectory()}");
 
-print("File is readable: ");
-println(file.isReadable());
+println("File is readable: ${file.isReadable()}");
 
-print("File is writable: ");
-println(file.isWritable());
+println("File is writable: ${file.isWritable()}");
 
-print("File last accessed: ");
-println(file.lastAccessed());
+println("File last accessed: ${file.lastAccessed()}");
 
-print("File size: ");
-println(file.size());
+println("File last modified: ${file.lastModified()}");
 
-print("File last modified: ");
-println("${file.lastModified()}\n");
+println("File size: ${file.size()} bytes");
 
-let dir = File("tests/io_output");
+println("File absolute path: ${file.getAbsolutePath()}");
 
-println("Creating a file object as directory.");
+println("");
+
+const file2 = File("tests/io_output/temp.txt");
+
+println("Creating a file object for a nonexistent .txt file: ");
+println(file2);
+
+println("File exists: ${file2.exists()}");
+
+println("Create this temp file:");
+file2.create();
+
+println("File exists: ${file2.exists()}");
+
+println("File is readable: ${file2.isReadable()}");
+
+println("File is writable: ${file2.isWritable()}");
+
+println("Set file to be writable...");
+file2.setWritable(true);
+
+println("File is writable: ${file2.isWritable()}");
+
+println("Remove this temp file:");
+file2.delete();
+
+println("File exists: ${file2.exists()}");
+
+println("");
+
+const dir = File("tests/io_output");
+
+println("Creating a file object for an existing directory.");
 println(dir);
 
 print("Directory exists: ");
@@ -42,3 +66,25 @@ println(dir.isFile());
 
 print("Directory is directory: ");
 println(dir.isDirectory());
+
+println("");
+
+const dir2 = File("tests/temp");
+
+println("Creating a file object for a nonexistent directory.");
+println(dir2);
+
+print("Directory exists: ");
+println(dir2.exists());
+
+println("Create this temp directory...");
+dir2.mkdir();
+
+print("Directory exists: ");
+println(dir2.exists());
+
+println("Remove this temp directory...");
+dir2.rmdir();
+
+print("Directory exists: ");
+println(dir2.exists());
