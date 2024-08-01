@@ -1,9 +1,11 @@
 #ifndef cluminique_vm_h
 #define cluminique_vm_h
 
+#include <uv.h>
+
 #include "../table/table.h"
 #include "../value/value.h"
-#include "../object/object.h"
+#include "../exception/exception.h"
 
 #define FRAMES_MAX 512 / 2 
 #define STACK_MAX (FRAMES_MAX * UINT8_COUNT)

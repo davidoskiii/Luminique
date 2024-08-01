@@ -6,6 +6,7 @@
 #include "../exception/exception.h"
 #include "../native/native.h"
 #include "../string/string.h"
+#include "../vm/vm.h"
 
 bool propagateException() {
   ObjException* exception = AS_EXCEPTION(peek(0));

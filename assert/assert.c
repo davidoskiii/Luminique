@@ -3,6 +3,7 @@
 
 #include "assert.h"
 #include "../native/native.h"
+#include "../vm/vm.h"
 
 Value assertArgCount(const char* method, uint16_t expectedCount, uint16_t actualCount) {
   if (expectedCount != actualCount) {

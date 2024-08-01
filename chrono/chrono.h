@@ -4,6 +4,7 @@
 #include "../common.h"
 #include "../string/string.h"
 
+ObjInstance* dateTimeObjFromTimestamp(ObjClass* dateTimeClass, double timeValue);
 void registerTimePackage();
 
 #endif

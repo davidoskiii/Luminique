@@ -15,7 +15,7 @@ println("The first character of the file is: " + fileReader.peek() + "\n");
 println("Now reading the entire file: \n");
 
 while(!fileReader.isAtEnd()){
-  print(fileReader.nextLine());
+  print(fileReader.readLine());
 }
 
 println("\n");
@@ -35,15 +35,15 @@ let fileWriter = FileWriteStream(fileOut);
 print("\n");
 
 println("Now write character 'B' to file.");
-fileWriter.put("B");
+fileWriter.write("B");
 
 println("Then write a new line, and string 'x = 32'.");
-fileWriter.putLine();
-fileWriter.putString("x = 32");
+fileWriter.writeLine();
+fileWriter.writeString("x = 32");
 
 println("Then write a new line, and string 'Hello World!'.");
-fileWriter.putLine();
-fileWriter.putString("Hello World!");
+fileWriter.writeLine();
+fileWriter.writeString("Hello World!");
 
 println("Close write stream for file.");
 fileWriter.close();
@@ -58,7 +58,7 @@ println("Now read the binary file to the screen:");
 
 let binaryReader = BinaryReadStream(binaryFileIn);
 while(!binaryReader.isAtEnd()){
-  print(binaryReader.next());
+  print(binaryReader.read());
   print(" ");
 }
 
@@ -77,6 +77,6 @@ let binaryWriter = BinaryWriteStream(fileBinaryOut);
 let bytes = [5, 37, 0, 88, 255, 12];
 
 println(bytes);
-binaryWriter.putBytes(bytes);
+binaryWriter.writeBytes(bytes);
 println("Close binary write stream.");
 binaryWriter.close();

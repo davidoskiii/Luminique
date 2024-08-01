@@ -48,7 +48,11 @@ ObjFile* newFile(ObjString* name) {
   file->name = name;
   file->mode = emptyString();
   file->isOpen = false;
+  file->offset = 0;
   file->fsStat = NULL;
+  file->fsOpen = NULL;
+  file->fsRead = NULL;
+  file->fsWrite = NULL;
   return file;
 }
 

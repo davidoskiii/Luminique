@@ -10,6 +10,19 @@
 #include "../common.h"
 #include "../value/value.h"
 
+#define LOOP_PUSH_DATA(data) \
+  do { \
+    push(OBJ_VAL(data->vm->currentModule->closure)); \
+    data->vm->frameCount++; \
+  } while (false)
+
+#define LOOP_POP_DATA(data) \
+  do { \
+    pop(); \
+    data->vm->frameCount--; \
+    free(data); \
+  } while (false)
+
 typedef struct {
   VM* vm;
   Value receiver;

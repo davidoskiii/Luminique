@@ -7,6 +7,7 @@
 
 #include "common.h"
 #include "string/string.h"
+#include "object/object.h"
 #include "./vm/vm.h"
 
 static void repl() {

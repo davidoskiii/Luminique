@@ -4,11 +4,11 @@
 #include "../common.h"
 #include "../value/value.h"
 
-typedef struct ExceptionHandler {
+struct ExceptionHandler {
   uint16_t handlerAddress;
   uint16_t finallyAddress;
-  struct ObjClass* exceptionClass;
-} ExceptionHandler;
+  ObjClass* exceptionClass;
+};
 
 
 bool propagateException();

@@ -1,9 +1,9 @@
 #ifndef cluminique_native_h
 #define cluminique_native_h
 
+#include "../value/value.h"
 #include "../object/object.h"
 #include "../interceptor/interceptor.h"
-#include "../vm/vm.h"
 
 #define NATIVE_FUNCTION(name) static Value name##NativeFunction(int argCount, Value* args)
 #define NATIVE_METHOD(className, name) static Value name##NativeMethodFor##className(Value receiver, int argCount, Value* args)

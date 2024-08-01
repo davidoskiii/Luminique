@@ -8,6 +8,8 @@ typedef struct CallFrame CallFrame;
 
 typedef struct Obj Obj;
 typedef struct ObjClass ObjClass;
+typedef struct ObjInstance ObjInstance;
+typedef struct ObjEnum ObjEnum;
 typedef struct ObjNamespace ObjNamespace;
 typedef struct ObjNode ObjNode;
 typedef struct ObjString ObjString;
@@ -15,11 +17,16 @@ typedef struct ObjFunction ObjFunction;
 typedef struct ObjClosure ObjClosure;
 typedef struct ObjUpvalue ObjUpvalue;
 typedef struct ObjModule ObjModule;
+typedef struct ObjFile ObjFile;
 typedef struct ObjArray ObjArray;
 typedef struct ObjDictionary ObjDictionary;
 typedef struct ObjException ObjException;
 typedef struct ObjGenerator ObjGenerator;
 typedef struct ObjPromise ObjPromise;
+typedef struct ObjNativeFunction ObjNativeFunction;
+typedef struct ObjNativeMethod ObjNativeMethod;
+
+typedef struct ExceptionHandler ExceptionHandler;
 
 #ifdef NAN_BOXING
 

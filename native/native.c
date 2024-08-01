@@ -12,6 +12,7 @@
 #include "../interceptor/interceptor.h"
 #include "../memory/memory.h"
 #include "../string/string.h"
+#include "../vm/vm.h"
 
 static unsigned int seed = 0;
 

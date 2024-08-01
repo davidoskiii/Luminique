@@ -72,7 +72,7 @@ static ObjInstance* dateObjFromTimestamp(ObjClass* dateClass, double timeValue) 
   return date;
 }
 
-static ObjInstance* dateTimeObjFromTimestamp(ObjClass* dateTimeClass, double timeValue) {
+ObjInstance* dateTimeObjFromTimestamp(ObjClass* dateTimeClass, double timeValue) {
   time_t timestamp = (time_t)timeValue;
   struct tm time;
   localtime_r(&timestamp, &time);

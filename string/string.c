@@ -5,6 +5,8 @@
 #include <stdlib.h>
 
 #include "../hash/hash.h"
+#include "../table/table.h"
+#include "../chunk/chunk.h"
 #include "../memory/memory.h"
 #include "../vm/vm.h"
 #include "string.h"

@@ -2,9 +2,7 @@
 #define cluminique_memory_h
 
 #include "../common.h"
-#include "../object/object.h"
 #include "../value/value.h"
-#include "../vm/vm.h"
 
 #define ALLOCATE(type, count) \
     (type*)reallocate(NULL, 0, sizeof(type) * (count))

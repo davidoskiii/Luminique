@@ -2,10 +2,7 @@
 #define cluminique_string_h
 
 #include "../common.h"
-#include "../table/table.h"
-#include "../chunk/chunk.h"
 #include "../value/value.h"
-#include "../object/object.h"
 
 ObjString* takeString(char* chars, int length);
 ObjString* copyString(const char* chars, int length);

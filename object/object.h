@@ -127,20 +127,20 @@ struct ObjFunction {
 typedef Value (*NativeFunction)(int argCount, Value* args);
 typedef Value (*NativeMethod)(Value receiver, int argCount, Value* args);
 
-typedef struct {
+struct ObjNativeFunction {
   Obj obj;
   ObjString* name;
   int arity;
   NativeFunction function;
-} ObjNativeFunction;
+};
 
-typedef struct {
+struct ObjNativeMethod {
   Obj obj;
   ObjClass* klass;
   ObjString* name;
   int arity;
   NativeMethod method;
-} ObjNativeMethod;
+};
 
 typedef struct ObjString {
   Obj obj;
@@ -162,14 +162,17 @@ typedef struct {
   ObjClosure* closure;
 } ObjMethod;
 
-typedef struct ObjFile {
+struct ObjFile {
   Obj obj;
   ObjString* name;
   ObjString* mode;
   bool isOpen;
-  FILE* file;
+  size_t offset;
   uv_fs_t* fsStat;
-} ObjFile;
+  uv_fs_t* fsOpen;
+  uv_fs_t* fsRead;
+  uv_fs_t* fsWrite;
+};
 
 typedef struct ObjFrame {
   Obj obj;
@@ -279,17 +282,17 @@ struct ObjClass {
   bool isNative;
 };
 
-typedef struct {
+struct ObjEnum {
   Obj obj;
   ObjString* name;
   int nextValue;
   Table values;
-} ObjEnum;
+};
 
-typedef struct {
+struct ObjInstance {
   Obj obj;
   Table fields;
-} ObjInstance;
+};
 
 typedef struct {
   Obj obj;
