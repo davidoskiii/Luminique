@@ -614,9 +614,26 @@ NATIVE_METHOD(Function, clone) {
   return receiver;
 }
 
+NATIVE_METHOD(Function, isAnonymous) {
+  assertArgCount("Function::isAnonymous()", 0, argCount);
+  if (IS_NATIVE_FUNCTION(receiver)) RETURN_FALSE;
+  RETURN_BOOL(AS_CLOSURE(receiver)->function->name->length == 0);
+}
+
+NATIVE_METHOD(Function, isAsync) {
+  assertArgCount("Function::isAsync()", 0, argCount);
+  if (IS_NATIVE_FUNCTION(receiver)) RETURN_FALSE;
+  RETURN_BOOL(AS_CLOSURE(receiver)->function->isAsync);
+}
+
 NATIVE_METHOD(Function, isNative) {
   assertArgCount("Function::isNative()", 0, argCount);
   RETURN_BOOL(IS_NATIVE_FUNCTION(receiver));
+}
+
+NATIVE_METHOD(Function, isVariadic) {
+  assertArgCount("Function::isVariadic()", 0, argCount);
+  RETURN_BOOL(AS_CLOSURE(receiver)->function->arity == -1);
 }
 
 NATIVE_METHOD(Function, __str__) {
@@ -702,6 +719,12 @@ NATIVE_METHOD(BoundMethod, arity) {
 NATIVE_METHOD(BoundMethod, clone) {
   assertArgCount("BoundMethod::clone()", 0, argCount);
   RETURN_OBJ(receiver);
+}
+
+NATIVE_METHOD(BoundMethod, isAsync) {
+  assertArgCount("BoundMethod::isAsync()", 0, argCount);
+  Value method = AS_BOUND_METHOD(receiver)->method;
+  RETURN_BOOL(IS_NATIVE_METHOD(method) ? false : AS_CLOSURE(method)->function->isAsync);
 }
 
 NATIVE_METHOD(BoundMethod, isNative) { 
@@ -1606,7 +1629,10 @@ void registerLangPackage() {
   vm.functionClass->classType = OBJ_FUNCTION;
   DEF_METHOD(vm.functionClass, Function, __init__, 0);
   DEF_METHOD(vm.functionClass, Function, clone, 0);
+  DEF_METHOD(vm.functionClass, Function, isAnonymous, 0);
+  DEF_METHOD(vm.functionClass, Function, isAsync, 0);
   DEF_METHOD(vm.functionClass, Function, isNative, 0);
+  DEF_METHOD(vm.functionClass, Function, isVariadic, 0);
   DEF_METHOD(vm.functionClass, Function, __str__, 0);
   DEF_METHOD(vm.functionClass, Function, __format__, 0);
   DEF_OPERATOR(vm.functionClass, Function, (), __invoke__, -1);
@@ -1635,6 +1661,7 @@ void registerLangPackage() {
   DEF_INTERCEPTOR(vm.boundMethodClass, BoundMethod, INTERCEPTOR_INIT, __init__, 2);
   DEF_METHOD(vm.boundMethodClass, BoundMethod, arity, 0);
   DEF_METHOD(vm.boundMethodClass, BoundMethod, clone, 0);
+  DEF_METHOD(vm.boundMethodClass, BoundMethod, isAsync, 0);
   DEF_METHOD(vm.boundMethodClass, BoundMethod, isNative, 0);
   DEF_METHOD(vm.boundMethodClass, BoundMethod, isVariadic, 0);
   DEF_METHOD(vm.boundMethodClass, BoundMethod, name, 0);
