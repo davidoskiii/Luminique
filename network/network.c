@@ -135,6 +135,14 @@ NATIVE_METHOD(Domain, getIpAddresses) {
   RETURN_OBJ(ipAddresses);
 }
 
+NATIVE_METHOD(Domain, getIpAddressesAsync) {
+  assertArgCount("Domain::getIpAddressesAsync()", 0, argCount);
+  ObjInstance* self = AS_INSTANCE(receiver);
+  ObjPromise* promise = dnsGetDomainInfoAsync(self, dnsOnGetAddrInfo);
+  if (promise == NULL) THROW_EXCEPTION(luminique::std::network, DomainHostException, "Failed to get IP Addresses from Domain.");
+  RETURN_OBJ(promise);
+}
+
 NATIVE_METHOD(Domain, __str__) {
   assertArgCount("Domain::__str__()", 0, argCount);
   ObjInstance* self = AS_INSTANCE(receiver);
@@ -752,6 +760,7 @@ void registerNetworkPackage() {
   bindSuperclass(domainClass, vm.objectClass);
   DEF_METHOD(domainClass, Domain, __init__, 1);
   DEF_METHOD(domainClass, Domain, getIpAddresses, 0);
+  DEF_METHOD(domainClass, Domain, getIpAddressesAsync, 0);
   DEF_METHOD(domainClass, Domain, __str__, 0);
   DEF_METHOD(domainClass, Domain, __format__, 0);
 

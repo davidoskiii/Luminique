@@ -163,7 +163,6 @@ ObjString* httpParsePostData(ObjDictionary* dict) {
 
 struct addrinfo* dnsGetDomainInfo(const char* domainName, int* status) {
   struct addrinfo hints;
-  void* ptr = NULL;
 
   memset(&hints, 0, sizeof(hints));
   hints.ai_family = PF_UNSPEC;
@@ -174,6 +173,26 @@ struct addrinfo* dnsGetDomainInfo(const char* domainName, int* status) {
   uv_getaddrinfo_t netGetAddrInfo;
   *status = uv_getaddrinfo(vm.eventLoop, &netGetAddrInfo, NULL, domainName, "80", &hints);
   return netGetAddrInfo.addrinfo;
+}
+
+ObjPromise* dnsGetDomainInfoAsync(ObjInstance* domain, uv_getaddrinfo_cb callback) {
+  uv_getaddrinfo_t* netGetAddrInfo = ALLOCATE_STRUCT(uv_getaddrinfo_t);
+  ObjPromise* promise = newPromise(PROMISE_PENDING, NIL_VAL, NIL_VAL);
+  if (netGetAddrInfo == NULL) return NULL;
+  else {
+    netGetAddrInfo->data = networkLoadData(domain, promise);
+    char* domainName = AS_CSTRING(getObjProperty(domain, "name"));
+    struct addrinfo hints;
+    memset(&hints, 0, sizeof(hints));
+
+    hints.ai_family = PF_UNSPEC;
+    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_protocol = IPPROTO_TCP;
+    hints.ai_flags |= AI_CANONNAME;
+
+    uv_getaddrinfo(vm.eventLoop, netGetAddrInfo, callback, domainName, "80", &hints);
+    return promise;
+  }
 }
 
 ObjPromise* dnsGetDomainFromIPAddressAsync(ObjInstance* ipAddress, uv_getnameinfo_cb callback) {
@@ -202,6 +221,24 @@ ObjString* dnsGetDomainFromIPAddress(const char* ipAddress, int* status) {
   uv_getnameinfo_t netGetNameInfo;
   *status = uv_getnameinfo(vm.eventLoop, &netGetNameInfo, NULL, (struct sockaddr*)&socketAddress, 0);
   return newString(netGetNameInfo.host);
+}
+
+void dnsOnGetAddrInfo(uv_getaddrinfo_t* netGetAddrInfo, int status, struct addrinfo* result) {
+  NetworkData* data = netGetAddrInfo->data;
+  networkPushData(data);
+
+  if (status < 0) {
+    ObjString* exceptionMessage = newString("Failed to resolve IP addresses for domain.");
+    ObjClass* exceptionClass = getNativeClass("luminique::std::network", "DomainHostException");
+    promiseReject(data->promise, OBJ_VAL(newException(exceptionMessage, exceptionClass)));
+  } else {
+    ObjArray* ipAddresses = dnsGetIPAddressesFromDomain(result);
+    promiseFulfill(data->promise, OBJ_VAL(ipAddresses));
+  }
+
+  uv_freeaddrinfo(result);
+  free(netGetAddrInfo);
+  networkPopData(data);
 }
 
 ObjArray* dnsGetIPAddressesFromDomain(struct addrinfo* result) {
