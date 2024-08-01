@@ -12,7 +12,7 @@ ObjInstance* dateTimeObjFromTimestamp(ObjClass* dateTimeClass, double timeValue)
 ObjInstance* dateTimeObjNow(ObjClass* klass);
 void durationFromSeconds(int* duration, double seconds);
 void durationFromArgs(int* duration, Value* args);
-void durationObjInit(int* duration, ObjInstance* object);
+void durationInit(int* duration, Value* args);
 double durationTotalSeconds(ObjInstance* duration);
 
 #endif
