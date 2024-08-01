@@ -129,8 +129,16 @@ NATIVE_METHOD(SocketAddress, ipAddress) {
   RETURN_OBJ(ipAddress);
 }
 
-NATIVE_METHOD(SocketAddress, toString) {
-  assertArgCount("SocketAddress::toString()", 0, argCount);
+NATIVE_METHOD(SocketAddress, __str__) {
+  assertArgCount("SocketAddress::__str__()", 0, argCount);
+  ObjInstance* self = AS_INSTANCE(receiver);
+  char* address = AS_CSTRING(getObjProperty(self, "address"));
+  int port = AS_INT(getObjProperty(self, "port"));
+  RETURN_STRING_FMT("%s:%d", address, port);
+}
+
+NATIVE_METHOD(SocketAddress, __format__) {
+  assertArgCount("SocketAddress::__format__()", 0, argCount);
   ObjInstance* self = AS_INSTANCE(receiver);
   char* address = AS_CSTRING(getObjProperty(self, "address"));
   int port = AS_INT(getObjProperty(self, "port"));
@@ -841,6 +849,12 @@ void registerNetworkPackage() {
   DEF_METHOD(domainClass, Domain, __str__, 0);
   DEF_METHOD(domainClass, Domain, __format__, 0);
 
+  ObjClass* socketAddressClass = defineNativeClass("SocketAddress");
+  bindSuperclass(socketAddressClass, vm.objectClass);
+  DEF_METHOD(socketAddressClass, SocketAddress, __init__, 3);
+  DEF_METHOD(socketAddressClass, SocketAddress, ipAddress, 0);
+  DEF_METHOD(socketAddressClass, SocketAddress, __str__, 0);
+  DEF_METHOD(socketAddressClass, SocketAddress, __format__, 0);
 
   ObjClass* socketClass = defineNativeClass("Socket");
   bindSuperclass(socketClass, vm.objectClass);
@@ -871,6 +885,16 @@ void registerNetworkPackage() {
   defineNativeArtificialEnumElement(socketTypeEnum, "protoUDP", INT_VAL(IPPROTO_UDP));
   defineNativeArtificialEnumElement(socketTypeEnum, "protoICMPV6", INT_VAL(IPPROTO_ICMPV6));
   defineNativeArtificialEnumElement(socketTypeEnum, "protoRAW", INT_VAL(IPPROTO_RAW));
+
+  ObjClass* socketClientClass = defineNativeClass("SocketClient");
+  bindSuperclass(socketClientClass, socketClass);
+  DEF_METHOD(socketClientClass, SocketClient, connect, 1);
+
+  ObjClass* socketServerClass = defineNativeClass("SocketServer");
+  bindSuperclass(socketServerClass, socketClass);
+  DEF_METHOD(socketServerClass, SocketServer, accept, 1);
+  DEF_METHOD(socketServerClass, SocketServer, bind, 1);
+  DEF_METHOD(socketServerClass, SocketServer, listen, 0);
 
   ObjNamespace* httpNamespace = defineNativeNamespace("http", networkNamespace);
   vm.currentNamespace = httpNamespace;

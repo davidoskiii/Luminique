@@ -20,11 +20,20 @@ println("");
 
 const domain = network::Domain("google.com");
 println("Domain name: ${domain}");
-domain.getIPAddressesAsync()
-      .then(lambda [ipAddresses] { 
-        println("Domain IPs: ${ipAddresses}");
-      })
-      .catch(lambda [exception] { println("Error: ${exception.message}") });
+
+const domain2 = network::Domain("facebook.com");
+println("Domain2 name: ${domain2}");
+
+const promiseD1 = domain.getIPAddressesAsync();
+const promiseD2 = domain2.getIPAddressesAsync();
+
+Promise.all([promiseD1, promiseD2])
+       .then(lambda [addresses] { 
+         addresses.eachIndex(lambda [index, address] { 
+           println("Domain IPs for Domain ${index + 1}: ${address}");
+         })
+       })
+       .catch(lambda [exception] { println("promise all failed: ${exception.message}") });
 
 const ip3 = network::IPAddress("204.15.11.70");
 println("IP3 address: ${ip3}");
