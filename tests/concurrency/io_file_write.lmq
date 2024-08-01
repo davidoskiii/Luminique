@@ -1,0 +1,29 @@
+using luminique::std::io::File;
+using luminique::std::io::FileReadStream;
+
+println("Creating a write stream for output file.");
+File.openAsync("tests/io_output/file_output.txt", "w")
+    .then(lambda [fileWriter] {
+      print("Successfully opened: ");
+      println(fileWriter);
+      println("Now write character 'B' to file.");
+      fileWriter.writeAsync("B").then(lambda [] { 
+        println("Then write a new line.");
+        fileWriter.writeLineAsync()
+      }).then(lambda [] { 
+        println("Then write string 'x = 32'");
+        fileWriter.writeStringAsync("x = 32")
+      }).then(lambda [] { 
+        println("Then write a new line.");
+        fileWriter.writeLineAsync()
+      }).then(lambda [] {
+        println("Last write string 'Hello World!'");
+        fileWriter.writeStringAsync("Hello World!")
+      }).then(lambda [] { 
+        println("Closing write stream for file.");
+        fileWriter.closeAsync()
+      }).then(lambda [] { 
+        println("Write stream has been closed.");
+      })
+    })
+    .catch(lambda [exception] { println("Error: ${exception.message}") });

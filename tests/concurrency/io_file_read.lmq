@@ -1,0 +1,20 @@
+using luminique::std::io::File;
+using luminique::std::io::FileReadStream;
+
+println("Creating a read stream for input file.");
+File.openAsync("tests/io_output/file_input.txt", "r")
+    .then(lambda [fileReader] {
+      print("Successfully opened: ");
+      println(fileReader);
+      println("Now reading the entire file: ");
+      println("");
+      fileReader.readToEndAsync().then(lambda [text] {
+        println(text);
+        println("");
+        println("Closing read stream for file.");
+        fileReader.closeAsync()
+      }).then(lambda [] { 
+        println("Read stream has been closed.");
+      });
+    })
+    .catch(lambda [exception] { println("Error: ${exception.message}") });

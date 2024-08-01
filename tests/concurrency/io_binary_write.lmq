@@ -1,0 +1,18 @@
+using luminique::std::io::BinaryWriteStream;
+using luminique::std::io::File;
+
+println("Creating a binary write stream.");
+
+File.openAsync("tests/io_output/file_binary.bin", "wb")
+    .then(lambda [binaryWriter] {
+      println("Now write to a binary file with the following bytes: ");
+      const bytes = [5, 37, 0, 88, 255, 12];
+      println(bytes);
+      binaryWriter.writeBytesAsync(bytes).then(lambda [] {
+        println("Closing write stream for file.");
+        binaryWriter.closeAsync()
+      }).then(lambda [] { 
+        println("Write stream has been closed.");
+      });
+    })
+    .catch(lambda [exception] { println("Error: ${exception.message}") });

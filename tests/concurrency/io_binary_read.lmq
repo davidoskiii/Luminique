@@ -1,0 +1,26 @@
+using luminique::std::io::BinaryWriteStream;
+using luminique::std::io::File;
+
+println("Creating a binary read stream.");
+File.openAsync("tests/io_output/file_binary.bin", "rb")
+    .then(lambda [binaryReader] {
+      print("Successfully opened: ");
+      println(binaryReader);
+      print("Now reading next bytes: ");
+      binaryReader.readAsync().then(lambda [byte] {
+        println(byte);
+        print("Then read next 2 bytes: ");
+        binaryReader.readBytesAsync(2)
+      }).then(lambda [bytes] {
+        println(bytes);
+        print("Then read last 3 bytes: ");
+        binaryReader.readBytesAsync(3)
+      }).then(lambda [bytes] { 
+        println(bytes);
+        println("Closing read stream for file.");
+        binaryReader.closeAsync()
+      }).then(lambda [] { 
+        println("Read stream has been closed.");
+      });
+    })
+    .catch(lambda [exception] { println("Error: ${exception.message}") });
