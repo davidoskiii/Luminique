@@ -117,8 +117,8 @@ NATIVE_METHOD(Domain, __init__) {
   RETURN_OBJ(self);
 }
 
-NATIVE_METHOD(Domain, ipAddresses) {
-  assertArgCount("Domain::ipAddresses()", 0, argCount);
+NATIVE_METHOD(Domain, getIpAddresses) {
+  assertArgCount("Domain::getIpAddresses()", 0, argCount);
   ObjInstance* self = AS_INSTANCE(receiver);
   ObjString* name = AS_STRING(getObjProperty(self, "name"));
 
@@ -751,7 +751,7 @@ void registerNetworkPackage() {
   ObjClass* domainClass = defineNativeClass("Domain");
   bindSuperclass(domainClass, vm.objectClass);
   DEF_METHOD(domainClass, Domain, __init__, 1);
-  DEF_METHOD(domainClass, Domain, ipAddresses, 0);
+  DEF_METHOD(domainClass, Domain, getIpAddresses, 0);
   DEF_METHOD(domainClass, Domain, __str__, 0);
   DEF_METHOD(domainClass, Domain, __format__, 0);
 
