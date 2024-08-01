@@ -6,7 +6,8 @@
 #include "../vm/vm.h"
 
 
-void initGenerator(ObjGenerator* generator, ObjClosure* closure, ObjArray* arguments) {
+void initGenerator(ObjGenerator* generator, Value callee, ObjArray* arguments) {
+  ObjClosure* closure = AS_CLOSURE(IS_BOUND_METHOD(callee) ? AS_BOUND_METHOD(callee)->method : callee);
   for (int i = 0; i < arguments->elements.count; i++) {
     push(arguments->elements.values[i]);
   }

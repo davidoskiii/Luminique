@@ -13,11 +13,11 @@ typedef enum {
   GENERATOR_ERROR
 } GeneratorState;
 
+void initGenerator(ObjGenerator* generator, Value callee, ObjArray* arguments);
 void resumeGenerator(ObjGenerator* generator);
 void loadGeneratorFrame(ObjGenerator* generator);
 void saveGeneratorFrame(ObjGenerator* generator, CallFrame* frame, Value result);
 Value loadInnerGenerator();
 void yieldFromInnerGenerator(ObjGenerator* generator);
-void initGenerator(ObjGenerator* generator, ObjClosure* closure, ObjArray* arguments);
 
 #endif

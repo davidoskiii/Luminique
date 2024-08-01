@@ -216,11 +216,11 @@ NATIVE_METHOD(Float, __format__) {
 
 NATIVE_METHOD(Generator, __init__) {
   assertArgCount("Generator::__init__(closure, args)", 2, argCount);
-  assertArgIsClosure("Generator::__init__(closure, args)", args, 0);
-  assertArgIsArray("Generator::__init__(closure, args)", args, 1);
+  assertArgInstanceOfEither("Generator class::run(calee, arguments)", args, 0, "luminique::std::lang", "Function", "luminique::std::lang", "BoundMethod");
+  assertArgIsArray("Generator::__init__(callee, args)", args, 1);
 
   ObjGenerator* self = AS_GENERATOR(receiver);
-  initGenerator(self, AS_CLOSURE(args[0]), AS_ARRAY(args[1]));
+  initGenerator(self, args[0], AS_ARRAY(args[1]));
   RETURN_OBJ(self);
 }
 
@@ -363,7 +363,7 @@ NATIVE_METHOD(GeneratorClass, run) {
 
   ObjGenerator* generator = newGenerator(NULL, NULL);
   push(OBJ_VAL(generator));    
-  initGenerator(generator, AS_CLOSURE(args[0]), AS_ARRAY(args[1]));
+  initGenerator(generator, args[0], AS_ARRAY(args[1]));
   pop();
 
   Value step = getObjMethod(OBJ_VAL(generator), "step");
