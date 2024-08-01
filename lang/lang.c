@@ -220,27 +220,28 @@ NATIVE_METHOD(Generator, __init__) {
   assertArgIsArray("Generator::__init__(closure, args)", args, 1);
 
   ObjGenerator* self = AS_GENERATOR(receiver);
-  ObjClosure* closure = AS_CLOSURE(args[0]);
-  ObjArray* arguments = AS_ARRAY(args[1]);
-
-  CallFrame callFrame = { 
-    .closure = closure, 
-    .ip = closure->function->chunk.code, 
-    .slots = vm.stackTop - arguments->elements.count - 1 
-  };
-
-  ObjFrame* frame = newFrame(&callFrame);
-
-  for (int i = 0; i < arguments->elements.count; i++) {
-    push(arguments->elements.values[i]);
-  }
-
-  self->frame = frame;
-  self->outer = vm.runningGenerator;
-  self->inner = NULL;
-  self->state = GENERATOR_START;
-  self->value = NIL_VAL;
+  initGenerator(self, AS_CLOSURE(args[0]), AS_ARRAY(args[1]));
   RETURN_OBJ(self);
+}
+
+NATIVE_METHOD(Generator, step) {
+  assertArgCount("Generator::step(argument)", 1, argCount);
+  ObjGenerator* self = AS_GENERATOR(receiver);
+  Value send = getObjMethod(receiver, "send");
+  callReentrantMethod(receiver, send, args[0]);
+
+  if (self->state == GENERATOR_RETURN && IS_PROMISE(self->value)) RETURN_VAL(self->value);
+  else {
+    Value fulfill = getObjMethod(OBJ_VAL(vm.promiseClass), "fulfill");
+    Value promise = callReentrantMethod(OBJ_VAL(vm.promiseClass), fulfill, self->value);
+    if (self->state == GENERATOR_RETURN) RETURN_VAL(promise);
+    else { 
+      Value step = getObjMethod(receiver, "step");
+      ObjBoundMethod* stepMethod = newBoundMethod(receiver, step);
+      Value then = getObjMethod(promise, "then");
+      RETURN_OBJ(callReentrantMethod(promise, then, OBJ_VAL(stepMethod)));
+    }
+  }
 }
 
 NATIVE_METHOD(Generator, isFinished) { 
@@ -353,6 +354,21 @@ NATIVE_METHOD(Generator, __invoke__) {
     resumeGenerator(self);
     RETURN_OBJ(self);
   }
+}
+
+NATIVE_METHOD(GeneratorClass, run) { 
+  assertArgCount("Generator class::run(callee, arguments)", 2, argCount);
+  assertArgInstanceOfEither("Generator class::run(calee, arguments)", args, 0, "luminique::std::lang", "Function", "luminique::std::lang", "BoundMethod");
+  assertArgIsArray("Generator class::run(callee, arguments)", args, 1);
+
+  ObjGenerator* generator = newGenerator(NULL, NULL);
+  push(OBJ_VAL(generator));    
+  initGenerator(generator, AS_CLOSURE(args[0]), AS_ARRAY(args[1]));
+  pop();
+
+  Value step = getObjMethod(OBJ_VAL(generator), "step");
+  Value result = callReentrantMethod(OBJ_VAL(generator), step, NIL_VAL);
+  RETURN_VAL(result);
 }
 
 NATIVE_METHOD(Generator, __undefinedProperty__) {
@@ -1500,6 +1516,7 @@ void registerLangPackage() {
   DEF_METHOD(vm.generatorClass, Generator, next, 0);
   DEF_METHOD(vm.generatorClass, Generator, returns, 1);
   DEF_METHOD(vm.generatorClass, Generator, send, 1);
+  DEF_METHOD(vm.generatorClass, Generator, step, 1);
   DEF_METHOD(vm.generatorClass, Generator, throws, 1);
   DEF_METHOD(vm.generatorClass, Generator, __str__, 0);
   DEF_METHOD(vm.generatorClass, Generator, __format__, 0);
@@ -1515,6 +1532,9 @@ void registerLangPackage() {
   defineNativeArtificialEnumElement(generatorStateEnum, "stateReturn", INT_VAL(GENERATOR_RETURN));
   defineNativeArtificialEnumElement(generatorStateEnum, "stateThrow", INT_VAL(GENERATOR_THROW));
   defineNativeArtificialEnumElement(generatorStateEnum, "stateError", INT_VAL(GENERATOR_ERROR));
+
+  ObjClass* generatorMetaclass = vm.generatorClass->obj.klass;
+  DEF_METHOD(generatorMetaclass, GeneratorClass, run, 2);
 
   vm.promiseClass = defineNativeClass("Promise");
   bindSuperclass(vm.promiseClass, vm.objectClass);

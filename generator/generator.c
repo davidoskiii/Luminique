@@ -5,6 +5,26 @@
 #include "../object/object.h"
 #include "../vm/vm.h"
 
+
+void initGenerator(ObjGenerator* generator, ObjClosure* closure, ObjArray* arguments) {
+  for (int i = 0; i < arguments->elements.count; i++) {
+    push(arguments->elements.values[i]);
+  }
+
+  CallFrame callFrame = {
+    .closure = closure,
+    .ip = closure->function->chunk.code,
+    .slots = vm.stackTop - arguments->elements.count - 1
+  };
+  ObjFrame* frame = newFrame(&callFrame);
+
+  generator->frame = frame;
+  generator->outer = vm.runningGenerator;
+  generator->inner = NULL;
+  generator->state = GENERATOR_START;
+  generator->value = NIL_VAL;
+}
+
 void resumeGenerator(ObjGenerator* generator) {
   vm.apiStackDepth++;
   Value result = callGenerator(generator);
