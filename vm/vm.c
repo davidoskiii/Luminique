@@ -542,6 +542,18 @@ static void createGeneratorFrame(ObjClosure* closure, int argCount) {
   push(OBJ_VAL(generator));
 }
 
+static bool callClosureAsync(ObjClosure* closure, int argCount) {
+  Value run = getObjMethod(OBJ_VAL(vm.generatorClass), "run");
+  makeArray(argCount);
+  Value arguments = pop();
+  pop();
+
+  push(OBJ_VAL(vm.generatorClass));
+  push(OBJ_VAL(closure));
+  push(arguments);
+  return callMethod(run, 2);
+}
+
 bool callClosure(ObjClosure* closure, int argCount) {
   if (closure->function->arity > 0 && argCount != closure->function->arity) {
     runtimeError("Expected %d arguments but got %d.", closure->function->arity, argCount);
@@ -558,6 +570,7 @@ bool callClosure(ObjClosure* closure, int argCount) {
     argCount = 1;
   }
 
+  if (closure->function->isAsync) return callClosureAsync(closure, argCount);
   if (closure->function->isGenerator) createGeneratorFrame(closure, argCount);
   else createCallFrame(closure, argCount);
   return true;
@@ -1612,7 +1625,10 @@ InterpretResult run() {
       case OP_RETURN: {
         Value result = pop();
         closeUpvalues(frame->slots);
-        if (frame->closure->function->isGenerator) vm.runningGenerator->state = GENERATOR_RETURN;
+        if (frame->closure->function->isGenerator || frame->closure->function->isAsync) vm.runningGenerator->state = GENERATOR_RETURN;
+        if (frame->closure->function->isAsync && !IS_PROMISE(result)) {
+          result = OBJ_VAL(promiseWithFulfilled(result));
+        }
 
         vm.frameCount--;
         if (vm.frameCount == 0) {
@@ -1620,7 +1636,7 @@ InterpretResult run() {
           return INTERPRET_OK;
         }
 
-        if (!frame->closure->function->isGenerator) vm.stackTop = frame->slots;
+        if (!frame->closure->function->isGenerator && !frame->closure->function->isAsync) vm.stackTop = frame->slots;
         if (vm.runModule) {
           vm.runModule = false;
         } else {
@@ -1635,7 +1651,10 @@ InterpretResult run() {
         Value result = pop();
         int depth = READ_BYTE();
         closeUpvalues(frame->slots);
-        if (frame->closure->function->isGenerator) vm.runningGenerator->state = GENERATOR_RETURN;
+        if (frame->closure->function->isGenerator || frame->closure->function->isAsync) vm.runningGenerator->state = GENERATOR_RETURN;
+        if (frame->closure->function->isAsync && !IS_PROMISE(result)) {
+          result = OBJ_VAL(promiseWithFulfilled(result));
+        }
 
         vm.frameCount -= depth + 1;
         if (vm.frameCount == 0) {
@@ -1643,7 +1662,7 @@ InterpretResult run() {
           return INTERPRET_OK;
         }
 
-        if (!frame->closure->function->isGenerator) vm.stackTop = frame->slots;
+        if (!frame->closure->function->isGenerator && !frame->closure->function->isAsync) vm.stackTop = frame->slots;
         push(result);
         if (vm.apiStackDepth > 0) return INTERPRET_OK;
         frame = &vm.frames[vm.frameCount - 1];
@@ -1671,6 +1690,18 @@ InterpretResult run() {
           if (vm.apiStackDepth > 0) return INTERPRET_OK;
           frame = &vm.frames[vm.frameCount - 1];
         }
+        break;
+      }
+      case OP_AWAIT: {
+        Value result = peek(0);
+        if (!IS_PROMISE(result)) {
+          result = OBJ_VAL(promiseWithFulfilled(result));
+        }
+        saveGeneratorFrame(vm.runningGenerator, frame, result);
+
+        vm.frameCount--;
+        if (vm.apiStackDepth > 0) return INTERPRET_OK;
+        frame = &vm.frames[vm.frameCount - 1];
         break;
       }
     }

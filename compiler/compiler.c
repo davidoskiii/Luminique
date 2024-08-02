@@ -89,6 +89,7 @@ typedef struct Compiler {
   int scopeDepth;
   int innermostLoopStart;
   int innermostLoopScopeDepth;
+  bool isAsync;
 } Compiler;
 
 typedef struct ClassCompiler {
@@ -362,12 +363,14 @@ static void endLoop() {
   }
 }
 
-static void initCompiler(Compiler* compiler, FunctionType type) {
+static void initCompiler(Compiler* compiler, FunctionType type, bool isAsync) {
   compiler->enclosing = current;
   compiler->function = NULL;
   compiler->type = type;
   compiler->localCount = 0;
+  compiler->isAsync = isAsync;
   compiler->function = newFunction();
+  compiler->function->isAsync = isAsync;
   compiler->scopeDepth = 0;
   compiler->innermostLoopStart = -1;
   compiler->innermostLoopScopeDepth = 0;
@@ -1344,9 +1347,8 @@ static void unary(bool canAssign) {
 }
 
 static void await(bool canAssign) {
-  if (current->type != TYPE_SCRIPT && !current->function->isAsync) {
-    error("Cannot use await unless in top level code or inside async functions/methods.");
-  }
+  if (current->type == TYPE_SCRIPT) current->isAsync = true;
+  else if (!current->isAsync) error("Cannot use await unless in top level code or inside async functions/methods.");
   expression();
   emitByte(OP_AWAIT);
 }
@@ -1532,7 +1534,7 @@ static void setter(bool isAsync) {
 
 static void function(FunctionType type, bool isAsync) {
   Compiler compiler;
-  initCompiler(&compiler, type);
+  initCompiler(&compiler, type, isAsync);
   beginScope();
 
   if (type == TYPE_LAMBDA) {
@@ -1568,7 +1570,6 @@ static void function(FunctionType type, bool isAsync) {
   }
 
   ObjFunction* function = endCompiler();
-  function->isAsync = isAsync;
   uint16_t constant = makeConstant(OBJ_VAL(function));
   emitByte(OP_CLOSURE);
   emitShort(constant);
@@ -1747,10 +1748,10 @@ static void varDeclaration(bool isMutable) {
   }
 }
 
-static void funDeclaration() {
+static void funDeclaration(bool isAsync) {
   uint16_t global = parseVariable("Expect function name.");
   markInitialized(false);
-  function(TYPE_FUNCTION, false);
+  function(TYPE_FUNCTION, isAsync);
   defineVariable(global, false);
 }
 
@@ -1764,6 +1765,14 @@ static void expressionStatement() {
     consume(TOKEN_SEMICOLON, "Expect ';' after expression.");
     emitByte(OP_POP);
   }
+}
+
+static void awaitStatement() {
+  if (current->type == TYPE_SCRIPT) current->isAsync = true;
+  else if (!current->isAsync) error("Cannot use await unless in top level code or inside async functions/methods.");
+  expression();
+  consume(TOKEN_SEMICOLON, "Expect ';' after await value.");
+  emitBytes(OP_AWAIT, OP_POP);
 }
 
 static void breakStatement() {
@@ -2247,14 +2256,18 @@ static void yieldStatement() {
 }
 
 static void declaration() {
-  if (match(TOKEN_CLASS)) {
+  if (check(TOKEN_ASYNC) && checkNext(TOKEN_FUN)) {
+    advance();
+    advance();
+    funDeclaration(true);
+  } else if (match(TOKEN_CLASS)) {
     classDeclaration();
   } else if (match(TOKEN_NAMESPACE)) {
     namespaceDeclaration();
   } else if (match(TOKEN_ENUM)) {
     enumDeclaration();
   } else if (match(TOKEN_FUN)) {
-    funDeclaration();
+    funDeclaration(false);
   } else if (match(TOKEN_VAR)) {
     varDeclaration(true);
   } else if (match(TOKEN_CONST)) {
@@ -2267,7 +2280,9 @@ static void declaration() {
 }
 
 static void statement() {
-  if (match(TOKEN_BREAK)) {
+  if (match(TOKEN_AWAIT)) {
+    awaitStatement();
+  } else if (match(TOKEN_BREAK)) {
     breakStatement();
   } else if (match(TOKEN_CONTINUE)) {
     continueStatement();
@@ -2307,7 +2322,7 @@ static void statement() {
 ObjFunction* compile(const char* source) {
   initScanner(source);
   Compiler compiler;
-  initCompiler(&compiler, TYPE_SCRIPT);
+  initCompiler(&compiler, TYPE_SCRIPT, false);
 
   parser.rootClass = syntheticToken("Object");
   parser.hadError = false;
