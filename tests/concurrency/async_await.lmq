@@ -1,0 +1,6 @@
+async function sum(a, b) {
+  return a + b;
+}
+
+let x = await sum(2, 3);
+println(x.value);

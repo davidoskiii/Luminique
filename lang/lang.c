@@ -362,8 +362,12 @@ NATIVE_METHOD(GeneratorClass, run) {
   assertArgIsArray("Generator class::run(callee, arguments)", args, 1);
 
   ObjGenerator* generator = newGenerator(NULL, NULL);
+  ObjArray* arguments = AS_ARRAY(args[1]);
   push(OBJ_VAL(generator));    
-  initGenerator(generator, args[0], AS_ARRAY(args[1]));
+  initGenerator(generator, args[0], arguments);
+  for (int i = 0; i < arguments->elements.count; i++) {
+    pop();
+  }
   pop();
 
   Value step = getObjMethod(OBJ_VAL(generator), "step");
