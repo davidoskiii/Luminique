@@ -1613,6 +1613,31 @@ static void method() {
   emitShort(constant);
 }
 
+
+static void classPropretyDeclaration() {
+  consume(TOKEN_IDENTIFIER, "Expect variable name.");
+  Token name = parser.previous;
+  uint16_t arg = identifierConstant(&name);
+
+  if (match(TOKEN_EQUAL)) {
+    expression();
+  } else {
+    emitByte(OP_NIL);
+  }
+  consume(TOKEN_SEMICOLON, "Expect ';' after variable declaration.");
+
+  emitByte(OP_CLASS_PROPRETY);
+  emitShort(arg);
+}
+
+static void classBody() {
+  if (match(TOKEN_VAR)) {
+    classPropretyDeclaration();
+  } else {
+    method();
+  }
+}
+
 static void enumDeclaration() {
   consume(TOKEN_IDENTIFIER, "Expect enum name.");
   Token enumName = parser.previous;
@@ -1688,10 +1713,11 @@ static void classDeclaration() {
   consume(TOKEN_LEFT_BRACE, "Expect '{' before class body.");
 
   while (!check(TOKEN_RIGHT_BRACE) && !check(TOKEN_EOF)) {
-    method();
+    classBody();
   }
 
   consume(TOKEN_RIGHT_BRACE, "Expect '}' after class body.");
+  emitByte(OP_POP);
   emitByte(OP_POP);
   endScope();
 

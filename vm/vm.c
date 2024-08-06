@@ -1055,6 +1055,12 @@ InterpretResult run() {
       }
       case OP_GET_LOCAL: {
         uint8_t slot = READ_BYTE();
+        #ifdef DEBUG_LOCAL_SLOT
+          printf("slot: %d\n", slot);
+          printf("value: ");
+          printValue(frame->slots[slot]);
+          printf("\n");
+        #endif
         push(frame->slots[slot]);
         break;
       }
@@ -1082,6 +1088,15 @@ InterpretResult run() {
       case OP_DEFINE_CONST: {
         ObjString* name = READ_STRING();
         tableSet(&vm.currentNamespace->values, name, peek(0));
+        pop();
+        break;
+      }
+      case OP_CLASS_PROPRETY: {
+        Value value = peek(0);
+        ObjClass* klass = AS_CLASS(peek(1));
+        ObjString* name = READ_STRING();
+
+        tableSet(&klass->fields, name, value);
         pop();
         break;
       }

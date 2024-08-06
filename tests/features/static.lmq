@@ -1,0 +1,36 @@
+class Dog {
+  let MAX_AGE = 10;
+
+  function __init__(name) {
+    this.name = name;
+    this.age = 0;
+  }
+
+  static bark() {
+    // println("${this.name} barks"); // Error
+    println("Dog barks");
+  }
+
+  function bark() {
+    println("${this.name} barks");
+  }
+
+  function grow() {
+    if (this.age != Dog.MAX_AGE) {
+      this.age = this.age + 1;
+      println("${this.name} grew 1 year older. Now ${this.name} is ${this.age} years old");
+    } else {
+      println("${this.name} died.");
+    }
+  }
+}
+
+Dog.bark();
+println(Dog.MAX_AGE);
+
+let dog = Dog("Fluffly");
+dog.bark();
+
+for (let i = 0; i < 10; i++) {
+  dog.grow();
+}

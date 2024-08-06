@@ -127,6 +127,8 @@ int disassembleInstruction(Chunk* chunk, int offset) {
       return constantValueInstruction16("OP_DEFINE_GLOBAL", chunk, offset);
     case OP_DEFINE_CONST:
       return constantValueInstruction16("OP_DEFINE_CONST", chunk, offset);
+    case OP_CLASS_PROPRETY:
+      return constantValueInstruction16("OP_CLASS_PROPRETY", chunk, offset);
     case OP_SET_GLOBAL:
       return constantValueInstruction16("OP_SET_GLOBAL", chunk, offset);
     case OP_GET_UPVALUE:
