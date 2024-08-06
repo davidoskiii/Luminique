@@ -1512,31 +1512,26 @@ InterpretResult run() {
       }
       case OP_SUPER_INVOKE: {
         ObjString* method = READ_STRING();
-        int argCount = READ_BYTE();
+        uint8_t argCount = READ_BYTE();
+        ObjClass* klass = AS_CLASS(pop());
 
-        if (!IS_CLASS(peek(0))) {
-          runtimeError("Superclass must be a class. (This message is needed for debug purposes)");
-          return INTERPRET_RUNTIME_ERROR;
-        }
-
-        ObjClass* superclass = AS_CLASS(pop());
-        if (!invokeFromClass(superclass, method, argCount)) {
+        if (!invokeFromClass(klass, method, argCount)) {
           return INTERPRET_RUNTIME_ERROR;
         }
         frame = &vm.frames[vm.frameCount - 1];
         break;
       }
       case OP_INHERIT: {
-        Value superclass = peek(1);
+        ObjClass* subclass = AS_CLASS(peek(1));
+        Value superclass = peek(0);
 
         if (!IS_CLASS(superclass)) {
           runtimeError("Superclass must be a class.");
           return INTERPRET_RUNTIME_ERROR;
         }
 
-        ObjClass* subclass = AS_CLASS(peek(0));
         bindSuperclass(subclass, AS_CLASS(superclass));
-        pop(); // Subclass.
+        pop();
         break;
       }
       case OP_ASSERT: {

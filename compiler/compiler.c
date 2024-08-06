@@ -94,6 +94,8 @@ typedef struct Compiler {
 
 typedef struct ClassCompiler {
   struct ClassCompiler* enclosing;
+  Token name;
+  Token superclass;
   bool isStaticMethod;
 } ClassCompiler;
 
@@ -1296,12 +1298,12 @@ static void super_(bool canAssign) {
   namedVariable(syntheticToken("this"), false);
   if (match(TOKEN_LEFT_PAREN)) {
     int argCount = argumentList();
-    namedVariable(syntheticToken("super"), false);
+    namedVariable(currentClass->superclass, false);
     emitByte(OP_SUPER_INVOKE);
     emitShort(name);
     emitByte(argCount);
   } else {
-    namedVariable(syntheticToken("super"), false);
+    namedVariable(currentClass->superclass, false);
     emitByte(OP_GET_SUPER);
     emitShort(name);
   }
@@ -1676,7 +1678,9 @@ static void enumDeclaration() {
 
 static void classDeclaration() {
   consume(TOKEN_IDENTIFIER, "Expect class name.");
+  bool doesInhert = false;
   Token className = parser.previous;
+  Token superclassName;
   uint16_t nameConstant = identifierConstant(&parser.previous);
   declareVariable();
 
@@ -1684,19 +1688,24 @@ static void classDeclaration() {
   emitShort(nameConstant);
   defineVariable(nameConstant, false);
 
-  ClassCompiler classCompiler;
-  classCompiler.enclosing = currentClass;
+
+  ClassCompiler* enclosingClass = currentClass;
+  ClassCompiler classCompiler = { .name = className, .enclosing = enclosingClass, .superclass = parser.rootClass, .isStaticMethod = false };
   currentClass = &classCompiler;
 
   if (match(TOKEN_COLON)) {
     consume(TOKEN_IDENTIFIER, "Expect superclass name.");
-    variable(false);
+    doesInhert = true;
+    superclassName = parser.previous;
+    classCompiler.superclass = superclassName;
+    namedVariable(className, false);
 
-    if (identifiersEqual(&className, &parser.previous)) {
+    if (identifiersEqual(&className, &superclassName)) {
       error("A class can't inherit from itself.");
+      doesInhert = false;
     }
   } else {
-    namedVariable(parser.rootClass, false);
+    namedVariable(className, false);
     if (identifiersEqual(&className, &parser.rootClass)) {
       error("Cannot redeclare root class Object.");
     }
@@ -1705,7 +1714,11 @@ static void classDeclaration() {
   beginScope();
   addLocal(syntheticToken("super"));
   defineVariable(0, false);
-  namedVariable(className, false);
+  if (doesInhert) {
+    namedVariable(superclassName, false);
+  } else {
+    namedVariable(parser.rootClass, false);
+  }
   emitByte(OP_INHERIT);
 
   consume(TOKEN_LEFT_BRACE, "Expect '{' before class body.");
@@ -1715,7 +1728,6 @@ static void classDeclaration() {
   }
 
   consume(TOKEN_RIGHT_BRACE, "Expect '}' after class body.");
-  emitByte(OP_POP);
   endScope();
 
   currentClass = currentClass->enclosing;
