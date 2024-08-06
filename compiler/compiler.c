@@ -1708,7 +1708,6 @@ static void classDeclaration() {
   namedVariable(className, false);
   emitByte(OP_INHERIT);
 
-  namedVariable(className, false);
   consume(TOKEN_LEFT_BRACE, "Expect '{' before class body.");
 
   while (!check(TOKEN_RIGHT_BRACE) && !check(TOKEN_EOF)) {
@@ -2083,21 +2082,6 @@ static void tryStatement() {
     emitByte(OP_POP);
   }
 }
-
-/*
-  consume(TOKEN_IDENTIFIER, "Expect enum name.");
-  Token enumName = parser.previous;
-  uint16_t nameConstant = identifierConstant(&enumName);
-  declareVariable();
-
-  emitByte(OP_ENUM);
-  emitShort(nameConstant);
-  defineVariable(nameConstant, false);
-
-  beginScope();
-  namedVariable(enumName, false);
-  consume(TOKEN_LEFT_BRACE, "Expect '{' before enum body.");
-*/
 
 static void namespaceDeclaration() {
   consume(TOKEN_IDENTIFIER, "Expect namespace name.");

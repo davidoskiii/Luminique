@@ -25,8 +25,11 @@ bool propagateException() {
     }
     vm.frameCount--;
   }
-
-  fprintf(stderr, "Unhandled %s::%s: %s\n", exception->obj.klass->namespace_->fullName->chars, exception->obj.klass->name->chars, exception->message->chars);
+  if (exception->obj.klass->namespace_ == vm.currentNamespace) {
+    fprintf(stderr, "Unhandled %s: %s\n", exception->obj.klass->name->chars, exception->message->chars);
+  } else {
+    fprintf(stderr, "Unhandled %s::%s: %s\n", exception->obj.klass->namespace_->fullName->chars, exception->obj.klass->name->chars, exception->message->chars);
+  }
   ObjArray* stackTrace = exception->stacktrace;
   for (int i = 0; i < stackTrace->elements.count; i++) {
     Value item = stackTrace->elements.values[i];

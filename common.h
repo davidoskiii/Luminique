@@ -7,7 +7,7 @@
 #include <stdio.h>
 
 #define NAN_BOXING
-#define DEBUG_FORMAT
+// #define DEBUG_FORMAT
 // #define DEBUG_LOCAL_SLOT
 #define DEBUG_PRINT_CODE
 #define DEBUG_TRACE_EXECUTION
