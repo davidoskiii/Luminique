@@ -1646,10 +1646,9 @@ static void enumDeclaration() {
 
   emitByte(OP_ENUM);
   emitShort(nameConstant);
+  defineVariable(nameConstant, false);
 
   beginScope();
-  defineVariable(0, false);
-
   namedVariable(enumName, false);
   consume(TOKEN_LEFT_BRACE, "Expect '{' before enum body.");
 
@@ -1683,11 +1682,11 @@ static void classDeclaration() {
 
   emitByte(OP_CLASS);
   emitShort(nameConstant);
+  defineVariable(nameConstant, false);
 
   ClassCompiler classCompiler;
   classCompiler.enclosing = currentClass;
   currentClass = &classCompiler;
-
 
   if (match(TOKEN_COLON)) {
     consume(TOKEN_IDENTIFIER, "Expect superclass name.");
@@ -1717,7 +1716,6 @@ static void classDeclaration() {
   }
 
   consume(TOKEN_RIGHT_BRACE, "Expect '}' after class body.");
-  emitByte(OP_POP);
   emitByte(OP_POP);
   endScope();
 
@@ -2086,8 +2084,23 @@ static void tryStatement() {
   }
 }
 
+/*
+  consume(TOKEN_IDENTIFIER, "Expect enum name.");
+  Token enumName = parser.previous;
+  uint16_t nameConstant = identifierConstant(&enumName);
+  declareVariable();
+
+  emitByte(OP_ENUM);
+  emitShort(nameConstant);
+  defineVariable(nameConstant, false);
+
+  beginScope();
+  namedVariable(enumName, false);
+  consume(TOKEN_LEFT_BRACE, "Expect '{' before enum body.");
+*/
+
 static void namespaceDeclaration() {
-  consume(TOKEN_IDENTIFIER, "Expect namespace identifier.");
+  consume(TOKEN_IDENTIFIER, "Expect namespace name.");
 
   Token namespaceName = parser.previous;
   uint16_t nameConstant = identifierConstant(&namespaceName);
@@ -2102,8 +2115,8 @@ static void namespaceDeclaration() {
 
   emitByte(OP_BEGIN_NAMESPACE);
   emitShort(nameConstant);
-
-  defineVariable(0, false);
+  defineVariable(nameConstant, false);
+  namedVariable(namespaceName, false);
 
   consume(TOKEN_LEFT_BRACE, "Expect '{' after namespace declaration.");
 

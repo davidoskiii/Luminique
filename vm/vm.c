@@ -931,6 +931,7 @@ InterpretResult run() {
           runtimeError("Only classes, functions, enums and namespaces may be imported.");
           return INTERPRET_RUNTIME_ERROR;
         }
+        pop();
         break;
       }
       case OP_USING: {
@@ -938,7 +939,6 @@ InterpretResult run() {
         Value value = usingNamespace(namespaceDepth);
         ObjNamespace* enclosingNamespace = AS_NAMESPACE(pop());
         ObjString* shortName = AS_STRING(pop());
-        pop();
         push(OBJ_VAL(enclosingNamespace));
 
         if (IS_NIL(value)) {
@@ -1283,7 +1283,6 @@ InterpretResult run() {
         ObjEnum* enumObj = newEnum(name);
         enumObj->nextValue = 0;
         push(OBJ_VAL(enumObj));
-        tableSet(&vm.currentNamespace->values, name, peek(0));
         break;
       }
       case OP_ENUM_ELEMENT: {
@@ -1300,7 +1299,6 @@ InterpretResult run() {
       case OP_CLASS: {
         ObjString* name = READ_STRING();
         push(OBJ_VAL(newClass(name, OBJ_INSTANCE)));
-        tableSet(&vm.currentNamespace->values, name, peek(0));
         break;
       }
       case OP_GET_COLON_PROPERTY: {
