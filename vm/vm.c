@@ -14,6 +14,7 @@
 #include "../interceptor/interceptor.h"
 #include "../object/object.h"
 #include "../memory/memory.h"
+#include "../variable/variable.h"
 #include "../lang/lang.h"
 #include "../util/util.h"
 #include "../string/string.h"
@@ -1371,9 +1372,8 @@ InterpretResult run() {
             frame = &vm.frames[vm.frameCount - 1];
           }
         } else {
-          if (IS_NIL(receiver)) runtimeError("Undefined property on nil.");
-          interceptUndefinedProperty(getObjClass(receiver), name);
-          frame = &vm.frames[vm.frameCount - 1];
+          pop();
+          push(getGenericInstanceVariable(receiver, name));
         }
         break;
       }
@@ -1415,8 +1415,10 @@ InterpretResult run() {
           pop();
           push(value);
         } else {
-          runtimeError("Only instances and classes can set properties with '.'.");
-          return INTERPRET_RUNTIME_ERROR;
+          ObjString* name = READ_STRING();
+          Value value = pop();
+          pop();
+          push(setGenericInstanceVariable(receiver, name, value));
         }
         break;
       }

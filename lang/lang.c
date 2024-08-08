@@ -64,20 +64,6 @@ NATIVE_METHOD(Exception, __format__) {
   RETURN_STRING_FMT("<Exception %s - %s>", self->obj.klass->name->chars, self->message->chars);
 }
 
-NATIVE_METHOD(Exception, __undefinedProperty__) {
-  assertArgCount("Exception::__undefinedProperty__(name)", 1, argCount);
-  assertArgIsString("Exception::__undefinedProperty__(name)", args, 0);
-  ObjString* property = AS_STRING(args[0]);
-  ObjException* self = AS_EXCEPTION(receiver);
-
-  if (matchStringName(property, "message", 7)) {
-    RETURN_OBJ(self->message);
-  } else if (matchStringName(property, "stacktrace", 10)) {
-    RETURN_OBJ(self->stacktrace);
-  } else THROW_EXCEPTION_FMT(luminique::std::lang, NotImplementedException, "Property %s does not exist in %s.", 
-    AS_CSTRING(args[0]), valueToString(receiver));
-}
-
 // CLASS
 
 NATIVE_METHOD(Class, __init__) {
@@ -795,24 +781,6 @@ NATIVE_METHOD(BoundMethod, upvalueCount) {
 NATIVE_METHOD(BoundMethod, __invoke__) {
   ObjBoundMethod* self = AS_BOUND_METHOD(receiver);
   RETURN_VAL(callMethod(self->method, argCount));
-}
-
-NATIVE_METHOD(BoundMethod, __undefinedProperty__) {
-  assertArgCount("BoundMethod::__undefinedProperty__(name)", 1, argCount);
-  assertArgIsString("BoundMethod::__undefinedProperty__(name)", args, 0);
-  ObjString* property = AS_STRING(args[0]);
-  ObjBoundMethod* self = AS_BOUND_METHOD(receiver);
-
-  if (matchStringName(property, "method", 6)) {
-    RETURN_OBJ(self->method);
-  } else if (matchStringName(property, "arity", 5)) {
-    RETURN_INT(AS_CLOSURE(self->method)->function->arity);
-  } else if (matchStringName(property, "name", 4)) {
-    RETURN_OBJ(AS_CLOSURE(self->method)->function->name);
-  } else if (matchStringName(property, "receiver", 8)) {
-    RETURN_OBJ(self->receiver);
-  } else THROW_EXCEPTION_FMT(luminique::std::lang, NotImplementedException, "Property %s does not exist in %s.", 
-    AS_CSTRING(args[0]), valueToString(receiver));
 }
 
 // METHOD
