@@ -1,9 +1,0 @@
-class Exc : Exception {
-  function __init__(message) {
-    super.__init__(message);
-    this.x = "cane";
-  }
-}
-
-let exc = Exc("dio");
-println("${exc.message} ${exc.x}");
