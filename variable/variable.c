@@ -210,7 +210,6 @@ Value setGenericInstanceVariable(Value receiver, ObjString* name, Value value) {
         runtimeError("Cannot set property length on Object String.");
       }
       else ABORT_IFNOPROPRETY(receiver, name);
-      return value;
     }
     case OBJ_TIMER: {
       ObjTimer* timer = (ObjTimer*)object;

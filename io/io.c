@@ -356,22 +356,6 @@ NATIVE_METHOD(File, __format__) {
   RETURN_OBJ(AS_FILE(receiver)->name);
 }
 
-NATIVE_METHOD(File, __undefinedProperty__) {
-  assertArgCount("File::__undefinedProperty__(name)", 1, argCount);
-  assertArgIsString("File::__undefinedProperty__(name)", args, 0);
-  ObjString* property = AS_STRING(args[0]);
-  ObjFile* self = AS_FILE(receiver);
-
-  if (matchStringName(property, "name", 4)) {
-    RETURN_OBJ(self->name);
-  } else if (matchStringName(property, "mode", 4)) {
-    RETURN_OBJ(self->mode);
-  } else if (matchStringName(property, "isOpen", 6)) {
-    RETURN_BOOL(self->isOpen);
-  } else THROW_EXCEPTION_FMT(luminique::std::lang, NotImplementedException, "Property %s does not exist in %s.", 
-    AS_CSTRING(args[0]), valueToString(receiver));
-}
-
 NATIVE_METHOD(FileClass, open) {
   assertArgCount("File class::open(pathname, mode)", 2, argCount);
   assertArgIsString("File class::open(pathname, mode)", args, 0);
@@ -762,8 +746,6 @@ void registerIOPackage() {
   DEF_METHOD(vm.fileClass, File, size, 0);
   DEF_METHOD(vm.fileClass, File, __str__, 0);
   DEF_METHOD(vm.fileClass, File, __format__, 0);
-
-  DEF_INTERCEPTOR(vm.fileClass, File, INTERCEPTOR_UNDEFINED_PROPERTY, __undefinedProperty__, 1);
 
   ObjClass* fileMetaclass = vm.fileClass->obj.klass;
   DEF_METHOD(fileMetaclass, FileClass, open, 2);
