@@ -112,6 +112,7 @@ struct Obj {
   ObjType type;
   ObjClass* klass;
   bool isMarked;
+  Table fields;
   struct Obj* next;
 };
 

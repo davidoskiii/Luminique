@@ -38,6 +38,7 @@ void* reallocate(void* pointer, size_t oldSize, size_t newSize) {
 void markObject(Obj* object) {
   if (object == NULL) return;
   if (object->isMarked) return;
+  markTable(&object->fields);
 
 // #ifdef DEBUG_LOG_GC
 //  printf("%p mark ", (void*)object);
@@ -475,6 +476,7 @@ void freeObjects() {
   while (object != NULL) {
     Obj* next = object->next;
     freeObject(object);
+    freeTable(&object->fields);
     object = next;
   }
 

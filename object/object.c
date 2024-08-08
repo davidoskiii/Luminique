@@ -19,6 +19,7 @@ Obj* allocateObject(size_t size, ObjType type, ObjClass* klass) {
   object->isMarked = false;
 
   object->next = vm.objects;
+  initTable(&object->fields);
 
 // #ifdef DEBUG_LOG_GC
 //  printf("%p allocate %zu for %d\n", (void*)object, size, type);
