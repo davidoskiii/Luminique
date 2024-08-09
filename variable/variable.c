@@ -8,8 +8,12 @@
 #include "../string/string.h"
 
 Value invokeGetter(Value method, Value receiver) {
-  Value getter = callReentrantMethod(peek(0), method, NIL_VAL); 
+  Value getter = callReentrantMethod(receiver, method, NIL_VAL); 
   return getter;
+}
+
+Value invokeSetter(Value method, Value receiver, Value value) {
+  return callReentrantMethod(OBJ_VAL(receiver), method, value);
 }
 
 Value getInstanceProperty(Value receiver, ObjString* name, Obj* obj) {
@@ -18,6 +22,29 @@ Value getInstanceProperty(Value receiver, ObjString* name, Obj* obj) {
   else if (tableGet(&obj->klass->methods, name, &value)) return value;
   else if (tableGet(&obj->klass->getters, name, &value)) return invokeGetter(value, receiver);
   else ABORT_IFNOPROPRETY(receiver, name);
+}
+
+Value setInstanceProperty(Value receiver, ObjString* name, Obj* obj, Value value) {
+  Value setter;
+  bool isSetter = tableGet(&obj->klass->setters, name, &setter);
+  if (isSetter) {
+    return invokeSetter(setter, receiver, value);
+  }
+
+  Value getter;
+  bool isGetter = tableGet(&obj->klass->getters, name, &getter);
+  if (isGetter) {
+    runtimeError("Cannot modify a getter.");
+    exit(70);
+  }
+
+  Value method;
+  if (tableGet(&obj->klass->methods, name, &method)) {
+    tableDelete(&obj->klass->methods, name);
+  }
+
+  tableSet(&obj->fields, name, value);
+  return value;
 }
 
 Value getGenericInstanceVariable(Value receiver, ObjString* name) {
@@ -169,8 +196,7 @@ Value setGenericInstanceVariable(Value receiver, ObjString* name, Value value) {
       ObjException* exception = (ObjException*)object;
       if (matchStringName(name, "message", 7) && IS_STRING(value)) exception->message = AS_STRING(value);
       else if (matchStringName(name, "stacktrace", 10) && IS_ARRAY(value)) exception->stacktrace = AS_ARRAY(value);
-      else tableSet(&exception->obj.fields, name, value);
-      return value;
+      else return setInstanceProperty(receiver, name, &exception->obj, value);
     }
     case OBJ_FILE: {
       ObjFile* file = (ObjFile*)object;
@@ -239,8 +265,7 @@ Value setGenericInstanceVariable(Value receiver, ObjString* name, Value value) {
       ObjTimer* timer = (ObjTimer*)object;
       if (matchStringName(name, "id", 2) && IS_INT(value)) timer->id = AS_INT(value);
       else if (matchStringName(name, "isRunning", 9)) timer->isRunning = AS_BOOL(value);
-      else tableSet(&timer->obj.fields, name, value);
-      return value;
+      else return setInstanceProperty(receiver, name, &timer->obj, value);
     }
     default: ABORT_IFNOPROPRETY(receiver, name);
   }

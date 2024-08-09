@@ -1388,9 +1388,8 @@ InterpretResult run() {
           Value setter;
           bool isSetter = tableGet(&instance->obj.klass->setters, name, &setter);
           if (isSetter) {
-            callReentrantMethod(OBJ_VAL(instance), setter, value);
             pop();
-            push(value);
+            push(callReentrantMethod(OBJ_VAL(instance), setter, value));
           }
 
           Value getter;

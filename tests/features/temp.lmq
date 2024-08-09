@@ -1,4 +1,5 @@
 class Exc : Exception {
+  let x = 10;
   function __init__(message) {
     super.__init__(message);
     this.message = "The message is ${message}";
@@ -11,9 +12,15 @@ class Exc : Exception {
   function rethrow() {
     return this;
   }
+
+  set throwCount(value) {
+    println(value);
+    return "setter";
+  }
 }
 
 let exc = Exc("ciao");
 println(exc.message);
 println(exc.throwCount);
+println(exc.rethrow = 2);
 println(exc.rethrow);
