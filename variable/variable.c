@@ -153,44 +153,43 @@ Value setGenericInstanceVariable(Value receiver, ObjString* name, Value value) {
       ObjArray* array = (ObjArray*)object;
       if (matchStringName(name, "length", 6)) {
         runtimeError("Cannot set property length on Object Array.");
+        exit(70);
       }
-      else tableSet(&array->obj.fields, name, value);
-      return value;
+      else return setInstanceProperty(receiver, name, &array->obj, value);
     }
     case OBJ_BOUND_METHOD: {
       ObjBoundMethod* bound = (ObjBoundMethod*)object;
       if (matchStringName(name, "receiver", 8)) bound->receiver = value;
       else if (matchStringName(name, "method", 6) && (IS_NATIVE_METHOD(value) || IS_CLOSURE(value))) bound->method = value;
-      else tableSet(&bound->obj.fields, name, value);
-      return value;
+      else return setInstanceProperty(receiver, name, &bound->obj, value);
     }
     case OBJ_CLOSURE: {
       ObjClosure* closure = (ObjClosure*)object;
       if (matchStringName(name, "name", 4) || matchStringName(name, "arity", 5)) {
         runtimeError("Cannot set property %s on Object Function.", name->chars);
+        exit(70);
       }
-      else tableSet(&closure->obj.fields, name, value);
-      return value;
+      else return setInstanceProperty(receiver, name, &closure->obj, value);
     }
     case OBJ_DICTIONARY: {
       ObjDictionary* dictionary = (ObjDictionary*)object;
       if (matchStringName(name, "length", 6)) {
         runtimeError("Cannot set property length on Object Dictionary.");
+        exit(70);
       }
-      else tableSet(&dictionary->obj.fields, name, value);
-      return value;
+      else return setInstanceProperty(receiver, name, &dictionary->obj, value);
     }
     case OBJ_ENTRY: {
       ObjEntry* entry = (ObjEntry*)object;
       if (matchStringName(name, "key", 3)) {
         runtimeError("Cannot set property key on Object Entry.");
+        exit(70);
       }
       else if (matchStringName(name, "value", 5)) {
         entry->value = value;
         return value;
       }
-      else tableSet(&entry->obj.fields, name, value);
-      return value;
+      else return setInstanceProperty(receiver, name, &entry->obj, value);
     }
     case OBJ_EXCEPTION: {
       ObjException* exception = (ObjException*)object;
@@ -206,16 +205,14 @@ Value setGenericInstanceVariable(Value receiver, ObjString* name, Value value) {
         runtimeError("Cannot set property isOpen on Object File.");
         exit(70);
       }
-      else tableSet(&file->obj.fields, name, value);
-      return value;
+      else return setInstanceProperty(receiver, name, &file->obj, value);
     }
     case OBJ_GENERATOR: {
       ObjGenerator* generator = (ObjGenerator*)object;
       if (matchStringName(name, "state", 5) && IS_INT(value)) generator->state = AS_INT(value);
       else if (matchStringName(name, "value", 5)) generator->value = value;
       if (matchStringName(name, "outer", 5) && IS_GENERATOR(value)) generator->outer = AS_GENERATOR(value);
-      else tableSet(&generator->obj.fields, name, value);
-      return value;
+      else return setInstanceProperty(receiver, name, &generator->obj, value);
     }
     case OBJ_METHOD: {
       ObjMethod* method = (ObjMethod*)object;
@@ -223,16 +220,14 @@ Value setGenericInstanceVariable(Value receiver, ObjString* name, Value value) {
         runtimeError("Cannot set property %s on Object Method.", name->chars);
         exit(70);
       }
-      else tableSet(&method->obj.fields, name, value);
-      return value;
+      else return setInstanceProperty(receiver, name, &method->obj, value);
     }
     case OBJ_NODE: {
       ObjNode* node = (ObjNode*)object;
       if (matchStringName(name, "element", 7)) node->element = value;
       else if (matchStringName(name, "prev", 4) && IS_NODE(value)) node->prev = AS_NODE(value);
       else if (matchStringName(name, "next", 4) && IS_NODE(value)) node->next = AS_NODE(value);
-      else tableSet(&node->obj.fields, name, value);
-      return value;
+      else return setInstanceProperty(receiver, name, &node->obj, value);
     }
     case OBJ_PROMISE: {
       ObjPromise* promise = (ObjPromise*)object;
@@ -242,15 +237,13 @@ Value setGenericInstanceVariable(Value receiver, ObjString* name, Value value) {
         runtimeError("Cannot set property id on Object Promise.");
         exit(70);
       }
-      else tableSet(&promise->obj.fields, name, value);
-      return value;
+      else return setInstanceProperty(receiver, name, &promise->obj, value);
     }
     case OBJ_RANGE: {
       ObjRange* range = (ObjRange*)object;
       if (matchStringName(name, "from", 4) && IS_INT(value)) range->from = AS_INT(value);
       else if (matchStringName(name, "to", 4) && IS_INT(value)) range->to = AS_INT(value);
-      else tableSet(&range->obj.fields, name, value);
-      return value;
+      else return setInstanceProperty(receiver, name, &range->obj, value);
     }
     case OBJ_STRING: {
       ObjString* string = (ObjString*)object;
@@ -258,8 +251,7 @@ Value setGenericInstanceVariable(Value receiver, ObjString* name, Value value) {
         runtimeError("Cannot set property length on Object String.");
         exit(70);
       }
-      else tableSet(&string->obj.fields, name, value);
-      return value;
+      else return setInstanceProperty(receiver, name, &string->obj, value);
     }
     case OBJ_TIMER: {
       ObjTimer* timer = (ObjTimer*)object;
