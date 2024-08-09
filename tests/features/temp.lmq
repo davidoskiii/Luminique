@@ -1,0 +1,19 @@
+class Exc : Exception {
+  function __init__(message) {
+    super.__init__(message);
+    this.message = "The message is ${message}";
+  }
+  
+  get throwCount {
+    return "getter";
+  }
+
+  function rethrow() {
+    return this;
+  }
+}
+
+let exc = Exc("ciao");
+println(exc.message);
+println(exc.throwCount);
+println(exc.rethrow);

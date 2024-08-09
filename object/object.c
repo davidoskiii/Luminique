@@ -369,6 +369,11 @@ bool isClassExtendingSuperclass(ObjClass* klass, ObjClass* superclass) {
 bool isObjInstanceOf(Value value, ObjClass* klass) {
   ObjClass* currentClass = getObjClass(value);
   if (currentClass == klass) return true;
+  else if (IS_NATIVE_METHOD(value)) {
+    return matchStringName(klass->name, "Method", 6) ? true : false;
+  } else if (IS_NATIVE_FUNCTION(value)) {
+    return matchStringName(klass->name, "Function", 8) ? true : false;
+  }
   if (isClassExtendingSuperclass(currentClass->superclass, klass)) return true;
   return false;
 }

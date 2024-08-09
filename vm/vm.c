@@ -1615,6 +1615,10 @@ InterpretResult run() {
 
         if (IS_CLASS(value)) {
           push(value);
+        } else if (IS_NATIVE_FUNCTION(value)) {
+          push(OBJ_VAL(getNativeClass("luminique::std::lang", "Function")));
+        } else if (IS_NATIVE_METHOD(value)) {
+          push(OBJ_VAL(getNativeClass("luminique::std::lang", "Method")));
         } else {
           push(OBJ_VAL(getObjClass(value)));
         }

@@ -7,123 +7,112 @@
 #include "../vm/vm.h"
 #include "../string/string.h"
 
+Value invokeGetter(Value method, Value receiver) {
+  Value getter = callReentrantMethod(peek(0), method, NIL_VAL); 
+  return getter;
+}
+
+Value getInstanceProperty(Value receiver, ObjString* name, Obj* obj) {
+  Value value;
+  if (tableGet(&obj->fields, name, &value)) return value;
+  else if (tableGet(&obj->klass->methods, name, &value)) return value;
+  else if (tableGet(&obj->klass->getters, name, &value)) return invokeGetter(value, receiver);
+  else ABORT_IFNOPROPRETY(receiver, name);
+}
+
 Value getGenericInstanceVariable(Value receiver, ObjString* name) {
-  if (!IS_OBJ(receiver)) runtimeError("Only objects can have properties.");
+  if (!IS_OBJ(receiver)) { 
+    runtimeError("Only objects can have properties.");
+    exit(70);
+  }
   Obj* object = AS_OBJ(receiver);
   switch (object->type) {
     case OBJ_ARRAY: {
       ObjArray* array = (ObjArray*)object;
-      Value value;
       if (matchStringName(name, "length", 6)) return (INT_VAL(array->elements.count));
-      else if (tableGet(&array->obj.fields, name, &value)) return value;
-      else ABORT_IFNOPROPRETY(receiver, name);
+      else return getInstanceProperty(receiver, name, &array->obj);
     }
     case OBJ_BOUND_METHOD: {
       ObjBoundMethod* bound = (ObjBoundMethod*)object;
-      Value value;
       if (matchStringName(name, "receiver", 8) == 0) return (OBJ_VAL(bound->receiver));
       else if (matchStringName(name, "method", 6)) return (OBJ_VAL(bound->method));
-      else if (tableGet(&bound->obj.fields, name, &value)) return value;
-      else ABORT_IFNOPROPRETY(receiver, name);
+      else return getInstanceProperty(receiver, name, &bound->obj);
     }
     case OBJ_CLOSURE: {
       ObjClosure* closure = (ObjClosure*)object;
-      Value value;
       if (matchStringName(name, "name", 4)) return (OBJ_VAL(closure->function->name));
       else if (matchStringName(name, "arity", 5)) return (INT_VAL(closure->function->arity));
-      else if (tableGet(&closure->obj.fields, name, &value)) return value;
-      else ABORT_IFNOPROPRETY(receiver, name);
+      else return getInstanceProperty(receiver, name, &closure->obj);
     }
     case OBJ_DICTIONARY: {
       ObjDictionary* dictionary = (ObjDictionary*)object;
       Value value;
       if (matchStringName(name, "length", 6)) return (INT_VAL(dictionary->count));
-      else if (tableGet(&dictionary->obj.fields, name, &value)) return value;
-      else ABORT_IFNOPROPRETY(receiver, name);
+      else return getInstanceProperty(receiver, name, &dictionary->obj);
     }
     case OBJ_ENTRY: {
       ObjEntry* entry = (ObjEntry*)object;
-      Value value;
       if (matchStringName(name, "key", 3)) return (entry->key);
       else if (matchStringName(name, "value", 5)) return (entry->value);
-      else if (tableGet(&entry->obj.fields, name, &value)) return value;
-      else ABORT_IFNOPROPRETY(receiver, name);
+      else return getInstanceProperty(receiver, name, &entry->obj);
     }
     case OBJ_EXCEPTION: {
       ObjException* exception = (ObjException*)object;
-      Value value;
       if (matchStringName(name, "message", 7)) return (OBJ_VAL(exception->message));
       else if (matchStringName(name, "stacktrace", 10)) return (OBJ_VAL(exception->stacktrace));
-      else if (tableGet(&exception->obj.fields, name, &value)) return value;
-      else ABORT_IFNOPROPRETY(receiver, name);
+      else return getInstanceProperty(receiver, name, &exception->obj);
     }
     case OBJ_FILE: {
       ObjFile* file = (ObjFile*)object;
-      Value value;
       if (matchStringName(name, "name", 4)) return (OBJ_VAL(file->name));
       else if (matchStringName(name, "mode", 4)) return (OBJ_VAL(file->mode));
       else if (matchStringName(name, "isOpen", 6)) return (BOOL_VAL(file->isOpen));
-      else if (tableGet(&file->obj.fields, name, &value)) return value;
-      else ABORT_IFNOPROPRETY(receiver, name);
+      else return getInstanceProperty(receiver, name, &file->obj);
     }
     case OBJ_GENERATOR: {
       ObjGenerator* generator = (ObjGenerator*)object;
-      Value value;
       if (matchStringName(name, "state", 5)) return (INT_VAL(generator->state));
       else if (matchStringName(name, "value", 5)) return (generator->value);
       else if (matchStringName(name, "outer", 5)) return (generator->outer != NULL ? OBJ_VAL(generator->outer) : NIL_VAL);
-      else if (tableGet(&generator->obj.fields, name, &value)) return value;
-      else ABORT_IFNOPROPRETY(receiver, name);
+      else return getInstanceProperty(receiver, name, &generator->obj);
     }
     case OBJ_METHOD: {
       ObjMethod* method = (ObjMethod*)object;
-      Value value;
       if (matchStringName(name, "name", 4)) return (OBJ_VAL(method->closure->function->name));
       else if (matchStringName(name, "arity", 5)) return (INT_VAL(method->closure->function->arity));
       else if (matchStringName(name, "behavior", 8)) return (OBJ_VAL(method->behavior));
-      else if (tableGet(&method->obj.fields, name, &value)) return value;
-      else ABORT_IFNOPROPRETY(receiver, name);
+      else return getInstanceProperty(receiver, name, &method->obj);
     }
     case OBJ_NODE: {
       ObjNode* node = (ObjNode*)object;
-      Value value;
       if (matchStringName(name, "element", 7)) return (node->element);
       else if (matchStringName(name, "prev", 4)) return (OBJ_VAL(node->prev));
       else if (matchStringName(name, "next", 4)) return (OBJ_VAL(node->next));
-      else if (tableGet(&node->obj.fields, name, &value)) return value;
-      else ABORT_IFNOPROPRETY(receiver, name);
+      else return getInstanceProperty(receiver, name, &node->obj);
     }
     case OBJ_PROMISE: {
       ObjPromise* promise = (ObjPromise*)object;
-      Value value;
       if (matchStringName(name, "state", 5)) return (INT_VAL(promise->state));
       else if (matchStringName(name, "value", 5)) return (promise->value);
       else if (matchStringName(name, "id", 2)) return (INT_VAL(promise->id));
-      else if (tableGet(&promise->obj.fields, name, &value)) return value;
-      else ABORT_IFNOPROPRETY(receiver, name);
+      else return getInstanceProperty(receiver, name, &promise->obj);
     }
     case OBJ_RANGE: {
       ObjRange* range = (ObjRange*)object;
-      Value value;
       if (matchStringName(name, "from", 4)) return (INT_VAL(range->from));
       else if (matchStringName(name, "to", 2)) return (INT_VAL(range->to));
-      else if (tableGet(&range->obj.fields, name, &value)) return value;
-      else ABORT_IFNOPROPRETY(receiver, name);
+      else return getInstanceProperty(receiver, name, &range->obj);
     }
     case OBJ_STRING: {
       ObjString* string = (ObjString*)object;
-      Value value;
       if (matchStringName(name, "length", 6)) return (INT_VAL(string->length));
-      else if (tableGet(&string->obj.fields, name, &value)) return value;
-      else ABORT_IFNOPROPRETY(receiver, name);
+      else return getInstanceProperty(receiver, name, &string->obj);
     }
     case OBJ_TIMER: { 
       ObjTimer* timer = (ObjTimer*)object;
-      Value value;
       if (matchStringName(name, "id", 2)) return (INT_VAL(timer->id));
       else if (matchStringName(name, "isRunning", 9)) return (BOOL_VAL(timer->isRunning));
-      else if (tableGet(&timer->obj.fields, name, &value)) return value;
-      else ABORT_IFNOPROPRETY(receiver, name);
+      else return getInstanceProperty(receiver, name, &timer->obj);
     }
     default: ABORT_IFNOPROPRETY(receiver, name);
   }
@@ -241,6 +230,7 @@ Value setGenericInstanceVariable(Value receiver, ObjString* name, Value value) {
       ObjString* string = (ObjString*)object;
       if (matchStringName(name, "length", 6)) {
         runtimeError("Cannot set property length on Object String.");
+        exit(70);
       }
       else tableSet(&string->obj.fields, name, value);
       return value;
