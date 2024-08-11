@@ -31,3 +31,7 @@ cmake --build ./build
 ```
 
 3. Try it out with the examples in the tests directory or read the documentation (dosn't exist yet :D).
+
+## Mentions
+
+Check out the [MENTIONS.md](MENTIONS.md) file for the mentions.
