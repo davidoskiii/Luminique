@@ -1,0 +1,17 @@
+abstract class Animal {
+  function sleep() {
+    println("Zzz...");
+  }
+}
+
+class Dog : Animal {
+  function animalSound() {
+    println("The dog says: wof wof");
+  }
+}
+
+const dog = Dog();
+dog.animalSound();
+dog.sleep();
+
+let animal = Animal(); // Error
