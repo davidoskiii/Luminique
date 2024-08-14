@@ -164,6 +164,7 @@ static TokenType identifierType() {
     case 'a':
       if (scanner.current - scanner.start > 1) {
         switch (scanner.start[1]) {
+          case 'b': return checkKeyword(2, 6, "stract", TOKEN_ABSTRACT);
           case 'w': return checkKeyword(2, 3, "ait", TOKEN_AWAIT);
           case 's': 
             if (scanner.current - scanner.start == 2) {
