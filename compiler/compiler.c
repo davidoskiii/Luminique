@@ -1676,7 +1676,7 @@ static void enumDeclaration() {
   endScope();
 }
 
-static void classDeclaration() {
+static void classDeclaration(bool isAbstract) {
   consume(TOKEN_IDENTIFIER, "Expect class name.");
   bool doesInhert = false;
   Token className = parser.previous;
@@ -1684,7 +1684,7 @@ static void classDeclaration() {
   uint16_t nameConstant = identifierConstant(&parser.previous);
   declareVariable();
 
-  emitByte(OP_CLASS);
+  isAbstract ? emitByte(OP_CLASS) : emitByte(OP_CLASS);
   emitShort(nameConstant);
   defineVariable(nameConstant, false);
 
@@ -2296,8 +2296,11 @@ static void declaration() {
     advance();
     advance();
     funDeclaration(true);
+  } else if (match(TOKEN_ABSTRACT)) {
+    consume(TOKEN_CLASS, "Expect 'class' after 'abstract'.");
+    classDeclaration(true);
   } else if (match(TOKEN_CLASS)) {
-    classDeclaration();
+    classDeclaration(false);
   } else if (match(TOKEN_NAMESPACE)) {
     namespaceDeclaration();
   } else if (match(TOKEN_ENUM)) {
