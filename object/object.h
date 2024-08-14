@@ -284,6 +284,7 @@ struct ObjClass {
   Table setters;
 
   bool isNative;
+  bool isAbstract;
 };
 
 struct ObjEnum {
@@ -344,7 +345,7 @@ ObjEntry* newEntry(Value key, Value value);
 ObjArray* newArray();
 ObjArray* copyArray(ValueArray elements, int fromIndex, int toIndex);
 ObjDictionary* newDictionary();
-ObjClass* newClass(ObjString* name, ObjType classType);
+ObjClass* newClass(ObjString* name, ObjType classType, bool isAbstract);
 ObjEnum* newEnum(ObjString* name);
 ObjModule* newModule(ObjString* path);
 ObjPromise* newPromise(PromiseState state, Value value, Value executor);

@@ -70,7 +70,7 @@ NATIVE_METHOD(Class, __init__) {
   assertArgCount("Class::__init__(name, superclass)", 2, argCount);
   assertArgIsString("Class::__init__(name, superclass)", args, 0);
   assertArgIsClass("Class::__init__(name, superclass)", args, 1);
-  ObjClass* klass = newClass(AS_STRING(args[0]), OBJ_INSTANCE);
+  ObjClass* klass = newClass(AS_STRING(args[0]), OBJ_INSTANCE, false);
   bindSuperclass(klass, AS_CLASS(args[1]));
   RETURN_OBJ(klass);
 }

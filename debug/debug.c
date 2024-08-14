@@ -222,6 +222,8 @@ int disassembleInstruction(Chunk* chunk, int offset) {
       return constantValueInstruction16("OP_ENUM_ELEMENT", chunk, offset);
     case OP_CLASS:
       return constantValueInstruction16("OP_CLASS", chunk, offset);
+    case OP_ABSTRACT_CLASS:
+      return constantValueInstruction16("OP_ABSTRACT_CLASS", chunk, offset);
     case OP_METHOD:
       return constantValueInstruction16("OP_METHOD", chunk, offset);
     case OP_STATIC_METHOD:

@@ -1684,7 +1684,7 @@ static void classDeclaration(bool isAbstract) {
   uint16_t nameConstant = identifierConstant(&parser.previous);
   declareVariable();
 
-  isAbstract ? emitByte(OP_CLASS) : emitByte(OP_CLASS);
+  isAbstract ? emitByte(OP_ABSTRACT_CLASS) : emitByte(OP_CLASS);
   emitShort(nameConstant);
   defineVariable(nameConstant, false);
 

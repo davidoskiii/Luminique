@@ -450,6 +450,11 @@ static bool callBoundMethod(ObjBoundMethod* boundMethod, int argCount) {
 }
 
 static bool callClass(ObjClass* klass, int argCount) {
+  if (klass->isAbstract) { 
+    runtimeError("Abstract classes cannot be used to create objects.", argCount);
+    return false;
+  }
+
   vm.stackTop[-argCount - 1] = createObject(klass, argCount);
   Value initializer;
   if (tableGet(&klass->methods, vm.initString, &initializer)) {
@@ -1299,7 +1304,12 @@ InterpretResult run() {
       }
       case OP_CLASS: {
         ObjString* name = READ_STRING();
-        push(OBJ_VAL(newClass(name, OBJ_INSTANCE)));
+        push(OBJ_VAL(newClass(name, OBJ_INSTANCE, false)));
+        break;
+      }
+      case OP_ABSTRACT_CLASS: {
+        ObjString* name = READ_STRING();
+        push(OBJ_VAL(newClass(name, OBJ_INSTANCE, true)));
         break;
       }
       case OP_GET_COLON_PROPERTY: {

@@ -117,13 +117,14 @@ ObjDictionary* newDictionary() {
   return dict;
 }
 
-ObjClass* newClass(ObjString* name, ObjType classType) {
+ObjClass* newClass(ObjString* name, ObjType classType, bool isAbstract) {
   ObjClass* klass = ALLOCATE_OBJ(ObjClass, OBJ_CLASS, vm.classClass);
   klass->classType = classType;
   klass->name = name;
   klass->namespace_ = vm.currentNamespace;
   klass->superclass = NULL;
   klass->isNative = false;
+  klass->isAbstract = isAbstract;
   klass->interceptors = 0;
 
   initTable(&klass->methods);
