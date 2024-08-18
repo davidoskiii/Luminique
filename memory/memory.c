@@ -168,6 +168,7 @@ static void blackenObject(Obj* object) {
       markObject((Obj*)klass->name);
       if (klass->superclass != NULL) markObject((Obj*)klass->superclass);
       markObject((Obj*)klass->namespace_);
+      markArray(&klass->abstractMethodNames);
       markTable(&klass->fields);
       markTable(&klass->methods);
       markTable(&klass->getters);
@@ -289,6 +290,7 @@ static void freeObject(Obj* object) {
     case OBJ_CLASS: {
       FREE(ObjClass, object);
       ObjClass* klass = (ObjClass*)object;
+      freeValueArray(&klass->abstractMethodNames);
       freeTable(&klass->fields);
       freeTable(&klass->methods);
       freeTable(&klass->getters);

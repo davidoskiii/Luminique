@@ -127,6 +127,8 @@ ObjClass* newClass(ObjString* name, ObjType classType, bool isAbstract) {
   klass->isAbstract = isAbstract;
   klass->interceptors = 0;
 
+  initValueArray(&klass->abstractMethodNames);
+
   initTable(&klass->methods);
   initTable(&klass->fields);
   initTable(&klass->getters);
@@ -222,11 +224,13 @@ ObjFrame* newFrame(CallFrame* callFrame) {
 
 ObjFunction* newFunction() {
   ObjFunction* function = ALLOCATE_OBJ(ObjFunction, OBJ_FUNCTION, NULL);
+  function->paramHashes = ALLOCATE(uint32_t, 255);
   function->arity = 0;
   function->upvalueCount = 0;
   function->isGenerator = false;
   function->name = NULL;
   function->isAsync = false;
+  function->isAbstract = false;
   initChunk(&function->chunk);
   return function;
 }

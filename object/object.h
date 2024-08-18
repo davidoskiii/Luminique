@@ -1,6 +1,7 @@
 #ifndef cluminique_object_h
 #define cluminique_object_h
 
+#include <stdint.h>
 #include <sys/stat.h>
 #include <SDL2/SDL.h>
 #include <uv.h>
@@ -122,8 +123,10 @@ struct ObjFunction {
   int upvalueCount;
   bool isGenerator;
   bool isAsync;
+  bool isAbstract;
   Chunk chunk;
   ObjString* name;
+  uint32_t* paramHashes;
 };
 
 typedef Value (*NativeFunction)(int argCount, Value* args);
@@ -282,6 +285,8 @@ struct ObjClass {
   Table fields;
   Table getters;
   Table setters;
+
+  ValueArray abstractMethodNames;
 
   bool isNative;
   bool isAbstract;

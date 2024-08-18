@@ -2,6 +2,8 @@ abstract class Animal {
   function sleep() {
     println("Zzz...");
   }
+
+  abstract animalSound();
 }
 
 class Dog : Animal {

@@ -8,6 +8,7 @@
 #include "../memory/memory.h"
 #include "../scanner/scanner.h"
 #include "../native/native.h"
+#include "../hash/hash.h"
 #include "../string/string.h"
 #include "../dsa/dsa.h"
 #include "compiler.h"
@@ -69,6 +70,7 @@ typedef struct {
 
 typedef enum {
   TYPE_FUNCTION,
+  TYPE_ABSTRACT,
   TYPE_INITIALIZER,
   TYPE_METHOD,
   TYPE_GETTER,
@@ -689,6 +691,8 @@ static void parameterList() {
   if (match(TOKEN_DOT_DOT_DOT)) {
     current->function->arity = -1;
     uint16_t constant = parseVariable("Expect variadic parameter name.");
+    uint32_t hashedName = hashString(parser.previous.start, parser.previous.length);
+    current->function->paramHashes[0] = hashedName;
     defineVariable(constant, false);
     return;
   }
@@ -699,12 +703,16 @@ static void parameterList() {
       errorAtCurrent("Can't have more than 255 parameters.");
     }
 
-    if (match(TOKEN_CONST)) {
+    if (match(TOKEN_CONST)) { // TODO Fix the function to work with constant parameters as well 
       uint16_t constant = parseVariable("Expect parameter name.");
       defineVariable(constant, false);
+      uint32_t hashedName = hashString(parser.previous.start, parser.previous.length);
+      current->function->paramHashes[current->function->arity - 1] = hashedName;
     } else {
       uint16_t constant = parseVariable("Expect parameter name.");
       defineVariable(constant, true);
+      uint32_t hashedName = hashString(parser.previous.start, parser.previous.length);
+      current->function->paramHashes[current->function->arity - 1] = hashedName;
     }
   } while (match(TOKEN_COMMA));
 }
@@ -1485,6 +1493,39 @@ static void block() {
   consume(TOKEN_RIGHT_BRACE, "Expect '}' after block.");
 }
 
+static void abstractParameters() {
+  consume(TOKEN_LEFT_PAREN, "Expect '(' after abstract method name.");
+  if (!check(TOKEN_RIGHT_PAREN)) {
+    if (match(TOKEN_DOT_DOT_DOT)) {
+      current->function->arity = -1;
+      consume(TOKEN_IDENTIFIER, "Expect variadic parameter name.");
+      uint32_t hashedName = hashString(parser.previous.start, parser.previous.length);
+      current->function->paramHashes[0] = hashedName;
+      return;
+    }
+
+    do {
+      current->function->arity++;
+      if (current->function->arity > 255) {
+        errorAtCurrent("Can't have more than 255 parameters.");
+      }
+
+      if (match(TOKEN_CONST)) { // TODO Fix the function to work with constant parameters as well 
+        consume(TOKEN_IDENTIFIER, "Expect parameter name.");
+        uint32_t hashedName = hashString(parser.previous.start, parser.previous.length);
+        current->function->paramHashes[current->function->arity - 1] = hashedName;
+      } else {
+        consume(TOKEN_IDENTIFIER, "Expect parameter name.");
+        uint32_t hashedName = hashString(parser.previous.start, parser.previous.length);
+        current->function->paramHashes[current->function->arity - 1] = hashedName;
+      }
+    } while (match(TOKEN_COMMA));
+  }
+
+  consume(TOKEN_RIGHT_PAREN, "Expect ')' after parameters.");
+  consume(TOKEN_SEMICOLON, "Expect ';' after abstract method declaration.");
+}
+
 static void functionParameters() {
   consume(TOKEN_LEFT_PAREN, "Expect '(' after function name.");
 
@@ -1516,24 +1557,6 @@ static uint8_t lambdaDepth() {
   return depth;
 }
 
-static void getter(bool isAsync) {
-  FunctionType type = TYPE_GETTER;
-  beginScope();
-  
-  function(type, isAsync);
-  
-  endScope();
-}
-
-static void setter(bool isAsync) {
-  FunctionType type = TYPE_SETTER;
-  beginScope();
-  
-  function(type, isAsync);
-  
-  endScope();
-}
-
 static void function(FunctionType type, bool isAsync) {
   Compiler compiler;
   initCompiler(&compiler, type, isAsync);
@@ -1547,6 +1570,9 @@ static void function(FunctionType type, bool isAsync) {
       declaration();
     }
     consume(TOKEN_RIGHT_BRACE, "Expect '}' after lambda body.");
+  } else if (type == TYPE_ABSTRACT) {
+    current->function->isAbstract = true;
+    abstractParameters();
   } else if (type == TYPE_GETTER) {
     current->function->arity = 0;
     consume(TOKEN_LEFT_BRACE, "Expect '{' before function body.");
@@ -1582,6 +1608,32 @@ static void function(FunctionType type, bool isAsync) {
   }
 }
 
+static void getter(bool isAsync) {
+  FunctionType type = TYPE_GETTER;
+  beginScope();
+  
+  function(type, isAsync);
+  
+  endScope();
+}
+
+static void setter(bool isAsync) {
+  FunctionType type = TYPE_SETTER;
+  beginScope();
+  
+  function(type, isAsync);
+  
+  endScope();
+}
+
+static void abstractMethod() {
+  uint16_t constant = propretyConstant("Expect method name.");
+
+  function(TYPE_ABSTRACT, false);
+  emitByte(OP_ABSTRACT_METHOD);
+  emitShort(constant);
+}
+
 static void method() {
   bool isAsync = false;
   if (match(TOKEN_ASYNC)) isAsync = true;
@@ -1590,7 +1642,6 @@ static void method() {
 
   if (match(TOKEN_STATIC)) {
     currentClass->isStaticMethod = true;
-    opCode = OP_STATIC_METHOD;
   } else if (match(TOKEN_GET)) {
     opCode = OP_GETTER;
   } else if (match(TOKEN_SET)) {
@@ -1611,6 +1662,7 @@ static void method() {
   else if (opCode == OP_SETTER) setter(isAsync);
   else function(type, isAsync);
 
+  emitByte(currentClass->isStaticMethod ? OP_TRUE : OP_FALSE);
   emitByte(opCode);
   emitShort(constant);
 }
@@ -1635,6 +1687,8 @@ static void classPropretyDeclaration() {
 static void classBody() {
   if (match(TOKEN_VAR)) {
     classPropretyDeclaration();
+  } else if (match(TOKEN_ABSTRACT)) {
+    abstractMethod();
   } else {
     method();
   }

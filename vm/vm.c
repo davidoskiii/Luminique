@@ -455,6 +455,18 @@ static bool callClass(ObjClass* klass, int argCount) {
     return false;
   }
 
+  ObjClass* superclass = klass->superclass;
+  for (int i = 0; i < klass->superclass->abstractMethodNames.count; i++) {
+    ObjString* name = AS_STRING(klass->superclass->abstractMethodNames.values[i]);
+    printf("method: %s\n", name->chars);
+    Value method;
+    printTable(klass->methods);
+    if (!tableGet(&klass->methods, name, &method)) { 
+      runtimeError("Abstract method '%s' does not exist on subclass '%s'.", name->chars, klass->name->chars);
+      return false;
+    }
+  }
+
   vm.stackTop[-argCount - 1] = createObject(klass, argCount);
   Value initializer;
   if (tableGet(&klass->methods, vm.initString, &initializer)) {
@@ -463,6 +475,7 @@ static bool callClass(ObjClass* klass, int argCount) {
     runtimeError("Expected 0 argument but got %d.", argCount);
     return false;
   }
+
   return true;
 }
 
@@ -750,12 +763,46 @@ static void defineSetter(ObjString* name) {
   pop();
 }
 
+static void defineAbstractMethod(ObjString* name) {
+  Value method = peek(0);
+  ObjClass* klass = AS_CLASS(peek(1));
+
+  writeValueArray(&klass->abstractMethodNames, OBJ_VAL(name));
+  AS_CLOSURE(method)->function->isAbstract = true;
+
+  tableSet(&klass->methods, name, method);
+  handleInterceptorMethod(klass, name);
+  pop();
+}
+
 static void defineMethod(ObjString* name, bool isMethodStatic) {
   Value method = peek(0);
   ObjClass* klass = AS_CLASS(peek(1));
 
   if (isMethodStatic) {
     klass = klass->obj.klass;
+  } else {
+    Value superMethod;
+    if (tableGet(&klass->superclass->methods, name, &superMethod)) {
+      if (IS_CLOSURE(superMethod)) {   
+        ObjFunction* superFunction = AS_CLOSURE(superMethod)->function;
+        ObjFunction* currentFunction = AS_CLOSURE(method)->function;
+        if (superFunction->isAbstract) {
+          if (superFunction->arity != currentFunction->arity) {
+            runtimeError("Method '%s' in subclass does not match arity of abstract method in superclass.", name->chars);
+            exit(70);
+          }
+
+          for (int i = 0; i < superFunction->arity; i++) {
+            if (superFunction->paramHashes[i] != currentFunction->paramHashes[i]) { // new segfault happens here
+              runtimeError("Parameter names of method '%s' in subclass do not match those in abstract method '%s'.", 
+                           name->chars, superFunction->name->chars);
+              exit(70);
+            }
+          }
+        }
+      }   
+    }
   }
 
   tableSet(&klass->methods, name, method);
@@ -771,7 +818,20 @@ void bindSuperclass(ObjClass* subclass, ObjClass* superclass) {
   subclass->superclass = superclass;
   subclass->interceptors = superclass->interceptors;
   subclass->classType = superclass->classType;
-  tableAddAll(&superclass->methods, &subclass->methods);
+
+  for (int i = 0; i < superclass->methods.capacity; i++) {
+    Entry* entry = &superclass->methods.entries[i];
+    if (IS_NIL(entry->value)) continue;
+    else if (IS_NATIVE_METHOD(entry->value)) {
+      // TODO Make NativeMethods also abstract
+    } else if (AS_CLOSURE(entry->value)->function->isAbstract) {
+      printf("we are here\n");
+      continue;
+    }
+    if (entry->key != NULL) {
+      tableSet(&subclass->methods, entry->key, entry->value);
+    }
+  }
 }
 
 bool isFalsey(Value value) {
@@ -1499,10 +1559,10 @@ InterpretResult run() {
         break;
       }
       case OP_METHOD:
-        defineMethod(READ_STRING(), false);
+        defineMethod(READ_STRING(), AS_BOOL(pop()));
         break;
-      case OP_STATIC_METHOD:
-        defineMethod(READ_STRING(), true);
+      case OP_ABSTRACT_METHOD:
+        defineAbstractMethod(READ_STRING());
         break;
       case OP_GETTER:
         defineGetter(READ_STRING());
