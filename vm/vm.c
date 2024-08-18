@@ -458,9 +458,7 @@ static bool callClass(ObjClass* klass, int argCount) {
   ObjClass* superclass = klass->superclass;
   for (int i = 0; i < klass->superclass->abstractMethodNames.count; i++) {
     ObjString* name = AS_STRING(klass->superclass->abstractMethodNames.values[i]);
-    printf("method: %s\n", name->chars);
     Value method;
-    printTable(klass->methods);
     if (!tableGet(&klass->methods, name, &method)) { 
       runtimeError("Abstract method '%s' does not exist on subclass '%s'.", name->chars, klass->name->chars);
       return false;
@@ -574,6 +572,11 @@ static bool callClosureAsync(ObjClosure* closure, int argCount) {
 }
 
 bool callClosure(ObjClosure* closure, int argCount) {
+  if (closure->function->isAbstract) {
+    runtimeError("Can't invoke an abstract method.");
+    return false;
+  }
+
   if (closure->function->arity > 0 && argCount != closure->function->arity) {
     runtimeError("Expected %d arguments but got %d.", closure->function->arity, argCount);
     return false;
@@ -825,7 +828,6 @@ void bindSuperclass(ObjClass* subclass, ObjClass* superclass) {
     else if (IS_NATIVE_METHOD(entry->value)) {
       // TODO Make NativeMethods also abstract
     } else if (AS_CLOSURE(entry->value)->function->isAbstract) {
-      printf("we are here\n");
       continue;
     }
     if (entry->key != NULL) {

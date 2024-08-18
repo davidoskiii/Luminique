@@ -10,10 +10,13 @@ class Dog : Animal {
   function animalSound() {
     println("The dog says: wof wof");
   }
+
+  abstract favouriteActivity();
 }
 
 const dog = Dog();
 dog.animalSound();
 dog.sleep();
 
+dog.favouriteActivity(); // Error
 let animal = Animal(); // Error
