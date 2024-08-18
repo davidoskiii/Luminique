@@ -1,6 +1,7 @@
 #include <string.h>
 
 #include "hash.h"
+#include "../memory/memory.h"
 
 static inline uint32_t hash64To32Bits(uint64_t hash) {
   hash = ~hash + (hash << 18);
@@ -23,6 +24,14 @@ uint32_t hashString(const char* chars, int length) {
 		hash *= 16777619;
 	}
 	return hash;
+}
+
+uint32_t* hashStringArray(const char* chars[], int arity) {
+  uint32_t* hash = ALLOCATE(uint32_t, arity);
+  for (int i = 0; i < arity + 1; i++) {
+    hash[i] = hashString(chars[i], strlen(chars[i]));
+  }
+  return hash;
 }
 
 uint32_t hashObject(Obj* object) {

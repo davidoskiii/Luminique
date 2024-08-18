@@ -114,7 +114,20 @@ void defineNativeEnumElement(ObjEnum* enum_, const char* name) {
 void defineNativeMethod(ObjClass* klass, const char* name, int arity, bool isAsync, NativeMethod method) {
   ObjString* methodName = copyString(name, (int)strlen(name));
   push(OBJ_VAL(methodName));
-  ObjNativeMethod* nativeMethod = newNativeMethod(klass, methodName, arity, isAsync, method);
+  ObjNativeMethod* nativeMethod = newNativeMethod(klass, methodName, arity, isAsync, false, method);
+  push(OBJ_VAL(nativeMethod));
+  tableSet(&klass->methods, methodName, OBJ_VAL(nativeMethod));
+  pop();
+  pop();
+}
+
+void defineNativeAbstractMethod(ObjClass* klass, const char* name, int arity, uint32_t* paramHashes, NativeMethod method) {
+  ObjString* methodName = copyString(name, (int)strlen(name));
+  push(OBJ_VAL(methodName));
+  ObjNativeMethod* nativeMethod = newNativeMethod(klass, methodName, arity, false, true, method);
+  for (int i = 0; i < arity + 1; i++) {
+    nativeMethod->paramHashes[i] = paramHashes[i];
+  }
   push(OBJ_VAL(nativeMethod));
   tableSet(&klass->methods, methodName, OBJ_VAL(nativeMethod));
   pop();
