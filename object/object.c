@@ -267,12 +267,15 @@ ObjNativeFunction* newNativeFunction(ObjString* name, int arity, bool isAsync, N
   return nativeFunction;
 }
 
-ObjNativeMethod* newNativeMethod(ObjClass* klass, ObjString* name, int arity, bool isAsync, NativeMethod method) {
+ObjNativeMethod* newNativeMethod(ObjClass* klass, ObjString* name, int arity, bool isAsync, bool isAbstract, NativeMethod method) {
   ObjNativeMethod* nativeMethod = ALLOCATE_OBJ(ObjNativeMethod, OBJ_NATIVE_METHOD, NULL);
+  if (arity != -1) nativeMethod->paramHashes = ALLOCATE(uint32_t, arity);
+  else nativeMethod->paramHashes = ALLOCATE(uint32_t, 255);
   nativeMethod->klass = klass;
   nativeMethod->name = name;
   nativeMethod->arity = arity;
   nativeMethod->isAsync = isAsync;
+  nativeMethod->isAbstract = isAbstract;
   nativeMethod->method = method;
   return nativeMethod;
 }
