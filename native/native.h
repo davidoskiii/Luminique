@@ -14,6 +14,7 @@
 #define DEF_METHOD_ABSTRACT(klass, className, name, arity, ...) \
   do { \
     const char* chars[] = {__VA_ARGS__}; \
+    writeValueArray(&klass->abstractMethodNames, OBJ_VAL(newString(#name))); \
     defineNativeAbstractMethod(klass, #name, arity, hashStringArray(chars, arity), name##AbstractNativeMethodFor##className); \
   } while (false)
 

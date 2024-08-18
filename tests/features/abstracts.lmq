@@ -18,5 +18,5 @@ const dog = Dog();
 dog.animalSound();
 dog.sleep();
 
-dog.favouriteActivity(); // Error
-let animal = Animal(); // Error
+// dog.favouriteActivity(); // Error
+// let animal = Animal(); // Error
