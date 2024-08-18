@@ -121,6 +121,19 @@ void defineNativeMethod(ObjClass* klass, const char* name, int arity, bool isAsy
   pop();
 }
 
+void defineNativeAbstractMethod(ObjClass* klass, const char* name, int arity, uint32_t* paramHashes, NativeMethod method) {
+  ObjString* methodName = copyString(name, (int)strlen(name));
+  push(OBJ_VAL(methodName));
+  ObjNativeMethod* nativeMethod = newNativeMethod(klass, methodName, arity, false, true, method);
+  for (int i = 0; i < arity + 1; i++) {
+    nativeMethod->paramHashes[i] = paramHashes[i];
+  }
+  push(OBJ_VAL(nativeMethod));
+  tableSet(&klass->methods, methodName, OBJ_VAL(nativeMethod));
+  pop();
+  pop();
+}
+
 void defineNativeConstant(ObjNamespace* namespace_, const char* name, Value value) {
   ObjString* variableName = copyString(name, (int)strlen(name));
   push(OBJ_VAL(variableName));

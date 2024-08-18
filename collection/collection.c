@@ -1,3 +1,4 @@
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -1217,13 +1218,9 @@ NATIVE_METHOD(Range, toArray) {
   RETURN_OBJ(array);
 }
 
-NATIVE_METHOD(Range, append) {
-  THROW_EXCEPTION(luminique::std::lang, NotImplementedException, "Cannot add an element to instance of class Range.");
-}
+NATIVE_ABSTRACT_METHOD(Range, append);
 
-NATIVE_METHOD(Range, extend) {
-  THROW_EXCEPTION(luminique::std::lang, NotImplementedException, "Cannot add a collection to instance of class Range.");
-}
+NATIVE_ABSTRACT_METHOD(Range, extend);
 
 NATIVE_METHOD(Range, __str__) {
   assertArgCount("Range::__str__()", 0, argCount);
@@ -1269,9 +1266,7 @@ NATIVE_METHOD(List, getAt) {
   RETURN_NIL;
 }
 
-NATIVE_METHOD(List, putAt) {
-  THROW_EXCEPTION(luminique::std::lang, NotImplementedException, "Not implemented, subclass responsibility.");
-}
+NATIVE_ABSTRACT_METHOD(List, putAt);
 
 NATIVE_METHOD(Node, __init__) {
   assertArgCount("Node::__init__(element, prev, next)", 3, argCount);
@@ -1691,7 +1686,7 @@ void registerCollectionPackage() {
   bindSuperclass(listClass, collectionClass);
   DEF_METHOD(listClass, List, eachIndex, 1);
   DEF_METHOD(listClass, List, getAt, 1);
-  DEF_METHOD(listClass, List, putAt, 2);
+  DEF_METHOD_ABSTRACT(listClass, List, putAt, 2, "index", "element");
 
 	vm.arrayClass = defineNativeClass("Array");
 	bindSuperclass(vm.arrayClass, listClass);
@@ -1749,8 +1744,8 @@ void registerCollectionPackage() {
   bindSuperclass(vm.rangeClass, listClass);
   vm.rangeClass->classType = OBJ_RANGE;
   DEF_METHOD(vm.rangeClass, Range, __init__, 2);
-  DEF_METHOD(vm.rangeClass, Range, append, 1);
-  DEF_METHOD(vm.rangeClass, Range, extend, 1);
+  DEF_METHOD_ABSTRACT(vm.rangeClass, Range, append, 1, "element");
+  DEF_METHOD_ABSTRACT(vm.rangeClass, Range, extend, 1, "collection");
   DEF_METHOD(vm.rangeClass, Range, clone, 0);
   DEF_METHOD(vm.rangeClass, Range, contains, 1);
   DEF_METHOD(vm.rangeClass, Range, getAt, 1);

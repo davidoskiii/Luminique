@@ -422,6 +422,10 @@ static bool callNativeMethod(NativeMethod method, int argCount) {
 
 bool callMethod(Value method, int argCount) {
   if (IS_NATIVE_METHOD(method)) {
+    if (AS_NATIVE_METHOD(method)->isAbstract) {
+      runtimeError("Can't invoke an abstract method.");
+      return false;
+    }
     return callNativeMethod(AS_NATIVE_METHOD(method)->method, argCount);
   }
 
@@ -787,9 +791,25 @@ static void defineMethod(ObjString* name, bool isMethodStatic) {
   } else {
     Value superMethod;
     if (tableGet(&klass->superclass->methods, name, &superMethod)) {
-      if (IS_CLOSURE(superMethod)) {   
+      ObjFunction* currentFunction = AS_CLOSURE(method)->function;
+      if (IS_NATIVE_METHOD(superMethod)) {
+        ObjNativeMethod* superFunction = AS_NATIVE_METHOD(superMethod);
+        if (superFunction->isAbstract) {
+          if (superFunction->arity != currentFunction->arity) {
+            runtimeError("Method '%s' in subclass does not match arity of abstract method in superclass.", name->chars);
+            exit(70);
+          }
+
+          for (int i = 0; i < superFunction->arity; i++) {
+            if (superFunction->paramHashes[i] != currentFunction->paramHashes[i]) { // new segfault happens here
+              runtimeError("Parameter names of method '%s' in subclass do not match those in abstract method '%s'.", 
+                           name->chars, superFunction->name->chars);
+              exit(70);
+            }
+          }
+        }
+      } else if (IS_CLOSURE(superMethod)) {   
         ObjFunction* superFunction = AS_CLOSURE(superMethod)->function;
-        ObjFunction* currentFunction = AS_CLOSURE(method)->function;
         if (superFunction->isAbstract) {
           if (superFunction->arity != currentFunction->arity) {
             runtimeError("Method '%s' in subclass does not match arity of abstract method in superclass.", name->chars);
@@ -825,11 +845,8 @@ void bindSuperclass(ObjClass* subclass, ObjClass* superclass) {
   for (int i = 0; i < superclass->methods.capacity; i++) {
     Entry* entry = &superclass->methods.entries[i];
     if (IS_NIL(entry->value)) continue;
-    else if (IS_NATIVE_METHOD(entry->value)) {
-      // TODO Make NativeMethods also abstract
-    } else if (AS_CLOSURE(entry->value)->function->isAbstract) {
-      continue;
-    }
+    else if (IS_NATIVE_METHOD(entry->value) && AS_NATIVE_METHOD(entry->value)->isAbstract) continue; 
+    else if (AS_CLOSURE(entry->value)->function->isAbstract) continue;
     if (entry->key != NULL) {
       tableSet(&subclass->methods, entry->key, entry->value);
     }
