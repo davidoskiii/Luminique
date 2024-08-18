@@ -415,7 +415,7 @@ void registerTimePackage() {
   DEF_FUNCTION(dateTimeNow, 0);
 
 
-	ObjClass* dateClass = defineNativeClass("Date");
+	ObjClass* dateClass = defineNativeClass("Date", false);
 	bindSuperclass(dateClass, vm.objectClass);
 	DEF_METHOD(dateClass, Date, __init__, 3);
 	DEF_METHOD(dateClass, Date, diff, 1);
@@ -429,7 +429,7 @@ void registerTimePackage() {
   DEF_OPERATOR(dateClass, Date, +, __add__, 1);
   DEF_OPERATOR(dateClass, Date, -, __subtract__, 1);
 
-	ObjClass* dateTimeClass = defineNativeClass("DateTime");
+	ObjClass* dateTimeClass = defineNativeClass("DateTime", false);
 	bindSuperclass(dateTimeClass, dateClass);
 	DEF_METHOD(dateTimeClass, DateTime, __init__, 6);
 	DEF_METHOD(dateTimeClass, DateTime, diff, 1);
@@ -443,17 +443,17 @@ void registerTimePackage() {
   DEF_OPERATOR(dateTimeClass, DateTime, +, __add__, 1);
   DEF_OPERATOR(dateTimeClass, DateTime, -, __subtract__, 1);
 
-	ObjClass* durationClass = defineNativeClass("Duration");
+	ObjClass* durationClass = defineNativeClass("Duration", false);
 	bindSuperclass(durationClass, vm.objectClass);
   DEF_METHOD(durationClass, Duration, __init__, 4);
 	DEF_METHOD(durationClass, Duration, getTotalSeconds, 0);
 	DEF_METHOD(durationClass, Duration, __str__, 0);
 	DEF_METHOD(durationClass, Duration, __format__, 0);
 
-  vm.timerClass = defineNativeClass("Timer");
+  vm.timerClass = defineNativeClass("Timer", false);
   bindSuperclass(vm.timerClass, vm.objectClass);
   vm.timerClass->classType = OBJ_TIMER;
-  DEF_INTERCEPTOR(vm.timerClass, Timer, INTERCEPTOR_INIT, __init__, 3);
+  DEF_METHOD(vm.timerClass, Timer, __init__, 3);
   DEF_METHOD(vm.timerClass, Timer, clear, 0);
   DEF_METHOD(vm.timerClass, Timer, isRunning, 0);
   DEF_METHOD(vm.timerClass, Timer, run, 0);

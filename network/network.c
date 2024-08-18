@@ -816,7 +816,7 @@ void registerNetworkPackage() {
   defineNativeException("SocketException", networkExceptionClass);
   defineNativeException("URLException", networkExceptionClass);
 
-  ObjClass* urlClass = defineNativeClass("URL");
+  ObjClass* urlClass = defineNativeClass("URL", false);
   bindSuperclass(urlClass, vm.objectClass);
   DEF_METHOD(urlClass, URL, __init__, 6);
   DEF_METHOD(urlClass, URL, isAbsolute, 0);
@@ -830,7 +830,7 @@ void registerNetworkPackage() {
   ObjClass* urlMetaclass = urlClass->obj.klass;
   DEF_METHOD(urlMetaclass, URLClass, parse, 1);
 
-  ObjClass* ipAddressClass = defineNativeClass("IPAddress");
+  ObjClass* ipAddressClass = defineNativeClass("IPAddress", false);
   bindSuperclass(ipAddressClass, vm.objectClass);
   DEF_METHOD(ipAddressClass, IPAddress, __init__, 1);
   DEF_METHOD(ipAddressClass, IPAddress, getDomain, 0);
@@ -841,7 +841,7 @@ void registerNetworkPackage() {
   DEF_METHOD(ipAddressClass, IPAddress, __str__, 0);
   DEF_METHOD(ipAddressClass, IPAddress, __format__, 0);
 
-  ObjClass* domainClass = defineNativeClass("Domain");
+  ObjClass* domainClass = defineNativeClass("Domain", false);
   bindSuperclass(domainClass, vm.objectClass);
   DEF_METHOD(domainClass, Domain, __init__, 1);
   DEF_METHOD(domainClass, Domain, getIPAddresses, 0);
@@ -849,14 +849,14 @@ void registerNetworkPackage() {
   DEF_METHOD(domainClass, Domain, __str__, 0);
   DEF_METHOD(domainClass, Domain, __format__, 0);
 
-  ObjClass* socketAddressClass = defineNativeClass("SocketAddress");
+  ObjClass* socketAddressClass = defineNativeClass("SocketAddress", false);
   bindSuperclass(socketAddressClass, vm.objectClass);
   DEF_METHOD(socketAddressClass, SocketAddress, __init__, 3);
   DEF_METHOD(socketAddressClass, SocketAddress, ipAddress, 0);
   DEF_METHOD(socketAddressClass, SocketAddress, __str__, 0);
   DEF_METHOD(socketAddressClass, SocketAddress, __format__, 0);
 
-  ObjClass* socketClass = defineNativeClass("Socket");
+  ObjClass* socketClass = defineNativeClass("Socket", false);
   bindSuperclass(socketClass, vm.objectClass);
   DEF_METHOD(socketClass, Socket, __init__, 3);
   DEF_METHOD(socketClass, Socket, close, 0);
@@ -886,11 +886,11 @@ void registerNetworkPackage() {
   defineNativeArtificialEnumElement(socketTypeEnum, "protoICMPV6", INT_VAL(IPPROTO_ICMPV6));
   defineNativeArtificialEnumElement(socketTypeEnum, "protoRAW", INT_VAL(IPPROTO_RAW));
 
-  ObjClass* socketClientClass = defineNativeClass("SocketClient");
+  ObjClass* socketClientClass = defineNativeClass("SocketClient", false);
   bindSuperclass(socketClientClass, socketClass);
   DEF_METHOD(socketClientClass, SocketClient, connect, 1);
 
-  ObjClass* socketServerClass = defineNativeClass("SocketServer");
+  ObjClass* socketServerClass = defineNativeClass("SocketServer", false);
   bindSuperclass(socketServerClass, socketClass);
   DEF_METHOD(socketServerClass, SocketServer, accept, 1);
   DEF_METHOD(socketServerClass, SocketServer, bind, 1);
@@ -899,7 +899,7 @@ void registerNetworkPackage() {
   ObjNamespace* httpNamespace = defineNativeNamespace("http", networkNamespace);
   vm.currentNamespace = httpNamespace;
 
-  ObjClass* httpClientClass = defineNativeClass("HTTPClient");
+  ObjClass* httpClientClass = defineNativeClass("HTTPClient", false);
   bindSuperclass(httpClientClass, vm.objectClass);
   DEF_METHOD(httpClientClass, HTTPClient, __init__, 0);
   DEF_METHOD(httpClientClass, HTTPClient, close, 0);
@@ -912,7 +912,7 @@ void registerNetworkPackage() {
   DEF_METHOD(httpClientClass, HTTPClient, put, 2);
   DEF_METHOD(httpClientClass, HTTPClient, send, 1);
 
-  ObjClass* httpRequestClass = defineNativeClass("HTTPRequest");
+  ObjClass* httpRequestClass = defineNativeClass("HTTPRequest", false);
   bindSuperclass(httpRequestClass, vm.objectClass);
   DEF_METHOD(httpRequestClass, HTTPRequest, __init__, 4);
   DEF_METHOD(httpRequestClass, HTTPRequest, __str__, 0);
@@ -930,7 +930,7 @@ void registerNetworkPackage() {
   defineNativeArtificialEnumElement(httpRequestTypeEnum, "httpTRACE", INT_VAL(HTTP_TRACE));
   defineNativeArtificialEnumElement(httpRequestTypeEnum, "httpCONNECT", INT_VAL(HTTP_CONNECT));
 
-  ObjClass* httpResponseClass = defineNativeClass("HTTPResponse");
+  ObjClass* httpResponseClass = defineNativeClass("HTTPResponse", false);
   bindSuperclass(httpResponseClass, vm.objectClass);
   DEF_METHOD(httpResponseClass, HTTPResponse, __init__, 4);
   DEF_METHOD(httpResponseClass, HTTPResponse, __str__, 0);

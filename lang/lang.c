@@ -565,10 +565,6 @@ NATIVE_METHOD(PromiseClass, reject) {
 
 // FUNCTION
 
-NATIVE_METHOD(Function, __init__) {
-  THROW_EXCEPTION(luminique::std::lang, InstantiationException, "Cannot instantiate from class Function.");
-}
-
 NATIVE_METHOD(Function, __invoke__) {
   ObjClosure* self = AS_CLOSURE(receiver);
   if (callClosure(self, argCount)) {
@@ -876,10 +872,6 @@ NATIVE_METHOD(Int, __format__) {
 }
 
 // NIL
-
-NATIVE_METHOD(Nil, __init__) {
-	THROW_EXCEPTION(luminique::std::lang, InstantiationException, "Cannot instantiate from class Nil.");
-}
 
 NATIVE_METHOD(Nil, clone) {
 	assertArgCount("Nil::clone()", 0, argCount);
@@ -1242,11 +1234,6 @@ NATIVE_METHOD(String, trim) {
   RETURN_OBJ(trimString(AS_STRING(receiver)));
 }
 
-NATIVE_METHOD(Namespace, __init__) {
-  THROW_EXCEPTION(luminique::std::lang, InstantiationException, "Cannot instantiate from class Namespace.");
-  RETURN_NIL;
-}
-
 NATIVE_METHOD(Namespace, enclosing) {
   assertArgCount("Namespace::enclosing()", 0, argCount);
   ObjNamespace* self = AS_NAMESPACE(receiver);
@@ -1310,7 +1297,7 @@ void registerLangPackage() {
   vm.langNamespace = defineNativeNamespace("lang", vm.stdNamespace);
   vm.currentNamespace = vm.langNamespace;
 
-	vm.objectClass = defineNativeClass("Object");
+	vm.objectClass = defineNativeClass("Object", true);
   vm.objectClass->classType = OBJ_INSTANCE;
   DEF_METHOD(vm.objectClass, Object, clone, 0);
   DEF_METHOD(vm.objectClass, Object, equals, 1);
@@ -1327,7 +1314,7 @@ void registerLangPackage() {
   DEF_INTERCEPTOR(vm.objectClass, Object, INTERCEPTOR_UNDEFINED_PROPERTY, __undefinedProperty__, 1);
   DEF_INTERCEPTOR(vm.objectClass, Object, INTERCEPTOR_UNDEFINED_METHOD, __undefinedMethod__, 2);
 
-  vm.classClass = defineNativeClass("Class");
+  vm.classClass = defineNativeClass("Class", false);
   bindSuperclass(vm.classClass, vm.objectClass);
   vm.classClass->classType = OBJ_CLASS;
   DEF_METHOD(vm.classClass, Class, __init__, 2);
@@ -1343,7 +1330,7 @@ void registerLangPackage() {
   DEF_OPERATOR(vm.classClass, Class, (), __invoke__, -1);
   vm.objectClass->obj.klass = vm.classClass;
 
-  vm.enumClass = defineNativeClass("Enum");
+  vm.enumClass = defineNativeClass("Enum", false);
   bindSuperclass(vm.enumClass, vm.objectClass);
   vm.enumClass->classType = OBJ_ENUM;
   DEF_METHOD(vm.enumClass, Enum, __init__, 1);
@@ -1352,10 +1339,9 @@ void registerLangPackage() {
   DEF_METHOD(vm.enumClass, Enum, __str__, 0);
   DEF_METHOD(vm.enumClass, Enum, __format__, 0);
 
-  vm.namespaceClass = defineNativeClass("Namespace");
+  vm.namespaceClass = defineNativeClass("Namespace", true);
   bindSuperclass(vm.namespaceClass, vm.objectClass);
   vm.namespaceClass->classType = OBJ_NAMESPACE;
-  DEF_METHOD(vm.namespaceClass, Namespace, __init__, 0);
   DEF_METHOD(vm.namespaceClass, Namespace, clone, 0);
   DEF_METHOD(vm.namespaceClass, Namespace, enclosing, 0);
   DEF_METHOD(vm.namespaceClass, Namespace, fullName, 0);
@@ -1364,7 +1350,7 @@ void registerLangPackage() {
   DEF_METHOD(vm.namespaceClass, Namespace, __format__, 0);
   bindNamespaceClass();
 
-  vm.exceptionClass = defineNativeClass("Exception");
+  vm.exceptionClass = defineNativeClass("Exception", false);
   bindSuperclass(vm.exceptionClass, vm.objectClass);
   vm.exceptionClass->classType = OBJ_EXCEPTION;
   DEF_METHOD(vm.exceptionClass, Exception, __init__, 1);
@@ -1382,7 +1368,7 @@ void registerLangPackage() {
   defineNativeException("InstantiationException", runtimeExceptionClass);
   defineNativeException("CallException", runtimeExceptionClass);
 
-  vm.generatorClass = defineNativeClass("Generator");
+  vm.generatorClass = defineNativeClass("Generator", false);
   bindSuperclass(vm.generatorClass, vm.objectClass);
   vm.generatorClass->classType = OBJ_GENERATOR;
   DEF_METHOD(vm.generatorClass, Generator, __init__, 1);
@@ -1413,7 +1399,7 @@ void registerLangPackage() {
   ObjClass* generatorMetaclass = vm.generatorClass->obj.klass;
   DEF_METHOD(generatorMetaclass, GeneratorClass, run, 2);
 
-  vm.promiseClass = defineNativeClass("Promise");
+  vm.promiseClass = defineNativeClass("Promise", false);
   bindSuperclass(vm.promiseClass, vm.objectClass);
   vm.promiseClass->classType = OBJ_PROMISE;
   DEF_METHOD(vm.promiseClass, Promise, __init__, 1);
@@ -1442,21 +1428,20 @@ void registerLangPackage() {
   DEF_METHOD(promiseMetaclass, PromiseClass, race, 1);
   DEF_METHOD(promiseMetaclass, PromiseClass, reject, 1);
 
-	vm.nilClass = defineNativeClass("Nil");
+	vm.nilClass = defineNativeClass("Nil", true);
 	bindSuperclass(vm.nilClass, vm.objectClass);
-	DEF_METHOD(vm.nilClass, Nil, __init__, 0);
 	DEF_METHOD(vm.nilClass, Nil, clone, 0);
 	DEF_METHOD(vm.nilClass, Nil, __str__, 0);
 	DEF_METHOD(vm.nilClass, Nil, __format__, 0);
 
-	vm.boolClass = defineNativeClass("Bool");
+	vm.boolClass = defineNativeClass("Bool", false);
 	bindSuperclass(vm.boolClass, vm.objectClass);
 	DEF_METHOD(vm.boolClass, Bool, __init__, 0);
 	DEF_METHOD(vm.boolClass, Bool, clone, 0);
 	DEF_METHOD(vm.boolClass, Bool, __str__, 0);
 	DEF_METHOD(vm.boolClass, Bool, __format__, 0);
 
-	vm.numberClass = defineNativeClass("Number");
+	vm.numberClass = defineNativeClass("Number", false);
 	bindSuperclass(vm.numberClass, vm.objectClass);
   DEF_METHOD(vm.numberClass, Number, __init__, 0);
   DEF_METHOD(vm.numberClass, Number, clone, 0);
@@ -1472,7 +1457,7 @@ void registerLangPackage() {
   DEF_OPERATOR(vm.numberClass, Number, %, __modulo__, 1);
   DEF_OPERATOR(vm.numberClass, Number, **, __power__, 1);
 
-  vm.intClass = defineNativeClass("Int");
+  vm.intClass = defineNativeClass("Int", false);
   bindSuperclass(vm.intClass, vm.numberClass);
   DEF_METHOD(vm.intClass, Int, __init__, 0);
   DEF_METHOD(vm.intClass, Int, clone, 0);
@@ -1483,14 +1468,14 @@ void registerLangPackage() {
   DEF_OPERATOR(vm.intClass, Int, *, __multiply__, 1);
   DEF_OPERATOR(vm.intClass, Int, %, __modulo__, 1);
 
-  vm.floatClass = defineNativeClass("Float");
+  vm.floatClass = defineNativeClass("Float", false);
   bindSuperclass(vm.floatClass, vm.numberClass);
   DEF_METHOD(vm.floatClass, Float, __init__, 0);
   DEF_METHOD(vm.floatClass, Float, clone, 0);
   DEF_METHOD(vm.floatClass, Float, __str__, 0);
   DEF_METHOD(vm.floatClass, Float, __format__, 0);
 
-  vm.stringClass = defineNativeClass("String");
+  vm.stringClass = defineNativeClass("String", false);
   bindSuperclass(vm.stringClass, vm.objectClass);
   vm.stringClass->classType = OBJ_STRING;
   DEF_METHOD(vm.stringClass, String, __init__, 1);
@@ -1523,10 +1508,9 @@ void registerLangPackage() {
     entry->key->obj.klass = vm.stringClass;
   }
 
-  vm.functionClass = defineNativeClass("Function");
+  vm.functionClass = defineNativeClass("Function", true);
   bindSuperclass(vm.functionClass, vm.objectClass);
   vm.functionClass->classType = OBJ_FUNCTION;
-  DEF_METHOD(vm.functionClass, Function, __init__, 0);
   DEF_METHOD(vm.functionClass, Function, clone, 0);
   DEF_METHOD(vm.functionClass, Function, isAnonymous, 0);
   DEF_METHOD(vm.functionClass, Function, isAsync, 0);
@@ -1536,10 +1520,10 @@ void registerLangPackage() {
   DEF_METHOD(vm.functionClass, Function, __format__, 0);
   DEF_OPERATOR(vm.functionClass, Function, (), __invoke__, -1);
 
-  vm.methodClass = defineNativeClass("Method");
+  vm.methodClass = defineNativeClass("Method", false);
   bindSuperclass(vm.methodClass, vm.objectClass);
   vm.methodClass->classType = OBJ_METHOD;
-  DEF_INTERCEPTOR(vm.methodClass, Method, INTERCEPTOR_INIT, __init__, 0);
+  DEF_METHOD(vm.methodClass, Method, __init__, 0);
   DEF_METHOD(vm.methodClass, Method, arity, 0);
   DEF_METHOD(vm.methodClass, Method, behavior, 0);
   DEF_METHOD(vm.methodClass, Method, bind, 1);
@@ -1551,10 +1535,10 @@ void registerLangPackage() {
   DEF_METHOD(vm.methodClass, Method, __str__, 0);
   DEF_METHOD(vm.methodClass, Method, __format__, 0);
 
-  vm.boundMethodClass = defineNativeClass("BoundMethod");
+  vm.boundMethodClass = defineNativeClass("BoundMethod", false);
   bindSuperclass(vm.boundMethodClass, vm.objectClass);
   vm.boundMethodClass->classType = OBJ_BOUND_METHOD;
-  DEF_INTERCEPTOR(vm.boundMethodClass, BoundMethod, INTERCEPTOR_INIT, __init__, 2);
+  DEF_METHOD(vm.boundMethodClass, BoundMethod, __init__, 2);
   DEF_METHOD(vm.boundMethodClass, BoundMethod, arity, 0);
   DEF_METHOD(vm.boundMethodClass, BoundMethod, clone, 0);
   DEF_METHOD(vm.boundMethodClass, BoundMethod, isAsync, 0);

@@ -716,7 +716,7 @@ void registerIOPackage() {
   ObjNamespace* ioNamespace = defineNativeNamespace("io", vm.stdNamespace);
   vm.currentNamespace = ioNamespace;
 
-  vm.fileClass = defineNativeClass("File");
+  vm.fileClass = defineNativeClass("File", false);
   bindSuperclass(vm.fileClass, vm.objectClass);
   vm.fileClass->classType = OBJ_FILE;
   DEF_METHOD(vm.fileClass, File, __init__, 1);
@@ -751,7 +751,7 @@ void registerIOPackage() {
   DEF_METHOD(fileMetaclass, FileClass, open, 2);
   DEF_METHOD_ASYNC(fileMetaclass, FileClass, openAsync, 2);
 
-  ObjClass* ioStreamClass = defineNativeClass("IOStream");
+  ObjClass* ioStreamClass = defineNativeClass("IOStream", true);
   bindSuperclass(ioStreamClass, vm.objectClass);
   DEF_METHOD(ioStreamClass, IOStream, __init__, 1);
   DEF_METHOD(ioStreamClass, IOStream, close, 0);
@@ -760,21 +760,21 @@ void registerIOPackage() {
   DEF_METHOD(ioStreamClass, IOStream, getPosition, 0);
   DEF_METHOD(ioStreamClass, IOStream, reset, 0);
 
-  ObjClass* readStreamClass = defineNativeClass("ReadStream");
+  ObjClass* readStreamClass = defineNativeClass("ReadStream", true);
   bindSuperclass(readStreamClass, ioStreamClass);
   DEF_METHOD(readStreamClass, ReadStream, __init__, 1);
   DEF_METHOD(readStreamClass, ReadStream, isAtEnd, 0);
   DEF_METHOD(readStreamClass, ReadStream, read, 0);
   DEF_METHOD(readStreamClass, ReadStream, skip, 1);
 
-  ObjClass* writeStreamClass = defineNativeClass("WriteStream");
+  ObjClass* writeStreamClass = defineNativeClass("WriteStream", true);
   bindSuperclass(writeStreamClass, ioStreamClass);
   DEF_METHOD(writeStreamClass, WriteStream, __init__, 1);
   DEF_METHOD(writeStreamClass, WriteStream, flush, 0);
   DEF_METHOD_ASYNC(writeStreamClass, WriteStream, flushAsync, 0);
   DEF_METHOD(writeStreamClass, WriteStream, write, 1);
 
-  ObjClass* binaryReadStreamClass = defineNativeClass("BinaryReadStream");
+  ObjClass* binaryReadStreamClass = defineNativeClass("BinaryReadStream", false);
   bindSuperclass(binaryReadStreamClass, readStreamClass);
   DEF_METHOD(binaryReadStreamClass, BinaryReadStream, __init__, 1);
   DEF_METHOD(binaryReadStreamClass, BinaryReadStream, read, 0);
@@ -782,7 +782,7 @@ void registerIOPackage() {
   DEF_METHOD(binaryReadStreamClass, BinaryReadStream, readBytes, 1);
   DEF_METHOD_ASYNC(binaryReadStreamClass, BinaryReadStream, readBytesAsync, 1);
 
-  ObjClass* binaryWriteStreamClass = defineNativeClass("BinaryWriteStream");
+  ObjClass* binaryWriteStreamClass = defineNativeClass("BinaryWriteStream", false);
   bindSuperclass(binaryWriteStreamClass, writeStreamClass);
   DEF_METHOD(binaryWriteStreamClass, BinaryWriteStream, __init__, 1);
   DEF_METHOD(binaryWriteStreamClass, BinaryWriteStream, write, 1);
@@ -790,7 +790,7 @@ void registerIOPackage() {
   DEF_METHOD(binaryWriteStreamClass, BinaryWriteStream, writeBytes, 1);
   DEF_METHOD_ASYNC(binaryWriteStreamClass, BinaryWriteStream, writeBytesAsync, 1);
 
-  ObjClass* fileReadStreamClass = defineNativeClass("FileReadStream");
+  ObjClass* fileReadStreamClass = defineNativeClass("FileReadStream", false);
   bindSuperclass(fileReadStreamClass, readStreamClass);
   DEF_METHOD(fileReadStreamClass, FileReadStream, __init__, 1);
   DEF_METHOD(fileReadStreamClass, FileReadStream, peek, 0);
@@ -803,7 +803,7 @@ void registerIOPackage() {
   DEF_METHOD(fileReadStreamClass, FileReadStream, readToEnd, 0);
   DEF_METHOD_ASYNC(fileReadStreamClass, FileReadStream, readToEndAsync, 0);
 
-  ObjClass* fileWriteStreamClass = defineNativeClass("FileWriteStream");
+  ObjClass* fileWriteStreamClass = defineNativeClass("FileWriteStream", false);
   bindSuperclass(fileWriteStreamClass, writeStreamClass);
   DEF_METHOD(fileWriteStreamClass, FileWriteStream, __init__, 1);
   DEF_METHOD(fileWriteStreamClass, FileWriteStream, write, 1);

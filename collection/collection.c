@@ -586,10 +586,7 @@ static ObjString* linkToString(ObjInstance* linkedList) {
 
 // COLLECTION
 
-NATIVE_METHOD(Collection, append) {
-  assertError("Not implemented, subclass responsibility.");
-  RETURN_NIL;
-}
+NATIVE_ABSTRACT_METHOD(Collection, append);
 
 NATIVE_METHOD(Collection, extend) {
   assertArgCount("Collection::extend(collection)", 1, argCount);
@@ -662,11 +659,6 @@ NATIVE_METHOD(Collection, each) {
     index = callReentrantMethod(receiver, nextMethod, index);
   }
 
-  RETURN_NIL;
-}
-
-NATIVE_METHOD(Collection, __init__) {
-  assertError("Cannot instantiate from class Collection.");
   RETURN_NIL;
 }
 
@@ -1668,10 +1660,9 @@ void registerCollectionPackage() {
   ObjNamespace* collectionNamespace = defineNativeNamespace("collection", vm.stdNamespace);
   vm.currentNamespace = vm.langNamespace;
 
-  ObjClass* collectionClass = defineNativeClass("Collection");
+  ObjClass* collectionClass = defineNativeClass("Collection", true);
   bindSuperclass(collectionClass, vm.objectClass);
-  DEF_METHOD(collectionClass, Collection, __init__, 0);
-  DEF_METHOD(collectionClass, Collection, append, 1);
+  DEF_METHOD_ABSTRACT(collectionClass, Collection, append, 1, "element");
   DEF_METHOD(collectionClass, Collection, extend, 1);
   DEF_METHOD(collectionClass, Collection, collect, 1);
   DEF_METHOD(collectionClass, Collection, detect, 1);
@@ -1682,13 +1673,13 @@ void registerCollectionPackage() {
   DEF_METHOD(collectionClass, Collection, select, 1);
   DEF_METHOD(collectionClass, Collection, toArray, 0);
 
-  ObjClass* listClass = defineNativeClass("List");
+  ObjClass* listClass = defineNativeClass("List", true);
   bindSuperclass(listClass, collectionClass);
   DEF_METHOD(listClass, List, eachIndex, 1);
   DEF_METHOD(listClass, List, getAt, 1);
   DEF_METHOD_ABSTRACT(listClass, List, putAt, 2, "index", "element");
 
-	vm.arrayClass = defineNativeClass("Array");
+	vm.arrayClass = defineNativeClass("Array", false);
 	bindSuperclass(vm.arrayClass, listClass);
   vm.arrayClass->classType = OBJ_ARRAY;
 	DEF_METHOD(vm.arrayClass, Array, __init__, 0);
@@ -1718,7 +1709,7 @@ void registerCollectionPackage() {
   DEF_OPERATOR(vm.arrayClass, Array, [], __getSubscript__, 1);
   DEF_OPERATOR(vm.arrayClass, Array, []=, __setSubscript__, 2);
 
-	vm.dictionaryClass = defineNativeClass("Dictionary");
+	vm.dictionaryClass = defineNativeClass("Dictionary", false);
 	bindSuperclass(vm.dictionaryClass, collectionClass);
   vm.dictionaryClass->classType = OBJ_DICTIONARY;
 	DEF_METHOD(vm.dictionaryClass, Dictionary, __init__, 0);
@@ -1740,7 +1731,7 @@ void registerCollectionPackage() {
   DEF_OPERATOR(vm.dictionaryClass, Dictionary, [], __getSubscript__, 1);
   DEF_OPERATOR(vm.dictionaryClass, Dictionary, []=, __setSubscript__, 2);
 
-  vm.rangeClass = defineNativeClass("Range");
+  vm.rangeClass = defineNativeClass("Range", false);
   bindSuperclass(vm.rangeClass, listClass);
   vm.rangeClass->classType = OBJ_RANGE;
   DEF_METHOD(vm.rangeClass, Range, __init__, 2);
@@ -1760,13 +1751,13 @@ void registerCollectionPackage() {
 
   vm.currentNamespace = collectionNamespace;
 
-  ObjClass* setClass = defineNativeClass("Set");
+  ObjClass* setClass = defineNativeClass("Set", true);
   bindSuperclass(setClass, collectionClass);
 
-  ObjClass* entryClass = defineNativeClass("Entry");
+  ObjClass* entryClass = defineNativeClass("Entry", true);
   bindSuperclass(entryClass, vm.objectClass);
 
-  vm.nodeClass = defineNativeClass("Node");
+  vm.nodeClass = defineNativeClass("Node", false);
   bindSuperclass(vm.nodeClass, vm.objectClass);
   vm.nodeClass->classType = OBJ_NODE;
   DEF_METHOD(vm.nodeClass, Node, __init__, 3);
@@ -1774,7 +1765,7 @@ void registerCollectionPackage() {
   DEF_METHOD(vm.nodeClass, Node, __str__, 0);
   DEF_METHOD(vm.nodeClass, Node, __format__, 0);
 
-  ObjClass* linkedListClass = defineNativeClass("LinkedList");
+  ObjClass* linkedListClass = defineNativeClass("LinkedList", false);
   bindSuperclass(linkedListClass, listClass);
   DEF_METHOD(linkedListClass, LinkedList, __init__, 0);
   DEF_METHOD(linkedListClass, LinkedList, add, 1);
@@ -1802,7 +1793,7 @@ void registerCollectionPackage() {
   DEF_METHOD(linkedListClass, LinkedList, __str__, 0);
   DEF_METHOD(linkedListClass, LinkedList, __format__, 0);
 
-  ObjClass* stackClass = defineNativeClass("Stack");
+  ObjClass* stackClass = defineNativeClass("Stack", false);
   bindSuperclass(stackClass, collectionClass);
   DEF_METHOD(stackClass, Stack, __init__, 0);
   DEF_METHOD(stackClass, Stack, clear, 0);

@@ -71,11 +71,12 @@ void defineNativeInterceptor(ObjClass* klass, InterceptorType type, int arity, N
 }
 
 
-ObjClass* defineNativeClass(const char* name) {
+ObjClass* defineNativeClass(const char* name, bool isAbstract) {
   ObjString* className = copyString(name, (int)strlen(name));
   push(OBJ_VAL(className));
   ObjClass* nativeClass = newClass(className, OBJ_INSTANCE, false);
   nativeClass->isNative = true;
+  nativeClass->isAbstract = isAbstract;
   push(OBJ_VAL(nativeClass));
   tableSet(&vm.currentNamespace->values, AS_STRING(vm.stack[0]), vm.stack[1]);
   pop();
@@ -197,11 +198,10 @@ ObjNativeMethod* getNativeMethod(ObjClass* klass, const char* name) {
 }
 
 ObjClass* defineNativeException(const char* name, ObjClass* superClass) {
-  ObjClass* exceptionClass = defineNativeClass(name);
+  ObjClass* exceptionClass = defineNativeClass(name, false);
   bindSuperclass(exceptionClass, superClass);
   return exceptionClass;
 }
-
 
 void initNativePackage(const char* filePath) {
   char* source = readFile(filePath);

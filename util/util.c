@@ -145,7 +145,7 @@ void registerUtilPackage() {
   ObjNamespace* utilNamespace = defineNativeNamespace("util", vm.stdNamespace);
   vm.currentNamespace = utilNamespace;
 
-	ObjClass* regexClass = defineNativeClass("Regex");
+	ObjClass* regexClass = defineNativeClass("Regex", false);
 	bindSuperclass(regexClass, vm.objectClass);
 	DEF_METHOD(regexClass, Regex, __init__, 1);
 	DEF_METHOD(regexClass, Regex, match, 1);

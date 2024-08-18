@@ -49,7 +49,7 @@ void defineNativeAbstractMethod(ObjClass* klass, const char* name, int arity, ui
 void defineNativeConstant(ObjNamespace* namespace_, const char* name, Value value);
 void defineNativeInterceptor(ObjClass* klass, InterceptorType type, int arity, NativeMethod method);
 ObjNamespace* defineNativeNamespace(const char* name, ObjNamespace* enclosing);
-ObjClass* defineNativeClass(const char* name);
+ObjClass* defineNativeClass(const char* name, bool isAbstract);
 ObjEnum* defineNativeEnum(const char* name);
 void defineNativeEnumElement(ObjEnum* enum_, const char* name);
 void defineNativeArtificialEnumElement(ObjEnum* enum_, const char* name, Value value);

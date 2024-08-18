@@ -1,5 +1,6 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_events.h>
+#include <stdbool.h>
 
 #include "graphics.h"
 #include "../assert/assert.h"
@@ -80,7 +81,7 @@ void registerGraphicsPackage() {
   ObjNamespace* graphicsNamespace = defineNativeNamespace("graphics", vm.stdNamespace);
   vm.currentNamespace = graphicsNamespace;
 
-	vm.windowClass = defineNativeClass("Window");
+	vm.windowClass = defineNativeClass("Window", false);
 	bindSuperclass(vm.windowClass, vm.objectClass);
 	DEF_METHOD(vm.windowClass, Window, __init__, 3);
 	DEF_METHOD(vm.windowClass, Window, __str__, 0);

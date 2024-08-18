@@ -714,7 +714,7 @@ void registerMathPackage() {
 
   vm.currentNamespace = mathNamespace;
 
-	ObjClass* dateClass = defineNativeClass("Complex");
+	ObjClass* dateClass = defineNativeClass("Complex", false);
 	bindSuperclass(dateClass, vm.objectClass);
 	DEF_METHOD(dateClass, Complex, __init__, 3);
 	DEF_METHOD(dateClass, Complex, magnitude, 0);
