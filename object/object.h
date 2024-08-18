@@ -146,6 +146,8 @@ struct ObjNativeMethod {
   ObjString* name;
   int arity;
   bool isAsync;
+  bool isAbstract;
+  uint32_t* paramHashes;
   NativeMethod method;
 };
 
