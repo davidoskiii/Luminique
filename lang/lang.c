@@ -1365,7 +1365,6 @@ void registerLangPackage() {
   defineNativeException("UnsupportedOperationException", runtimeExceptionClass);
   defineNativeException("NotImplementedException", runtimeExceptionClass);
   defineNativeException("AssertException", runtimeExceptionClass);
-  defineNativeException("InstantiationException", runtimeExceptionClass);
   defineNativeException("CallException", runtimeExceptionClass);
 
   vm.generatorClass = defineNativeClass("Generator", false);
