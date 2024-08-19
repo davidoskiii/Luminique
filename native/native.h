@@ -3,6 +3,7 @@
 
 #include "../value/value.h"
 #include "../object/object.h"
+#include "../hash/hash.h"
 #include "../interceptor/interceptor.h"
 
 #define NATIVE_FUNCTION(name) static Value name##NativeFunction(int argCount, Value* args)
@@ -13,9 +14,15 @@
 #define DEF_METHOD(klass, className, name, arity) defineNativeMethod(klass, #name, arity, false, name##NativeMethodFor##className)
 #define DEF_METHOD_ABSTRACT(klass, className, name, arity, ...) \
   do { \
-    const char* chars[] = {__VA_ARGS__}; \
-    writeValueArray(&klass->abstractMethodNames, OBJ_VAL(newString(#name))); \
-    defineNativeAbstractMethod(klass, #name, arity, hashStringArray(chars, arity), name##AbstractNativeMethodFor##className); \
+    if (arity == 0) { \
+      defineNativeAbstractMethod(klass, #name, arity, NULL, name##AbstractNativeMethodFor##className); \
+    } else if (arity == -1) { \
+      const char* chars[] = {__VA_ARGS__}; \
+      defineNativeAbstractMethod(klass, #name, 1, hashStringArray(chars, 1), name##AbstractNativeMethodFor##className); \
+    } else { \
+      const char* chars[] = {__VA_ARGS__}; \
+      defineNativeAbstractMethod(klass, #name, arity, hashStringArray(chars, arity), name##AbstractNativeMethodFor##className); \
+    } \
   } while (false)
 
 #define DEF_METHOD_ASYNC(klass, className, name, arity) defineNativeMethod(klass, #name, arity, true, name##NativeMethodFor##className)

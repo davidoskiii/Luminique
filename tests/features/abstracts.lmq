@@ -1,3 +1,5 @@
+using luminique::std::chrono::sleep;
+
 abstract class Animal {
   function sleep() {
     println("Zzz...");
@@ -12,11 +14,28 @@ class Dog : Animal {
   }
 
   abstract favouriteActivity();
+  abstract goOnAWalk(hours);
+}
+
+class PitBull : Dog {
+  function favouriteActivity() {
+    println("PitBull's favourite activity is: Fetch and frisbee");
+  }
+
+  function goOnAWalk(const hours) {
+    println("Walking...");
+    sleep(hours);
+    println("PitBull went for a walk for ${hours} hours");
+  }
 }
 
 const dog = Dog();
 dog.animalSound();
 dog.sleep();
 
-// dog.favouriteActivity(); // Error
-// let animal = Animal(); // Error
+const pitbull = PitBull();
+pitbull.favouriteActivity();
+pitbull.goOnAWalk(2);
+
+dog.favouriteActivity(); // Error
+let animal = Animal(); // Error

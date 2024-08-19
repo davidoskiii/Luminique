@@ -7,7 +7,7 @@
 
 #define ABORT_IFNOPROPRETY(value, name) \
   do {\
-    THROW_EXCEPTION_FMT(luminique::std::lang, NotImplementedException, "Property %s does not exist in %s.", \
+    THROW_EXCEPTION_FMT(luminique::std::lang, NotImplementedException, "Property %s does not exist in '%s'.", \
       name->chars, valueToString(value)); \
   } while (false)
 

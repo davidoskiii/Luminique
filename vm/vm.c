@@ -796,15 +796,24 @@ static void defineMethod(ObjString* name, bool isMethodStatic) {
         ObjNativeMethod* superFunction = AS_NATIVE_METHOD(superMethod);
         if (superFunction->isAbstract) {
           if (superFunction->arity != currentFunction->arity) {
-            runtimeError("Method '%s' in subclass does not match arity of abstract method in superclass.", name->chars);
+            runtimeError("Method '%s' in subclass '%s' does not match arity of abstract method in superclass '%s'.",
+                         name->chars, klass->name->chars, klass->superclass->name->chars);
             exit(70);
           }
 
-          for (int i = 0; i < superFunction->arity; i++) {
-            if (superFunction->paramHashes[i] != currentFunction->paramHashes[i]) { // new segfault happens here
-              runtimeError("Parameter names of method '%s' in subclass do not match those in abstract method '%s'.", 
-                           name->chars, superFunction->name->chars);
+          if (superFunction->arity == -1) {
+            if (superFunction->paramHashes[0] != currentFunction->paramHashes[0]) {
+              runtimeError("Parameter names of method '%s' in subclass '%s' do not match those in abstract method '%s'.", 
+                           name->chars, klass->name->chars, superFunction->name->chars);
               exit(70);
+            }
+          } else {
+            for (int i = 0; i < superFunction->arity; i++) {
+              if (superFunction->paramHashes[i] != currentFunction->paramHashes[i]) {
+                runtimeError("Parameter names of method '%s' in subclass do not match those in abstract method '%s'.", 
+                             name->chars, superFunction->name->chars);
+                exit(70);
+              }
             }
           }
         }
@@ -812,15 +821,24 @@ static void defineMethod(ObjString* name, bool isMethodStatic) {
         ObjFunction* superFunction = AS_CLOSURE(superMethod)->function;
         if (superFunction->isAbstract) {
           if (superFunction->arity != currentFunction->arity) {
-            runtimeError("Method '%s' in subclass does not match arity of abstract method in superclass.", name->chars);
+            runtimeError("Method '%s' in subclass '%s' does not match arity of abstract method in superclass '%s'.",
+                         name->chars, klass->name->chars, klass->superclass->name->chars);
             exit(70);
           }
 
-          for (int i = 0; i < superFunction->arity; i++) {
-            if (superFunction->paramHashes[i] != currentFunction->paramHashes[i]) { // new segfault happens here
-              runtimeError("Parameter names of method '%s' in subclass do not match those in abstract method '%s'.", 
-                           name->chars, superFunction->name->chars);
+          if (superFunction->arity == -1) {
+            if (superFunction->paramHashes[0] != currentFunction->paramHashes[0]) {
+              runtimeError("Parameter names of method '%s' in subclass '%s' do not match those in abstract method '%s'.", 
+                           name->chars, klass->name->chars, superFunction->name->chars);
               exit(70);
+            }
+          } else {
+            for (int i = 0; i < superFunction->arity; i++) {
+              if (superFunction->paramHashes[i] != currentFunction->paramHashes[i]) {
+                runtimeError("Parameter names of method '%s' in subclass do not match those in abstract method '%s'.", 
+                             name->chars, superFunction->name->chars);
+                exit(70);
+              }
             }
           }
         }

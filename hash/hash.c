@@ -28,7 +28,7 @@ uint32_t hashString(const char* chars, int length) {
 
 uint32_t* hashStringArray(const char* chars[], int arity) {
   uint32_t* hash = ALLOCATE(uint32_t, arity);
-  for (int i = 0; i < arity + 1; i++) {
+  for (int i = 0; i < arity; i++) {
     hash[i] = hashString(chars[i], strlen(chars[i]));
   }
   return hash;

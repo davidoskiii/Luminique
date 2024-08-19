@@ -1501,6 +1501,8 @@ static void abstractParameters() {
       consume(TOKEN_IDENTIFIER, "Expect variadic parameter name.");
       uint32_t hashedName = hashString(parser.previous.start, parser.previous.length);
       current->function->paramHashes[0] = hashedName;
+      consume(TOKEN_RIGHT_PAREN, "Expect ')' after parameters.");
+      consume(TOKEN_SEMICOLON, "Expect ';' after abstract method declaration.");
       return;
     }
 

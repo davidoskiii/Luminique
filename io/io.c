@@ -614,11 +614,6 @@ NATIVE_METHOD(FileWriteStream, writeStringAsync) {
   RETURN_OBJ(promise);
 }
 
-NATIVE_METHOD(IOStream, __init__) {
-  assertError("Cannot instantiate from class IOStream.");
-  RETURN_NIL;
-}
-
 NATIVE_METHOD(IOStream, close) {
   assertArgCount("IOStream::close()", 0, argCount);
   ObjFile* file = getFileProperty(AS_INSTANCE(receiver), "file");
@@ -655,10 +650,6 @@ NATIVE_METHOD(IOStream, reset) {
   RETURN_NIL;
 }
 
-NATIVE_METHOD(ReadStream, __init__) {
-  THROW_EXCEPTION(luminique::std::lang, UnsupportedOperationException, "Cannot instantiate from class ReadStream.");
-}
-
 NATIVE_METHOD(ReadStream, isAtEnd) {
   assertArgCount("ReadStream::isAtEnd()", 0, argCount);
   ObjFile* file = getFileProperty(AS_INSTANCE(receiver), "file");
@@ -671,9 +662,7 @@ NATIVE_METHOD(ReadStream, isAtEnd) {
   }
 }
 
-NATIVE_METHOD(ReadStream, read) {
-  THROW_EXCEPTION(luminique::std::lang, NotImplementedException, "Not implemented, subclass responsibility.");
-}
+NATIVE_ABSTRACT_METHOD(ReadStream, read);
 
 NATIVE_METHOD(ReadStream, skip) {
   assertArgCount("ReadStream::skip(offset)", 1, argCount);
@@ -683,10 +672,6 @@ NATIVE_METHOD(ReadStream, skip) {
   if (file->fsOpen == NULL) RETURN_FALSE;
   file->offset += AS_INT(args[0]);
   RETURN_TRUE;
-}
-
-NATIVE_METHOD(WriteStream, __init__) {
-  THROW_EXCEPTION(luminique::std::lang, UnsupportedOperationException, "Cannot instantiate from class WriteStream.");
 }
 
 NATIVE_METHOD(WriteStream, flush) {
@@ -708,9 +693,7 @@ NATIVE_METHOD(WriteStream, flushAsync) {
   RETURN_OBJ(promise);
 }
 
-NATIVE_METHOD(WriteStream, write) {
-  THROW_EXCEPTION(luminique::std::lang, NotImplementedException, "Not implemented, subclass responsibility.");
-}
+NATIVE_ABSTRACT_METHOD(WriteStream, write);
 
 void registerIOPackage() {
   ObjNamespace* ioNamespace = defineNativeNamespace("io", vm.stdNamespace);
@@ -753,7 +736,6 @@ void registerIOPackage() {
 
   ObjClass* ioStreamClass = defineNativeClass("IOStream", true);
   bindSuperclass(ioStreamClass, vm.objectClass);
-  DEF_METHOD(ioStreamClass, IOStream, __init__, 1);
   DEF_METHOD(ioStreamClass, IOStream, close, 0);
   DEF_METHOD_ASYNC(ioStreamClass, IOStream, closeAsync, 0);
   DEF_METHOD(ioStreamClass, IOStream, file, 0);
@@ -762,17 +744,15 @@ void registerIOPackage() {
 
   ObjClass* readStreamClass = defineNativeClass("ReadStream", true);
   bindSuperclass(readStreamClass, ioStreamClass);
-  DEF_METHOD(readStreamClass, ReadStream, __init__, 1);
   DEF_METHOD(readStreamClass, ReadStream, isAtEnd, 0);
-  DEF_METHOD(readStreamClass, ReadStream, read, 0);
+  DEF_METHOD_ABSTRACT(readStreamClass, ReadStream, read, 0);
   DEF_METHOD(readStreamClass, ReadStream, skip, 1);
 
   ObjClass* writeStreamClass = defineNativeClass("WriteStream", true);
   bindSuperclass(writeStreamClass, ioStreamClass);
-  DEF_METHOD(writeStreamClass, WriteStream, __init__, 1);
   DEF_METHOD(writeStreamClass, WriteStream, flush, 0);
   DEF_METHOD_ASYNC(writeStreamClass, WriteStream, flushAsync, 0);
-  DEF_METHOD(writeStreamClass, WriteStream, write, 1);
+  DEF_METHOD_ABSTRACT(writeStreamClass, WriteStream, write, 1, "byte");
 
   ObjClass* binaryReadStreamClass = defineNativeClass("BinaryReadStream", false);
   bindSuperclass(binaryReadStreamClass, readStreamClass);
