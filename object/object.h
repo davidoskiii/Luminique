@@ -132,6 +132,7 @@ struct ObjFunction {
   Chunk chunk;
   ObjString* name;
   ParamInfo* parameters;
+  bool isMutable;
 };
 
 typedef Value (*NativeFunction)(int argCount, Value* args);

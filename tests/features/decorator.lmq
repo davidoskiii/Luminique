@@ -1,0 +1,54 @@
+using luminique::std::chrono;
+
+function decorator(func) {
+  function wrapper() {
+    println("Before");
+
+    func();
+    
+    println("After");
+  }
+
+  return wrapper;
+}
+
+@decorator function func() {
+  println("Middle");
+}
+
+func();
+
+function timeFunction(func) {
+  function wrapper(n) {
+    const start = chrono::timeNow();
+    let result = func(n);
+    println("Function took ${chrono::timeNow() - start} seconds to run.");
+    // println("Function result: ${result}");
+    return result;
+  }
+  return wrapper;
+}
+
+@timeFunction function alg(n) {
+  let res = [];
+  for (let i = 0; i < n; i++) {
+    res.append(i);
+  }
+  return res;
+}
+
+function benchmark(func, values) {
+  for (value : values) {
+    func(value);
+  }
+}
+
+const values = [
+  10,
+  1000,
+  100000,
+  1000000,
+  10000000
+];
+
+benchmark(alg, values);

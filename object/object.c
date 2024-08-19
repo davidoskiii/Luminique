@@ -231,6 +231,7 @@ ObjFunction* newFunction() {
   function->name = NULL;
   function->isAsync = false;
   function->isAbstract = false;
+  function->isMutable = true;
   initChunk(&function->chunk);
   return function;
 }

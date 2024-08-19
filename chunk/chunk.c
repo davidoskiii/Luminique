@@ -102,6 +102,7 @@ int opCodeOffset(Chunk* chunk, int ip) {
         ObjFunction* function = AS_FUNCTION(chunk->constants.values[constant]);
         return 2 + (function->upvalueCount * 2);
       }
+      case OP_DECORATOR: return 3;
       case OP_CLOSE_UPVALUE: return 1;
       case OP_ENUM_ELEMENT: return 3;
       case OP_ENUM: return 3;

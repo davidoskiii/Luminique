@@ -332,39 +332,62 @@ void valueArrayPut(ValueArray* array, int index, Value value) {
 }
 
 ObjString* arrayToString(ObjArray* array) {
-	if (array->elements.count == 0) return copyString("[]", 2);
-	else {
-		char string[UINT8_MAX] = "";
-		string[0] = '[';
-		size_t offset = 1;
-		for (int i = 0; i < array->elements.count; i++) {
-			Value value = array->elements.values[i];
-			char* chars;
-			size_t length;
-			if (IS_STRING(value)) {
-				chars = ALLOCATE(char, AS_STRING(value)->length + 3);
-				chars[0] = '"';
-				memcpy(chars + 1, AS_STRING(value)->chars, AS_STRING(value)->length);
-				chars[AS_STRING(value)->length + 1] = '"';
-				length = AS_STRING(value)->length + 2;
-			} else {
-				chars = valueToString(value);
-				length = strlen(chars);
-			}
-			memcpy(string + offset, chars, length);
-			if (i == array->elements.count - 1) {
-				offset += length;
-			}
-			else{
-				memcpy(string + offset + length, ", ", 2);
-				offset += length + 2;
-			}
-			if (IS_STRING(value)) free(chars);
-		}
-		string[offset] = ']';
-		string[offset + 1] = '\0';
-		return copyString(string, (int)offset + 1);
-	}
+  if (array->elements.count == 0) return copyString("[]", 2);
+
+  size_t capacity = UINT8_MAX;
+  char* string = (char*)malloc(capacity);
+  if (string == NULL) return NULL;
+
+  size_t offset = 0;
+  string[offset++] = '[';
+
+  for (size_t i = 0; i < array->elements.count; i++) {
+    Value value = array->elements.values[i];
+    char* chars;
+    size_t length;
+
+    if (IS_STRING(value)) {
+      length = AS_STRING(value)->length + 2;
+      chars = (char*)malloc(length + 1);
+      if (chars == NULL) return NULL;
+
+      chars[0] = '"';
+      memcpy(chars + 1, AS_STRING(value)->chars, AS_STRING(value)->length);
+      chars[length - 1] = '"';
+      chars[length] = '\0';
+    } else {
+      chars = valueToString(value);
+      length = strlen(chars);
+    }
+
+    if (offset + length + 3 >= capacity) {
+      capacity *= 2;
+      char* newString = (char*)realloc(string, capacity);
+      if (newString == NULL) {
+        free(string);
+        return NULL;
+      }
+      string = newString;
+    }
+
+    memcpy(string + offset, chars, length);
+    offset += length;
+
+    if (i < array->elements.count - 1) {
+      memcpy(string + offset, ", ", 2);
+      offset += 2;
+    }
+
+    if (IS_STRING(value)) free(chars);
+  }
+
+  string[offset++] = ']';
+  string[offset] = '\0';
+
+  ObjString* result = copyString(string, (int)offset);
+  free(string);
+
+  return result;
 }
 
 Value newCollection(ObjClass* klass) {

@@ -1243,6 +1243,52 @@ static void lambda(bool canAssign) {
   function(TYPE_LAMBDA, false);
 }
 
+static void getVariable(Token name) {
+  uint8_t getOp;
+  bool isConstant = false;
+  int arg = resolveLocal(current, &name);
+  if (arg != -1) {
+    getOp = OP_GET_LOCAL;
+  } else if ((arg = resolveUpvalue(current, &name)) != -1) {
+    getOp = OP_GET_UPVALUE;
+  } else {
+    isConstant = true;
+    arg = identifierConstant(&name);
+    getOp = OP_GET_GLOBAL;
+  }
+
+  emitByte(getOp);
+  if (isConstant) {
+    emitShort((uint16_t)arg);
+  } else {
+    emitByte((uint8_t) arg);
+  }
+}
+
+static void setVariable(Token name, uint8_t byte) {
+  uint8_t setOp;
+  bool isConstant = false;
+  int arg = resolveLocal(current, &name);
+  if (arg != -1) {
+    setOp = OP_SET_LOCAL;
+  } else if ((arg = resolveUpvalue(current, &name)) != -1) {
+    setOp = OP_SET_UPVALUE;
+  } else {
+    isConstant = true;
+    arg = identifierConstant(&name);
+    setOp = OP_SET_GLOBAL;
+  }
+
+  checkMutability(arg, setOp);
+  emitByte(byte);
+  emitByte(setOp);
+  if (isConstant) {
+    emitShort((uint16_t)arg);
+  } else {
+    emitByte((uint8_t)arg);
+  }
+}
+
 static void namedVariable(Token name, bool canAssign) {
   uint8_t getOp, setOp;
   bool isConstant = false;
@@ -1534,7 +1580,8 @@ static void abstractParameters() {
   consume(TOKEN_SEMICOLON, "Expect ';' after abstract method declaration.");
 }
 
-static void functionParameters() {
+static void functionParameters(Compiler* compiler) {
+  compiler->function->isMutable = true;
   consume(TOKEN_LEFT_PAREN, "Expect '(' after function name.");
 
   if (!check(TOKEN_RIGHT_PAREN)) {
@@ -1542,6 +1589,9 @@ static void functionParameters() {
   }
 
   consume(TOKEN_RIGHT_PAREN, "Expect ')' after parameters.");
+  if (match(TOKEN_CONST)) {
+    compiler->function->isMutable = false;
+  }
   consume(TOKEN_LEFT_BRACE, "Expect '{' before function body.");
 }
 
@@ -1601,7 +1651,7 @@ static void function(FunctionType type, bool isAsync) {
     consume(TOKEN_LEFT_BRACE, "Expect '{' before function body.");
     block();
   } else {
-    functionParameters();
+    functionParameters(compiler.enclosing);
     block();
   }
 
@@ -1847,9 +1897,9 @@ static void varDeclaration(bool isMutable) {
 
 static void funDeclaration(bool isAsync) {
   uint16_t global = parseVariable("Expect function name.");
-  markInitialized(false);
+  markInitialized(current->function->isMutable);
   function(TYPE_FUNCTION, isAsync);
-  defineVariable(global, false);
+  defineVariable(global, current->function->isMutable);
 }
 
 
@@ -2353,8 +2403,54 @@ static void yieldStatement() {
   }
 }
 
+static void decorateFunction(Token functionName) {
+  uint8_t setOp;
+  bool isConstant = false;
+  int arg = resolveLocal(current, &functionName);
+  if (arg != -1) {
+    setOp = OP_SET_LOCAL;
+  } else if ((arg = resolveUpvalue(current, &functionName)) != -1) {
+    setOp = OP_SET_UPVALUE;
+  } else {
+    isConstant = true;
+    arg = identifierConstant(&functionName);
+    setOp = OP_SET_GLOBAL;
+  }
+
+  checkMutability(arg, setOp);
+  emitByte(setOp);
+  if (isConstant) {
+    emitShort((uint16_t)arg);
+  } else {
+    emitByte((uint8_t)arg);
+  }
+}
+
+static void decoratorInvoke() {
+  consume(TOKEN_IDENTIFIER, "Expect decorator name after '@'.");
+  Token decoratorName = parser.previous;
+
+  consume(TOKEN_FUN, "Expect a function after decorator declaration.");
+  uint16_t global = parseVariable("Expect function name.");
+  Token functionName = parser.previous;
+
+  markInitialized(current->function->isMutable);
+  function(TYPE_FUNCTION, false);
+  defineVariable(global, current->function->isMutable);
+
+  getVariable(decoratorName);
+  getVariable(functionName);
+  emitByte(OP_DECORATOR);
+
+  decorateFunction(functionName);
+  emitByte(OP_POP);
+  emitByte(OP_POP);
+}
+
 static void declaration() {
-  if (check(TOKEN_ASYNC) && checkNext(TOKEN_FUN)) {
+  if (match(TOKEN_AT)) {
+    decoratorInvoke();
+  } else if (check(TOKEN_ASYNC) && checkNext(TOKEN_FUN)) {
     advance();
     advance();
     funDeclaration(true);

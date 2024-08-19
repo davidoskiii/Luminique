@@ -715,7 +715,11 @@ bool loadGlobal(ObjString* name, Value* value) {
   else if (tableGet(&vm.currentNamespace->values, name, value)) return true;
   else if (tableGet(&vm.currentNamespace->globals, name, value)) return true;
   else return (tableGet(&vm.currentModule->values, name, value));
-} 
+}
+
+bool setVariable() {
+
+}
 
 static ObjUpvalue* captureUpvalue(Value* local) {
   ObjUpvalue* prevUpvalue = NULL;
@@ -1379,6 +1383,24 @@ InterpretResult run() {
         }
         break;
       }
+      case OP_DECORATOR: {
+        Value function = peek(0);
+        Value decorator = peek(1);
+
+        if (!IS_CLOSURE(decorator) && !IS_NATIVE_FUNCTION(decorator)) {
+          runtimeError("Decorator must be a function.");
+          return INTERPRET_RUNTIME_ERROR;
+        }
+
+        if (!IS_CLOSURE(function) && !IS_NATIVE_FUNCTION(function)) {
+          runtimeError("Can only decorate functions.");
+          return INTERPRET_RUNTIME_ERROR;
+        }
+
+        Value decoratedFunction = callReentrantFunction(decorator, function);
+        push(decoratedFunction);
+        break;
+      }
       case OP_DUP: push(peek(0)); break;
       case OP_CLOSE_UPVALUE: {
         closeUpvalues(vm.stackTop - 1);
@@ -1396,7 +1418,7 @@ InterpretResult run() {
         ObjString* elementName = READ_STRING();
         if (!IS_ENUM(peek(0))) {
           runtimeError("Expected enum object.");
-          break;
+          return INTERPRET_RUNTIME_ERROR;
         }
         ObjEnum* enumObj = AS_ENUM(peek(0));
         int elementValue = enumObj->nextValue++;
