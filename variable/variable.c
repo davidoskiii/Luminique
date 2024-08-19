@@ -128,6 +128,7 @@ Value getGenericInstanceVariable(Value receiver, ObjString* name) {
       ObjRange* range = (ObjRange*)object;
       if (matchStringName(name, "from", 4)) return (INT_VAL(range->from));
       else if (matchStringName(name, "to", 2)) return (INT_VAL(range->to));
+      else if (matchStringName(name, "length", 6)) return (INT_VAL(abs(range->to - range->from) + 1));
       else return getInstanceProperty(receiver, name, &range->obj);
     }
     case OBJ_STRING: {

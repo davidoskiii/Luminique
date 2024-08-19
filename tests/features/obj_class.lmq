@@ -1,6 +1,6 @@
-let object = Object();
+let object = "string";
 
-println(object);
+println("Created object string named: ${object}");
 
 println(object.equals("Hello World"));
 

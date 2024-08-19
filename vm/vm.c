@@ -757,6 +757,7 @@ static void closeUpvalues(Value* last) {
 }
 
 static void defineGetter(ObjString* name) {
+  pop();
   Value method = peek(0);
   ObjClass* klass = AS_CLASS(peek(1));
 
@@ -766,6 +767,7 @@ static void defineGetter(ObjString* name) {
 }
 
 static void defineSetter(ObjString* name) {
+  pop();
   Value method = peek(0);
   ObjClass* klass = AS_CLASS(peek(1));
 

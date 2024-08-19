@@ -177,99 +177,155 @@ static int dictFindIndex(ObjDictionary* dict, Value key) {
 
 ObjString* dictToString(ObjDictionary* dict) {
   if (dict->count == 0) return copyString("{}", 2);
-  else {
-    char string[UINT8_MAX] = "";
-    string[0] = '{';
-    size_t offset = 1;
-    int startIndex = 0;
 
-    for (int i = 0; i < dict->capacity; i++) {
-      ObjEntry* entry = &dict->entries[i];
-      if (IS_UNDEFINED(entry->key)) continue;
-      Value key = entry->key;
-      char* keyChars;
-      size_t keyLength;
-      if (IS_STRING(key)) {
-        keyChars = ALLOCATE(char, AS_STRING(key)->length + 3);
-        keyChars[0] = '"';
-        memcpy(keyChars + 1, AS_STRING(key)->chars, AS_STRING(key)->length);
-        keyChars[AS_STRING(key)->length + 1] = '"';
-        keyLength = AS_STRING(key)->length + 2;
-      } else {
-        keyChars = valueToString(key);
-        keyLength = strlen(keyChars);
-      }
-      Value value = entry->value;
-      char* valueChars;
-      size_t valueLength;
-      if (IS_STRING(value)) {
-        valueChars = ALLOCATE(char, AS_STRING(value)->length + 3);
-        valueChars[0] = '"';
-        memcpy(valueChars + 1, AS_STRING(value)->chars, AS_STRING(value)->length);
-        valueChars[AS_STRING(value)->length + 1] = '"';
-        valueLength = AS_STRING(value)->length + 2;
-      } else {
-        valueChars = valueToString(value);
-        valueLength = strlen(valueChars);
-      }
+  size_t capacity = UINT8_MAX;
+  char* string = (char*)malloc(capacity);
+  if (string == NULL) return NULL;
 
-      memcpy(string + offset, keyChars, keyLength);
-      offset += keyLength;
-      memcpy(string + offset, ": ", 2);
-      offset += 2;
-      memcpy(string + offset, valueChars, valueLength);
-      offset += valueLength;
-      startIndex = i + 1;
-      break;
+  size_t offset = 0;
+  string[offset++] = '{';
+  int startIndex = 0;
+
+  for (int i = 0; i < dict->capacity; i++) {
+    ObjEntry* entry = &dict->entries[i];
+    if (IS_UNDEFINED(entry->key)) continue;
+
+    Value key = entry->key;
+    char* keyChars;
+    size_t keyLength;
+
+    if (IS_STRING(key)) {
+      keyLength = AS_STRING(key)->length + 2;
+      keyChars = (char*)malloc(keyLength + 1);
+      if (keyChars == NULL) return NULL;  // Check for allocation failure
+
+      keyChars[0] = '"';
+      memcpy(keyChars + 1, AS_STRING(key)->chars, AS_STRING(key)->length);
+      keyChars[keyLength - 1] = '"';
+      keyChars[keyLength] = '\0';
+    } else {
+      keyChars = valueToString(key);
+      keyLength = strlen(keyChars);
     }
 
-    for (int i = startIndex; i < dict->capacity; i++) {
-      ObjEntry* entry = &dict->entries[i];
-      if (IS_UNDEFINED(entry->key)) continue;
-      Value key = entry->key;
-      char* keyChars;
-      size_t keyLength;
-      if (IS_STRING(key)) {
-        keyChars = ALLOCATE(char, AS_STRING(key)->length + 3);
-        keyChars[0] = '"';
-        memcpy(keyChars + 1, AS_STRING(key)->chars, AS_STRING(key)->length);
-        keyChars[AS_STRING(key)->length + 1] = '"';
-        keyLength = AS_STRING(key)->length + 2;
-      } else {
-        keyChars = valueToString(key);
-        keyLength = strlen(keyChars);
-      }
-      Value value = entry->value;
-      char* valueChars;
-      size_t valueLength;
-      if (IS_STRING(value)) {
-        valueChars = ALLOCATE(char, AS_STRING(value)->length + 3);
-        valueChars[0] = '"';
-        memcpy(valueChars + 1, AS_STRING(value)->chars, AS_STRING(value)->length);
-        valueChars[AS_STRING(value)->length + 1] = '"';
-        valueLength = AS_STRING(value)->length + 2;
-      } else {
-        valueChars = valueToString(value);
-        valueLength = strlen(valueChars);
-      }
+    Value value = entry->value;
+    char* valueChars;
+    size_t valueLength;
 
+    if (IS_STRING(value)) {
+      valueLength = AS_STRING(value)->length + 2;
+      valueChars = (char*)malloc(valueLength + 1);
+      if (valueChars == NULL) return NULL;  // Check for allocation failure
+
+      valueChars[0] = '"';
+      memcpy(valueChars + 1, AS_STRING(value)->chars, AS_STRING(value)->length);
+      valueChars[valueLength - 1] = '"';
+      valueChars[valueLength] = '\0';
+    } else {
+      valueChars = valueToString(value);
+      valueLength = strlen(valueChars);
+    }
+
+    if (offset + keyLength + valueLength + 4 >= capacity) {
+      capacity *= 2;
+      char* newString = (char*)realloc(string, capacity);
+      if (newString == NULL) {
+        free(string);
+        return NULL;  // Check for reallocation failure
+      }
+      string = newString;
+    }
+
+    if (offset > 1) {
       memcpy(string + offset, ", ", 2);
       offset += 2;
-      memcpy(string + offset, keyChars, keyLength);
-      offset += keyLength;
-      memcpy(string + offset, ": ", 2);
-      offset += 2;
-      memcpy(string + offset, valueChars, valueLength);
-      offset += valueLength;
-
-      if (IS_STRING(key)) free(keyChars);
-      if (IS_STRING(value)) free(valueChars);
     }
 
-    string[offset] = '}';
-    string[offset + 1] = '\0';
-    return copyString(string, (int)offset + 1);
+    memcpy(string + offset, keyChars, keyLength);
+    offset += keyLength;
+    memcpy(string + offset, ": ", 2);
+    offset += 2;
+    memcpy(string + offset, valueChars, valueLength);
+    offset += valueLength;
+
+    if (IS_STRING(key)) free(keyChars);
+    if (IS_STRING(value)) free(valueChars);
+
+    startIndex = i + 1;
+    break;
   }
+
+  for (int i = startIndex; i < dict->capacity; i++) {
+    ObjEntry* entry = &dict->entries[i];
+    if (IS_UNDEFINED(entry->key)) continue;
+
+    Value key = entry->key;
+    char* keyChars;
+    size_t keyLength;
+
+    if (IS_STRING(key)) {
+      keyLength = AS_STRING(key)->length + 2;
+      keyChars = (char*)malloc(keyLength + 1);
+      if (keyChars == NULL) return NULL;  // Check for allocation failure
+
+      keyChars[0] = '"';
+      memcpy(keyChars + 1, AS_STRING(key)->chars, AS_STRING(key)->length);
+      keyChars[keyLength - 1] = '"';
+      keyChars[keyLength] = '\0';
+    } else {
+      keyChars = valueToString(key);
+      keyLength = strlen(keyChars);
+    }
+
+    Value value = entry->value;
+    char* valueChars;
+    size_t valueLength;
+
+    if (IS_STRING(value)) {
+      valueLength = AS_STRING(value)->length + 2;
+      valueChars = (char*)malloc(valueLength + 1);
+      if (valueChars == NULL) return NULL;  // Check for allocation failure
+
+      valueChars[0] = '"';
+      memcpy(valueChars + 1, AS_STRING(value)->chars, AS_STRING(value)->length);
+      valueChars[valueLength - 1] = '"';
+      valueChars[valueLength] = '\0';
+    } else {
+      valueChars = valueToString(value);
+      valueLength = strlen(valueChars);
+    }
+
+    // Ensure enough space in the buffer
+    if (offset + keyLength + valueLength + 4 >= capacity) {
+      capacity *= 2;
+      char* newString = (char*)realloc(string, capacity);
+      if (newString == NULL) {
+        free(string);
+        return NULL;  // Check for reallocation failure
+      }
+      string = newString;
+    }
+
+    memcpy(string + offset, ", ", 2);
+    offset += 2;
+    memcpy(string + offset, keyChars, keyLength);
+    offset += keyLength;
+    memcpy(string + offset, ": ", 2);
+    offset += 2;
+    memcpy(string + offset, valueChars, valueLength);
+    offset += valueLength;
+
+    if (IS_STRING(key)) free(keyChars);
+    if (IS_STRING(value)) free(valueChars);
+  }
+
+  string[offset++] = '}';
+  string[offset] = '\0';
+
+  ObjString* result = copyString(string, (int)offset);
+  free(string);
+
+  return result;
 }
 
 static int arrayIndexOf(ObjArray* array, Value element) {
@@ -569,42 +625,72 @@ static int linkSearchElement(ObjInstance* linkedList, Value element) {
 static ObjString* linkToString(ObjInstance* linkedList) {
   int size = AS_INT(getObjProperty(linkedList, "length"));
   if (size == 0) return copyString("[]", 2);
-  else {
-    char string[UINT8_MAX] = "";
-    string[0] = '[';
-    size_t offset = 1;
-    ObjNode* node = AS_NODE(getObjProperty(linkedList, "first"));
-    for (int i = 0; i < size; i++) {
-      char* chars;
-      size_t length;
 
-      if (IS_STRING(node->element)) {
-        chars = valueToString(node->element);
-        length = strlen(chars);
-        string[offset] = '"';
-        memcpy(string + offset + 1, chars, length);
-        string[offset + 1 + length] = '"';
-        length += 2;
-      } else {
-        // Handle non-string elements
-        chars = valueToString(node->element);
-        length = strlen(chars);
-        memcpy(string + offset, chars, length);
+  size_t capacity = UINT8_MAX;
+  char* string = (char*)malloc(capacity);
+  if (string == NULL) return NULL;
+
+  size_t offset = 0;
+  string[offset++] = '[';
+
+  ObjNode* node = AS_NODE(getObjProperty(linkedList, "first"));
+  for (int i = 0; i < size; i++) {
+    char* chars;
+    size_t length;
+
+    if (IS_STRING(node->element)) {
+      chars = valueToString(node->element);
+      length = strlen(chars);
+
+      if (offset + length + 3 >= capacity) {
+        capacity *= 2;
+        char* newString = (char*)realloc(string, capacity);
+        if (newString == NULL) {
+          free(string);
+          return NULL;  // Check for reallocation failure
+        }
+        string = newString;
       }
 
-      if (i == size - 1) {
-        offset += length;
+      string[offset] = '"';
+      memcpy(string + offset + 1, chars, length);
+      string[offset + 1 + length] = '"';
+      length += 2;
+    } else {
+      // Handle non-string elements
+      chars = valueToString(node->element);
+      length = strlen(chars);
+
+      // Ensure enough space in the buffer
+      if (offset + length + 2 >= capacity) {
+        capacity *= 2;
+        char* newString = (char*)realloc(string, capacity);
+        if (newString == NULL) {
+          free(string);
+          return NULL;  // Check for reallocation failure
+        }
+        string = newString;
       }
-      else {
-        memcpy(string + offset + length, ", ", 2);
-        offset += length + 2;
-      }
-      node = node->next;
+
+      memcpy(string + offset, chars, length);
     }
-    string[offset] = ']';
-    string[offset + 1] = '\0';
-    return copyString(string, (int)offset + 1);
+
+    if (i == size - 1) {
+      offset += length;
+    } else {
+      memcpy(string + offset + length, ", ", 2);
+      offset += length + 2;
+    }
+    node = node->next;
   }
+
+  string[offset++] = ']';
+  string[offset] = '\0';
+
+  ObjString* result = copyString(string, (int)offset);
+  free(string);
+
+  return result;
 }
 
 // COLLECTION
@@ -987,6 +1073,8 @@ NATIVE_METHOD(Array, __format__) {
 
 // DICTIONARY
 
+NATIVE_ABSTRACT_METHOD(Dictionary, append);
+
 NATIVE_METHOD(Dictionary, __init__) {
 	assertArgCount("Dictionary::__init__()", 0, argCount);
 	RETURN_OBJ(newDictionary());
@@ -1345,6 +1433,8 @@ NATIVE_METHOD(Stack, getFirst) {
   ObjNode* first = AS_NODE(getObjProperty(AS_INSTANCE(receiver), "first"));
   RETURN_VAL(first->element);
 }
+
+NATIVE_ABSTRACT_METHOD(Stack, append);
 
 NATIVE_METHOD(Stack, __init__) {
   assertArgCount("Stack::__init__()", 0, argCount);
@@ -1735,6 +1825,7 @@ void registerCollectionPackage() {
 	vm.dictionaryClass = defineNativeClass("Dictionary", false);
 	bindSuperclass(vm.dictionaryClass, collectionClass);
   vm.dictionaryClass->classType = OBJ_DICTIONARY;
+  DEF_METHOD_ABSTRACT(vm.dictionaryClass, Dictionary, append, 1, "element");
 	DEF_METHOD(vm.dictionaryClass, Dictionary, __init__, 0);
 	DEF_METHOD(vm.dictionaryClass, Dictionary, clear, 0);
 	DEF_METHOD(vm.dictionaryClass, Dictionary, containsKey, 1);
@@ -1818,6 +1909,7 @@ void registerCollectionPackage() {
 
   ObjClass* stackClass = defineNativeClass("Stack", false);
   bindSuperclass(stackClass, collectionClass);
+  DEF_METHOD_ABSTRACT(stackClass, Stack, append, 1, "element");
   DEF_METHOD(stackClass, Stack, __init__, 0);
   DEF_METHOD(stackClass, Stack, clear, 0);
   DEF_METHOD(stackClass, Stack, contains, 1);
