@@ -224,7 +224,7 @@ ObjFrame* newFrame(CallFrame* callFrame) {
 
 ObjFunction* newFunction() {
   ObjFunction* function = ALLOCATE_OBJ(ObjFunction, OBJ_FUNCTION, NULL);
-  function->paramHashes = ALLOCATE(uint32_t, 255);
+  function->parameters = ALLOCATE(ParamInfo, 255);
   function->arity = 0;
   function->upvalueCount = 0;
   function->isGenerator = false;
@@ -269,8 +269,8 @@ ObjNativeFunction* newNativeFunction(ObjString* name, int arity, bool isAsync, N
 
 ObjNativeMethod* newNativeMethod(ObjClass* klass, ObjString* name, int arity, bool isAsync, bool isAbstract, NativeMethod method) {
   ObjNativeMethod* nativeMethod = ALLOCATE_OBJ(ObjNativeMethod, OBJ_NATIVE_METHOD, NULL);
-  if (arity != -1) nativeMethod->paramHashes = ALLOCATE(uint32_t, arity);
-  else nativeMethod->paramHashes = ALLOCATE(uint32_t, 255);
+  if (arity != -1) nativeMethod->parameters = ALLOCATE(ParamInfo, arity);
+  else nativeMethod->parameters = ALLOCATE(ParamInfo, 255);
   nativeMethod->klass = klass;
   nativeMethod->name = name;
   nativeMethod->arity = arity;

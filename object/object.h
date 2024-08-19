@@ -117,6 +117,11 @@ struct Obj {
   struct Obj* next;
 };
 
+typedef struct ParamInfo {
+  bool isConst;
+  uint32_t hash;
+} ParamInfo;
+
 struct ObjFunction {
   Obj obj;
   int arity;
@@ -126,7 +131,7 @@ struct ObjFunction {
   bool isAbstract;
   Chunk chunk;
   ObjString* name;
-  uint32_t* paramHashes;
+  ParamInfo* parameters;
 };
 
 typedef Value (*NativeFunction)(int argCount, Value* args);
@@ -147,7 +152,7 @@ struct ObjNativeMethod {
   int arity;
   bool isAsync;
   bool isAbstract;
-  uint32_t* paramHashes;
+  ParamInfo* parameters;
   NativeMethod method;
 };
 

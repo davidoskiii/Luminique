@@ -802,16 +802,18 @@ static void defineMethod(ObjString* name, bool isMethodStatic) {
           }
 
           if (superFunction->arity == -1) {
-            if (superFunction->paramHashes[0] != currentFunction->paramHashes[0]) {
+            if (superFunction->parameters[0].hash != currentFunction->parameters[0].hash) {
               runtimeError("Parameter names of method '%s' in subclass '%s' do not match those in abstract method '%s'.", 
                            name->chars, klass->name->chars, superFunction->name->chars);
               exit(70);
             }
           } else {
             for (int i = 0; i < superFunction->arity; i++) {
-              if (superFunction->paramHashes[i] != currentFunction->paramHashes[i]) {
-                runtimeError("Parameter names of method '%s' in subclass do not match those in abstract method '%s'.", 
-                             name->chars, superFunction->name->chars);
+              if (superFunction->parameters[i].hash != currentFunction->parameters[i].hash || 
+                superFunction->parameters[i].isConst != currentFunction->parameters[i].isConst)
+              {
+                runtimeError("Parameter names of method '%s' in subclass '%s' do not match those in abstract method '%s'.", 
+                             name->chars, klass->name->chars, superFunction->name->chars);
                 exit(70);
               }
             }
@@ -827,14 +829,16 @@ static void defineMethod(ObjString* name, bool isMethodStatic) {
           }
 
           if (superFunction->arity == -1) {
-            if (superFunction->paramHashes[0] != currentFunction->paramHashes[0]) {
+            if (superFunction->parameters[0].hash != currentFunction->parameters[0].hash) {
               runtimeError("Parameter names of method '%s' in subclass '%s' do not match those in abstract method '%s'.", 
                            name->chars, klass->name->chars, superFunction->name->chars);
               exit(70);
             }
           } else {
             for (int i = 0; i < superFunction->arity; i++) {
-              if (superFunction->paramHashes[i] != currentFunction->paramHashes[i]) {
+              if (superFunction->parameters[i].hash != currentFunction->parameters[i].hash || 
+                superFunction->parameters[i].isConst != currentFunction->parameters[i].isConst)
+              {
                 runtimeError("Parameter names of method '%s' in subclass do not match those in abstract method '%s'.", 
                              name->chars, superFunction->name->chars);
                 exit(70);

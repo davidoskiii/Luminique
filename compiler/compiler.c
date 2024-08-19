@@ -692,7 +692,8 @@ static void parameterList() {
     current->function->arity = -1;
     uint16_t constant = parseVariable("Expect variadic parameter name.");
     uint32_t hashedName = hashString(parser.previous.start, parser.previous.length);
-    current->function->paramHashes[0] = hashedName;
+    current->function->parameters[0].hash = hashedName;
+    current->function->parameters[0].isConst = false;
     defineVariable(constant, false);
     return;
   }
@@ -703,16 +704,18 @@ static void parameterList() {
       errorAtCurrent("Can't have more than 255 parameters.");
     }
 
-    if (match(TOKEN_CONST)) { // TODO Fix the function to work with constant parameters as well 
+    if (match(TOKEN_CONST)) {
       uint16_t constant = parseVariable("Expect parameter name.");
       defineVariable(constant, false);
       uint32_t hashedName = hashString(parser.previous.start, parser.previous.length);
-      current->function->paramHashes[current->function->arity - 1] = hashedName;
+      current->function->parameters[current->function->arity - 1].hash = hashedName;
+      current->function->parameters[0].isConst = true;
     } else {
       uint16_t constant = parseVariable("Expect parameter name.");
       defineVariable(constant, true);
       uint32_t hashedName = hashString(parser.previous.start, parser.previous.length);
-      current->function->paramHashes[current->function->arity - 1] = hashedName;
+      current->function->parameters[current->function->arity - 1].hash = hashedName;
+      current->function->parameters[0].isConst = false;
     }
   } while (match(TOKEN_COMMA));
 }
@@ -1500,7 +1503,8 @@ static void abstractParameters() {
       current->function->arity = -1;
       consume(TOKEN_IDENTIFIER, "Expect variadic parameter name.");
       uint32_t hashedName = hashString(parser.previous.start, parser.previous.length);
-      current->function->paramHashes[0] = hashedName;
+      current->function->parameters[0].hash = hashedName;
+      current->function->parameters[0].isConst = false;
       consume(TOKEN_RIGHT_PAREN, "Expect ')' after parameters.");
       consume(TOKEN_SEMICOLON, "Expect ';' after abstract method declaration.");
       return;
@@ -1512,14 +1516,16 @@ static void abstractParameters() {
         errorAtCurrent("Can't have more than 255 parameters.");
       }
 
-      if (match(TOKEN_CONST)) { // TODO Fix the function to work with constant parameters as well 
+      if (match(TOKEN_CONST)) {
         consume(TOKEN_IDENTIFIER, "Expect parameter name.");
         uint32_t hashedName = hashString(parser.previous.start, parser.previous.length);
-        current->function->paramHashes[current->function->arity - 1] = hashedName;
+        current->function->parameters[current->function->arity - 1].hash = hashedName;
+        current->function->parameters[current->function->arity - 1].isConst = true;
       } else {
         consume(TOKEN_IDENTIFIER, "Expect parameter name.");
         uint32_t hashedName = hashString(parser.previous.start, parser.previous.length);
-        current->function->paramHashes[current->function->arity - 1] = hashedName;
+        current->function->parameters[current->function->arity - 1].hash = hashedName;
+        current->function->parameters[current->function->arity - 1].isConst = false;
       }
     } while (match(TOKEN_COMMA));
   }

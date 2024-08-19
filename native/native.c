@@ -128,7 +128,8 @@ void defineNativeAbstractMethod(ObjClass* klass, const char* name, int arity, ui
   push(OBJ_VAL(methodName));
   ObjNativeMethod* nativeMethod = newNativeMethod(klass, methodName, arity, false, true, method);
   for (int i = 0; i < arity; i++) {
-    nativeMethod->paramHashes[i] = paramHashes[i];
+    nativeMethod->parameters[i].hash = paramHashes[i];
+    nativeMethod->parameters[i].isConst = false;
   }
   push(OBJ_VAL(nativeMethod));
   tableSet(&klass->methods, methodName, OBJ_VAL(nativeMethod));

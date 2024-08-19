@@ -14,7 +14,7 @@ class Dog : Animal {
   }
 
   abstract favouriteActivity();
-  abstract goOnAWalk(hours);
+  abstract goOnAWalk(const hours);
 }
 
 class PitBull : Dog {
