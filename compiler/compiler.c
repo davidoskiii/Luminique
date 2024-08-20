@@ -2292,6 +2292,7 @@ static void tryStatement() {
   }
 }
 
+// TODO fix the whole namespace declaration (VM + compiler)
 static void namespaceDeclaration() {
   consume(TOKEN_IDENTIFIER, "Expect namespace name.");
 
