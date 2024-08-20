@@ -1412,6 +1412,16 @@ static void await(bool canAssign) {
   emitByte(OP_AWAIT);
 }
 
+static void async(bool canAssign) {
+  if (match(TOKEN_FUN)) {
+    function(TYPE_FUNCTION, true);
+  } else if (match(TOKEN_LAMBDA)) {
+    function(TYPE_LAMBDA, true);
+  } else {
+    error("Can only use async as expression modifier for anonymous functions or lambda.");
+  }
+}
+
 ParseRule rules[] = {
   [TOKEN_LEFT_BRAKE]    = {array,         subscript,    PREC_CALL}, 
   [TOKEN_RIGHT_BRAKE]   = {NULL,          NULL,         PREC_NONE},
@@ -1459,7 +1469,7 @@ ParseRule rules[] = {
   [TOKEN_FALSE]         = {literal,       NULL,         PREC_NONE},
   [TOKEN_FOR]           = {NULL,          NULL,         PREC_NONE},
   [TOKEN_ASSERT]        = {NULL,          NULL,         PREC_NONE},
-  [TOKEN_ASYNC]         = {NULL,          NULL,         PREC_NONE},
+  [TOKEN_ASYNC]         = {async,         NULL,         PREC_NONE},
   [TOKEN_AWAIT]         = {await,         NULL,         PREC_NONE},
   [TOKEN_FUN]           = {closure,       NULL,         PREC_NONE},
   [TOKEN_LAMBDA]        = {lambda,        NULL,         PREC_NONE},

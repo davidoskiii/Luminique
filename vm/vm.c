@@ -1885,6 +1885,13 @@ InterpretResult run() {
 #undef OVERLOAD_OP
 }
 
+InterpretResult runModule(ObjModule* module) {
+  push(OBJ_VAL(module->closure));
+  bool result = callClosure(module->closure, 0);
+  if (module->closure->function->isAsync) return result ? INTERPRET_OK : INTERPRET_RUNTIME_ERROR;
+  else return run();
+}
+
 InterpretResult interpret(const char* source) {
   ObjFunction* function = compile(source);
 
@@ -1899,10 +1906,6 @@ InterpretResult interpret(const char* source) {
   pop();
 
   push(OBJ_VAL(closure));
-  printValue(peek(0));
-  printf("\n");
-  bool result = callClosure(closure, 0);
-  if (closure->function->isAsync) return result ? INTERPRET_OK : INTERPRET_RUNTIME_ERROR;
-  else return run();
+  return runModule(vm.currentModule);
 }
 

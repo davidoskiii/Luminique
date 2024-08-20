@@ -119,7 +119,9 @@ bool callMethod(Value method, int argCount);
 bool isFalsey(Value value);
 void bindSuperclass(ObjClass* subclass, ObjClass* superclass);
 bool loadGlobal(ObjString* name, Value* value);
+InterpretResult runModule(ObjModule* module);
 InterpretResult interpret(const char* source);
+
 void runtimeError(const char* format, ...);
 bool callClosure(ObjClosure* closure, int argCount);
 ObjArray* getStackTrace();

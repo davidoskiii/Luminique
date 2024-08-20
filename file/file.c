@@ -173,8 +173,13 @@ int fileMode(const char* mode) {
 void fileOnClose(uv_fs_t* fsClose) {
   FileData* data = (FileData*)fsClose->data;
   LOOP_PUSH_DATA(data);
-  data->file->isOpen = false;
-  promiseFulfill(data->promise, NIL_VAL);
+  if (fsClose->result < 0) {
+    ObjException* exception = createNativeException("luminique::std::io", "IOException", "Failed to close IO stream.");
+    promiseReject(data->promise, OBJ_VAL(exception));
+  } else {
+    data->file->isOpen = false;
+    promiseFulfill(data->promise, NIL_VAL);
+  }
   uv_fs_req_cleanup(fsClose);
   free(fsClose);
   LOOP_POP_DATA(data);
