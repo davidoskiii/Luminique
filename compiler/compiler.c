@@ -1685,9 +1685,11 @@ static void setter(bool isAsync) {
 }
 
 static void abstractMethod() {
+  bool isAsync = false;
+  if (match(TOKEN_ASYNC)) isAsync = true;
   uint16_t constant = propretyConstant("Expect method name.");
 
-  function(TYPE_ABSTRACT, false);
+  function(TYPE_ABSTRACT, isAsync);
   emitByte(OP_ABSTRACT_METHOD);
   emitShort(constant);
 }
@@ -1725,7 +1727,7 @@ static void method() {
   emitShort(constant);
 }
 
-
+// TODO implement immutable class propreties
 static void classPropretyDeclaration(Token* className) {
   uint16_t globals[UINT8_MAX];
   int propCount = 0;

@@ -801,6 +801,12 @@ static void defineMethod(ObjString* name, bool isMethodStatic) {
       if (IS_NATIVE_METHOD(superMethod)) {
         ObjNativeMethod* superFunction = AS_NATIVE_METHOD(superMethod);
         if (superFunction->isAbstract) {
+          if (superFunction->isAsync != currentFunction->isAsync) {
+            runtimeError("Method '%s' in subclass '%s' dosen't match the modifiers of abstract method in superclass '%s'.",
+                         name->chars, klass->name->chars, klass->superclass->name->chars);
+            exit(70);
+          }
+          
           if (superFunction->arity != currentFunction->arity) {
             runtimeError("Method '%s' in subclass '%s' does not match arity of abstract method in superclass '%s'.",
                          name->chars, klass->name->chars, klass->superclass->name->chars);
@@ -828,6 +834,12 @@ static void defineMethod(ObjString* name, bool isMethodStatic) {
       } else if (IS_CLOSURE(superMethod)) {   
         ObjFunction* superFunction = AS_CLOSURE(superMethod)->function;
         if (superFunction->isAbstract) {
+          if (superFunction->isAsync != currentFunction->isAsync) {
+            runtimeError("Method '%s' in subclass '%s' dosen't match the modifiers of abstract method in superclass '%s'.",
+                         name->chars, klass->name->chars, klass->superclass->name->chars);
+            exit(70);
+          }
+          
           if (superFunction->arity != currentFunction->arity) {
             runtimeError("Method '%s' in subclass '%s' does not match arity of abstract method in superclass '%s'.",
                          name->chars, klass->name->chars, klass->superclass->name->chars);

@@ -14,7 +14,7 @@ class Dog : Animal {
   }
 
   abstract favouriteActivity();
-  abstract goOnAWalk(const hours);
+  abstract async goOnAWalk(const hours);
 }
 
 class PitBull : Dog {
@@ -22,7 +22,7 @@ class PitBull : Dog {
     println("PitBull's favourite activity is: Fetch and frisbee");
   }
 
-  function goOnAWalk(const hours) {
+  async function goOnAWalk(const hours) {
     println("Walking...");
     sleep(hours);
     println("PitBull went for a walk for ${hours} hours");
