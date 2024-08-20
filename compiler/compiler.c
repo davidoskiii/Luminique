@@ -2001,7 +2001,7 @@ static void expressionStatement() {
 
 static void awaitStatement() {
   if (current->type == TYPE_SCRIPT) current->isAsync = true;
-  else if (!current->isAsync) error("Cannot use await unless in top level code or inside async functions/methods.");
+  else if (!current->isAsync) error("Can only use 'await' in async methods or top level code.");
   expression();
   consume(TOKEN_SEMICOLON, "Expect ';' after await value.");
   emitBytes(OP_AWAIT, OP_POP);
