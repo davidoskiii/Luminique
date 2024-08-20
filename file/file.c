@@ -198,8 +198,13 @@ void fileOnCreate(uv_fs_t* fsOpen) {
 void fileOnFlush(uv_fs_t* fsSync) {
   FileData* data = (FileData*)fsSync->data;
   LOOP_PUSH_DATA(data);
-  data->file->isOpen = false;
-  promiseFulfill(data->promise, BOOL_VAL(fsSync->result == 0));
+  if (fsSync->result < 0) {
+    ObjException* exception = createNativeException("luminique::std::io", "IOException", "Failed to flush IO stream.");
+    promiseReject(data->promise, OBJ_VAL(exception));
+  } else {
+    data->file->isOpen = false;
+    promiseFulfill(data->promise, BOOL_VAL(fsSync->result == 0));
+  }
   uv_fs_req_cleanup(fsSync);
   free(fsSync);
   LOOP_POP_DATA(data);
@@ -208,7 +213,10 @@ void fileOnFlush(uv_fs_t* fsSync) {
 void fileOnHandle(uv_fs_t* fsHandle) {
   FileData* data = (FileData*)fsHandle->data;
   LOOP_PUSH_DATA(data);
-  promiseFulfill(data->promise, BOOL_VAL(fsHandle->result == 0));
+  if (fsHandle->result < 0) {
+    ObjException* exception = createNativeException("luminique::std::io", "IOException", "Failed to perform IO operation.");
+    promiseReject(data->promise, OBJ_VAL(exception));
+  } else promiseFulfill(data->promise, BOOL_VAL(fsHandle->result == 0));
   uv_fs_req_cleanup(fsHandle);
   free(fsHandle);
   LOOP_POP_DATA(data);
