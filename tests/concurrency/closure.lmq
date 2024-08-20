@@ -1,0 +1,16 @@
+using luminique::std::io::File;
+
+async function executeAsync(closure) { 
+  if (!closure.isAsync()) { 
+    throw Exception("Only async closure can be executed.");
+  }
+  await closure();
+}
+
+executeAsync(async function () { 
+  const fileReader = await File.openAsync("tests/io_output/file_input.txt", "r");
+  println("Successfully opened read stream.");
+
+  await fileReader.closeAsync();
+  println("Read stream has been closed.");
+});

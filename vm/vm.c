@@ -198,15 +198,12 @@ static bool loadModule(ObjString* filePath) {
 
   if (function == NULL) return false;
   push(OBJ_VAL(function));
+  vm.currentModule->closure = newClosure(function);
 
-  ObjClosure* closure = newClosure(function);
   pop();
-
-  push(OBJ_VAL(closure));
-  callClosure(closure, 0);
+  InterpretResult result = runModule(vm.currentModule, false);
 
   vm.currentModule = lastModule;
-
   vm.runModule = true;
   return true;
 }
@@ -1885,14 +1882,18 @@ InterpretResult run() {
 #undef OVERLOAD_OP
 }
 
-InterpretResult runModule(ObjModule* module) {
+InterpretResult runModule(ObjModule* module, bool isRootModule) {
   push(OBJ_VAL(module->closure));
   if (module->closure->function->isAsync) {
     Value result = runGeneratorAsync(OBJ_VAL(module->closure), newArray());
     return result ? INTERPRET_OK : INTERPRET_RUNTIME_ERROR;
-  } else {
+  }
+  else {
     callClosure(module->closure, 0);
-    return run();
+    if (!isRootModule) vm.apiStackDepth++;
+    InterpretResult result = run();
+    if (!isRootModule) vm.apiStackDepth--;
+    return result;
   }
 }
 
@@ -1908,8 +1909,6 @@ InterpretResult interpret(const char* source) {
   ObjClosure* closure = newClosure(function);
   vm.currentModule->closure = closure;
   pop();
-
-  push(OBJ_VAL(closure));
-  return runModule(vm.currentModule);
+  return runModule(vm.currentModule, true);
 }
 

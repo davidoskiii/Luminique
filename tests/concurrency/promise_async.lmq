@@ -1,21 +1,32 @@
 using luminique::std::io::File;
 
-async function readFileAsync(url){ 
-  const fileReader = await File.openAsync(url, "r");
-  print("Successfully opened: ");
-  println(fileReader);
-  println("Now reading the entire file: ");
-  println("");
+class FileReader { 
+  async function readAsync(url) { 
+    const fileReader = await File.openAsync(url, "r");
+    print("Successfully opened: ");
+    println(fileReader);
+    println("Now reading the entire file: ");
+    println("");
 
-  const text = await fileReader.readToEndAsync();
-  println(text);
-  println("");
-  println("Closing read stream for file.");
+    const text = await fileReader.readToEndAsync();
+    println(text);
+    println("");
+    println("Closing read stream for file.");
 
-  await fileReader.closeAsync();
-  println("Read stream has been closed.");
+    await fileReader.closeAsync();
+    println("Read stream has been closed.");
+  }
 }
 
+const fileReader = FileReader();
 println("Start reading file...\n");
-await readFileAsync("tests/io_output/file_input.txt");
+await fileReader.readAsync("tests/io_output/file_input.txt");
 println("\nFinished reading file...");
+
+/*
+const fileReader = FileReader();
+println("Start reading file...\n");
+fileReader.readAsync("tests/io_output/file_input.txt").then(lambda [result] { 
+  println("\nFinished reading file...");
+});
+*/

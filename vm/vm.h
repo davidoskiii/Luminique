@@ -119,7 +119,7 @@ bool callMethod(Value method, int argCount);
 bool isFalsey(Value value);
 void bindSuperclass(ObjClass* subclass, ObjClass* superclass);
 bool loadGlobal(ObjString* name, Value* value);
-InterpretResult runModule(ObjModule* module);
+InterpretResult runModule(ObjModule* module, bool isRootModule);
 InterpretResult interpret(const char* source);
 
 void runtimeError(const char* format, ...);

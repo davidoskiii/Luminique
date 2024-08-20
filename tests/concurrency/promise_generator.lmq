@@ -1,0 +1,22 @@
+using luminique::std::io::File;
+
+class FileReader { 
+  function readAsync(url) { 
+    const fileReader = yield File.openAsync(url, "r");
+    print("Successfully opened: ");
+    println(fileReader);
+    println("Now reading the entire file: ");
+    println("");
+
+    const text = yield fileReader.readToEndAsync();
+    println(text);
+    println("");
+    println("Closing read stream for file.");
+
+    yield fileReader.closeAsync();
+    println("Read stream has been closed.");
+  }
+}
+
+const fileReader = FileReader();
+Generator.run(fileReader.readAsync, ["tests/io_output/file_input.txt"]);
