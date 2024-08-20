@@ -1399,6 +1399,14 @@ InterpretResult run() {
           return INTERPRET_RUNTIME_ERROR;
         }
 
+        if (IS_CLOSURE(decorator) && AS_CLOSURE(decorator)->function->arity != 1) {
+          runtimeError("Decorator function must only have one parameter.");
+          return INTERPRET_RUNTIME_ERROR;
+        } else if (IS_NATIVE_FUNCTION(decorator) && AS_NATIVE_FUNCTION(decorator)->arity != 1) {
+          runtimeError("Decorator function must only have one parameter.");
+          return INTERPRET_RUNTIME_ERROR;
+        }
+
         Value decoratedFunction = callReentrantFunction(decorator, function);
         push(decoratedFunction);
         break;

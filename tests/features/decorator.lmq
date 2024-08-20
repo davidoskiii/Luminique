@@ -1,4 +1,5 @@
 using luminique::std::chrono;
+using luminique::std::math;
 
 function decorator(func) {
   function wrapper() {
@@ -32,7 +33,7 @@ function timeFunction(func) {
 @timeFunction function alg(n) {
   let res = [];
   for (let i = 0; i < n; i++) {
-    res.append(i);
+    res.append(math::pow(i, 2));
   }
   return res;
 }
