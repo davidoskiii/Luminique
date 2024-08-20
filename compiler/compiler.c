@@ -1726,20 +1726,52 @@ static void method() {
 }
 
 
-static void classPropretyDeclaration() {
-  consume(TOKEN_IDENTIFIER, "Expect variable name.");
-  Token name = parser.previous;
-  uint16_t arg = identifierConstant(&name);
+static void classPropretyDeclaration(Token* className) {
+  uint16_t globals[UINT8_MAX];
+  int propCount = 0;
+
+  do {
+    if (propCount >= UINT8_MAX) {
+      error("Can't have more than 255 properties in a single declaration.");
+      return;
+    }
+
+    consume(TOKEN_IDENTIFIER, "Expect property name.");
+    Token name = parser.previous;
+    globals[propCount] = identifierConstant(&name);
+    propCount++;
+
+  } while (match(TOKEN_COMMA));
 
   if (match(TOKEN_EQUAL)) {
-    expression();
-  } else {
-    emitByte(OP_NIL);
-  }
-  consume(TOKEN_SEMICOLON, "Expect ';' after variable declaration.");
+    int exprCount = 0;
+    do {
+      if (exprCount >= propCount) {
+        error("Too many initializers.");
+        return;
+      }
+      expression();
+      exprCount++;
+    } while (match(TOKEN_COMMA));
 
-  emitByte(OP_CLASS_PROPRETY);
-  emitShort(arg);
+    if (exprCount < propCount) {
+      error("Too few initializers.");
+      return;
+    }
+
+  } else {
+    for (int i = 0; i < propCount; i++) {
+      emitByte(OP_NIL);
+    }
+  }
+
+  consume(TOKEN_SEMICOLON, "Expect ';' after property declaration.");
+
+  for (int i = 0; i < propCount; i++) {
+    getVariable(*className);
+    emitByte(OP_CLASS_PROPRETY);
+    emitShort(globals[i]);
+  }
 }
 
 static void decorateFunction(Token functionName) {
@@ -1791,9 +1823,9 @@ static void decoratorDeclaration(bool isMethod) {
 }
 
 
-static void classBody() {
+static void classBody(Token* className) {
   if (match(TOKEN_VAR)) {
-    classPropretyDeclaration();
+    classPropretyDeclaration(className);
   } else if (match(TOKEN_AT)) {
     decoratorDeclaration(true);
   } else if (match(TOKEN_ABSTRACT)) {
@@ -1887,7 +1919,7 @@ static void classDeclaration(bool isAbstract) {
   consume(TOKEN_LEFT_BRACE, "Expect '{' before class body.");
 
   while (!check(TOKEN_RIGHT_BRACE) && !check(TOKEN_EOF)) {
-    classBody();
+    classBody(&className);
   }
 
   consume(TOKEN_RIGHT_BRACE, "Expect '}' after class body.");

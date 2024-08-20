@@ -1205,8 +1205,8 @@ InterpretResult run() {
         break;
       }
       case OP_CLASS_PROPRETY: {
+        ObjClass* klass = AS_CLASS(pop());
         Value value = peek(0);
-        ObjClass* klass = AS_CLASS(peek(1));
         ObjString* name = READ_STRING();
 
         tableSet(&klass->fields, name, value);
