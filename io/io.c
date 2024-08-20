@@ -35,11 +35,11 @@ NATIVE_METHOD(BinaryReadStream, read) {
 NATIVE_METHOD(BinaryReadStream, readAsync) {
   assertArgCount("BinaryReadStream::readAsync()", 0, argCount);
   ObjFile* file = getFileProperty(AS_INSTANCE(receiver), "file");
-  if (!file->isOpen) THROW_EXCEPTION(luminique::std::io, IOException, "Cannot read the next byte because file is already closed.");
+  if (!file->isOpen) RETURN_PROMISE_EX(luminique::std::io, IOException, "Cannot read the next byte because file is already closed.");
   loadFileRead(file);
 
   ObjPromise* promise = fileReadAsync(file, fileOnReadByte);
-  if (promise == NULL) THROW_EXCEPTION(luminique::std::io, IOException, "Failed to read byte from IO stream.");
+  if (promise == NULL) RETURN_PROMISE_EX(luminique::std::io, IOException, "Failed to read byte from IO stream.");
   RETURN_OBJ(promise);
 }
 
@@ -63,14 +63,14 @@ NATIVE_METHOD(BinaryReadStream, readBytesAsync) {
   assertArgCount("BinaryReadStream::readBytesAsync(length)", 1, argCount);
   assertArgIsInt("BinaryReadStream::readBytesAsync(length)", args, 0);
   int length = AS_INT(args[0]);
-  if (length < 0) THROW_EXCEPTION_FMT(luminique::std::lang, IllegalArgumentException, "Method BinaryReadStream::readBytesAsync(length) expects argument 1 to be a positive integer but got %g.", length);
+  if (length < 0) RETURN_PROMISE_EX_FMT(luminique::std::lang, IllegalArgumentException, "Method BinaryReadStream::readBytesAsync(length) expects argument 1 to be a positive integer but got %g.", length);
 
   ObjFile* file = getFileProperty(AS_INSTANCE(receiver), "file");
-  if (!file->isOpen) THROW_EXCEPTION(luminique::std::io, IOException, "Cannot read the next bytes because file is already closed.");
+  if (!file->isOpen) RETURN_PROMISE_EX(luminique::std::io, IOException, "Cannot read the next bytes because file is already closed.");
   loadFileRead(file);
 
   ObjPromise* promise = fileReadStringAsync(file, (size_t)length, fileOnReadBytes);
-  if (promise == NULL) THROW_EXCEPTION(luminique::std::io, IOException, "Failed to read byte from IO stream.");
+  if (promise == NULL) RETURN_PROMISE_EX(luminique::std::io, IOException, "Failed to read byte from IO stream.");
   RETURN_OBJ(promise);
 }
 
@@ -105,12 +105,12 @@ NATIVE_METHOD(BinaryWriteStream, writeAsync) {
   assertIntWithinRange("BinaryWriteStream::writeAsync(byte)", arg, 0, 255, 0);
 
   ObjFile* file = getFileProperty(AS_INSTANCE(receiver), "file");
-  if (!file->isOpen) THROW_EXCEPTION(luminique::std::io, IOException, "Cannot write byte to stream because file is already closed.");
+  if (!file->isOpen) RETURN_PROMISE_EX(luminique::std::io, IOException, "Cannot write byte to stream because file is already closed.");
   loadFileWrite(file);
 
   uint8_t byte = (uint8_t)arg;
   ObjPromise* promise = fileWriteByteAsync(file, byte, fileOnWrite);
-  if (promise == NULL) THROW_EXCEPTION(luminique::std::io, IOException, "Failed to write byte to IO stream.");
+  if (promise == NULL) RETURN_PROMISE_EX(luminique::std::io, IOException, "Failed to write byte to IO stream.");
   RETURN_OBJ(promise);
 }
 
@@ -130,14 +130,14 @@ NATIVE_METHOD(BinaryWriteStream, writeBytesAsync) {
   assertArgCount("BinaryWriteStream::writeBytesAsync(bytes)", 1, argCount);
   assertArgIsArray("BinaryWriteStream::writeBytesAsync(bytes)", args, 0);
   ObjArray* bytes = AS_ARRAY(args[0]);
-  if (bytes->elements.count == 0) THROW_EXCEPTION(luminique::std::io, IOException, "Cannot write empty byte array to stream.");
+  if (bytes->elements.count == 0) RETURN_PROMISE_EX(luminique::std::io, IOException, "Cannot write empty byte array to stream.");
 
   ObjFile* file = getFileProperty(AS_INSTANCE(receiver), "file");
-  if (!file->isOpen) THROW_EXCEPTION(luminique::std::io, IOException, "Cannot write bytes to stream because file is already closed.");
+  if (!file->isOpen) RETURN_PROMISE_EX(luminique::std::io, IOException, "Cannot write bytes to stream because file is already closed.");
   loadFileWrite(file);
 
   ObjPromise* promise = fileWriteBytesAsync(file, bytes, fileOnWrite);
-  if (promise == NULL) THROW_EXCEPTION(luminique::std::io, IOException, "Failed to write to IO stream.");
+  if (promise == NULL) RETURN_PROMISE_EX(luminique::std::io, IOException, "Failed to write to IO stream.");
   RETURN_OBJ(promise);
 }
 
@@ -161,9 +161,9 @@ NATIVE_METHOD(File, create) {
 NATIVE_METHOD(File, createAsync) {
   assertArgCount("File::createAsync()", 0, argCount);
   ObjFile* self = AS_FILE(receiver);
-  if (fileExists(self)) THROW_EXCEPTION(luminique::std::io, IOException, "Cannot create new file because it already exists");
+  if (fileExists(self)) RETURN_PROMISE_EX(luminique::std::io, IOException, "Cannot create new file because it already exists");
   ObjPromise* promise = fileCreateAsync(self, fileOnCreate);
-  if (promise == NULL) THROW_EXCEPTION(luminique::std::io, IOException, "Failed to create file because of system runs out of memory.");
+  if (promise == NULL) RETURN_PROMISE_EX(luminique::std::io, IOException, "Failed to create file because of system runs out of memory.");
   RETURN_OBJ(promise);
 }
 
@@ -177,9 +177,9 @@ NATIVE_METHOD(File, delete) {
 NATIVE_METHOD(File, deleteAsync) {
   assertArgCount("File::deleteAsync()", 0, argCount);
   ObjFile* self = AS_FILE(receiver);
-  if (!fileExists(self)) THROW_EXCEPTION(luminique::std::io, IOException, "Cannot delete file because it does not exist.");
+  if (!fileExists(self)) RETURN_PROMISE_EX(luminique::std::io, IOException, "Cannot delete file because it does not exist.");
   ObjPromise* promise = fileDeleteAsync(self, fileOnHandle);
-  if (promise == NULL) THROW_EXCEPTION(luminique::std::io, IOException, "Failed to delete file because of system runs out of memory.");
+  if (promise == NULL) RETURN_PROMISE_EX(luminique::std::io, IOException, "Failed to delete file because of system runs out of memory.");
   RETURN_OBJ(promise);
 }
 
@@ -257,9 +257,9 @@ NATIVE_METHOD(File, mkdir) {
 NATIVE_METHOD(File, mkdirAsync) {
   assertArgCount("File::mkdirAsync()", 0, argCount);
   ObjFile* self = AS_FILE(receiver);
-  if (fileExists(self)) THROW_EXCEPTION(luminique::std::lang, UnsupportedOperationException, "Cannot create directory as it already exists in the file system.");
+  if (fileExists(self)) RETURN_PROMISE_EX(luminique::std::lang, UnsupportedOperationException, "Cannot create directory as it already exists in the file system.");
   ObjPromise* promise = FileMkdirAsync(self, fileOnHandle);
-  if (promise == NULL) THROW_EXCEPTION(luminique::std::io, IOException, "Failed to create directory because of system runs out of memory.");
+  if (promise == NULL) RETURN_PROMISE_EX(luminique::std::io, IOException, "Failed to create directory because of system runs out of memory.");
   RETURN_OBJ(promise);
 }
 
@@ -280,10 +280,10 @@ NATIVE_METHOD(File, renameAsync) {
   assertArgCount("File::renameAsync(name)", 1, argCount);
   assertArgIsString("File::renameAsync(name)", args, 0);
   ObjFile* self = AS_FILE(receiver);
-  if (!fileExists(self)) THROW_EXCEPTION(luminique::std::io, FileNotFoundException, "Cannot rename file as it does not exist.");
+  if (!fileExists(self)) RETURN_PROMISE_EX(luminique::std::io, FileNotFoundException, "Cannot rename file as it does not exist.");
 
   ObjPromise* promise = fileRenameAsync(self, AS_STRING(args[0]), fileOnHandle);
-  if (promise == NULL) THROW_EXCEPTION(luminique::std::io, IOException, "Failed to rename file because of system runs out of memory.");
+  if (promise == NULL) RETURN_PROMISE_EX(luminique::std::io, IOException, "Failed to rename file because of system runs out of memory.");
   RETURN_OBJ(promise);
 }
 
@@ -297,9 +297,9 @@ NATIVE_METHOD(File, rmdir) {
 NATIVE_METHOD(File, rmdirAsync) {
   assertArgCount("File::rmdir()", 0, argCount);
   ObjFile* self = AS_FILE(receiver);
-  if (!loadFileStat(self)) THROW_EXCEPTION(luminique::std::io, FileNotFoundException, "Cannot remove directory as it does not exist.");
+  if (!loadFileStat(self)) RETURN_PROMISE_EX(luminique::std::io, FileNotFoundException, "Cannot remove directory as it does not exist.");
   ObjPromise* promise = fileRmdirAsync(self, fileOnHandle);
-  if (promise == NULL) THROW_EXCEPTION(luminique::std::io, IOException, "Failed to delete directory because of system runs out of memory.");
+  if (promise == NULL) RETURN_PROMISE_EX(luminique::std::io, IOException, "Failed to delete directory because of system runs out of memory.");
   RETURN_OBJ(promise);
 }
 
@@ -381,7 +381,7 @@ NATIVE_METHOD(FileClass, openAsync) {
   char* mode = AS_CSTRING(args[1]);
   ObjFile* file = newFile(AS_STRING(args[0]));
   ObjPromise* promise = fileOpenAsync(file, mode, fileOnOpen);
-  if (promise == NULL) THROW_EXCEPTION(luminique::std::io, IOException, "Failed to open IO stream.");
+  if (promise == NULL) RETURN_PROMISE_EX(luminique::std::io, IOException, "Failed to open IO stream.");
   RETURN_OBJ(promise);
 }
 
@@ -424,11 +424,11 @@ NATIVE_METHOD(FileReadStream, read) {
 NATIVE_METHOD(FileReadStream, readAsync) {
   assertArgCount("FileReadStream::readAsync()", 0, argCount);
   ObjFile* file = getFileProperty(AS_INSTANCE(receiver), "file");
-  if (!file->isOpen) THROW_EXCEPTION(luminique::std::io, IOException, "Cannot read the next char because file is already closed.");
+  if (!file->isOpen) RETURN_PROMISE_EX(luminique::std::io, IOException, "Cannot read the next char because file is already closed.");
   loadFileRead(file);
 
   ObjPromise* promise = fileReadAsync(file, fileOnRead);
-  if (promise == NULL) THROW_EXCEPTION(luminique::std::io, IOException, "Failed to read char from IO stream.");
+  if (promise == NULL) RETURN_PROMISE_EX(luminique::std::io, IOException, "Failed to read char from IO stream.");
   RETURN_OBJ(promise);
 }
 
@@ -447,11 +447,11 @@ NATIVE_METHOD(FileReadStream, readLine) {
 NATIVE_METHOD(FileReadStream, readLineAsync) {
   assertArgCount("FileReadStream::readLineAsync()", 0, argCount);
   ObjFile* file = getFileProperty(AS_INSTANCE(receiver), "file");
-  if (!file->isOpen) THROW_EXCEPTION(luminique::std::io, IOException, "Cannot read the next line because file is already closed.");
+  if (!file->isOpen) RETURN_PROMISE_EX(luminique::std::io, IOException, "Cannot read the next line because file is already closed.");
   loadFileRead(file);
 
   ObjPromise* promise = fileReadStringAsync(file, UINT8_MAX, fileOnReadLine);
-  if (promise == NULL) THROW_EXCEPTION(luminique::std::io, IOException, "Failed to read line from IO stream.");
+  if (promise == NULL) RETURN_PROMISE_EX(luminique::std::io, IOException, "Failed to read line from IO stream.");
   RETURN_OBJ(promise);
 }
 
@@ -476,11 +476,11 @@ NATIVE_METHOD(FileReadStream, readStringAsync) {
   assertArgIsInt("FileReadStream::readStringAsync(length)", args, 0);
   ObjFile* file = getFileProperty(AS_INSTANCE(receiver), "file");
   int length = AS_INT(args[0]);
-  if (length < 0) THROW_EXCEPTION_FMT(luminique::std::lang, IllegalArgumentException, "Method FileReadStream::readStringAsync(length) expects argument 1 to be a positive integer but got %g.", length);
+  if (length < 0) RETURN_PROMISE_EX_FMT(luminique::std::lang, IllegalArgumentException, "Method FileReadStream::readStringAsync(length) expects argument 1 to be a positive integer but got %g.", length);
   loadFileRead(file);
 
   ObjPromise* promise = fileReadStringAsync(file, (size_t)length, fileOnReadString);
-  if (promise == NULL) THROW_EXCEPTION(luminique::std::io, IOException, "Failed to read line from IO stream.");
+  if (promise == NULL) RETURN_PROMISE_EX(luminique::std::io, IOException, "Failed to read line from IO stream.");
   RETURN_OBJ(promise);
 }
 
@@ -501,12 +501,12 @@ NATIVE_METHOD(FileReadStream, readToEnd) {
 NATIVE_METHOD(FileReadStream, readToEndAsync) {
   assertArgCount("FileReadStream::readToEndAsync()", 0, argCount);
   ObjFile* file = getFileProperty(AS_INSTANCE(receiver), "file");
-  if (!file->isOpen) THROW_EXCEPTION(luminique::std::io, IOException, "Cannot read to the end of file because file is already closed.");
+  if (!file->isOpen) RETURN_PROMISE_EX(luminique::std::io, IOException, "Cannot read to the end of file because file is already closed.");
   loadFileStat(file);
   loadFileRead(file);
 
   ObjPromise* promise = fileReadStringAsync(file, file->fsStat->statbuf.st_size, fileOnReadString);
-  if (promise == NULL) THROW_EXCEPTION(luminique::std::io, IOException, "Failed to read to the end of file from IO stream.");
+  if (promise == NULL) RETURN_PROMISE_EX(luminique::std::io, IOException, "Failed to read to the end of file from IO stream.");
   RETURN_OBJ(promise);
 }
 
@@ -539,11 +539,11 @@ NATIVE_METHOD(FileWriteStream, writeAsync) {
   assertArgCount("FileWriteStream::writeAsync(char)", 1, argCount);
   assertArgIsString("FileWriteStream::writeAsync(char)", args, 0);
   ObjFile* file = getFileProperty(AS_INSTANCE(receiver), "file");
-  if (!file->isOpen) THROW_EXCEPTION(luminique::std::io, IOException, "Cannot write character to stream because file is already closed.");
+  if (!file->isOpen) RETURN_PROMISE_EX(luminique::std::io, IOException, "Cannot write character to stream because file is already closed.");
   loadFileWrite(file);
 
   ObjString* character = AS_STRING(args[0]);
-  if (character->length != 1) THROW_EXCEPTION(luminique::std::lang, IllegalArgumentException, "Method FileWriteStream::putAsync(char) expects argument 1 to be a character(string of length 1)");
+  if (character->length != 1) RETURN_PROMISE_EX(luminique::std::lang, IllegalArgumentException, "Method FileWriteStream::putAsync(char) expects argument 1 to be a character(string of length 1)");
   ObjPromise* promise = fileWriteAsync(file, character, fileOnWrite);
   if (promise == NULL) THROW_EXCEPTION(luminique::std::io, IOException, "Failed to write to IO stream.");
   RETURN_OBJ(promise);
@@ -560,10 +560,10 @@ NATIVE_METHOD(FileWriteStream, writeLine) {
 NATIVE_METHOD(FileWriteStream, writeLineAsync) {
   assertArgCount("FileWriteStream::writeLineAsync(char)", 0, argCount);
   ObjFile* file = getFileProperty(AS_INSTANCE(receiver), "file");
-  if (!file->isOpen) THROW_EXCEPTION(luminique::std::io, IOException, "Cannot write line to stream because file is already closed.");
+  if (!file->isOpen) RETURN_PROMISE_EX(luminique::std::io, IOException, "Cannot write line to stream because file is already closed.");
   loadFileWrite(file);
   ObjPromise* promise = fileWriteAsync(file, copyString("\n", 1), fileOnWrite);
-  if (promise == NULL) THROW_EXCEPTION(luminique::std::io, IOException, "Failed to write to IO stream.");
+  if (promise == NULL) RETURN_PROMISE_EX(luminique::std::io, IOException, "Failed to write to IO stream.");
   RETURN_OBJ(promise);
 }
 
@@ -578,11 +578,11 @@ NATIVE_METHOD(FileWriteStream, writeSpace) {
 NATIVE_METHOD(FileWriteStream, writeSpaceAsync) {
   assertArgCount("FileWriteStream::writeSpaceAsync(char)", 0, argCount);
   ObjFile* file = getFileProperty(AS_INSTANCE(receiver), "file");
-  if (!file->isOpen) THROW_EXCEPTION(luminique::std::io, IOException, "Cannot write space to stream because file is already closed.");
+  if (!file->isOpen) RETURN_PROMISE_EX(luminique::std::io, IOException, "Cannot write space to stream because file is already closed.");
   loadFileWrite(file);
 
   ObjPromise* promise = fileWriteAsync(file, copyString(" ", 1), fileOnWrite);
-  if (promise == NULL) THROW_EXCEPTION(luminique::std::io, IOException, "Failed to write to IO stream.");
+  if (promise == NULL) RETURN_PROMISE_EX(luminique::std::io, IOException, "Failed to write to IO stream.");
   RETURN_OBJ(promise);
 }
 
@@ -605,12 +605,12 @@ NATIVE_METHOD(FileWriteStream, writeStringAsync) {
   assertArgCount("FileWriteStream::writeStringAsync(char)", 1, argCount);
   assertArgIsString("FileWriteStream::writeStringAsync(string)", args, 0);
   ObjFile* file = getFileProperty(AS_INSTANCE(receiver), "file");
-  if (!file->isOpen) THROW_EXCEPTION(luminique::std::io, IOException, "Cannot write string to stream because file is already closed.");
+  if (!file->isOpen) RETURN_PROMISE_EX(luminique::std::io, IOException, "Cannot write string to stream because file is already closed.");
   loadFileWrite(file);
 
   ObjString* string = AS_STRING(args[0]);
   ObjPromise* promise = fileWriteAsync(file, string, fileOnWrite);
-  if (promise == NULL) THROW_EXCEPTION(luminique::std::io, IOException, "Failed to write to IO stream.");
+  if (promise == NULL) RETURN_PROMISE_EX(luminique::std::io, IOException, "Failed to write to IO stream.");
   RETURN_OBJ(promise);
 }
 
@@ -625,7 +625,7 @@ NATIVE_METHOD(IOStream, closeAsync) {
   assertArgCount("IOStream::close()", 0, argCount);
   ObjFile* file = getFileProperty(AS_INSTANCE(receiver), "file");
   ObjPromise* promise = fileCloseAsync(file, fileOnClose);
-  if (promise == NULL) THROW_EXCEPTION(luminique::std::io, IOException, "Failed to close IO stream.");
+  if (promise == NULL) RETURN_PROMISE_EX(luminique::std::io, IOException, "Failed to close IO stream.");
   RETURN_OBJ(promise);
 }
 
@@ -677,19 +677,18 @@ NATIVE_METHOD(ReadStream, skip) {
 NATIVE_METHOD(WriteStream, flush) {
   assertArgCount("WriteStream::flush()", 0, argCount);
   ObjFile* file = getFileProperty(AS_INSTANCE(receiver), "file");
-  if (!file->isOpen) THROW_EXCEPTION(luminique::std::io, IOException, "Cannot flush write stream because file is already closed.");
-  if (file->fsOpen == NULL) RETURN_FALSE;
+  if (!file->isOpen) RETURN_PROMISE_EX(luminique::std::io, IOException, "Cannot flush write stream because file is already closed.");
   RETURN_BOOL(fileFlush(file));
 }
 
 NATIVE_METHOD(WriteStream, flushAsync) {
   assertArgCount("WriteStream::flushAsync()", 0, argCount);
   ObjFile* file = getFileProperty(AS_INSTANCE(receiver), "file");
-  if (!file->isOpen) THROW_EXCEPTION(luminique::std::io, IOException, "Cannot flush write stream because file is already closed.");
+  if (!file->isOpen) RETURN_PROMISE_EX(luminique::std::io, IOException, "Cannot flush write stream because file is already closed.");
   loadFileWrite(file);
 
   ObjPromise* promise = fileFlushAsync(file, fileOnFlush);
-  if (promise == NULL) THROW_EXCEPTION(luminique::std::io, IOException, "Failed to flush write stream.");
+  if (promise == NULL) RETURN_PROMISE_EX(luminique::std::io, IOException, "Failed to flush write stream.");
   RETURN_OBJ(promise);
 }
 

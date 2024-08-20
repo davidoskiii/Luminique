@@ -249,7 +249,7 @@ NATIVE_METHOD(Domain, getIPAddressesAsync) {
   assertArgCount("Domain::getIPAddressesAsync()", 0, argCount);
   ObjInstance* self = AS_INSTANCE(receiver);
   ObjPromise* promise = dnsGetDomainInfoAsync(self, dnsOnGetAddrInfo);
-  if (promise == NULL) THROW_EXCEPTION(luminique::std::network, DomainHostException, "Failed to get IP Addresses from Domain.");
+  if (promise == NULL) RETURN_PROMISE_EX(luminique::std::network, DomainHostException, "Failed to get IP Addresses from Domain.");
   RETURN_OBJ(promise);
 }
 
@@ -549,7 +549,7 @@ NATIVE_METHOD(IPAddress, getDomainAsync) {
   assertArgCount("IPAddress::getDomainAsync()", 0, argCount);
   ObjInstance* self = AS_INSTANCE(receiver);
   ObjPromise* promise = dnsGetDomainFromIPAddressAsync(self, dnsOnGetNameInfo);
-  if (promise == NULL) THROW_EXCEPTION(luminique::std::network, IPAddressException, "Failed to get domain name from IP Address.");
+  if (promise == NULL) RETURN_PROMISE_EX(luminique::std::network, IPAddressException, "Failed to get domain name from IP Address.");
   RETURN_OBJ(promise);
 }
 
@@ -788,6 +788,7 @@ NATIVE_METHOD(URLClass, parse) {
   assertArgCount("URL class::parse(url)", 1, argCount);
   assertArgIsString("URL class::parse(url)", args, 0);
   ObjInstance* instance = newInstance(AS_CLASS(receiver));
+  push(OBJ_VAL(instance));
   ObjString* url = AS_STRING(args[0]);
 
   struct yuarel component;
@@ -802,6 +803,7 @@ NATIVE_METHOD(URLClass, parse) {
   setObjProperty(instance, "query", OBJ_VAL(newString(component.query != NULL ? component.query : "")));
   setObjProperty(instance, "fragment", OBJ_VAL(newString(component.fragment != NULL ? component.fragment : "")));
   setObjProperty(instance, "raw", OBJ_VAL(urlToString(instance)));
+  pop();
   RETURN_OBJ(instance);
 }
 

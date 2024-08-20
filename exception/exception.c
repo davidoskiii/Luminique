@@ -119,3 +119,18 @@ ObjException* createException(ObjClass* exceptionClass, const char* format, ...)
   exception->stacktrace = stacktrace;
   return exception;
 }
+
+ObjException* createNativeException(const char* exceptionClassNamespace, const char* exceptionClassName, const char* format, ...) {
+  char chars[UINT8_MAX];
+  va_list args;
+  va_start(args, format);
+  int length = vsnprintf(chars, UINT8_MAX, format, args);
+  va_end(args);
+  ObjString* message = copyString(chars, length);
+  ObjArray* stacktrace = getStackTrace();
+
+  ObjClass* exceptionClass = getNativeClass(exceptionClassNamespace, exceptionClassName);
+  ObjException* exception = newException(message, exceptionClass);
+  exception->stacktrace = stacktrace;
+  return exception;
+}

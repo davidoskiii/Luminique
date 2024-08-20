@@ -18,5 +18,6 @@ ObjException* throwException(ObjClass* exceptionClass, const char* format, ...);
 ObjException* throwNativeException(const char* namespace_, const char* exceptionClassName, const char* format, ...);
 ObjException* throwException(ObjClass* exceptionClass, const char* format, ...);
 ObjException* createException(ObjClass* exceptionClass, const char* format, ...);
+ObjException* createNativeException(const char* exceptionClassNamespace, const char* exceptionClassName, const char* format, ...);
 
 #endif

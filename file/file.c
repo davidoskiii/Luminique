@@ -238,11 +238,16 @@ char* streamClassName(const char* mode) {
 void fileOnOpen(uv_fs_t* fsOpen) {
   FileData* data = (FileData*)fsOpen->data;
   LOOP_PUSH_DATA(data);
-  data->file->isOpen = true;
-  ObjClass* streamClass = getNativeClass("luminique::std::io", streamClassName(data->file->mode->chars));
-  ObjInstance* stream = newInstance(streamClass);
-  setObjProperty(stream, "file", OBJ_VAL(data->file));
-  promiseFulfill(data->promise, OBJ_VAL(stream));
+  if (fsOpen->result < 0) {
+    ObjException* exception = createNativeException("luminique::std::io", "IOException", "Failed to open IO stream.");
+    promiseReject(data->promise, OBJ_VAL(exception));
+  } else { 
+    data->file->isOpen = true;
+    ObjClass* streamClass = getNativeClass("luminique::std::io", streamClassName(data->file->mode->chars));
+    ObjInstance* stream = newInstance(streamClass);
+    setObjProperty(stream, "file", OBJ_VAL(data->file));
+    promiseFulfill(data->promise, OBJ_VAL(stream));
+  }
   LOOP_POP_DATA(data);
 }
 

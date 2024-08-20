@@ -225,7 +225,7 @@ NATIVE_METHOD(Generator, step) {
       Value step = getObjMethod(receiver, "step");
       ObjBoundMethod* stepMethod = newBoundMethod(receiver, step);
       Value then = getObjMethod(promise, "then");
-      RETURN_OBJ(callReentrantMethod(promise, then, OBJ_VAL(stepMethod)));
+      RETURN_VAL(callReentrantMethod(promise, then, OBJ_VAL(stepMethod)));
     }
   }
 }
