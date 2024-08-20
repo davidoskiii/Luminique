@@ -1,0 +1,17 @@
+function decorator(func) {
+  function wrapper() {
+    println("Before");
+
+    func();
+    
+    println("After");
+  }
+
+  return wrapper;
+}
+
+class A {
+  @decorator function method() {
+
+  }
+}

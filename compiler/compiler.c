@@ -1742,9 +1742,60 @@ static void classPropretyDeclaration() {
   emitShort(arg);
 }
 
+static void decorateFunction(Token functionName) {
+  uint8_t setOp;
+  bool isConstant = false;
+  int arg = resolveLocal(current, &functionName);
+  if (arg != -1) {
+    setOp = OP_SET_LOCAL;
+  } else if ((arg = resolveUpvalue(current, &functionName)) != -1) {
+    setOp = OP_SET_UPVALUE;
+  } else {
+    isConstant = true;
+    arg = identifierConstant(&functionName);
+    setOp = OP_SET_GLOBAL;
+  }
+
+  checkMutability(arg, setOp);
+  emitByte(setOp);
+  if (isConstant) {
+    emitShort((uint16_t)arg);
+  } else {
+    emitByte((uint8_t)arg);
+  }
+}
+
+static void decoratorDeclaration(bool isMethod) {
+  consume(TOKEN_IDENTIFIER, "Expect decorator name after '@'.");
+  Token decoratorName = parser.previous;
+
+  if (!isMethod) {
+    consume(TOKEN_FUN, "Expect a function after decorator declaration.");
+    uint16_t global = parseVariable("Expect function name.");
+    Token functionName = parser.previous;
+
+    markInitialized(current->function->isMutable);
+    function(TYPE_FUNCTION, false);
+    defineVariable(global, current->function->isMutable);
+
+    getVariable(decoratorName);
+    getVariable(functionName);
+    emitByte(OP_DECORATOR);
+
+    decorateFunction(functionName);
+    emitByte(OP_POP);
+    emitByte(OP_POP);
+  } else {
+    // TODO complete the implementation for methods
+  }
+}
+
+
 static void classBody() {
   if (match(TOKEN_VAR)) {
     classPropretyDeclaration();
+  } else if (match(TOKEN_AT)) {
+    decoratorDeclaration(true);
   } else if (match(TOKEN_ABSTRACT)) {
     abstractMethod();
   } else {
@@ -2403,53 +2454,9 @@ static void yieldStatement() {
   }
 }
 
-static void decorateFunction(Token functionName) {
-  uint8_t setOp;
-  bool isConstant = false;
-  int arg = resolveLocal(current, &functionName);
-  if (arg != -1) {
-    setOp = OP_SET_LOCAL;
-  } else if ((arg = resolveUpvalue(current, &functionName)) != -1) {
-    setOp = OP_SET_UPVALUE;
-  } else {
-    isConstant = true;
-    arg = identifierConstant(&functionName);
-    setOp = OP_SET_GLOBAL;
-  }
-
-  checkMutability(arg, setOp);
-  emitByte(setOp);
-  if (isConstant) {
-    emitShort((uint16_t)arg);
-  } else {
-    emitByte((uint8_t)arg);
-  }
-}
-
-static void decoratorInvoke() {
-  consume(TOKEN_IDENTIFIER, "Expect decorator name after '@'.");
-  Token decoratorName = parser.previous;
-
-  consume(TOKEN_FUN, "Expect a function after decorator declaration.");
-  uint16_t global = parseVariable("Expect function name.");
-  Token functionName = parser.previous;
-
-  markInitialized(current->function->isMutable);
-  function(TYPE_FUNCTION, false);
-  defineVariable(global, current->function->isMutable);
-
-  getVariable(decoratorName);
-  getVariable(functionName);
-  emitByte(OP_DECORATOR);
-
-  decorateFunction(functionName);
-  emitByte(OP_POP);
-  emitByte(OP_POP);
-}
-
 static void declaration() {
   if (match(TOKEN_AT)) {
-    decoratorInvoke();
+    decoratorDeclaration(false);
   } else if (check(TOKEN_ASYNC) && checkNext(TOKEN_FUN)) {
     advance();
     advance();
