@@ -185,9 +185,11 @@ char* valueToString(Value value) {
       case OBJ_FUNCTION:
         return functionToString(AS_FUNCTION(value));
         break;
-      case OBJ_GENERATOR:
-        return formattedString("<generator %s>", AS_GENERATOR(value)->frame->closure->function->name->chars)->chars;
+      case OBJ_GENERATOR: { 
+        ObjFunction* function = AS_GENERATOR(value)->frame->closure->function;
+        return formattedString("<generator %s>", (function->name == NULL) ? "script" : function->name->chars)->chars;
         break;
+      }
       case OBJ_ENUM:
         return formattedString("<enum %s>", AS_ENUM(value)->name->chars)->chars;
         break;

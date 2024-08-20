@@ -346,19 +346,7 @@ NATIVE_METHOD(GeneratorClass, run) {
   assertArgCount("Generator class::run(callee, arguments)", 2, argCount);
   assertArgInstanceOfEither("Generator class::run(calee, arguments)", args, 0, "luminique::std::lang", "Function", "luminique::std::lang", "BoundMethod");
   assertArgIsArray("Generator class::run(callee, arguments)", args, 1);
-
-  ObjGenerator* generator = newGenerator(NULL, NULL);
-  ObjArray* arguments = AS_ARRAY(args[1]);
-  push(OBJ_VAL(generator));    
-  initGenerator(generator, args[0], arguments);
-  for (int i = 0; i < arguments->elements.count; i++) {
-    pop();
-  }
-  pop();
-
-  Value step = getObjMethod(OBJ_VAL(generator), "step");
-  Value result = callReentrantMethod(OBJ_VAL(generator), step, NIL_VAL);
-  RETURN_VAL(result);
+  RETURN_VAL(runGeneratorAsync(args[0], AS_ARRAY(args[1])));
 }
 
 NATIVE_METHOD(Promise, __init__) {

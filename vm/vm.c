@@ -1887,9 +1887,13 @@ InterpretResult run() {
 
 InterpretResult runModule(ObjModule* module) {
   push(OBJ_VAL(module->closure));
-  bool result = callClosure(module->closure, 0);
-  if (module->closure->function->isAsync) return result ? INTERPRET_OK : INTERPRET_RUNTIME_ERROR;
-  else return run();
+  if (module->closure->function->isAsync) {
+    Value result = runGeneratorAsync(OBJ_VAL(module->closure), newArray());
+    return result ? INTERPRET_OK : INTERPRET_RUNTIME_ERROR;
+  } else {
+    callClosure(module->closure, 0);
+    return run();
+  }
 }
 
 InterpretResult interpret(const char* source) {
