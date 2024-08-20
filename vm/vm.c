@@ -415,7 +415,7 @@ static bool callNativeFunction(NativeFunction function, int argCount) {
 
 static bool callNativeMethod(NativeMethod method, int argCount) {
   Value result = method(vm.stackTop[-argCount - 1], argCount, vm.stackTop - argCount);
-  vm.stackTop -= argCount + 1;
+  vm.stackTop -= (size_t)argCount + 1;
   push(result);
   return true;
 }
@@ -1897,9 +1897,12 @@ InterpretResult interpret(const char* source) {
   ObjClosure* closure = newClosure(function);
   vm.currentModule->closure = closure;
   pop();
-  push(OBJ_VAL(closure));
-  callClosure(closure, 0);
 
-  return run();
+  push(OBJ_VAL(closure));
+  printValue(peek(0));
+  printf("\n");
+  bool result = callClosure(closure, 0);
+  if (closure->function->isAsync) return result ? INTERPRET_OK : INTERPRET_RUNTIME_ERROR;
+  else return run();
 }
 

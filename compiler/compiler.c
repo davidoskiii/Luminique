@@ -2000,7 +2000,10 @@ static void expressionStatement() {
 }
 
 static void awaitStatement() {
-  if (current->type == TYPE_SCRIPT) current->isAsync = true;
+  if (current->type == TYPE_SCRIPT) {
+    current->isAsync = true;
+    current->function->isAsync = true;
+  }
   else if (!current->isAsync) error("Can only use 'await' in async methods or top level code.");
   expression();
   consume(TOKEN_SEMICOLON, "Expect ';' after await value.");
