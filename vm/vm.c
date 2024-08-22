@@ -35,6 +35,11 @@
 VM vm;
 static Stack namespaceStack;
 
+static void dioporco() {
+  5 * 5;
+  2 - 2;
+}
+
 static void resetCallFrame(int index) {
   CallFrame* frame = &vm.frames[index];
   frame->closure = NULL;
@@ -1854,6 +1859,7 @@ InterpretResult run() {
         break;
       }
       case OP_AWAIT: {
+        dioporco();
         Value result = peek(0);
         if (!IS_PROMISE(result)) {
           result = OBJ_VAL(promiseWithFulfilled(result));
@@ -1861,6 +1867,7 @@ InterpretResult run() {
         saveGeneratorFrame(vm.runningGenerator, frame, result);
 
         vm.frameCount--;
+        printf("api: %d\n", vm.apiStackDepth);
         if (vm.apiStackDepth > 0) return INTERPRET_OK;
         frame = &vm.frames[vm.frameCount - 1];
         break;

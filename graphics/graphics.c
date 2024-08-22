@@ -36,29 +36,15 @@ NATIVE_METHOD(Window, __format__) {
 
 NATIVE_METHOD(Window, show) {
   assertArgCount("Window::show()", 0, argCount);
-  SDL_ShowWindow(AS_WINDOW(receiver)->window);
+  ObjWindow* window = AS_WINDOW(receiver);
+  SDL_ShowWindow(window->window);
+  RETURN_NIL;
+}
 
-  SDL_Event e;
-  bool quit = false;
-
-  while (!quit) {
-    while (SDL_PollEvent(&e) != 0 && !quit) {
-      switch (e.type) {
-        case SDL_QUIT: quit = true; break;
-        case SDL_WINDOWEVENT: {
-          if (e.window.event == SDL_WINDOWEVENT_CLOSE) {
-            quit = true;
-          }
-          break;
-        }
-        default: break;
-      }
-    }
-  }
-
-  SDL_DestroyWindow(AS_WINDOW(receiver)->window);
-  SDL_Quit();
-
+NATIVE_METHOD(Window, hide) {
+  assertArgCount("Window::hide()", 0, argCount);
+  ObjWindow* window = AS_WINDOW(receiver);
+  SDL_HideWindow(window->window);
   RETURN_NIL;
 }
 
@@ -81,12 +67,13 @@ void registerGraphicsPackage() {
   ObjNamespace* graphicsNamespace = defineNativeNamespace("graphics", vm.stdNamespace);
   vm.currentNamespace = graphicsNamespace;
 
-	vm.windowClass = defineNativeClass("Window", false);
-	bindSuperclass(vm.windowClass, vm.objectClass);
-	DEF_METHOD(vm.windowClass, Window, __init__, 3);
-	DEF_METHOD(vm.windowClass, Window, __str__, 0);
-	DEF_METHOD(vm.windowClass, Window, __format__, 0);
-  DEF_METHOD(vm.windowClass, Window, show, 0);
+  vm.windowClass = defineNativeClass("Window", false);
+  bindSuperclass(vm.windowClass, vm.objectClass);
+  DEF_METHOD(vm.windowClass, Window, __init__, 3);
+  DEF_METHOD(vm.windowClass, Window, __str__, 0);
+  DEF_METHOD(vm.windowClass, Window, __format__, 0);
+  DEF_METHOD(vm.windowClass, Window, show, 0);   // Register show method
+  DEF_METHOD(vm.windowClass, Window, hide, 0);   // Register hide method
 
   DEF_FUNCTION(createWindow, 3);
 

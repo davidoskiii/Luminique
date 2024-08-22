@@ -87,15 +87,13 @@ Value stepGenerator(ObjGenerator* generator, Value arg) {
 
   if (generator->state == GENERATOR_RETURN && IS_PROMISE(generator->value)) return generator->value;
   else {
-    Value fulfill = getObjMethod(OBJ_VAL(vm.promiseClass), "fulfill");
-    Value promise = callReentrantMethod(OBJ_VAL(vm.promiseClass), fulfill, generator->value);
-
+    ObjPromise* promise = IS_PROMISE(generator->value) ? AS_PROMISE(generator->value) : newPromise(PROMISE_FULFILLED, generator->value, NIL_VAL);
     if (generator->state == GENERATOR_RETURN) return OBJ_VAL(promise);
     else {
       Value step = getObjMethod(OBJ_VAL(generator), "step");
       ObjBoundMethod* stepMethod = newBoundMethod(OBJ_VAL(generator), step);
-      Value then = getObjMethod(promise, "then");
-      return callReentrantMethod(promise, then, OBJ_VAL(stepMethod));
+      Value then = getObjMethod(OBJ_VAL(promise), "then");
+      return callReentrantMethod(OBJ_VAL(promise), then, OBJ_VAL(stepMethod));
     }
   }
 }
