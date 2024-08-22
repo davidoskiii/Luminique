@@ -112,9 +112,8 @@ bool valuesEqual(Value a, Value b) {
 static char* functionToString(ObjFunction* function) {
   if (function->name == NULL) {
     return "<script>";
-  } else if (function->name->length == 0) {
-    return "<function>";
-  } else return formattedString("<function %s>", function->name->chars)->chars;
+  } else if (function->name->length == 0 || matchStringName(function->name, "lambda", function->name->length)) return "<function>";
+  else return formattedString("<function %s>", function->name->chars)->chars;
 }
 
 char* valueToString(Value value) {
