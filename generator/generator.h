@@ -19,6 +19,7 @@ void loadGeneratorFrame(ObjGenerator* generator);
 void saveGeneratorFrame(ObjGenerator* generator, CallFrame* frame, Value result);
 Value loadInnerGenerator();
 void yieldFromInnerGenerator(ObjGenerator* generator);
+Value stepGenerator(ObjGenerator* generator, Value arg);
 Value runGeneratorAsync(Value callee, ObjArray* arguments);
 
 #endif

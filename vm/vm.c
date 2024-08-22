@@ -561,15 +561,11 @@ static void createGeneratorFrame(ObjClosure* closure, int argCount) {
 }
 
 static bool callClosureAsync(ObjClosure* closure, int argCount) {
-  Value run = getObjMethod(OBJ_VAL(vm.generatorClass), "run");
   makeArray(argCount);
   Value arguments = pop();
-  pop();
-
-  push(OBJ_VAL(vm.generatorClass));
-  push(OBJ_VAL(closure));
-  push(arguments);
-  return callMethod(run, 2);
+  Value result = runGeneratorAsync(OBJ_VAL(closure), AS_ARRAY(arguments));
+  push(result);
+  return true;
 }
 
 bool callClosure(ObjClosure* closure, int argCount) {
@@ -1883,12 +1879,11 @@ InterpretResult run() {
 }
 
 InterpretResult runModule(ObjModule* module, bool isRootModule) {
-  push(OBJ_VAL(module->closure));
   if (module->closure->function->isAsync) {
     Value result = runGeneratorAsync(OBJ_VAL(module->closure), newArray());
     return result ? INTERPRET_OK : INTERPRET_RUNTIME_ERROR;
-  }
-  else {
+  } else {
+    push(OBJ_VAL(module->closure));
     callClosure(module->closure, 0);
     if (!isRootModule) vm.apiStackDepth++;
     InterpretResult result = run();

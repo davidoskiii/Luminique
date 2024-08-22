@@ -213,22 +213,7 @@ NATIVE_METHOD(Generator, __init__) {
 NATIVE_METHOD(Generator, step) {
   assertArgCount("Generator::step(argument)", 1, argCount);
   ObjGenerator* self = AS_GENERATOR(receiver);
-  Value send = getObjMethod(receiver, "send");
-  callReentrantMethod(receiver, send, args[0]);
-
-  if (self->state == GENERATOR_RETURN && IS_PROMISE(self->value)) RETURN_VAL(self->value);
-  else {
-    Value fulfill = getObjMethod(OBJ_VAL(vm.promiseClass), "fulfill");
-    Value promise = callReentrantMethod(OBJ_VAL(vm.promiseClass), fulfill, self->value);
-    if (self->state == GENERATOR_RETURN) RETURN_VAL(promise);
-    else { 
-      Value step = getObjMethod(receiver, "step");
-      ObjBoundMethod* stepMethod = newBoundMethod(receiver, step);
-      Value then = getObjMethod(promise, "then");
-      RETURN_VAL(callReentrantMethod(promise, then, OBJ_VAL(stepMethod)));
-    }
-  }
-}
+  RETURN_VAL(stepGenerator(AS_GENERATOR(receiver), args[0]));}
 
 NATIVE_METHOD(Generator, isFinished) { 
   assertArgCount("Generator::isFinished()", 0, argCount);
