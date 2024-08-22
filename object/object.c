@@ -423,9 +423,8 @@ static void printFunction(ObjFunction* function) {
   if (function->name == NULL) {
     printf("<script>");
     return;
-  } else if (function->name->length == 0) {
-    printf("<function>");
-  } else printf("<function %s>", function->name->chars);
+  } else if (function->name->length == 0 || matchStringName(function->name, "lambda", function->name->length)) printf("<function>");
+  else printf("<function %s>", function->name->chars);
 }
 
 void printObject(Value value) {
