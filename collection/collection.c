@@ -328,6 +328,16 @@ ObjString* dictToString(ObjDictionary* dict) {
   return result;
 }
 
+static ObjArray* arrayCopy(ValueArray elements, int fromIndex, int toIndex) {
+  ObjArray* array = newArray();
+  push(OBJ_VAL(array));
+  for (int i = fromIndex; i < toIndex; i++) {
+    writeValueArray(&array->elements, elements.values[i]);
+  }
+  pop();
+  return array;
+}
+
 static int arrayIndexOf(ObjArray* array, Value element) {
 	for (int i = 0; i < array->elements.count; i++) {
 		if (valuesEqual(array->elements.values[i], element)) {
@@ -922,21 +932,14 @@ NATIVE_METHOD(Array, contains) {
 	RETURN_BOOL(arrayIndexOf(AS_ARRAY(receiver), args[0]) != -1);
 }
 
-NATIVE_METHOD(Array, each) {
-  assertArgCount("Array::each(closure)", 1, argCount);
-  assertArgIsClosure("Array::each(closure)", args, 0);
-  ObjArray* self = AS_ARRAY(receiver);
-  ObjClosure* closure = AS_CLOSURE(args[0]);
-  for (int i = self->elements.count - 1; i >= 0; i--) {
-    push(args[0]);
-    push(self->elements.values[i]);
-    callClosure(closure, 1);
+NATIVE_METHOD(ArrayClass, fromElements) {
+  ObjArray* array = newArray();
+  push(OBJ_VAL(array));
+  for (int i = 0; i < argCount; i++) {
+    writeValueArray(&array->elements, args[i]);
   }
-  callClosure(closure, 1);
-  push(args[0]);
-  push(receiver);
-  vm.frameCount--;
-  RETURN_NIL;
+  pop();
+  RETURN_OBJ(array);
 }
 
 NATIVE_METHOD(Array, equals) {
@@ -1069,6 +1072,107 @@ NATIVE_METHOD(Array, __str__) {
 NATIVE_METHOD(Array, __format__) {
 	assertArgCount("Array::__format__()", 0, argCount);
 	RETURN_OBJ(arrayToString(AS_ARRAY(receiver)));
+}
+
+NATIVE_METHOD(Array, collect) {
+  assertArgCount("Array::collect(closure)", 1, argCount);
+  assertArgIsClosure("Array::collect(closure)", args, 0);
+  ObjArray* self = AS_ARRAY(receiver);
+  ObjClosure* closure = AS_CLOSURE(args[0]);
+
+  ObjArray* collected = newArray();
+  push(OBJ_VAL(collected));
+  for (int i = 0; i < self->elements.count; i++) {
+    Value result = callReentrantMethod(receiver, OBJ_VAL(closure), self->elements.values[i]);
+    writeValueArray(&collected->elements, result);
+  }
+  pop();
+  RETURN_OBJ(collected);
+}
+
+NATIVE_METHOD(Array, detect) {
+  assertArgCount("Array::detect(closure)", 1, argCount);
+  assertArgIsClosure("Array::detect(closure)", args, 0);
+  ObjArray* self = AS_ARRAY(receiver);
+  ObjClosure* closure = AS_CLOSURE(args[0]);
+
+  for (int i = 0; i < self->elements.count; i++) {
+    Value result = callReentrantMethod(receiver, OBJ_VAL(closure), self->elements.values[i]);
+    if (!isFalsey(result)) RETURN_VAL(self->elements.values[i]);
+  }
+  RETURN_NIL;
+}
+
+NATIVE_METHOD(Array, each) {
+  assertArgCount("Array::each(closure)", 1, argCount);
+  assertArgIsClosure("Array::each(closure)", args, 0);
+  ObjArray* self = AS_ARRAY(receiver);
+  ObjClosure* closure = AS_CLOSURE(args[0]);
+  if (closure->function->arity > 2) {
+    THROW_EXCEPTION_FMT(luminique::std::lang, IllegalArgumentException, 
+      "Method Array::each(closure) accepts only closures that accept one or two parameters, '%s' accepts '%d' parameters", 
+      closure->function->name->chars, closure->function->arity);
+  }
+
+  for (int i = 0; i < self->elements.count; i++) {
+    callReentrantMethod(receiver, OBJ_VAL(closure), self->elements.values[i], INT_VAL(i));
+  }
+  RETURN_NIL;
+}
+
+NATIVE_METHOD(Array, fill) {
+  assertArgCount("Array::fill(num, value)", 2, argCount);
+  assertArgIsInt("Array::fill(num, value)", args, 0);
+  ObjArray* array = AS_ARRAY(receiver);
+  int num = AS_INT(args[0]);
+  for (int i = 0; i < num; i++) {
+    writeValueArray(&array->elements, args[1]);
+  }
+  RETURN_NIL;
+}
+
+NATIVE_METHOD(Array, reject) {
+  assertArgCount("Array::reject(closure)", 1, argCount);
+  assertArgIsClosure("Array::reject(closure)", 0, argCount);
+  ObjArray* self = AS_ARRAY(receiver);
+  ObjClosure* closure = AS_CLOSURE(args[0]);
+
+  ObjArray* rejected = newArray();
+  push(OBJ_VAL(rejected));
+  for (int i = 0; i < self->elements.count; i++) {
+      Value result = callReentrantMethod(receiver, OBJ_VAL(closure), self->elements.values[i]);
+      if (isFalsey(result)) writeValueArray(&rejected->elements, self->elements.values[i]);
+  }
+  pop();
+  RETURN_OBJ(rejected);
+}
+
+NATIVE_METHOD(Array, select) {
+  assertArgCount("Array::select(closure)", 1, argCount);
+  assertArgIsClosure("Array::select(closure)", 0, argCount);
+  ObjArray* self = AS_ARRAY(receiver);
+  ObjClosure* closure = AS_CLOSURE(args[0]);
+
+  ObjArray* selected = newArray();
+  push(OBJ_VAL(selected));
+  for (int i = 0; i < self->elements.count; i++) {
+    Value result = callReentrantMethod(receiver, OBJ_VAL(closure), self->elements.values[i]);
+    if (!isFalsey(result)) writeValueArray(&selected->elements, self->elements.values[i]);
+  }
+  pop();
+  RETURN_OBJ(selected);
+}
+
+NATIVE_METHOD(Array, slice) {
+  assertArgCount("Array::slice(from, to)", 2, argCount);
+  assertArgIsInt("Array::slice(from, to)", args, 0);
+  assertArgIsInt("Array::slice(from, to)", args, 1);
+  ObjArray* self = AS_ARRAY(receiver);
+  int fromIndex = AS_INT(args[0]);
+  int toIndex = AS_INT(args[1]);
+  assertIntWithinRange("Array::slice(from, to)", fromIndex, 0, self->elements.count, 0);
+  assertIntWithinRange("Array::slice(from, to)", toIndex, fromIndex, self->elements.count, 1);
+  RETURN_OBJ(arrayCopy(self->elements, fromIndex, toIndex));
 }
 
 // DICTIONARY
@@ -1226,6 +1330,8 @@ NATIVE_METHOD(Range, contains) {
   else RETURN_BOOL(element >= self->to && element <= self->from);
 }
 
+NATIVE_ABSTRACT_METHOD(Range, putAt);
+
 NATIVE_METHOD(Range, getAt) {
   assertArgCount("Range::getAt(index)", 1, argCount);
   assertArgIsInt("Range::getAt(index)", args, 0);
@@ -1337,9 +1443,9 @@ NATIVE_METHOD(Range, __format__) {
   RETURN_STRING_FMT("%d...%d", self->from, self->to);
 }
 
-NATIVE_METHOD(List, eachIndex) {
-  assertArgCount("List::eachIndex(closure)", 1, argCount);
-  assertArgIsClosure("List::eachIndex(closure)", args, 0);
+NATIVE_METHOD(List, each) {
+  assertArgCount("List::each(closure)", 1, argCount);
+  assertArgIsClosure("List::each(closure)", args, 0);
   ObjClosure* closure = AS_CLOSURE(args[0]);
   Value index = INT_VAL(0);
   Value nextMethod = getObjMethod(receiver, "next");
@@ -1347,7 +1453,7 @@ NATIVE_METHOD(List, eachIndex) {
 
   while (index != NIL_VAL) {
     Value element = callReentrantMethod(receiver, nextValueMethod, index);
-    callReentrantMethod(receiver, OBJ_VAL(closure), index, element);
+    callReentrantMethod(receiver, OBJ_VAL(closure), element, index);
     index = callReentrantMethod(receiver, nextMethod, index);
   }
   RETURN_NIL;
@@ -1788,7 +1894,7 @@ void registerCollectionPackage() {
 
   ObjClass* listClass = defineNativeClass("List", true);
   bindSuperclass(listClass, collectionClass);
-  DEF_METHOD(listClass, List, eachIndex, 1);
+  DEF_METHOD(listClass, List, each, 1);
   DEF_METHOD(listClass, List, getAt, 1);
   DEF_METHOD_ABSTRACT(listClass, List, putAt, 2, "index", "element");
 
@@ -1800,9 +1906,12 @@ void registerCollectionPackage() {
   DEF_METHOD(vm.arrayClass, Array, extend, 1);
 	DEF_METHOD(vm.arrayClass, Array, clear, 0);
 	DEF_METHOD(vm.arrayClass, Array, clone, 0);
+  DEF_METHOD(vm.arrayClass, Array, collect, 1);
 	DEF_METHOD(vm.arrayClass, Array, contains, 1);
+  DEF_METHOD(vm.arrayClass, Array, detect, 1);
   DEF_METHOD(vm.arrayClass, Array, each, 1);
 	DEF_METHOD(vm.arrayClass, Array, equals, 1);
+  DEF_METHOD(vm.arrayClass, Array, fill, 2);
 	DEF_METHOD(vm.arrayClass, Array, getAt, 1);
 	DEF_METHOD(vm.arrayClass, Array, indexOf, 1);
 	DEF_METHOD(vm.arrayClass, Array, insertAt, 2);
@@ -1811,9 +1920,12 @@ void registerCollectionPackage() {
   DEF_METHOD(vm.arrayClass, Array, next, 1);
   DEF_METHOD(vm.arrayClass, Array, nextValue, 1);
   DEF_METHOD(vm.arrayClass, Array, putAt, 2);
+  DEF_METHOD(vm.arrayClass, Array, reject, 1);
 	DEF_METHOD(vm.arrayClass, Array, remove, 1);
 	DEF_METHOD(vm.arrayClass, Array, pop, 0);
 	DEF_METHOD(vm.arrayClass, Array, removeAt, 1);
+  DEF_METHOD(vm.arrayClass, Array, select, 1);
+  DEF_METHOD(vm.arrayClass, Array, slice, 2);
   DEF_METHOD(vm.arrayClass, Array, subArray, 2);
 	DEF_METHOD(vm.arrayClass, Array, __str__, 0);
 	DEF_METHOD(vm.arrayClass, Array, __format__, 0);
@@ -1821,6 +1933,10 @@ void registerCollectionPackage() {
   DEF_OPERATOR(vm.arrayClass, Array, +, __add__, 1);
   DEF_OPERATOR(vm.arrayClass, Array, [], __getSubscript__, 1);
   DEF_OPERATOR(vm.arrayClass, Array, []=, __setSubscript__, 2);
+
+
+  ObjClass* arrayMetaclass = vm.arrayClass->obj.klass;
+  DEF_METHOD(arrayMetaclass, ArrayClass, fromElements, -1);
 
 	vm.dictionaryClass = defineNativeClass("Dictionary", false);
 	bindSuperclass(vm.dictionaryClass, collectionClass);
@@ -1851,6 +1967,7 @@ void registerCollectionPackage() {
   DEF_METHOD(vm.rangeClass, Range, __init__, 2);
   DEF_METHOD_ABSTRACT(vm.rangeClass, Range, append, 1, "element");
   DEF_METHOD_ABSTRACT(vm.rangeClass, Range, extend, 1, "collection");
+  DEF_METHOD_ABSTRACT(vm.rangeClass, Range, putAt, 1, "index", "element");
   DEF_METHOD(vm.rangeClass, Range, clone, 0);
   DEF_METHOD(vm.rangeClass, Range, contains, 1);
   DEF_METHOD(vm.rangeClass, Range, getAt, 1);

@@ -21,6 +21,7 @@ Value assertArgIsFile(const char* method, Value* args, int index);
 Value assertArgIsNamespace(const char* method, Value* args, int index);
 Value assertArgIsMethod(const char* method, Value* args, int index);
 Value assertIsNumber(const char* method, Value number);
+Value assertArgIsCallable(const char* method, Value* args, int index);
 Value assertArgInstanceOfEither(const char* method, Value* args, int index, const char* namespaceName, const char* className, const char* namespaceName2, const char* className2);
 Value assertIntWithinRange(const char* method, int value, int min, int max, int index);
 Value assertNumberNonNegative(const char* method, double number, int index);

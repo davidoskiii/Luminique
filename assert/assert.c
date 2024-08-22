@@ -109,6 +109,17 @@ Value assertArgIsGenerator(const char* method, Value* args, int index) {
   RETURN_NIL;
 }
 
+Value assertArgIsCallable(const char* method, Value* args, int index) {
+  char* namespace = "luminique::std::lang";
+  if (!isObjInstanceOf(args[index], getNativeClass(namespace, "Function")) && 
+      !isObjInstanceOf(args[index], getNativeClass(namespace, "BoundMethod"))) {
+      THROW_EXCEPTION_FMT(luminique::std::lang, IllegalArgumentException, 
+        "Method %s expects argument %d to be an instance of a callable class.",
+        method, index + 1); 
+  }   
+  RETURN_NIL;
+}
+
 Value assertArgIsFile(const char* method, Value* args, int index) {
   if (!IS_INSTANCE(args[index]) && !isObjInstanceOf(args[index], vm.fileClass)) {
     THROW_EXCEPTION_FMT(luminique::std::lang, IllegalArgumentException, "Method %s expects argument %d to be a file.", 

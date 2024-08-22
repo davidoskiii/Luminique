@@ -202,7 +202,7 @@ NATIVE_METHOD(Float, __format__) {
 
 NATIVE_METHOD(Generator, __init__) {
   assertArgCount("Generator::__init__(closure, args)", 2, argCount);
-  assertArgInstanceOfEither("Generator class::run(calee, arguments)", args, 0, "luminique::std::lang", "Function", "luminique::std::lang", "BoundMethod");
+  assertArgIsCallable("Generator class::run(calee, arguments)", args, 0);
   assertArgIsArray("Generator::__init__(callee, args)", args, 1);
 
   ObjGenerator* self = AS_GENERATOR(receiver);
@@ -344,14 +344,14 @@ NATIVE_METHOD(Generator, __invoke__) {
 
 NATIVE_METHOD(GeneratorClass, run) { 
   assertArgCount("Generator class::run(callee, arguments)", 2, argCount);
-  assertArgInstanceOfEither("Generator class::run(calee, arguments)", args, 0, "luminique::std::lang", "Function", "luminique::std::lang", "BoundMethod");
+  assertArgIsCallable("Generator class::run(calee, arguments)", args, 0);
   assertArgIsArray("Generator class::run(callee, arguments)", args, 1);
   RETURN_VAL(runGeneratorAsync(args[0], AS_ARRAY(args[1])));
 }
 
 NATIVE_METHOD(Promise, __init__) {
   assertArgCount("Promise::__init__(executor)", 1, argCount);
-  assertArgInstanceOfEither("Promise::__init__(executor)", args, 0, "luminique::std::lang", "BoundMethod", "luminique::std::lang", "Function");
+  assertArgIsCallable("Promise::__init__(executor)", args, 0);
   ObjPromise* self = AS_PROMISE(receiver);
   self->executor = args[0];
   promiseExecute(self);
@@ -360,7 +360,7 @@ NATIVE_METHOD(Promise, __init__) {
 
 NATIVE_METHOD(Promise, catch) {
   assertArgCount("Promise::catch(closure)", 1, argCount);
-  assertArgInstanceOfEither("Promise::catch(closure)", args, 0, "luminique::std::lang", "Function", "luminique::std::lang", "BoundMethod");
+  assertArgIsCallable("Promise::catch(closure)", args, 0);
   ObjPromise* self = AS_PROMISE(receiver);
   if (self->state == PROMISE_REJECTED) callReentrantMethod(OBJ_VAL(self), args[0], OBJ_VAL(self->exception));
   else self->onCatch = args[0];
@@ -381,7 +381,7 @@ NATIVE_METHOD(Promise, catchAll) {
 
 NATIVE_METHOD(Promise, finally) {
   assertArgCount("Promise::finally(closure)", 1, argCount);
-  assertArgInstanceOfEither("Promise::finally(closure)", args, 0, "luminique::std::lang", "Function", "luminique::std::lang", "BoundMethod");
+  assertArgIsCallable("Promise::finally(closure)", args, 0);
   ObjPromise* self = AS_PROMISE(receiver);
   if (self->state == PROMISE_FULFILLED || self->state == PROMISE_REJECTED) callReentrantMethod(OBJ_VAL(self), args[0], self->value);
   else self->onFinally = args[0];
@@ -409,7 +409,7 @@ NATIVE_METHOD(Promise, reject) {
 
 NATIVE_METHOD(Promise, then) {
   assertArgCount("Promise::then(onFulfilled)", 1, argCount);
-  assertArgInstanceOfEither("Promise::then(onFulfilled)", args, 0, "luminique::std::lang", "Function", "luminique::std::lang", "BoundMethod");
+  assertArgIsCallable("Promise::then(onFulfilled)", args, 0);
   ObjPromise* self = AS_PROMISE(receiver);
   if (self->state == PROMISE_FULFILLED) {
     self->value = callReentrantMethod(OBJ_VAL(self), args[0], self->value);
