@@ -126,9 +126,9 @@ Value getGenericInstanceVariable(Value receiver, ObjString* name) {
     }
     case OBJ_EVENT: {
       ObjEvent* event = (ObjEvent*)object;
-      if (matchStringName(name, "type", 5)) return (INT_VAL(event->info->eventType));
-      else if (matchStringName(name, "keyCode", 6)) return (INT_VAL(event->info->keyCode));
-      else if (matchStringName(name, "quit", 5)) return (BOOL_VAL(event->info->quit));
+      if (matchStringName(name, "type", 4)) return (INT_VAL(event->info->eventType));
+      else if (matchStringName(name, "keyCode", 7)) return (INT_VAL(event->info->keyCode));
+      else if (matchStringName(name, "quit", 4)) return (BOOL_VAL(event->info->quit));
       else return getInstanceProperty(receiver, name, &event->obj);
     }
     case OBJ_PROMISE: {
@@ -253,9 +253,9 @@ Value setGenericInstanceVariable(Value receiver, ObjString* name, Value value) {
     }
     case OBJ_EVENT: {
       ObjEvent* event = (ObjEvent*)object;
-      if (matchStringName(name, "type", 5)) return (INT_VAL(event->info->eventType));
-      else if (matchStringName(name, "keyCode", 6)) return (INT_VAL(event->info->keyCode));
-      else if (matchStringName(name, "quit", 5)) return (BOOL_VAL(event->info->quit));
+      if (matchStringName(name, "type", 4)) return (INT_VAL(event->info->eventType));
+      else if (matchStringName(name, "keyCode", 7)) return (INT_VAL(event->info->keyCode));
+      else if (matchStringName(name, "quit", 4)) return (BOOL_VAL(event->info->quit));
       else return setInstanceProperty(receiver, name, &event->obj, value);
     }
     case OBJ_PROMISE: {

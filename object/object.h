@@ -345,6 +345,7 @@ struct ObjNode {
 typedef struct {
   Obj obj;
   SDL_Window* window;
+  SDL_Renderer* renderer;
   ObjString* title;
   int width;
   int height;
@@ -356,11 +357,11 @@ typedef struct EventInfo {
   bool quit;
 } EventInfo;
 
-typedef struct ObjEvent {
+struct ObjEvent {
   Obj obj;
   SDL_Event event;
   EventInfo* info;
-} ObjEvent;
+};
 
 
 Obj* allocateObject(size_t size, ObjType type, ObjClass* klass);
@@ -383,6 +384,7 @@ ObjNamespace* newNamespace(ObjString* shortName, ObjNamespace* enclosing);
 ObjRange* newRange(int from, int to);
 ObjNode* newNode(Value element, ObjNode* prev, ObjNode* next);
 ObjWindow* newWindow(const char* title, int width, int height);
+ObjEvent* newEvent(const SDL_Event* event);
 ObjClosure* newClosure(ObjFunction* function);
 ObjFunction* newFunction();
 ObjMethod* newMethod(ObjClass* behavior, ObjClosure* closure);
@@ -391,6 +393,7 @@ ObjNativeFunction* newNativeFunction(ObjString* name, int arity, bool isAsync, N
 ObjNativeMethod* newNativeMethod(ObjClass* klass, ObjString* name, int arity, bool isAsync, bool isAbstract, NativeMethod method);
 ObjUpvalue* newUpvalue(Value* slot);
 void printObject(Value value);
+void printEvent(ObjEvent* event);
 bool objMethodExists(Value object, char* name);
 ObjClass* getObjClass(Value value);
 Value getClassProperty(ObjClass* klass, char* name);

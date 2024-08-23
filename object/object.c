@@ -94,7 +94,8 @@ ObjNode* newNode(Value element, ObjNode* prev, ObjNode* next) {
 
 ObjWindow* newWindow(const char* title, int width, int height) {
   ObjWindow* window = ALLOCATE_OBJ(ObjWindow, OBJ_WINDOW, vm.windowClass);
-  window->window = SDL_CreateWindow(title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_HIDDEN);
+  window->window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_HIDDEN);
+  window->renderer = SDL_CreateRenderer(window->window, -1, SDL_RENDERER_ACCELERATED);
   window->title = copyString(title, strlen(title));
   window->width = width;
   window->height = height;
@@ -457,11 +458,41 @@ static void printFunction(ObjFunction* function) {
   else printf("<function %s>", function->name->chars);
 }
 
-static void printEvent(ObjEvent* event) {
+void printEvent(ObjEvent* event) {
   const char* eventTypeStr;
   switch (event->event.type) {
     case SDL_QUIT:
       eventTypeStr = "QUIT";
+      break;
+    case SDL_APP_TERMINATING:
+      eventTypeStr = "APP_TERMINATING";
+      break;
+    case SDL_APP_LOWMEMORY:
+      eventTypeStr = "APP_LOWMEMORY";
+      break;
+    case SDL_APP_WILLENTERBACKGROUND:
+      eventTypeStr = "APP_WILLENTERBACKGROUND";
+      break;
+    case SDL_APP_DIDENTERBACKGROUND:
+      eventTypeStr = "APP_DIDENTERBACKGROUND";
+      break;
+    case SDL_APP_WILLENTERFOREGROUND:
+      eventTypeStr = "APP_WILLENTERFOREGROUND";
+      break;
+    case SDL_APP_DIDENTERFOREGROUND:
+      eventTypeStr = "APP_DIDENTERFOREGROUND";
+      break;
+    case SDL_LOCALECHANGED:
+      eventTypeStr = "LOCALECHANGED";
+      break;
+    case SDL_DISPLAYEVENT:
+      eventTypeStr = "DISPLAYEVENT";
+      break;
+    case SDL_WINDOWEVENT:
+      eventTypeStr = "WINDOWEVENT";
+      break;
+    case SDL_SYSWMEVENT:
+      eventTypeStr = "SYSWMEVENT";
       break;
     case SDL_KEYDOWN:
       eventTypeStr = "KEYDOWN";
@@ -469,20 +500,134 @@ static void printEvent(ObjEvent* event) {
     case SDL_KEYUP:
       eventTypeStr = "KEYUP";
       break;
-    /*case SDL_MOUSEBUTTONDOWN:*/
-    /*  eventTypeStr = "MOUSEBUTTONDOWN";*/
-    /*  break;*/
-    /*case SDL_MOUSEBUTTONUP:*/
-    /*  eventTypeStr = "MOUSEBUTTONUP";*/
-    /*  break;*/
-    /*case SDL_MOUSEMOTION:*/
-    /*  eventTypeStr = "MOUSEMOTION";*/
-    /*  break;*/
-    case SDL_DISPLAYEVENT:
-      eventTypeStr = "DISPLAYEVENT";
+    case SDL_TEXTEDITING:
+      eventTypeStr = "TEXTEDITING";
       break;
-    case SDL_WINDOWEVENT:
-      eventTypeStr = "WINDOWEVENT";
+    case SDL_TEXTINPUT:
+      eventTypeStr = "TEXTINPUT";
+      break;
+    case SDL_KEYMAPCHANGED:
+      eventTypeStr = "KEYMAPCHANGED";
+      break;
+    case SDL_MOUSEMOTION:
+      eventTypeStr = "MOUSEMOTION";
+      break;
+    case SDL_MOUSEBUTTONDOWN:
+      eventTypeStr = "MOUSEBUTTONDOWN";
+      break;
+    case SDL_MOUSEBUTTONUP:
+      eventTypeStr = "MOUSEBUTTONUP";
+      break;
+    case SDL_MOUSEWHEEL:
+      eventTypeStr = "MOUSEWHEEL";
+      break;
+    case SDL_JOYAXISMOTION:
+      eventTypeStr = "JOYAXISMOTION";
+      break;
+    case SDL_JOYBALLMOTION:
+      eventTypeStr = "JOYBALLMOTION";
+      break;
+    case SDL_JOYHATMOTION:
+      eventTypeStr = "JOYHATMOTION";
+      break;
+    case SDL_JOYBUTTONDOWN:
+      eventTypeStr = "JOYBUTTONDOWN";
+      break;
+    case SDL_JOYBUTTONUP:
+      eventTypeStr = "JOYBUTTONUP";
+      break;
+    case SDL_JOYDEVICEADDED:
+      eventTypeStr = "JOYDEVICEADDED";
+      break;
+    case SDL_JOYDEVICEREMOVED:
+      eventTypeStr = "JOYDEVICEREMOVED";
+      break;
+    case SDL_CONTROLLERAXISMOTION:
+      eventTypeStr = "CONTROLLERAXISMOTION";
+      break;
+    case SDL_CONTROLLERBUTTONDOWN:
+      eventTypeStr = "CONTROLLERBUTTONDOWN";
+      break;
+    case SDL_CONTROLLERBUTTONUP:
+      eventTypeStr = "CONTROLLERBUTTONUP";
+      break;
+    case SDL_CONTROLLERDEVICEADDED:
+      eventTypeStr = "CONTROLLERDEVICEADDED";
+      break;
+    case SDL_CONTROLLERDEVICEREMOVED:
+      eventTypeStr = "CONTROLLERDEVICEREMOVED";
+      break;
+    case SDL_CONTROLLERDEVICEREMAPPED:
+      eventTypeStr = "CONTROLLERDEVICEREMAPPED";
+      break;
+    case SDL_CONTROLLERTOUCHPADDOWN:
+      eventTypeStr = "CONTROLLERTOUCHPADDOWN";
+      break;
+    case SDL_CONTROLLERTOUCHPADMOTION:
+      eventTypeStr = "CONTROLLERTOUCHPADMOTION";
+      break;
+    case SDL_CONTROLLERTOUCHPADUP:
+      eventTypeStr = "CONTROLLERTOUCHPADUP";
+      break;
+    case SDL_CONTROLLERSENSORUPDATE:
+      eventTypeStr = "CONTROLLERSENSORUPDATE";
+      break;
+    case SDL_FINGERDOWN:
+      eventTypeStr = "FINGERDOWN";
+      break;
+    case SDL_FINGERUP:
+      eventTypeStr = "FINGERUP";
+      break;
+    case SDL_FINGERMOTION:
+      eventTypeStr = "FINGERMOTION";
+      break;
+    case SDL_DOLLARGESTURE:
+      eventTypeStr = "DOLLARGESTURE";
+      break;
+    case SDL_DOLLARRECORD:
+      eventTypeStr = "DOLLARRECORD";
+      break;
+    case SDL_MULTIGESTURE:
+      eventTypeStr = "MULTIGESTURE";
+      break;
+    case SDL_CLIPBOARDUPDATE:
+      eventTypeStr = "CLIPBOARDUPDATE";
+      break;
+    case SDL_DROPFILE:
+      eventTypeStr = "DROPFILE";
+      break;
+    case SDL_DROPTEXT:
+      eventTypeStr = "DROPTEXT";
+      break;
+    case SDL_DROPBEGIN:
+      eventTypeStr = "DROPBEGIN";
+      break;
+    case SDL_DROPCOMPLETE:
+      eventTypeStr = "DROPCOMPLETE";
+      break;
+    case SDL_AUDIODEVICEADDED:
+      eventTypeStr = "AUDIODEVICEADDED";
+      break;
+    case SDL_AUDIODEVICEREMOVED:
+      eventTypeStr = "AUDIODEVICEREMOVED";
+      break;
+    case SDL_SENSORUPDATE:
+      eventTypeStr = "SENSORUPDATE";
+      break;
+    case SDL_RENDER_TARGETS_RESET:
+      eventTypeStr = "RENDER_TARGETS_RESET";
+      break;
+    case SDL_RENDER_DEVICE_RESET:
+      eventTypeStr = "RENDER_DEVICE_RESET";
+      break;
+    case SDL_POLLSENTINEL:
+      eventTypeStr = "POLLSENTINEL";
+      break;
+    case SDL_USEREVENT:
+      eventTypeStr = "USEREVENT";
+      break;
+    case SDL_LASTEVENT:
+      eventTypeStr = "LASTEVENT";
       break;
     default:
       eventTypeStr = "UNKNOWN";
