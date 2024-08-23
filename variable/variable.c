@@ -167,7 +167,7 @@ Value setGenericInstanceVariable(Value receiver, ObjString* name, Value value) {
     case OBJ_ARRAY: {
       ObjArray* array = (ObjArray*)object;
       if (matchStringName(name, "length", 6)) {
-        runtimeError("Cannot set property length on Object Array.");
+        runtimeError("Cannot set property length on %s.", valueToString(OBJ_VAL(array)));
         exit(70);
       }
       else return setInstanceProperty(receiver, name, &array->obj, value);
@@ -181,7 +181,7 @@ Value setGenericInstanceVariable(Value receiver, ObjString* name, Value value) {
     case OBJ_CLOSURE: {
       ObjClosure* closure = (ObjClosure*)object;
       if (matchStringName(name, "name", 4) || matchStringName(name, "arity", 5)) {
-        runtimeError("Cannot set property %s on Object Function.", name->chars);
+        runtimeError("Cannot set property %s on %s.", name->chars, valueToString(OBJ_VAL(closure)));
         exit(70);
       }
       else return setInstanceProperty(receiver, name, &closure->obj, value);
@@ -189,7 +189,7 @@ Value setGenericInstanceVariable(Value receiver, ObjString* name, Value value) {
     case OBJ_DICTIONARY: {
       ObjDictionary* dictionary = (ObjDictionary*)object;
       if (matchStringName(name, "length", 6)) {
-        runtimeError("Cannot set property length on Object Dictionary.");
+        runtimeError("Cannot set property length on %s.", valueToString(OBJ_VAL(dictionary)));
         exit(70);
       }
       else return setInstanceProperty(receiver, name, &dictionary->obj, value);
@@ -217,7 +217,7 @@ Value setGenericInstanceVariable(Value receiver, ObjString* name, Value value) {
       if (matchStringName(name, "name", 4) && IS_STRING(value)) file->name = AS_STRING(value);
       else if (matchStringName(name, "mode", 4) && IS_STRING(value)) file->mode = AS_STRING(value);
       else if (matchStringName(name, "isOpen", 6)) {
-        runtimeError("Cannot set property isOpen on Object File.");
+        runtimeError("Cannot set property isOpen on %s.", valueToString(OBJ_VAL(file)));
         exit(70);
       }
       else return setInstanceProperty(receiver, name, &file->obj, value);
@@ -232,7 +232,7 @@ Value setGenericInstanceVariable(Value receiver, ObjString* name, Value value) {
     case OBJ_METHOD: {
       ObjMethod* method = (ObjMethod*)object;
       if (matchStringName(name, "name", 4) || matchStringName(name, "arity", 5) || matchStringName(name, "behavior", 8)) {
-        runtimeError("Cannot set property %s on Object Method.", name->chars);
+        runtimeError("Cannot set property %s on %s.", name->chars, valueToString(OBJ_VAL(method)));
         exit(70);
       }
       else return setInstanceProperty(receiver, name, &method->obj, value);
@@ -253,9 +253,10 @@ Value setGenericInstanceVariable(Value receiver, ObjString* name, Value value) {
     }
     case OBJ_EVENT: {
       ObjEvent* event = (ObjEvent*)object;
-      if (matchStringName(name, "type", 4)) return (INT_VAL(event->info->eventType));
-      else if (matchStringName(name, "keyCode", 7)) return (INT_VAL(event->info->keyCode));
-      else if (matchStringName(name, "quit", 4)) return (BOOL_VAL(event->info->quit));
+      if (matchStringName(name, "type", 4) || matchStringName(name, "keyCode", 7) || matchStringName(name, "quit", 4)) {
+        runtimeError("Cannot set property %s on %s.", name->chars, valueToString(OBJ_VAL(event)));
+        exit(70);
+      }
       else return setInstanceProperty(receiver, name, &event->obj, value);
     }
     case OBJ_PROMISE: {
@@ -277,7 +278,7 @@ Value setGenericInstanceVariable(Value receiver, ObjString* name, Value value) {
     case OBJ_STRING: {
       ObjString* string = (ObjString*)object;
       if (matchStringName(name, "length", 6)) {
-        runtimeError("Cannot set property length on Object String.");
+        runtimeError("Cannot set property length on \"%s\".", string->chars);
         exit(70);
       }
       else return setInstanceProperty(receiver, name, &string->obj, value);
