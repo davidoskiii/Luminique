@@ -181,7 +181,7 @@ char* valueToString(Value value) {
         return formattedString("%d...%d", AS_RANGE(value)->from, AS_RANGE(value)->to)->chars;
         break;
       case OBJ_WINDOW:
-        return formattedString("<%s window>", AS_WINDOW(value)->title)->chars;
+        return formattedString("<%s window>", AS_WINDOW(value)->title->chars)->chars;
         break;
       case OBJ_EVENT:
         return eventToString(AS_EVENT(value));

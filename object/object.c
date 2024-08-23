@@ -95,7 +95,7 @@ ObjNode* newNode(Value element, ObjNode* prev, ObjNode* next) {
 ObjWindow* newWindow(const char* title, int width, int height) {
   ObjWindow* window = ALLOCATE_OBJ(ObjWindow, OBJ_WINDOW, vm.windowClass);
   window->window = SDL_CreateWindow(title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_HIDDEN);
-  window->title = strdup(title);
+  window->title = copyString(title, strlen(title));
   window->width = width;
   window->height = height;
   return window;
@@ -510,7 +510,7 @@ void printObject(Value value) {
       printf("%d...%d", AS_RANGE(value)->from, AS_RANGE(value)->to);
       break;
     case OBJ_WINDOW:
-      printf("<%s window>", AS_WINDOW(value)->title);
+      printf("<%s window>", AS_WINDOW(value)->title->chars);
       break;
     case OBJ_EVENT:
       printEvent(AS_EVENT(value));

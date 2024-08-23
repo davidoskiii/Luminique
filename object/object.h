@@ -345,7 +345,7 @@ struct ObjNode {
 typedef struct {
   Obj obj;
   SDL_Window* window;
-  char* title;
+  ObjString* title;
   int width;
   int height;
 } ObjWindow;

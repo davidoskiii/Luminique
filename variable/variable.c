@@ -121,7 +121,7 @@ Value getGenericInstanceVariable(Value receiver, ObjString* name) {
       ObjWindow* window = (ObjWindow*)object;
       if (matchStringName(name, "width", 5)) return (INT_VAL(window->width));
       else if (matchStringName(name, "height", 6)) return (INT_VAL(window->height));
-      else if (matchStringName(name, "title", 5)) return (OBJ_VAL(copyString(window->title, strlen(window->title))));
+      else if (matchStringName(name, "title", 5)) return (OBJ_VAL(window->title));
       else return getInstanceProperty(receiver, name, &window->obj);
     }
     case OBJ_EVENT: {
@@ -248,7 +248,7 @@ Value setGenericInstanceVariable(Value receiver, ObjString* name, Value value) {
       ObjWindow* window = (ObjWindow*)object;
       if (matchStringName(name, "width", 5) && IS_INT(value)) window->width = INT_VAL(value);
       else if (matchStringName(name, "height", 6) && IS_INT(value)) window->height = INT_VAL(value);
-      else if (matchStringName(name, "title", 5) && IS_STRING(value)) window->title = AS_STRING(value)->chars;
+      else if (matchStringName(name, "title", 5) && IS_STRING(value)) window->title = AS_STRING(value);
       else return setInstanceProperty(receiver, name, &window->obj, value);
     }
     case OBJ_EVENT: {

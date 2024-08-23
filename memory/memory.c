@@ -280,7 +280,7 @@ static void freeObject(Obj* object) {
     case OBJ_WINDOW: {
       ObjWindow* window = (ObjWindow*)object;
       if (window->window != NULL) SDL_DestroyWindow(window->window);
-      FREE_ARRAY(char, window->title, strlen(window->title));
+      FREE(ObjString, window->title);
       FREE(ObjWindow, object);
       break;
     }
