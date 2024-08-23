@@ -1,8 +1,15 @@
 using luminique::std::graphics;
+using luminique::std::chrono;
 
 let window1 = graphics::createWindow("walla1", 500, 400);
 let window2 = graphics::Window("walla2", 500, 400);
 
-while (true) {
+let flag = true;
+
+while (flag) {
   window1.show();
+  chrono::sleep(2);
+  flag = false;
 }
+
+window1.hide();

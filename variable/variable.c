@@ -117,6 +117,12 @@ Value getGenericInstanceVariable(Value receiver, ObjString* name) {
       else if (matchStringName(name, "next", 4)) return (OBJ_VAL(node->next));
       else return getInstanceProperty(receiver, name, &node->obj);
     }
+    case OBJ_WINDOW: {
+    
+    }
+    case OBJ_EVENT: {
+
+    }
     case OBJ_PROMISE: {
       ObjPromise* promise = (ObjPromise*)object;
       if (matchStringName(name, "state", 5)) return (INT_VAL(promise->state));

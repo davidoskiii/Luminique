@@ -58,6 +58,7 @@ struct VM {
   ObjClass* rangeClass;
   ObjClass* nodeClass;
   ObjClass* windowClass;
+  ObjClass* eventClass;
   ObjClass* promiseClass;
   ObjClass* timerClass;
   ObjClass* boundMethodClass;

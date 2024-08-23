@@ -1,3 +1,4 @@
+#include <SDL2/SDL_events.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
@@ -98,6 +99,35 @@ ObjWindow* newWindow(const char* title, int width, int height) {
   window->width = width;
   window->height = height;
   return window;
+}
+
+ObjEvent* newEvent(const SDL_Event* event) {
+  ObjEvent* objEvent = ALLOCATE_OBJ(ObjEvent, OBJ_EVENT, vm.eventClass);
+  EventInfo* info = ALLOCATE(EventInfo, 1);
+
+  switch (event->type) {
+    case SDL_QUIT:
+      info->eventType = SDL_QUIT;
+      info->keyCode = -1;
+      info->quit = true;
+      break;
+    case SDL_KEYDOWN:
+    case SDL_KEYUP:
+      info->eventType = event->key.type;
+      info->keyCode = event->key.keysym.sym;
+      info->quit = false;
+      break;
+    default:
+      info->eventType = event->type;
+      info->keyCode = -1;
+      info->quit = false;
+      break;
+  }
+
+  objEvent->event = *event;
+  objEvent->info = info;
+
+  return objEvent;
 }
 
 ObjArray* copyArray(ValueArray elements, int fromIndex, int toIndex) {
@@ -427,6 +457,41 @@ static void printFunction(ObjFunction* function) {
   else printf("<function %s>", function->name->chars);
 }
 
+static void printEvent(ObjEvent* event) {
+  const char* eventTypeStr;
+  switch (event->event.type) {
+    case SDL_QUIT:
+      eventTypeStr = "QUIT";
+      break;
+    case SDL_KEYDOWN:
+      eventTypeStr = "KEYDOWN";
+      break;
+    case SDL_KEYUP:
+      eventTypeStr = "KEYUP";
+      break;
+    /*case SDL_MOUSEBUTTONDOWN:*/
+    /*  eventTypeStr = "MOUSEBUTTONDOWN";*/
+    /*  break;*/
+    /*case SDL_MOUSEBUTTONUP:*/
+    /*  eventTypeStr = "MOUSEBUTTONUP";*/
+    /*  break;*/
+    /*case SDL_MOUSEMOTION:*/
+    /*  eventTypeStr = "MOUSEMOTION";*/
+    /*  break;*/
+    case SDL_DISPLAYEVENT:
+      eventTypeStr = "DISPLAYEVENT";
+      break;
+    case SDL_WINDOWEVENT:
+      eventTypeStr = "WINDOWEVENT";
+      break;
+    default:
+      eventTypeStr = "UNKNOWN";
+      break;
+  }
+
+  printf("<Event type: %s, KeyCode: %d, Quit: %s>", eventTypeStr, event->info->keyCode, event->info->quit ? "true" : "false");
+}
+
 void printObject(Value value) {
   switch (OBJ_TYPE(value)) {
     case OBJ_ARRAY:
@@ -446,6 +511,9 @@ void printObject(Value value) {
       break;
     case OBJ_WINDOW:
       printf("<%s window>", AS_WINDOW(value)->title);
+      break;
+    case OBJ_EVENT:
+      printEvent(AS_EVENT(value));
       break;
     case OBJ_FILE:
       printf("<file \"%s\">", AS_FILE(value)->name->chars);

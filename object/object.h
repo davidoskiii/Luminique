@@ -46,6 +46,7 @@ typedef struct CallFrame CallFrame;
 #define IS_NODE(value) isObjType(value, OBJ_NODE)
 #define IS_ENUM(value) isObjType(value, OBJ_ENUM)
 #define IS_WINDOW(value) isObjType(value, OBJ_WINDOW)
+#define IS_EVENT(value) isObjType(value, OBJ_EVENT)
 #define IS_TIMER(value) isObjType(value, OBJ_TIMER)
 #define IS_NATIVE_FUNCTION(value) isObjType(value, OBJ_NATIVE_FUNCTION)
 #define IS_NATIVE_METHOD(value) isObjType(value, OBJ_NATIVE_METHOD)
@@ -72,6 +73,7 @@ typedef struct CallFrame CallFrame;
 #define AS_NODE(value) ((ObjNode*)AS_OBJ(value))
 #define AS_ENUM(value) ((ObjEnum*)AS_OBJ(value))
 #define AS_WINDOW(value) ((ObjWindow*)AS_OBJ(value))
+#define AS_EVENT(value) ((ObjEvent*)AS_OBJ(value))
 #define AS_TIMER(value) ((ObjTimer*)AS_OBJ(value))
 #define AS_NATIVE_FUNCTION(value) ((ObjNativeFunction*)AS_OBJ(value))
 #define AS_NATIVE_METHOD(value) ((ObjNativeMethod*)AS_OBJ(value))
@@ -106,6 +108,7 @@ typedef enum {
   OBJ_RANGE,
   OBJ_NODE,
   OBJ_WINDOW,
+  OBJ_EVENT,
   OBJ_UPVALUE
 } ObjType;
 
@@ -346,6 +349,19 @@ typedef struct {
   int width;
   int height;
 } ObjWindow;
+
+typedef struct EventInfo {
+  int eventType;
+  int keyCode;
+  bool quit;
+} EventInfo;
+
+typedef struct ObjEvent {
+  Obj obj;
+  SDL_Event event;
+  EventInfo* info;
+} ObjEvent;
+
 
 Obj* allocateObject(size_t size, ObjType type, ObjClass* klass);
 ObjBoundMethod* newBoundMethod(Value receiver, Value method);

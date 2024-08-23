@@ -116,6 +116,35 @@ static char* functionToString(ObjFunction* function) {
   else return formattedString("<function %s>", function->name->chars)->chars;
 }
 
+static char* eventToString(ObjEvent* event) {
+  const char* eventTypeStr;
+  switch (event->event.type) {
+    case SDL_QUIT:
+      eventTypeStr = "QUIT";
+      break;
+    case SDL_KEYDOWN:
+      eventTypeStr = "KEYDOWN";
+      break;
+    case SDL_KEYUP:
+      eventTypeStr = "KEYUP";
+      break;
+    case SDL_MOUSEBUTTONDOWN:
+      eventTypeStr = "MOUSEBUTTONDOWN";
+      break;
+    case SDL_MOUSEBUTTONUP:
+      eventTypeStr = "MOUSEBUTTONUP";
+      break;
+    case SDL_MOUSEMOTION:
+      eventTypeStr = "MOUSEMOTION";
+      break;
+    default:
+      eventTypeStr = "UNKNOWN";
+      break;
+  }
+
+  return formattedString("<Event type: %s, KeyCode: %d, Quit: %s>", eventTypeStr, event->info->keyCode, event->info->quit ? "true" : "false")->chars;
+}
+
 char* valueToString(Value value) {
   if (IS_NIL(value)) return "nil";
   else if (IS_BOOL(value)) return AS_BOOL(value) ? "true" : "false";
@@ -147,6 +176,9 @@ char* valueToString(Value value) {
         break;
       case OBJ_WINDOW:
         return formattedString("<%s window>", AS_WINDOW(value)->title)->chars;
+        break;
+      case OBJ_EVENT:
+        return eventToString(AS_EVENT(value));
         break;
       case OBJ_FILE:
         return formattedString("<file \"%s\">", AS_FILE(value)->name->chars)->chars;
