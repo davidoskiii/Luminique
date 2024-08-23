@@ -118,10 +118,18 @@ Value getGenericInstanceVariable(Value receiver, ObjString* name) {
       else return getInstanceProperty(receiver, name, &node->obj);
     }
     case OBJ_WINDOW: {
-    
+      ObjWindow* window = (ObjWindow*)object;
+      if (matchStringName(name, "width", 5)) return (INT_VAL(window->width));
+      else if (matchStringName(name, "height", 6)) return (INT_VAL(window->height));
+      else if (matchStringName(name, "title", 5)) return (OBJ_VAL(copyString(window->title, strlen(window->title))));
+      else return getInstanceProperty(receiver, name, &window->obj);
     }
     case OBJ_EVENT: {
-
+      ObjEvent* event = (ObjEvent*)object;
+      if (matchStringName(name, "type", 5)) return (INT_VAL(event->info->eventType));
+      else if (matchStringName(name, "keyCode", 6)) return (INT_VAL(event->info->keyCode));
+      else if (matchStringName(name, "quit", 5)) return (BOOL_VAL(event->info->quit));
+      else return getInstanceProperty(receiver, name, &event->obj);
     }
     case OBJ_PROMISE: {
       ObjPromise* promise = (ObjPromise*)object;
@@ -235,6 +243,20 @@ Value setGenericInstanceVariable(Value receiver, ObjString* name, Value value) {
       else if (matchStringName(name, "prev", 4) && IS_NODE(value)) node->prev = AS_NODE(value);
       else if (matchStringName(name, "next", 4) && IS_NODE(value)) node->next = AS_NODE(value);
       else return setInstanceProperty(receiver, name, &node->obj, value);
+    }
+    case OBJ_WINDOW: {
+      ObjWindow* window = (ObjWindow*)object;
+      if (matchStringName(name, "width", 5) && IS_INT(value)) window->width = INT_VAL(value);
+      else if (matchStringName(name, "height", 6) && IS_INT(value)) window->height = INT_VAL(value);
+      else if (matchStringName(name, "title", 5) && IS_STRING(value)) window->title = AS_STRING(value)->chars;
+      else return setInstanceProperty(receiver, name, &window->obj, value);
+    }
+    case OBJ_EVENT: {
+      ObjEvent* event = (ObjEvent*)object;
+      if (matchStringName(name, "type", 5)) return (INT_VAL(event->info->eventType));
+      else if (matchStringName(name, "keyCode", 6)) return (INT_VAL(event->info->keyCode));
+      else if (matchStringName(name, "quit", 5)) return (BOOL_VAL(event->info->quit));
+      else return setInstanceProperty(receiver, name, &event->obj, value);
     }
     case OBJ_PROMISE: {
       ObjPromise* promise = (ObjPromise*)object;

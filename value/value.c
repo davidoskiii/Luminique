@@ -128,14 +128,20 @@ static char* eventToString(ObjEvent* event) {
     case SDL_KEYUP:
       eventTypeStr = "KEYUP";
       break;
-    case SDL_MOUSEBUTTONDOWN:
-      eventTypeStr = "MOUSEBUTTONDOWN";
+    /*case SDL_MOUSEBUTTONDOWN:*/
+    /*  eventTypeStr = "MOUSEBUTTONDOWN";*/
+    /*  break;*/
+    /*case SDL_MOUSEBUTTONUP:*/
+    /*  eventTypeStr = "MOUSEBUTTONUP";*/
+    /*  break;*/
+    /*case SDL_MOUSEMOTION:*/
+    /*  eventTypeStr = "MOUSEMOTION";*/
+    /*  break;*/
+    case SDL_DISPLAYEVENT:
+      eventTypeStr = "DISPLAYEVENT";
       break;
-    case SDL_MOUSEBUTTONUP:
-      eventTypeStr = "MOUSEBUTTONUP";
-      break;
-    case SDL_MOUSEMOTION:
-      eventTypeStr = "MOUSEMOTION";
+    case SDL_WINDOWEVENT:
+      eventTypeStr = "WINDOWEVENT";
       break;
     default:
       eventTypeStr = "UNKNOWN";
