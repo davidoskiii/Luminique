@@ -17,6 +17,11 @@ static int factorial(int self) {
   return result;
 }
 
+static double clamp(double d, double min, double max) {
+  const double t = d < min ? min : d;
+  return t > max ? max : t;
+}
+
 static int gcd(int self, int other) {
   while (self != other) {
     if (self > other) self -= other;
@@ -548,7 +553,7 @@ NATIVE_FUNCTION(ceil) {
   if (isnan(result)) {
     RETURN_NIL;
   }
-  RETURN_NUMBER(result);
+  RETURN_INT(result);
 }
 
 NATIVE_FUNCTION(floor) {
@@ -558,7 +563,19 @@ NATIVE_FUNCTION(floor) {
   if (isnan(result)) {
     RETURN_NIL;
   }
-  RETURN_NUMBER(result);
+  RETURN_INT(result);
+}
+
+NATIVE_FUNCTION(clamp) {
+  assertArgCount("clamp(value, min, max)", 3, argCount);
+  assertArgIsNumber("clamp(value, min, max)", args, 0);
+  assertArgIsNumber("clamp(value, min, max)", args, 1);
+  assertArgIsNumber("clamp(value, min, max)", args, 2);
+  double result = clamp(AS_NUMBER(args[0]), AS_NUMBER(args[1]), AS_NUMBER(args[2]));
+  if (isnan(result)) {
+    RETURN_NIL;
+  }
+  RETURN_INT(result);
 }
 
 NATIVE_FUNCTION(round) {
@@ -785,6 +802,7 @@ void registerMathPackage() {
   DEF_FUNCTION(lcm, 1);
   DEF_FUNCTION(even, 1);
   DEF_FUNCTION(odd, 1);
+  DEF_FUNCTION(clamp, 3);
 
   vm.currentNamespace = vm.rootNamespace;
 }

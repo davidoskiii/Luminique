@@ -14,8 +14,6 @@
 #include "../string/string.h"
 #include "../vm/vm.h"
 
-static unsigned int seed = 0;
-
 void defineNativeFunction(const char* name, int arity, bool isAsync, NativeFunction function) {
   ObjString* functionName = copyString(name, (int)strlen(name));
   push(OBJ_VAL(functionName));

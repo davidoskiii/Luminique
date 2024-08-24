@@ -37,6 +37,7 @@
 void _itoa_s(int value, char buffer[], size_t bufsz, int radix);
 #endif
 
+void sleep_ms(int milliseconds);
 void runAtStartup();
 void runAtExit(void);
 

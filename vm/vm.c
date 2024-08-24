@@ -1,4 +1,5 @@
 #include <stdarg.h>
+#include <SDL2/SDL_ttf.h>
 #include <stdio.h>
 #include <math.h>
 #include <string.h>
@@ -34,11 +35,6 @@
 
 VM vm;
 static Stack namespaceStack;
-
-static void dioporco() {
-  5 * 5;
-  2 - 2;
-}
 
 static void resetCallFrame(int index) {
   CallFrame* frame = &vm.frames[index];
@@ -240,6 +236,8 @@ void initVM(int argc, char** argv) {
   vm.initString = copyString("__init__", 8);
   vm.runningGenerator = NULL;
 
+  TTF_Init();
+
   registerLangPackage();
   registerSysPackage();
   registerRandomPackage();
@@ -265,6 +263,8 @@ void freeVM() {
 
   freeStack(&namespaceStack);
   vm.initString = NULL;
+
+  TTF_Quit();
 
   freeObjects();
   freeLoop();
@@ -715,10 +715,6 @@ bool loadGlobal(ObjString* name, Value* value) {
   else return (tableGet(&vm.currentModule->values, name, value));
 }
 
-bool setVariable() {
-
-}
-
 static ObjUpvalue* captureUpvalue(Value* local) {
   ObjUpvalue* prevUpvalue = NULL;
   ObjUpvalue* upvalue = vm.openUpvalues;
@@ -1034,7 +1030,7 @@ InterpretResult run() {
 
         ObjString* alias = READ_STRING(); 
         if (alias->length > 0) {
-          tableSet(&vm.currentModule->values, alias, value);
+          tableSet(&vm.rootNamespace->values, alias, value);
         } else if (IS_CLASS(value)) {
           ObjClass* klass = AS_CLASS(value);
           tableSet(&vm.rootNamespace->values, klass->name, value);
@@ -1859,7 +1855,6 @@ InterpretResult run() {
         break;
       }
       case OP_AWAIT: {
-        dioporco();
         Value result = peek(0);
         if (!IS_PROMISE(result)) {
           result = OBJ_VAL(promiseWithFulfilled(result));

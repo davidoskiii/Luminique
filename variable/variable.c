@@ -122,6 +122,7 @@ Value getGenericInstanceVariable(Value receiver, ObjString* name) {
       if (matchStringName(name, "width", 5)) return (INT_VAL(window->width));
       else if (matchStringName(name, "height", 6)) return (INT_VAL(window->height));
       else if (matchStringName(name, "title", 5)) return (OBJ_VAL(window->title));
+      else if (matchStringName(name, "isResizable", 11)) return (BOOL_VAL(window->isResizable));
       else return getInstanceProperty(receiver, name, &window->obj);
     }
     case OBJ_EVENT: {
@@ -249,6 +250,16 @@ Value setGenericInstanceVariable(Value receiver, ObjString* name, Value value) {
       if (matchStringName(name, "width", 5) && IS_INT(value)) window->width = INT_VAL(value);
       else if (matchStringName(name, "height", 6) && IS_INT(value)) window->height = INT_VAL(value);
       else if (matchStringName(name, "title", 5) && IS_STRING(value)) window->title = AS_STRING(value);
+      else if (matchStringName(name, "isResizable", 11) && IS_BOOL(value)) {
+        window->isResizable = AS_BOOL(value);
+        Uint32 flags = SDL_GetWindowFlags(window->window);
+        if (window->isResizable) {
+          flags |= SDL_WINDOW_RESIZABLE;
+        } else {
+          flags &= ~SDL_WINDOW_RESIZABLE;
+        }
+        SDL_SetWindowResizable(window->window, window->isResizable ? SDL_TRUE : SDL_FALSE);   
+      }
       else return setInstanceProperty(receiver, name, &window->obj, value);
     }
     case OBJ_EVENT: {

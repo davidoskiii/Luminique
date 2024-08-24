@@ -24,7 +24,7 @@ class PitBull : Dog {
 
   async function goOnAWalk(const hours) {
     println("Walking...");
-    sleep(hours);
+    sleep(hours * 1000);
     println("PitBull went for a walk for ${hours} hours");
   }
 }

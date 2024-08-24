@@ -144,16 +144,6 @@ static bool dictsEqual(ObjDictionary* aDict, ObjDictionary* dict2) {
   return true;
 }
 
-static int dictLength(ObjDictionary* dict) {
-  if (dict->count == 0) return 0;
-  int length = 0;
-  for (int i = 0; i < dict->capacity; i++) {
-    ObjEntry* entry = &dict->entries[i];
-    if (!IS_UNDEFINED(entry->key)) length++;
-  }
-  return length;
-}
-
 static int dictFindIndex(ObjDictionary* dict, Value key) {
   uint32_t hash = hashValue(key);
   uint32_t index = hash & (dict->capacity - 1);
@@ -923,8 +913,7 @@ NATIVE_METHOD(Array, clear) {
 
 NATIVE_METHOD(Array, clone) {
 	assertArgCount("Array::clone()", 0, argCount);
-	ObjArray* self = AS_ARRAY(receiver);
-	RETURN_OBJ(copyArray(self->elements, 0, self->elements.count));
+  return receiver;
 }
 
 NATIVE_METHOD(Array, contains) {

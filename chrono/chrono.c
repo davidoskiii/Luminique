@@ -5,6 +5,7 @@
 #include "chrono.h"
 #include "../date/date.h"
 #include "../assert/assert.h"
+#include "../os/os.h"
 #include "../native/native.h"
 #include "../loop/loop.h"
 #include "../object/object.h"
@@ -365,9 +366,9 @@ NATIVE_METHOD(TimerClass, timeout) {
 }
 
 NATIVE_FUNCTION(sleep) {
-  assertArgCount("sleep(seconds)", 1, argCount);
-  assertArgIsNumber("sleep(seconds)", args, 0);
-  sleep(AS_NUMBER(args[0]));
+  assertArgCount("sleep(milliseconds)", 1, argCount);
+  assertArgIsInt("sleep(milliseconds)", args, 0);
+  sleep_ms(AS_INT(args[0]));
   RETURN_NIL;
 }
 

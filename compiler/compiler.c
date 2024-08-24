@@ -2338,11 +2338,14 @@ static void namespaceDeclaration() {
 
   emitByte(OP_POP);
 }
+
 static void usingStatement() {
   uint8_t namespaceDepth = 0;
+  Token namep;
   do { 
     consume(TOKEN_IDENTIFIER, "Expect namespace identifier.");
-    emitIdentifier(&parser.previous);
+    namep = parser.previous;
+    emitIdentifier(&namep);
     namespaceDepth++;
   } while (match(TOKEN_COLON_COLON));
 
@@ -2352,6 +2355,9 @@ static void usingStatement() {
   if (match(TOKEN_AS)) {
     consume(TOKEN_IDENTIFIER, "Expect alias after 'as'.");
     Token name = parser.previous;
+    if (strcmp(stringPrecision(namep.start, namep.length), stringPrecision(name.start, name.length)) == 0) {
+      error("Namespace name and alias can't be the same.");
+    }
     alias = identifierConstant(&name);
   }
   consume(TOKEN_SEMICOLON, "Expect ';' after using statement.");

@@ -1,6 +1,21 @@
 using luminique::std::graphics;
 using luminique::std::chrono;
 
+function drawGraphics() {
+  window1.setDrawColor(96, 108, 56, 255);
+  window1.clear();
+  window1.setDrawColor(40, 54, 24, 0);
+  window1.fillRect(int(window1.width / 2 - 200 / 2), int(window1.height / 2 - 150 / 2), 200, 150);
+  window1.setDrawColor(221, 161, 94, 255);
+  window1.fillCircle(int(window1.width / 2), int(window1.height / 2), 20);
+  window1.setDrawColor(254, 250, 224, 255);
+  window1.fillPolygon([[100, 150], [200, 50], [300, 150]]);
+  window1.loadFont("tests/utils/Ubuntu-Regular.ttf", 32);
+  window1.drawText("Hello, World!", 200, 100, [150, 200, 50], graphics::AlignDirection::MIDDLE, graphics::AlignDirection::MIDDLE);
+
+  window1.present();
+}
+
 function handleEvents() {
   let quit = false;
   while (!quit) {
@@ -11,27 +26,14 @@ function handleEvents() {
           quit = true;
         }
       }
+      drawGraphics();
     }
   }
 }
 
-function drawGraphics() {
-  window1.setDrawColor(96, 108, 56, 255);
-  window1.clear();
-  window1.setDrawColor(40, 54, 24, 0);
-  window1.fillRect(int(window1.width / 2 - 200 / 2), int(window1.height / 2 - 150 / 2), 200, 150);
-  window1.setDrawColor(221, 161, 94, 255);
-  window1.fillCircle(int(window1.width / 2), int(window1.height / 2), 20);
-  window1.setDrawColor(254, 250, 224, 255);
-  window1.fillPolygon([[100, 150], [200, 50], [300, 150]]);
-  window1.present();
-}
-
-let window1 = graphics::Window("title", 500, 400);
+let window1 = graphics::Window("title", 500, 400, true);
 
 window1.show();
-
-drawGraphics();
 
 handleEvents();
 

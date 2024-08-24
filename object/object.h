@@ -1,6 +1,7 @@
 #ifndef cluminique_object_h
 #define cluminique_object_h
 
+#include <SDL2/SDL_ttf.h>
 #include <stdint.h>
 #include <sys/stat.h>
 #include <SDL2/SDL.h>
@@ -346,9 +347,11 @@ typedef struct {
   Obj obj;
   SDL_Window* window;
   SDL_Renderer* renderer;
+  TTF_Font* font;
   ObjString* title;
   int width;
   int height;
+  bool isResizable;
 } ObjWindow;
 
 typedef struct EventInfo {
@@ -383,7 +386,7 @@ ObjTimer* newTimer(ObjClosure* closure, int delay, int interval);
 ObjNamespace* newNamespace(ObjString* shortName, ObjNamespace* enclosing);
 ObjRange* newRange(int from, int to);
 ObjNode* newNode(Value element, ObjNode* prev, ObjNode* next);
-ObjWindow* newWindow(const char* title, int width, int height);
+ObjWindow* newWindow(const char* title, int width, int height, bool isResizable);
 ObjEvent* newEvent(const SDL_Event* event);
 ObjClosure* newClosure(ObjFunction* function);
 ObjFunction* newFunction();

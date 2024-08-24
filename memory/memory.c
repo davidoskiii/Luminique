@@ -280,13 +280,13 @@ static void freeObject(Obj* object) {
     case OBJ_WINDOW: {
       ObjWindow* window = (ObjWindow*)object;
       if (window->window != NULL) SDL_DestroyWindow(window->window);
+      if (window->renderer != NULL) SDL_DestroyRenderer(window->renderer);
       FREE(ObjString, window->title);
       FREE(ObjWindow, object);
       break;
     }
     case OBJ_EVENT: {
       ObjEvent* event = (ObjEvent*)object;
-      if (event->info != NULL) FREE(EventInfo, event->info);
       FREE(ObjEvent, object);
       break;
     }

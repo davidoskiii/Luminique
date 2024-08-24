@@ -1,4 +1,5 @@
 #include <SDL2/SDL_events.h>
+#include <SDL2/SDL_video.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
@@ -92,13 +93,24 @@ ObjNode* newNode(Value element, ObjNode* prev, ObjNode* next) {
   return node;
 }
 
-ObjWindow* newWindow(const char* title, int width, int height) {
+ObjWindow* newWindow(const char* title, int width, int height, bool isResizable) {
   ObjWindow* window = ALLOCATE_OBJ(ObjWindow, OBJ_WINDOW, vm.windowClass);
   window->window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_HIDDEN);
   window->renderer = SDL_CreateRenderer(window->window, -1, SDL_RENDERER_ACCELERATED);
+  window->font = NULL;
   window->title = copyString(title, strlen(title));
   window->width = width;
   window->height = height;
+  window->isResizable = isResizable;
+
+  Uint32 flags = SDL_GetWindowFlags(window->window);
+  if (window->isResizable) {
+    flags |= SDL_WINDOW_RESIZABLE;
+  } else {
+    flags &= ~SDL_WINDOW_RESIZABLE;
+  }
+  SDL_SetWindowResizable(window->window, window->isResizable ? SDL_TRUE : SDL_FALSE);   
+
   return window;
 }
 
