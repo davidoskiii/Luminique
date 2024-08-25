@@ -1862,7 +1862,6 @@ InterpretResult run() {
         saveGeneratorFrame(vm.runningGenerator, frame, result);
 
         vm.frameCount--;
-        printf("api: %d\n", vm.apiStackDepth);
         if (vm.apiStackDepth > 0) return INTERPRET_OK;
         frame = &vm.frames[vm.frameCount - 1];
         break;
