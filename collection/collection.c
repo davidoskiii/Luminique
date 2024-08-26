@@ -913,7 +913,8 @@ NATIVE_METHOD(Array, clear) {
 
 NATIVE_METHOD(Array, clone) {
 	assertArgCount("Array::clone()", 0, argCount);
-  return receiver;
+  ObjArray* self = AS_ARRAY(receiver);
+	RETURN_OBJ(copyArray(self->elements, 0, self->elements.count));
 }
 
 NATIVE_METHOD(Array, contains) {
