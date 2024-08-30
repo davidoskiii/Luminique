@@ -5,6 +5,9 @@ project(Luminique)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 # Source files
+set(GCC_COVERAGE_COMPILE_FLAGS 
+  "-O3")
+
 set(SOURCES
   main.c
   chunk/chunk.c
@@ -34,6 +37,17 @@ set(SOURCES
   yuarel/yuarel.c
   json/json.c
   cjson/cjson.c
+  cnet/cnet.c
+  generator/generator.c
+  promise/promise.c
+  os/os.c
+  date/date.c
+  loop/loop.c
+  file/file.c
+  dsa/dsa.c
+  exception/exception.c
+  interceptor/interceptor.c
+  variable/variable.c
   statistics/statistics.c
 )
 
@@ -41,4 +55,5 @@ set(SOURCES
 add_executable(luminique ${SOURCES})
 
 # Link libraries
-target_link_libraries(luminique m SDL2 readline curl)
+target_link_libraries(luminique m SDL2 readline curl uv SDL2_ttf)
+add_definitions(${GCC_COVERAGE_COMPILE_FLAGS})
