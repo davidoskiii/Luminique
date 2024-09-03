@@ -115,7 +115,14 @@ NATIVE_METHOD(Window, hide) {
 NATIVE_METHOD(Window, close) {
   assertArgCount("Window::close()", 0, argCount);
   ObjWindow* window = AS_WINDOW(receiver);
-  SDL_DestroyWindow(window->window);
+  if (window->renderer != NULL) {
+    SDL_DestroyRenderer(window->renderer);
+    window->renderer = NULL;
+  }
+  if (window->window != NULL) {
+    SDL_DestroyWindow(window->window);
+    window->window = NULL;
+  }
   RETURN_NIL;
 }
 
@@ -192,6 +199,31 @@ NATIVE_METHOD(Window, drawLine) {
   int y2 = AS_INT(args[3]);
 
   SDL_RenderDrawLine(window->renderer, x1, y1, x2, y2);
+  RETURN_NIL;
+}
+
+NATIVE_METHOD(Window, drawLineWithWidth) {
+  assertArgCount("Window::drawLineWithWidth(x1, y1, x2, y2, width)", 5, argCount);
+  assertArgIsInt("Window::drawLineWithWidth(x1, y1, x2, y2, width)", args, 0);
+  assertArgIsInt("Window::drawLineWithWidth(x1, y1, x2, y2, width)", args, 1);
+  assertArgIsInt("Window::drawLineWithWidth(x1, y1, x2, y2, width)", args, 2);
+  assertArgIsInt("Window::drawLineWithWidth(x1, y1, x2, y2, width)", args, 3);
+  assertArgIsInt("Window::drawLineWithWidth(x1, y1, x2, y2, width)", args, 4);
+
+  ObjWindow* window = AS_WINDOW(receiver);
+  int x1 = AS_INT(args[0]);
+  int y1 = AS_INT(args[1]);
+  int x2 = AS_INT(args[2]);
+  int y2 = AS_INT(args[3]);
+  int width = AS_INT(args[4]);
+
+  if (width <= 1) {
+    SDL_RenderDrawLine(window->renderer, x1, y1, x2, y2);
+  } else {
+    for (int w = -width / 2; w <= width / 2; w++) {
+      SDL_RenderDrawLine(window->renderer, x1 + w, y1, x2 + w, y2);
+    }
+  }
   RETURN_NIL;
 }
 
@@ -336,6 +368,11 @@ NATIVE_METHOD(Window, clear) {
 NATIVE_METHOD(Window, present) {
   assertArgCount("Window::present()", 0, argCount);
   ObjWindow* window = AS_WINDOW(receiver);
+  int width;
+  int height;
+  SDL_GetWindowSize(window->window, &width, &height);
+  window->height = height;
+  window->width = width;
   SDL_RenderPresent(window->renderer);
   RETURN_NIL;
 }
@@ -479,10 +516,11 @@ void registerGraphicsPackage() {
   DEF_METHOD(vm.windowClass, Window, show, 0);
   DEF_METHOD(vm.windowClass, Window, hide, 0);
   DEF_METHOD(vm.windowClass, Window, close, 0);
-  DEF_METHOD_ASYNC(vm.windowClass, Window, pollEvent, 0);
+  DEF_METHOD(vm.windowClass, Window, pollEvent, 0);
   DEF_METHOD(vm.windowClass, Window, waitEvent, 0);
   DEF_METHOD(vm.windowClass, Window, setDrawColor, 4);
   DEF_METHOD(vm.windowClass, Window, drawLine, 4);
+  DEF_METHOD(vm.windowClass, Window, drawLineWithWidth, 5);
   DEF_METHOD(vm.windowClass, Window, fillRect, 4);
   DEF_METHOD(vm.windowClass, Window, fillCircle, 3);
   DEF_METHOD(vm.windowClass, Window, drawCircle, 3);

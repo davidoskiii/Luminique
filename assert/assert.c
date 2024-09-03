@@ -62,10 +62,21 @@ Value assertArgIsFloat(const char* method, Value* args, int index) {
 }
 
 Value assertArgIsInt(const char* method, Value* args, int index) {
-  if (!IS_INT(args[index])) {
-    THROW_EXCEPTION_FMT(luminique::std::lang, IllegalArgumentException, "Method %s expects argument %d to be an integer number.", 
-      method, index + 1);
+  if (IS_INT(args[index])) {
+    RETURN_NIL;
   }
+
+  if (IS_NUMBER(args[index])) {
+    double numberValue = AS_NUMBER(args[index]);
+    if (numberValue == (int)numberValue) {
+      RETURN_NIL;
+    }
+  }
+
+  THROW_EXCEPTION_FMT(luminique::std::lang, IllegalArgumentException, 
+    "Method %s expects argument %d to be an integer number.", 
+    method, index + 1);
+
   RETURN_NIL;
 }
 

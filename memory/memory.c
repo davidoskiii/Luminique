@@ -279,8 +279,14 @@ static void freeObject(Obj* object) {
     }
     case OBJ_WINDOW: {
       ObjWindow* window = (ObjWindow*)object;
-      if (window->window != NULL) SDL_DestroyWindow(window->window);
-      if (window->renderer != NULL) SDL_DestroyRenderer(window->renderer);
+      if (window->renderer != NULL) {
+        SDL_DestroyRenderer(window->renderer);
+        window->renderer = NULL;
+      }
+      if (window->window != NULL) {
+        SDL_DestroyWindow(window->window);
+        window->window = NULL;
+      }
       FREE(ObjString, window->title);
       FREE(ObjWindow, object);
       break;

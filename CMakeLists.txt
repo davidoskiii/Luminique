@@ -6,7 +6,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 # Source files
 set(GCC_COVERAGE_COMPILE_FLAGS 
-  "-O3")
+  "-O3 -g")
 
 set(SOURCES
   main.c
