@@ -10,23 +10,25 @@ function drawGraphics() {
   window1.fillCircle(int(window1.width / 2), int(window1.height / 2), 20);
   window1.setDrawColor(254, 250, 224, 255);
   window1.fillPolygon([[100, 150], [200, 50], [300, 150]]);
-  window1.loadFont("tests/utils/Ubuntu-Regular.ttf", 32);
+  window1.loadFont("tests/utils/font.ttf", 32);
   window1.drawText("Hello, World!", 200, 100, [150, 200, 50], graphics::AlignDirection::MIDDLE, graphics::AlignDirection::MIDDLE);
+
+  window1.drawImage(0, 0, "tests/utils/image.jpg", 0.05, 0.05);
 
   window1.present();
 }
 
 function handleEvents() {
   let quit = false;
+  drawGraphics();
   while (!quit) {
     let e; 
-    while ((e = window1.pollEvent()) != nil) {
+    while ((e = window1.pollEvent()) != nil && !quit) {
       switch (e.type) {
         case graphics::EventType::QUIT: {
           quit = true;
         }
       }
-      drawGraphics();
     }
   }
 }

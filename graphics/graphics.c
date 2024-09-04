@@ -1,5 +1,6 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_events.h>
+#include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
 #include <stdbool.h>
 #include <string.h>
@@ -69,6 +70,16 @@ SDL_Texture* renderTextToTexture(SDL_Renderer* renderer, const char* text, SDL_C
   SDL_FreeSurface(textSurface);
 
   return textTexture;
+}
+
+SDL_Texture* loadImageToTexture(SDL_Renderer* renderer, const char* imagePath) {
+  SDL_Surface* imageSurface = IMG_Load(imagePath);
+  if (!imageSurface) return NULL;
+
+  SDL_Texture* imageTexture = SDL_CreateTextureFromSurface(renderer, imageSurface);
+  SDL_FreeSurface(imageSurface);
+
+  return imageTexture;
 }
 
 NATIVE_METHOD(Window, __init__) {
@@ -474,6 +485,45 @@ NATIVE_METHOD(Window, drawText) {
   RETURN_NIL;
 }
 
+NATIVE_METHOD(Window, drawImage) {
+  assertArgCount("Window::drawImage(x, y, imagePath, scaleX, scaleY)", 5, argCount);
+  assertArgIsInt("Window::drawImage(x, y, imagePath, scaleX, scaleY)", args, 0);
+  assertArgIsInt("Window::drawImage(x, y, imagePath, scaleX, scaleY)", args, 1);
+  assertArgIsString("Window::drawImage(x, y, imagePath, scaleX, scaleY)", args, 2);
+  assertArgIsNumber("Window::drawImage(x, y, imagePath, scaleX, scaleY)", args, 3);
+  assertArgIsNumber("Window::drawImage(x, y, imagePath, scaleX, scaleY)", args, 4);
+
+  int x = AS_INT(args[0]);
+  int y = AS_INT(args[1]);
+  const char* imagePath = AS_CSTRING(args[2]);
+  double scaleX = AS_NUMBER(args[3]);
+  double scaleY = AS_NUMBER(args[4]);
+
+  ObjWindow* window = AS_WINDOW(receiver);
+  SDL_Renderer* renderer = SDL_GetRenderer(window->window);
+  SDL_Texture* imageTexture = loadImageToTexture(renderer, imagePath);
+
+  if (!imageTexture) {
+    THROW_EXCEPTION_FMT(luminique::std::io, FileNotFoundException, "Could not load image: %s", IMG_GetError());
+  }
+
+  window->image = imageTexture;
+
+  int imageWidth, imageHeight;
+  SDL_QueryTexture(window->image, NULL, NULL, &imageWidth, &imageHeight);
+
+  SDL_Rect renderQuad;
+  renderQuad.w = (int)(imageWidth * scaleX);
+  renderQuad.h = (int)(imageHeight * scaleY);
+
+  renderQuad.x = x;
+  renderQuad.y = y;
+
+  SDL_RenderCopy(renderer, window->image, NULL, &renderQuad);
+
+  RETURN_NIL;
+}
+
 NATIVE_FUNCTION(createWindow) {
   assertArgCount("createWindow(title, width, height, isResizable)", 4, argCount);
   assertArgIsString("createWindow(title, width, height, isResizable)", args, 0);
@@ -530,6 +580,7 @@ void registerGraphicsPackage() {
   DEF_METHOD(vm.windowClass, Window, present, 0);
   DEF_METHOD(vm.windowClass, Window, loadFont, 2);
   DEF_METHOD(vm.windowClass, Window, drawText, 6);
+  DEF_METHOD(vm.windowClass, Window, drawImage, 5);
 
   vm.eventClass = defineNativeClass("Event", true);
   bindSuperclass(vm.eventClass, vm.objectClass);

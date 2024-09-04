@@ -347,6 +347,7 @@ typedef struct {
   Obj obj;
   SDL_Window* window;
   SDL_Renderer* renderer;
+  SDL_Texture* image;
   TTF_Font* font;
   ObjString* title;
   int width;

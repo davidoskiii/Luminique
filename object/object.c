@@ -97,6 +97,7 @@ ObjWindow* newWindow(const char* title, int width, int height, bool isResizable)
   ObjWindow* window = ALLOCATE_OBJ(ObjWindow, OBJ_WINDOW, vm.windowClass);
   window->window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_HIDDEN);
   window->renderer = SDL_CreateRenderer(window->window, -1, SDL_RENDERER_ACCELERATED);
+  window->image = NULL;
   window->font = NULL;
   window->title = copyString(title, strlen(title));
   window->width = width;

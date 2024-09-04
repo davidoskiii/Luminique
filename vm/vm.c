@@ -1,5 +1,6 @@
 #include <stdarg.h>
 #include <SDL2/SDL_ttf.h>
+#include <SDL2/SDL_image.h>
 #include <stdio.h>
 #include <math.h>
 #include <string.h>
@@ -237,6 +238,10 @@ void initVM(int argc, char** argv) {
   vm.runningGenerator = NULL;
 
   TTF_Init();
+  if (IMG_Init(IMG_INIT_PNG | IMG_INIT_JPG) == 0) {
+    fprintf(stderr, "Failed to initialize SDL_image: %s\n", IMG_GetError());
+    exit(70);
+  }
 
   registerLangPackage();
   registerSysPackage();
@@ -265,6 +270,7 @@ void freeVM() {
   vm.initString = NULL;
 
   TTF_Quit();
+  IMG_Quit();
 
   freeObjects();
   freeLoop();
