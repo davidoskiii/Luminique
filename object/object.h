@@ -2,6 +2,7 @@
 #define cluminique_object_h
 
 #include <SDL2/SDL_ttf.h>
+#include <SDL2/SDL_mixer.h>
 #include <stdint.h>
 #include <sys/stat.h>
 #include <SDL2/SDL.h>
@@ -47,6 +48,7 @@ typedef struct CallFrame CallFrame;
 #define IS_NODE(value) isObjType(value, OBJ_NODE)
 #define IS_ENUM(value) isObjType(value, OBJ_ENUM)
 #define IS_WINDOW(value) isObjType(value, OBJ_WINDOW)
+#define IS_SOUND(value) isObjType(value, OBJ_SOUND)
 #define IS_EVENT(value) isObjType(value, OBJ_EVENT)
 #define IS_TIMER(value) isObjType(value, OBJ_TIMER)
 #define IS_NATIVE_FUNCTION(value) isObjType(value, OBJ_NATIVE_FUNCTION)
@@ -74,6 +76,7 @@ typedef struct CallFrame CallFrame;
 #define AS_NODE(value) ((ObjNode*)AS_OBJ(value))
 #define AS_ENUM(value) ((ObjEnum*)AS_OBJ(value))
 #define AS_WINDOW(value) ((ObjWindow*)AS_OBJ(value))
+#define AS_SOUND(value) ((ObjSound*)AS_OBJ(value))
 #define AS_EVENT(value) ((ObjEvent*)AS_OBJ(value))
 #define AS_TIMER(value) ((ObjTimer*)AS_OBJ(value))
 #define AS_NATIVE_FUNCTION(value) ((ObjNativeFunction*)AS_OBJ(value))
@@ -109,6 +112,7 @@ typedef enum {
   OBJ_RANGE,
   OBJ_NODE,
   OBJ_WINDOW,
+  OBJ_SOUND,
   OBJ_EVENT,
   OBJ_UPVALUE
 } ObjType;
@@ -355,6 +359,16 @@ typedef struct {
   bool isResizable;
 } ObjWindow;
 
+typedef struct {
+  Obj obj;
+  Mix_Chunk* sound;
+  ObjString* path;
+  int loops;
+  int duration;
+  int volume;
+  int channel;
+} ObjSound;
+
 typedef struct EventInfo {
   int eventType;
   int keyCode;
@@ -388,6 +402,7 @@ ObjNamespace* newNamespace(ObjString* shortName, ObjNamespace* enclosing);
 ObjRange* newRange(int from, int to);
 ObjNode* newNode(Value element, ObjNode* prev, ObjNode* next);
 ObjWindow* newWindow(const char* title, int width, int height, bool isResizable);
+ObjSound* newSound(const char* path);
 ObjEvent* newEvent(const SDL_Event* event);
 ObjClosure* newClosure(ObjFunction* function);
 ObjFunction* newFunction();

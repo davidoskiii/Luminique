@@ -7,6 +7,7 @@
 #include "object.h"
 #include "../loop/loop.h"
 #include "../memory/memory.h"
+#include "../native/native.h"
 #include "../table/table.h"
 #include "../value/value.h"
 #include "../string/string.h"
@@ -113,6 +114,34 @@ ObjWindow* newWindow(const char* title, int width, int height, bool isResizable)
   SDL_SetWindowResizable(window->window, window->isResizable ? SDL_TRUE : SDL_FALSE);   
 
   return window;
+}
+
+ObjSound* newSound(const char* path) {
+  ObjSound* soundObj = ALLOCATE_OBJ(ObjSound, OBJ_SOUND, vm.soundClass);
+  soundObj->path = copyString(path, strlen(path));
+
+  soundObj->loops = 0;
+  soundObj->duration = 0;
+  soundObj->volume = 128;
+  soundObj->channel = -1;
+
+  soundObj->sound = Mix_LoadWAV(path);
+  if (!soundObj->sound) {
+    ObjClass* exceptionClass = getNativeClass("luminique::std::sonus", "AudioException");
+    throwException(exceptionClass, "Sound file not loaded.");
+    return NULL;
+  }
+
+  Uint32 soundLength = soundObj->sound->alen;
+  Uint16 format = MIX_DEFAULT_FORMAT;
+  int channels = 2;
+  int bytesPerSample = SDL_AUDIO_BITSIZE(format) / 8;
+  int samples = soundLength / (bytesPerSample * channels);
+  soundObj->duration = (samples * 1000) / 44100;
+
+  Mix_VolumeChunk(soundObj->sound, soundObj->volume);
+
+  return soundObj;
 }
 
 ObjEvent* newEvent(const SDL_Event* event) {
@@ -669,6 +698,9 @@ void printObject(Value value) {
       break;
     case OBJ_WINDOW:
       printf("<%s window>", AS_WINDOW(value)->title->chars);
+      break;
+    case OBJ_SOUND:
+      printf("<sound %s | %d ms>", AS_SOUND(value)->path->chars, AS_SOUND(value)->duration);
       break;
     case OBJ_EVENT:
       printEvent(AS_EVENT(value));

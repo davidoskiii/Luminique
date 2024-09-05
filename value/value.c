@@ -327,6 +327,9 @@ char* valueToString(Value value) {
       case OBJ_WINDOW:
         return formattedString("<%s window>", AS_WINDOW(value)->title->chars)->chars;
         break;
+      case OBJ_SOUND:
+        return formattedString("<sound %s | %d ms>", AS_SOUND(value)->path->chars, AS_SOUND(value)->duration)->chars;
+        break;
       case OBJ_EVENT:
         return eventToString(AS_EVENT(value));
         break;

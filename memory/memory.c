@@ -1,3 +1,4 @@
+#include <SDL2/SDL_mixer.h>
 #include <stdlib.h>
 
 #include "memory.h"
@@ -106,6 +107,11 @@ static void blackenObject(Obj* object) {
       ObjWindow* window = (ObjWindow*)object;
       if (window->window != NULL) markValue(OBJ_VAL(window->window));
       markObject((Obj*)window->title);
+      break;
+    }
+    case OBJ_SOUND: {
+      ObjSound* sound = (ObjSound*)object;
+      markObject((Obj*)sound->path);
       break;
     }
     case OBJ_EVENT: {
@@ -289,6 +295,16 @@ static void freeObject(Obj* object) {
       }
       FREE(ObjString, window->title);
       FREE(ObjWindow, object);
+      break;
+    }
+    case OBJ_SOUND: {
+      ObjSound* sound = (ObjSound*)object;
+      if (sound->sound != NULL) {
+        Mix_FreeChunk(sound->sound);
+        sound->sound = NULL;
+      }
+      FREE(ObjString, sound->path);
+      FREE(ObjSound, object);
       break;
     }
     case OBJ_EVENT: {

@@ -125,6 +125,14 @@ Value getGenericInstanceVariable(Value receiver, ObjString* name) {
       else if (matchStringName(name, "isResizable", 11)) return (BOOL_VAL(window->isResizable));
       else return getInstanceProperty(receiver, name, &window->obj);
     }
+    case OBJ_SOUND: {
+      ObjSound* sound = (ObjSound*)object;
+      if (matchStringName(name, "volume", 6)) return (INT_VAL(sound->volume));
+      else if (matchStringName(name, "loops", 5)) return (INT_VAL(sound->loops));
+      else if (matchStringName(name, "path", 4)) return (OBJ_VAL(sound->path));
+      else if (matchStringName(name, "duration", 8)) return (INT_VAL(sound->duration));
+      else return getInstanceProperty(receiver, name, &sound->obj);
+    }
     case OBJ_EVENT: {
       ObjEvent* event = (ObjEvent*)object;
       if (matchStringName(name, "type", 4)) return (INT_VAL(event->info->eventType));
@@ -261,6 +269,34 @@ Value setGenericInstanceVariable(Value receiver, ObjString* name, Value value) {
         SDL_SetWindowResizable(window->window, window->isResizable ? SDL_TRUE : SDL_FALSE);   
       }
       else return setInstanceProperty(receiver, name, &window->obj, value);
+    }
+    case OBJ_SOUND: {
+      ObjSound* sound = (ObjSound*)object;
+      if (matchStringName(name, "volume", 6) && IS_INT(value)) {
+        int volume = AS_INT(value);
+
+        if (volume < 0 || volume > 128) {
+          THROW_EXCEPTION(luminique::std::sonus, AudioException, "Volume must be between 0 and 128.");
+          RETURN_NIL;
+        }
+
+        ObjSound* sound = AS_SOUND(receiver);
+        if (!sound->sound) {
+          THROW_EXCEPTION(luminique::std::sonus, AudioException, "Sound not loaded.");
+          RETURN_NIL;
+        }
+
+        Mix_VolumeChunk(sound->sound, volume);
+        sound->volume = volume;
+
+        RETURN_NIL;
+      }
+      else if (matchStringName(name, "loops", 5) && IS_INT(value)) sound->loops = INT_VAL(value);
+      else if (matchStringName(name, "duration", 8) || matchStringName(name, "path", 4)) { 
+        runtimeError("Cannot set property %s on Object Sound.", name);
+        exit(70);
+      }
+      else return setInstanceProperty(receiver, name, &sound->obj, value);
     }
     case OBJ_EVENT: {
       ObjEvent* event = (ObjEvent*)object;

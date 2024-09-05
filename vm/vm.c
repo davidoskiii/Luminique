@@ -28,6 +28,7 @@
 #include "../json/json.h"
 #include "../random/random.h"
 #include "../graphics/graphics.h"
+#include "../sonus/sonus.h"
 #include "../network/network.h"
 #include "../statistics/statistics.h"
 #include "../exception/exception.h"
@@ -237,9 +238,25 @@ void initVM(int argc, char** argv) {
   vm.initString = copyString("__init__", 8);
   vm.runningGenerator = NULL;
 
+  struct sigaction action;
+  sigaction(SIGINT, NULL, &action);
+  SDL_Init(SDL_INIT_EVERYTHING);
+  sigaction(SIGINT, &action, NULL);
+
   TTF_Init();
   if (IMG_Init(IMG_INIT_PNG | IMG_INIT_JPG) == 0) {
     fprintf(stderr, "Failed to initialize SDL_image: %s\n", IMG_GetError());
+    exit(70);
+  }
+
+  if (Mix_Init(MIX_INIT_MP3 | MIX_INIT_OGG) == 0) {
+    fprintf(stderr, "Failed to initialize SDL_mixer: %s\n", Mix_GetError());
+    exit(70);
+  }
+
+  if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) == -1) {
+    fprintf(stderr, "Failed to open audio: %s\n", Mix_GetError());
+    Mix_Quit();
     exit(70);
   }
 
@@ -252,6 +269,7 @@ void initVM(int argc, char** argv) {
   registerUtilPackage();
   registerMathPackage();
   registerTimePackage();
+  registerSonusPackage();
   registerJsonPackage();
   registerStatisticsPackage();
   registerNetworkPackage();
@@ -271,6 +289,7 @@ void freeVM() {
 
   TTF_Quit();
   IMG_Quit();
+  Mix_Quit();
 
   freeObjects();
   freeLoop();

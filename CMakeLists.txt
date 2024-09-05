@@ -44,6 +44,7 @@ set(SOURCES
   date/date.c
   loop/loop.c
   file/file.c
+  sonus/sonus.c
   dsa/dsa.c
   exception/exception.c
   interceptor/interceptor.c
@@ -55,5 +56,5 @@ set(SOURCES
 add_executable(luminique ${SOURCES})
 
 # Link libraries
-target_link_libraries(luminique m SDL2 readline curl uv SDL2_ttf SDL2_image)
+target_link_libraries(luminique m SDL2 readline curl uv SDL2_ttf SDL2_image SDL2_mixer)
 add_definitions(${GCC_COVERAGE_COMPILE_FLAGS})

@@ -1,0 +1,19 @@
+using luminique::std::sonus;
+using luminique::std::chrono;
+
+let audio = sonus::Sound("tests/utils/audio.wav");
+println(audio);
+
+audio.playSound();
+
+println("Current volume: ${audio.volume}");
+audio.volume = 70;
+
+chrono::sleep(audio.duration);
+
+audio.loopSound(2);
+audio.fadeOutSound(3000);
+chrono::sleep(audio.duration * 2);
+
+audio.stopSound();
+
