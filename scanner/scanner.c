@@ -427,6 +427,7 @@ Token scanToken() {
         return makeToken(
                   match('=') ? TOKEN_POWER_EQUAL : TOKEN_POWER);
       }
+      return makeToken(TOKEN_STAR);
     }
     case '%': return makeToken(
           match('=') ? TOKEN_MODULO_EQUAL : TOKEN_MODULO);
