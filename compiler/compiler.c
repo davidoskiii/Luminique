@@ -1336,7 +1336,7 @@ static void this_(bool canAssign) {
   }
 
   if (currentClass->isStaticMethod == true) {
-    error("You can't use 'this' inside of a static method.");
+    error("Can't use 'this' inside of a static method.");
     return;
   }
 
