@@ -793,14 +793,47 @@ static void call(bool canAssign) {
   emitBytes(OP_CALL, argCount);
 }
 
+static void emitPropertyAssignOpInstructions(OpCode operation, uint16_t name) {
+  emitByte(OP_DUP);
+  emitByte(OP_GET_PROPERTY);
+  emitShort(name);
+  expression();
+  emitByte(operation);
+  emitByte(OP_SET_PROPERTY);
+  emitShort(name);
+}
+
 static void dot(bool canAssign) {
   uint16_t name = propretyConstant("Expect property name after '.'.");
 
-  if (canAssign && match(TOKEN_EQUAL)) {
-    expression();
-    emitByte(OP_SET_PROPERTY);
-    emitShort(name);
-  } else if (match(TOKEN_LEFT_PAREN)) {
+  if (canAssign) {
+    if (match(TOKEN_EQUAL)) {
+      expression();
+      emitByte(OP_SET_PROPERTY);
+      emitShort(name);
+      return;
+    } else if (match(TOKEN_PLUS_EQUAL)) {
+      emitPropertyAssignOpInstructions(OP_ADD, name);
+      return;
+    } else if (match(TOKEN_MINUS_EQUAL)) {
+      emitPropertyAssignOpInstructions(OP_SUBTRACT, name);
+      return;
+    } else if (match(TOKEN_STAR_EQUAL)) {
+      emitPropertyAssignOpInstructions(OP_MULTIPLY, name);
+      return;
+    } else if (match(TOKEN_SLASH_EQUAL)) {
+      emitPropertyAssignOpInstructions(OP_DIVIDE, name);
+      return;
+    } else if (match(TOKEN_POWER_EQUAL)) {
+      emitPropertyAssignOpInstructions(OP_POWER, name);
+      return;
+    } else if (match(TOKEN_MODULO_EQUAL)) {
+      emitPropertyAssignOpInstructions(OP_MODULO, name);
+      return;
+    }
+  }
+
+  if (match(TOKEN_LEFT_PAREN)) {
     int argCount = argumentList();
     emitByte(OP_INVOKE);
     emitShort(name);
