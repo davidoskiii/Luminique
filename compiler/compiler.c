@@ -1306,22 +1306,127 @@ static void namedVariable(Token name, bool canAssign) {
     setOp = OP_SET_GLOBAL;
   }
 
-  if (canAssign && match(TOKEN_EQUAL)) {
-    checkMutability(arg, setOp);
-    expression();
-    emitByte(setOp);
-    if (isConstant) {
-      emitShort((uint16_t)arg);
-    } else {
-      emitByte((uint8_t) arg);
+  if (canAssign) {
+    if (match(TOKEN_EQUAL)) {
+      checkMutability(arg, setOp);
+      expression();
+      emitByte(setOp);
+      if (isConstant) {
+        emitShort((uint16_t)arg);
+      } else {
+        emitByte((uint8_t) arg);
+      }
+      return;
+    } else if (match(TOKEN_PLUS_EQUAL)) {
+      checkMutability(arg, setOp);
+      emitByte(getOp);
+      if (isConstant) {
+        emitShort((uint16_t)arg);
+      } else {
+        emitByte((uint8_t) arg);
+      }
+      expression();
+      emitByte(OP_ADD);
+      emitByte(setOp);
+      if (isConstant) {
+        emitShort((uint16_t)arg);
+      } else {
+        emitByte((uint8_t) arg);
+      }
+      return;
+    } else if (match(TOKEN_STAR_EQUAL)) {
+      checkMutability(arg, setOp);
+      emitByte(getOp);
+      if (isConstant) {
+        emitShort((uint16_t)arg);
+      } else {
+        emitByte((uint8_t) arg);
+      }
+      expression();
+      emitByte(OP_MULTIPLY);
+      emitByte(setOp);
+      if (isConstant) {
+        emitShort((uint16_t)arg);
+      } else {
+        emitByte((uint8_t) arg);
+      }
+      return;
+    } else if (match(TOKEN_MINUS_EQUAL)) {
+      checkMutability(arg, setOp);
+      emitByte(getOp);
+      if (isConstant) {
+        emitShort((uint16_t)arg);
+      } else {
+        emitByte((uint8_t) arg);
+      }
+      expression();
+      emitByte(OP_SUBTRACT);
+      emitByte(setOp);
+      if (isConstant) {
+        emitShort((uint16_t)arg);
+      } else {
+        emitByte((uint8_t) arg);
+      }
+      return;
+    } else if (match(TOKEN_SLASH_EQUAL)) {
+      checkMutability(arg, setOp);
+      emitByte(getOp);
+      if (isConstant) {
+        emitShort((uint16_t)arg);
+      } else {
+        emitByte((uint8_t) arg);
+      }
+      expression();
+      emitByte(OP_DIVIDE);
+      emitByte(setOp);
+      if (isConstant) {
+        emitShort((uint16_t)arg);
+      } else {
+        emitByte((uint8_t) arg);
+      }
+      return;
+    } else if (match(TOKEN_MODULO_EQUAL)) {
+      checkMutability(arg, setOp);
+      emitByte(getOp);
+      if (isConstant) {
+        emitShort((uint16_t)arg);
+      } else {
+        emitByte((uint8_t) arg);
+      }
+      expression();
+      emitByte(OP_MODULO);
+      emitByte(setOp);
+      if (isConstant) {
+        emitShort((uint16_t)arg);
+      } else {
+        emitByte((uint8_t) arg);
+      }
+      return;
+    } else if (match(TOKEN_POWER_EQUAL)) {
+      checkMutability(arg, setOp);
+      emitByte(getOp);
+      if (isConstant) {
+        emitShort((uint16_t)arg);
+      } else {
+        emitByte((uint8_t) arg);
+      }
+      expression();
+      emitByte(OP_POWER);
+      emitByte(setOp);
+      if (isConstant) {
+        emitShort((uint16_t)arg);
+      } else {
+        emitByte((uint8_t) arg);
+      }
+      return;
     }
+  }
+
+  emitByte(getOp);
+  if (isConstant) {
+    emitShort((uint16_t)arg);
   } else {
-    emitByte(getOp);
-    if (isConstant) {
-      emitShort((uint16_t)arg);
-    } else {
-      emitByte((uint8_t) arg);
-    }
+    emitByte((uint8_t) arg);
   }
 }
 

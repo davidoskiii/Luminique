@@ -404,14 +404,32 @@ Token scanToken() {
     case '^': return makeToken(TOKEN_CARRET);
     case '~': return makeToken(TOKEN_TILDA);
     case '@': return makeToken(TOKEN_AT);
-    case '-': return makeToken(
-          match('-') ? TOKEN_MINUS_MINUS : TOKEN_MINUS);
-    case '+': return makeToken(
-          match('+') ? TOKEN_PLUS_PLUS : TOKEN_PLUS);
-    case '/': return makeToken(TOKEN_SLASH);
-    case '*': return makeToken(
-          match('*') ? TOKEN_POWER : TOKEN_STAR); 
-    case '%': return makeToken(TOKEN_MODULO);
+    case '-': {
+      if (match('=')) {
+        return makeToken(TOKEN_MINUS_EQUAL);
+      }
+      return makeToken(
+        match('-') ? TOKEN_MINUS_MINUS : TOKEN_MINUS);
+    }
+    case '+': {
+      if (match('=')) {
+        return makeToken(TOKEN_PLUS_EQUAL);
+      }
+      return makeToken(
+        match('+') ? TOKEN_PLUS_PLUS : TOKEN_PLUS);
+    }
+    case '/': return makeToken(
+          match('=') ? TOKEN_SLASH_EQUAL : TOKEN_SLASH);
+    case '*': {
+      if (match('=')) {
+        return makeToken(TOKEN_STAR_EQUAL);
+      } else if (match('*')) {
+        return makeToken(
+                  match('=') ? TOKEN_POWER_EQUAL : TOKEN_POWER);
+      }
+    }
+    case '%': return makeToken(
+          match('=') ? TOKEN_MODULO_EQUAL : TOKEN_MODULO);
     case ':': return makeToken(
           match(':') ? TOKEN_COLON_COLON : TOKEN_COLON);
     case '?': return makeToken(TOKEN_QUESTION);

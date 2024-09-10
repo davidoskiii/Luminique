@@ -17,3 +17,8 @@ let a, b, c = 1, 2, 3;
 println("${a}, ${b}, ${c}");
 
 // const d, e, f;
+
+x = 0;
+println("Setting x equal to 0: ${x}");
+x += 3;
+println("Incrementing x by 3 using += operator: ${x}");
