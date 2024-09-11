@@ -126,6 +126,8 @@ struct Obj {
 };
 
 typedef struct ParamInfo {
+  uint8_t isOptionalArgument;
+  uint16_t optionalArgument;
   bool isConst;
   uint32_t hash;
 } ParamInfo;
@@ -141,6 +143,8 @@ struct ObjFunction {
   ObjString* name;
   ParamInfo* parameters;
   bool isMutable;
+  uint16_t optionalArguments[UINT4_MAX + 1];
+  uint8_t optionalArgCount;
 };
 
 typedef Value (*NativeFunction)(int argCount, Value* args);

@@ -26,6 +26,19 @@ function sum(...args) {
 
 println("Sum of 1, 2, 3, 4, 5 is ${sum(1, 2, 3, 4, 5)}.\n");
 
+// default parameters
+
+function defaultParams(x, number=1234, string="string", bool=false, list=[], hash={}) {
+  println(x);
+  println(number);
+  println(string);
+  println(bool);
+  println(list);
+  println(hash);
+}
+
+defaultParams("normal parameter", string=2);
+
 // closure 
 
 function outer() {

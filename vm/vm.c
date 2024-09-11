@@ -604,8 +604,8 @@ bool callClosure(ObjClosure* closure, int argCount) {
     return false;
   }
 
-  if (closure->function->arity > 0 && argCount != closure->function->arity) {
-    runtimeError("Expected %d arguments but got %d.", closure->function->arity, argCount);
+  if (closure->function->arity > 0 && argCount + closure->function->optionalArgCount < closure->function->arity) {
+    runtimeError("'%s' Expects a minimum of %d arguments to but got %d.", closure->function->name->chars, closure->function->arity - closure->function->optionalArgCount, argCount);
     return false;
   }
 
@@ -617,6 +617,21 @@ bool callClosure(ObjClosure* closure, int argCount) {
   if (closure->function->arity == -1) {
     makeArray(argCount);
     argCount = 1;
+  } else if (argCount < closure->function->arity) {
+    int index = argCount -
+        (closure->function->arity - closure->function->optionalArgCount);
+
+    while (index < closure->function->optionalArgCount) {
+      uint16_t constant = closure->function->optionalArguments[index++];
+      if (constant == ARRAY_PARAM_VALUE) {
+        makeArray(0);
+      } else if (constant == DICT_PARAM_VALUE) {
+        makeDictionary(0);
+      } else {
+        push(closure->function->chunk.constants.values[constant]);
+      }
+      argCount++;
+    }
   }
 
   if (closure->function->isAsync) return callClosureAsync(closure, argCount);
