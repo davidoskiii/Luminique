@@ -401,7 +401,8 @@ Token scanToken() {
       
       return makeToken(TOKEN_DOT);
     }
-    case '^': return makeToken(TOKEN_CARRET);
+    case '^': return makeToken(
+          match('=') ? TOKEN_CARRET_EQUAL : TOKEN_CARRET);
     case '~': return makeToken(TOKEN_TILDA);
     case '@': return makeToken(TOKEN_AT);
     case '-': {
@@ -443,22 +444,30 @@ Token scanToken() {
           match('=') ? TOKEN_EQUAL_EQUAL : TOKEN_EQUAL);
     case '<':
       if (match('=')) return makeToken(TOKEN_LESS_EQUAL);
-      else if (match('<')) return makeToken(TOKEN_SHOWEL_L);
+      else if (match('<')) {
+        return makeToken(match('=') ? TOKEN_SHOWEL_L_EQUAL : TOKEN_SHOWEL_L);
+      }
       else return makeToken(TOKEN_LESS);
     case '>': {
       if (match('=')) return makeToken(TOKEN_GREATER_EQUAL);
-      else if (match('>')) return makeToken(TOKEN_SHOWEL_R);
+      else if (match('>')) {
+        return makeToken(match('=') ? TOKEN_SHOWEL_R_EQUAL : TOKEN_SHOWEL_R);
+      }
       else return makeToken(TOKEN_GREATER);
     }
     case '&':
       if (match('&')) {
         return makeToken(TOKEN_AND);
+      } else if (match('=')) {
+        return makeToken(TOKEN_AMP_EQUAL);
       } else {
         return makeToken(TOKEN_AMP);
       }
     case '|':
       if (match('|')) {
         return makeToken(TOKEN_OR);
+      } else if (match('=')) {
+        return makeToken(TOKEN_PIPE_EQUAL);
       } else {
         return makeToken(TOKEN_PIPE);
       }
