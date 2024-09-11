@@ -2447,7 +2447,6 @@ static void namespaceDeclaration() {
 
   vm.currentNamespace = stackPop(&namespaceStack);  // Pop the previous namespace from the stack
   emitByte(OP_END_NAMESPACE);
-
   emitByte(OP_POP);
 }
 
