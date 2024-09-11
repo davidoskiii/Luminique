@@ -2414,6 +2414,11 @@ static void tryStatement() {
 
 // TODO fix the whole namespace declaration (VM + compiler)
 static void namespaceDeclaration() {
+  if (current->scopeDepth != 0) {
+    error("Can't declare namespace in a block.");
+    exit(70);
+  }
+
   consume(TOKEN_IDENTIFIER, "Expect namespace name.");
 
   Token namespaceName = parser.previous;
