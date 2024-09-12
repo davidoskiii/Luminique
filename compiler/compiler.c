@@ -2076,16 +2076,25 @@ static void classDeclaration(bool isAbstract) {
   ClassCompiler classCompiler = { .name = className, .enclosing = enclosingClass, .superclass = parser.rootClass, .isStaticMethod = false };
   currentClass = &classCompiler;
 
+  uint16_t namespaceName;
+  bool isSuperclassInNamespace = false;
   if (match(TOKEN_COLON)) {
     consume(TOKEN_IDENTIFIER, "Expect superclass name.");
     doesInhert = true;
     superclassName = parser.previous;
     classCompiler.superclass = superclassName;
-    namedVariable(className, false);
-
     if (identifiersEqual(&className, &superclassName)) {
       error("A class can't inherit from itself.");
       doesInhert = false;
+    }
+
+    namedVariable(parser.previous, false);
+    if (match(TOKEN_COLON_COLON) && check(TOKEN_IDENTIFIER)) {
+      isSuperclassInNamespace = true;
+      namespaceName = identifierConstant(&parser.current);
+      advance();
+      emitByte(OP_GET_COLON_PROPERTY);
+      emitShort(namespaceName);
     }
   } else {
     namedVariable(className, false);
@@ -2098,7 +2107,13 @@ static void classDeclaration(bool isAbstract) {
   addLocal(syntheticToken("super"));
   defineVariable(0, false);
   if (doesInhert) {
-    namedVariable(superclassName, false);
+    if (isSuperclassInNamespace) {
+      namedVariable(superclassName, false);
+      emitByte(OP_GET_COLON_PROPERTY);
+      emitShort(namespaceName);
+    } else {
+      namedVariable(superclassName, false);
+    }
   } else {
     namedVariable(parser.rootClass, false);
   }

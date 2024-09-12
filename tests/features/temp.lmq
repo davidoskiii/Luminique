@@ -1,5 +1,7 @@
+using luminique::std::math;
 
-class A {
+class A : math::Complex {
+
 }
 
-A().defaultParams(1, 2);
+println(A());
