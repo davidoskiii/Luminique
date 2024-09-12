@@ -1720,49 +1720,6 @@ static void block() {
   consume(TOKEN_RIGHT_BRACE, "Expect '}' after block.");
 }
 
-/*
-static void parameterList() {
-  if (match(TOKEN_DOT_DOT_DOT)) {
-    current->function->arity = -1;
-    uint16_t constant = parseVariable("Expect variadic parameter name.");
-    uint32_t hashedName = hashString(parser.previous.start, parser.previous.length);
-    current->function->parameters[0].hash = hashedName;
-    current->function->parameters[0].isConst = false;
-    defineVariable(constant, false);
-    return;
-  }
-
-  bool startedOptionals = false;
-  do {
-    current->function->arity++;
-    if (current->function->arity > 255) {
-      errorAtCurrent("Can't have more than 255 parameters.");
-    }
-
-    current->function->parameters[current->function->arity - 1].isOptionalArgument = false;
-    if (match(TOKEN_CONST)) {
-      uint16_t constant = parseVariable("Expect parameter name.");
-      defineVariable(constant, false);
-      uint32_t hashedName = hashString(parser.previous.start, parser.previous.length);
-      current->function->parameters[current->function->arity - 1].hash = hashedName;
-      current->function->parameters[current->function->arity - 1].isConst = true;
-    } else {
-      uint16_t constant = parseVariable("Expect parameter name.");
-      defineVariable(constant, true);
-      uint32_t hashedName = hashString(parser.previous.start, parser.previous.length);
-      current->function->parameters[current->function->arity - 1].hash = hashedName;
-      current->function->parameters[current->function->arity - 1].isConst = false;
-    } if (match(TOKEN_EQUAL)) {
-      startedOptionals = true;
-      current->function->parameters[current->function->arity - 1].isOptionalArgument = true;
-      current->function->parameters[current->function->arity - 1].optionalArgument = defaultParameter();
-    } else if (startedOptionals) {
-      errorAtCurrent("Non-optional parameter encountered after an optional one");
-    }
-  } while (match(TOKEN_COMMA));
-}
-*/
-
 static void abstractParameters() {
   consume(TOKEN_LEFT_PAREN, "Expect '(' after abstract method name.");
   if (!check(TOKEN_RIGHT_PAREN)) {
@@ -1777,12 +1734,14 @@ static void abstractParameters() {
       return;
     }
 
+    bool startedOptionals = false;
     do {
       current->function->arity++;
       if (current->function->arity > 255) {
         errorAtCurrent("Can't have more than 255 parameters.");
       }
 
+      current->function->parameters[current->function->arity - 1].isOptionalArgument = false;
       if (match(TOKEN_CONST)) {
         consume(TOKEN_IDENTIFIER, "Expect parameter name.");
         uint32_t hashedName = hashString(parser.previous.start, parser.previous.length);
@@ -1793,6 +1752,12 @@ static void abstractParameters() {
         uint32_t hashedName = hashString(parser.previous.start, parser.previous.length);
         current->function->parameters[current->function->arity - 1].hash = hashedName;
         current->function->parameters[current->function->arity - 1].isConst = false;
+      } if (match(TOKEN_EQUAL)) {
+        startedOptionals = true;
+        current->function->parameters[current->function->arity - 1].isOptionalArgument = true;
+        current->function->parameters[current->function->arity - 1].optionalArgument = defaultParameter();
+      } else if (startedOptionals) {
+        errorAtCurrent("Non-optional parameter encountered after an optional one");
       }
     } while (match(TOKEN_COMMA));
   }

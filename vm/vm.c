@@ -895,6 +895,48 @@ static void defineMethod(ObjString* name, bool isMethodStatic) {
                              name->chars, superFunction->name->chars);
                 exit(70);
               }
+
+/*
+      if (constant == ARRAY_PARAM_VALUE) {
+        makeArray(0);
+      } else if (constant == DICT_PARAM_VALUE) {
+        makeDictionary(0);
+      } else {
+        push(closure->function->chunk.constants.values[constant]);
+      }
+*/
+
+              if (superFunction->parameters[i].isOptionalArgument != currentFunction->parameters[i].isOptionalArgument) {
+                runtimeError("Optional parameter of method '%s' in subclass does not match the one in abstract method '%s'.", 
+                             name->chars, superFunction->name->chars);
+                exit(70);
+              }
+
+              Value val1;
+              uint16_t const1 = superFunction->parameters[i].optionalArgument;
+              if (const1 == ARRAY_PARAM_VALUE) {
+                val1 = OBJ_VAL(newArray());
+              } else if (const1 == DICT_PARAM_VALUE) {
+                val1 = OBJ_VAL(newDictionary());
+              } else {
+                val1 = superFunction->chunk.constants.values[const1];
+              }
+
+              Value val2;
+              uint16_t const2 = currentFunction->parameters[i].optionalArgument;
+              if (const1 == ARRAY_PARAM_VALUE) {
+                val2 = OBJ_VAL(newArray());
+              } else if (const1 == DICT_PARAM_VALUE) {
+                val2 = OBJ_VAL(newDictionary());
+              } else {
+                val2 = currentFunction->chunk.constants.values[const1];
+              }
+
+              if (val1 != val2) {
+                runtimeError("Optional parameter's value of method '%s' in subclass does not match the one in abstract method '%s'.", 
+                             name->chars, superFunction->name->chars);
+                exit(70);
+              }
             }
           }
         }
