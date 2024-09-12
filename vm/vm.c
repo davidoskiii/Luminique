@@ -896,6 +896,16 @@ static void defineMethod(ObjString* name, bool isMethodStatic) {
                 exit(70);
               }
 
+/*
+      if (constant == ARRAY_PARAM_VALUE) {
+        makeArray(0);
+      } else if (constant == DICT_PARAM_VALUE) {
+        makeDictionary(0);
+      } else {
+        push(closure->function->chunk.constants.values[constant]);
+      }
+*/
+
               if (superFunction->parameters[i].isOptionalArgument != currentFunction->parameters[i].isOptionalArgument) {
                 runtimeError("Optional parameter of method '%s' in subclass does not match the one in abstract method '%s'.", 
                              name->chars, superFunction->name->chars);
