@@ -1919,6 +1919,25 @@ static void method() {
   emitShort(constant);
 }
 
+static void resolveNamespace(NestedComponent* component) {
+  NestedComponent* components[16];
+  int componentCount = 0;
+
+  while (component != NULL) {
+    components[componentCount++] = component;
+    component = component->enclosing;
+  }
+
+  for (int i = componentCount - 1; i >= 0; i--) {
+    NestedComponent* current = components[i];
+
+    if (i == componentCount - 1) namedVariable(current->name, false);
+    uint16_t nameConstant = identifierConstant(&current->variable);
+    emitByte(OP_GET_COLON_PROPERTY);
+    emitShort(nameConstant);
+  }
+}
+
 // TODO implement immutable class propreties
 static void classPropretyDeclaration(Token* className) {
   uint16_t globals[UINT8_MAX];
@@ -1990,10 +2009,28 @@ static void decorateFunction(Token functionName) {
     emitByte((uint8_t)arg);
   }
 }
-
 static void decoratorDeclaration(bool isMethod) {
   consume(TOKEN_IDENTIFIER, "Expect decorator name after '@'.");
   Token decoratorName = parser.previous;
+
+  NestedComponent* currentNamespace = NULL;
+  bool isNamespace = false;
+
+  int i = 0;
+  while (match(TOKEN_COLON_COLON)) {
+    if (i >= UINT4_MAX) error("Cannot have more than 16 namespaces.");
+    isNamespace = true;
+    consume(TOKEN_IDENTIFIER, "Expect identifier after '::'.");
+
+    NestedComponent* newComponent = ALLOCATE(NestedComponent, 1);
+    newComponent->name = decoratorName;
+    newComponent->variable = parser.previous;
+    newComponent->enclosing = currentNamespace;
+
+    currentNamespace = newComponent;
+    decoratorName = parser.previous;
+    i++;
+  }
 
   if (!isMethod) {
     consume(TOKEN_FUN, "Expect a function after decorator declaration.");
@@ -2004,15 +2041,22 @@ static void decoratorDeclaration(bool isMethod) {
     function(TYPE_FUNCTION, false);
     defineVariable(global, current->function->isMutable);
 
-    getVariable(decoratorName);
-    getVariable(functionName);
+    if (isNamespace) {
+      resolveNamespace(currentNamespace);
+    } else {
+      namedVariable(decoratorName, false);
+    }
+
+    namedVariable(functionName, false);
+
     emitByte(OP_DECORATOR);
 
     decorateFunction(functionName);
+
     emitByte(OP_POP);
     emitByte(OP_POP);
   } else {
-    // TODO complete the implementation for methods
+    // TODO Complete the implementation for methods
   }
 }
 
@@ -2065,28 +2109,6 @@ static void enumDeclaration() {
   endScope();
 }
 
-
-static void resolveNamespace(NestedComponent* component) {
-  NestedComponent* components[16]; // Assuming a maximum depth of 256 nested namespaces
-  int componentCount = 0;
-
-  while (component != NULL) {
-    components[componentCount++] = component;
-    component = component->enclosing;
-  }
-
-  for (int i = componentCount - 1; i >= 0; i--) {
-    NestedComponent* current = components[i];
-
-    fprintf(stderr, "namespace: %.*s\n", current->name.length, current->name.start);
-    fprintf(stderr, "variable: %.*s\n", current->variable.length, current->variable.start);
-
-    if (i == componentCount - 1) namedVariable(current->name, false);
-    uint16_t nameConstant = identifierConstant(&current->variable);
-    emitByte(OP_GET_COLON_PROPERTY);
-    emitShort(nameConstant);
-  }
-}
 
 
 static void classDeclaration(bool isAbstract) {
@@ -2543,7 +2565,6 @@ static void tryStatement() {
   }
 }
 
-// TODO fix the whole namespace declaration (VM + compiler)
 static void namespaceDeclaration() {
   if (current->scopeDepth != 0) {
     error("Can't declare namespace in a block.");

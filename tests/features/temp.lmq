@@ -1,8 +1,0 @@
-using luminique::std::math;
-
-class Quaternion : math::Complex {
-
-}
-
-let x = Quaternion(1, 2);
-println(x);
