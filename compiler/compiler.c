@@ -21,12 +21,18 @@
 #define UNINITALISED_ADDRESS -1
 
 typedef struct LoopCompiler {
-  struct LoopCompiler *enclosing;
+  struct LoopCompiler* enclosing;
   int startAddress;
   int exitAddress;
   int loopScopeDepth;
   int breakJump;
 } LoopCompiler;
+
+typedef struct NestedComponent {
+  struct NestedComponent* enclosing;
+  Token variable;
+  Token name;
+} NestedComponent;
 
 typedef struct {
   Token pprevious;
@@ -2059,9 +2065,33 @@ static void enumDeclaration() {
   endScope();
 }
 
+
+static void resolveNamespace(NestedComponent* component) {
+  NestedComponent* components[16]; // Assuming a maximum depth of 256 nested namespaces
+  int componentCount = 0;
+
+  while (component != NULL) {
+    components[componentCount++] = component;
+    component = component->enclosing;
+  }
+
+  for (int i = componentCount - 1; i >= 0; i--) {
+    NestedComponent* current = components[i];
+
+    fprintf(stderr, "namespace: %.*s\n", current->name.length, current->name.start);
+    fprintf(stderr, "variable: %.*s\n", current->variable.length, current->variable.start);
+
+    if (i == componentCount - 1) namedVariable(current->name, false);
+    uint16_t nameConstant = identifierConstant(&current->variable);
+    emitByte(OP_GET_COLON_PROPERTY);
+    emitShort(nameConstant);
+  }
+}
+
+
 static void classDeclaration(bool isAbstract) {
   consume(TOKEN_IDENTIFIER, "Expect class name.");
-  bool doesInhert = false;
+  bool doesInherit = false;
   Token className = parser.previous;
   Token superclassName;
   uint16_t nameConstant = identifierConstant(&parser.previous);
@@ -2071,21 +2101,40 @@ static void classDeclaration(bool isAbstract) {
   emitShort(nameConstant);
   defineVariable(nameConstant, false);
 
-
   ClassCompiler* enclosingClass = currentClass;
   ClassCompiler classCompiler = { .name = className, .enclosing = enclosingClass, .superclass = parser.rootClass, .isStaticMethod = false };
   currentClass = &classCompiler;
 
+  NestedComponent* currentNamespace = NULL;
+  bool isNamespace = false;
+
   if (match(TOKEN_COLON)) {
     consume(TOKEN_IDENTIFIER, "Expect superclass name.");
-    doesInhert = true;
+    doesInherit = true;
     superclassName = parser.previous;
-    classCompiler.superclass = superclassName;
+
     namedVariable(className, false);
+    int i = 0;
+    while (match(TOKEN_COLON_COLON)) {
+      if (i >= UINT4_MAX) error("Cannot have more than 16 namespaces.");
+      isNamespace = true;
+      consume(TOKEN_IDENTIFIER, "Expect identifier after '::'.");
+
+      NestedComponent* newComponent = ALLOCATE(NestedComponent, 1);
+      newComponent->name = superclassName;
+      newComponent->variable = parser.previous;
+      newComponent->enclosing = currentNamespace;
+
+      currentNamespace = newComponent;
+      superclassName = parser.previous; 
+      i++;
+    }
+
+    classCompiler.superclass = superclassName;
 
     if (identifiersEqual(&className, &superclassName)) {
       error("A class can't inherit from itself.");
-      doesInhert = false;
+      doesInherit = false;
     }
   } else {
     namedVariable(className, false);
@@ -2097,11 +2146,17 @@ static void classDeclaration(bool isAbstract) {
   beginScope();
   addLocal(syntheticToken("super"));
   defineVariable(0, false);
-  if (doesInhert) {
-    namedVariable(superclassName, false);
+
+  if (doesInherit) {
+    if (isNamespace) {
+      resolveNamespace(currentNamespace); // Recursively emit bytecode for namespace chain
+    } else {
+      namedVariable(superclassName, false);
+    }
   } else {
     namedVariable(parser.rootClass, false);
   }
+
   emitByte(OP_INHERIT);
 
   consume(TOKEN_LEFT_BRACE, "Expect '{' before class body.");
