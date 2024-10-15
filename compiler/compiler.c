@@ -18,15 +18,6 @@
 #endif
 
 #define MAX_CASES 256
-#define UNINITALISED_ADDRESS -1
-
-typedef struct LoopCompiler {
-  struct LoopCompiler* enclosing;
-  int startAddress;
-  int exitAddress;
-  int loopScopeDepth;
-  int breakJump;
-} LoopCompiler;
 
 typedef struct NestedComponent {
   struct NestedComponent* enclosing;
@@ -42,7 +33,6 @@ typedef struct {
   Token rootClass;
   bool hadError;
   bool panicMode;
-  LoopCompiler *currentLoop;
 } Parser;
 
 typedef void (*ParseFn)(bool canAssign);
@@ -308,15 +298,12 @@ int getCurrentOffset(Compiler *compiler) {
   return compiler->function->chunk.count;
 }
 
-void emitLoop() {
+static void emitLoop(int loopStart) {
   emitByte(OP_LOOP);
+  int offset = currentChunk()->count - loopStart + 2;
+  if (offset > UINT16_MAX) error("Loop body too large.");
 
-  int offset = getCurrentOffset(current) - parser.currentLoop->startAddress + 2;
-  if (offset > UINT16_MAX)
-      error("Loop body too large.");
-
-  emitByte((offset >> 8) & 0xff);
-  emitByte(offset & 0xff);
+  emitShort(offset);
 }
 
 static int emitJump(uint8_t instruction) {
@@ -361,6 +348,19 @@ static void patchJump(int offset) {
 
   currentChunk()->code[offset] = (jump >> 8) & 0xff;
   currentChunk()->code[offset + 1] = jump & 0xff;
+}
+
+static void endLoop() {
+  int offset = current->innermostLoopStart;
+  Chunk* chunk = currentChunk();
+  while (offset < chunk->count) {
+    if (chunk->code[offset] == OP_END) {
+      chunk->code[offset] = OP_JUMP;
+      patchJump(offset + 1);
+    } else {
+      offset += opCodeOffset(chunk, offset);
+    }
+  }
 }
 
 uint16_t identifierConstant(Token* name) {
@@ -2274,36 +2274,25 @@ static void awaitStatement() {
 }
 
 static void breakStatement() {
-  if (parser.currentLoop == NULL) {
-    error("Can't use 'break' outside of a loop.");
+  if (current->innermostLoopStart == -1) {
+    error("Cannot use 'break' outside of a loop.");
   }
-
-  if (parser.currentLoop->breakJump != UNINITALISED_ADDRESS) {
-    error("Only one break statement per loop is supported.");
-  }
-
   consume(TOKEN_SEMICOLON, "Expect ';' after 'break'.");
 
-  parser.currentLoop->breakJump = emitJump(OP_JUMP);
+  discardLocals();
+  emitJump(OP_END);
 }
 
 static void continueStatement() {
-  if (parser.currentLoop == NULL) {
-    error("Can't use 'continue' outside of a loop.");
+  if (current->innermostLoopStart == -1) {
+    error("Cannot use 'continue' outside of a loop.");
   }
-
   consume(TOKEN_SEMICOLON, "Expect ';' after 'continue'.");
 
-  // Discard any locals created inside the loop.
-  for (int i = current->localCount - 1;
-    i >= 0 && current->locals[i].depth > parser.currentLoop->loopScopeDepth;
-    i--) {
-    emitByte(OP_POP);
-  }
-
-  // Jump to top of current innermost loop.
-  emitLoop();
+  discardLocals();
+  emitLoop(current->innermostLoopStart);
 }
+
 
 static void forStatement() {
   beginScope();
@@ -2339,13 +2328,10 @@ static void forStatement() {
     markInitialized(true);
     consume(TOKEN_RIGHT_PAREN, "Expect ')' after loop expression.");
 
-    LoopCompiler loop;
-    loop.startAddress = getCurrentOffset(current);
-    loop.exitAddress = UNINITALISED_ADDRESS;
-    loop.breakJump = UNINITALISED_ADDRESS;
-    loop.enclosing = parser.currentLoop;
-    loop.loopScopeDepth = current->scopeDepth;
-    parser.currentLoop = &loop;
+    int loopStart = current->innermostLoopStart;
+    int scopeDepth = current->innermostLoopScopeDepth;
+    current->innermostLoopStart = currentChunk()->count;
+    current->innermostLoopScopeDepth = current->scopeDepth;
 
     getLocal(collectionSlot);
     getLocal(indexSlot);
@@ -2365,56 +2351,56 @@ static void forStatement() {
     statement();
     endScope();
 
-    emitLoop();
+    emitLoop(current->innermostLoopStart);
     patchJump(exitJump);
-    if (loop.breakJump != UNINITALISED_ADDRESS) {
-      patchJump(loop.breakJump);
-    }
+    endLoop();
+    emitByte(OP_POP);
+    emitByte(OP_POP);
+    current->localCount -= 2;
+    current->innermostLoopStart = loopStart;
+    current->innermostLoopScopeDepth = scopeDepth;
     endScope();
-    parser.currentLoop = parser.currentLoop->enclosing;
     return;
   } else {
     expressionStatement();
   }
 
-  LoopCompiler loop;
-  loop.startAddress = getCurrentOffset(current);
-  loop.exitAddress = UNINITALISED_ADDRESS;
-  loop.enclosing = parser.currentLoop;
-  loop.loopScopeDepth = current->scopeDepth;
-  loop.breakJump = UNINITALISED_ADDRESS;
-  parser.currentLoop = &loop;
+  int surroundingLoopStart = current->innermostLoopStart;
+  int surroundingLoopScopeDepth = current->innermostLoopScopeDepth;
+  current->innermostLoopStart = currentChunk()->count;
+  current->innermostLoopScopeDepth = current->scopeDepth;
 
+  int exitJump = -1;
   if (!match(TOKEN_SEMICOLON)) {
     expression();
     consume(TOKEN_SEMICOLON, "Expect ';' after loop condition.");
-    loop.exitAddress = emitJump(OP_JUMP_IF_FALSE);
+    // Jump out of the loop if the condition is false.
+    exitJump = emitJump(OP_JUMP_IF_FALSE);
     emitByte(OP_POP); // Condition.
   }
-  
   if (!match(TOKEN_RIGHT_PAREN)) {
     int bodyJump = emitJump(OP_JUMP);
-    int incrementStart = getCurrentOffset(current);
+    int incrementStart = currentChunk()->count;
     expression();
     emitByte(OP_POP);
     consume(TOKEN_RIGHT_PAREN, "Expect ')' after for clauses.");
-    emitLoop();
-    loop.startAddress = incrementStart;
+    emitLoop(current->innermostLoopStart);
+    current->innermostLoopStart = incrementStart;
     patchJump(bodyJump);
   }
 
   statement();
 
-  emitLoop();
+  emitLoop(current->innermostLoopStart);
 
-  if (loop.breakJump != UNINITALISED_ADDRESS) {
-    patchJump(loop.breakJump);
+  if (exitJump != -1) {
+    patchJump(exitJump);
+    emitByte(OP_POP); // Condition.
   }
-  if (loop.exitAddress != UNINITALISED_ADDRESS) {
-    patchJump(loop.exitAddress);
-  }
+  endLoop();
+  current->innermostLoopStart = surroundingLoopStart;
+  current->innermostLoopScopeDepth = surroundingLoopScopeDepth;
   endScope();
-  parser.currentLoop = parser.currentLoop->enclosing;
 }
 
 static void switchStatement() {
@@ -2666,40 +2652,34 @@ static void returnStatement() {
 }
 
 
-void whileStatement() {
-  LoopCompiler loop;
-  loop.startAddress = getCurrentOffset(current);
-  loop.exitAddress = UNINITALISED_ADDRESS;
-  loop.enclosing = parser.currentLoop;
-  loop.breakJump = UNINITALISED_ADDRESS;
-  loop.loopScopeDepth = current->scopeDepth;
-  parser.currentLoop = &loop;
+static void whileStatement() {
+  int loopStart = current->innermostLoopStart;
+  int scopeDepth = current->innermostLoopScopeDepth;
+  current->innermostLoopStart = currentChunk()->count;
+  current->innermostLoopScopeDepth = current->scopeDepth;
+
   consume(TOKEN_LEFT_PAREN, "Expect '(' after 'while'.");
   expression();
   consume(TOKEN_RIGHT_PAREN, "Expect ')' after condition.");
 
-  loop.exitAddress = emitJump(OP_JUMP_IF_FALSE);
-
+  int exitJump = emitJump(OP_JUMP_IF_FALSE);
   emitByte(OP_POP);
   statement();
+  emitLoop(current->innermostLoopStart);
 
-  emitLoop();
+  patchJump(exitJump);
+  emitByte(OP_POP);
 
-  patchJump(loop.exitAddress);
-  if (loop.breakJump != UNINITALISED_ADDRESS) {
-    patchJump(loop.breakJump);
-  }
-  parser.currentLoop = parser.currentLoop->enclosing;
+  endLoop();
+  current->innermostLoopStart = loopStart;
+  current->innermostLoopScopeDepth = scopeDepth;
 }
 
 static void doWhileStatement() {
-  LoopCompiler loop;
-  loop.startAddress = getCurrentOffset(current);
-  loop.exitAddress = UNINITALISED_ADDRESS;
-  loop.enclosing = parser.currentLoop;
-  loop.breakJump = UNINITALISED_ADDRESS;
-  loop.loopScopeDepth = current->scopeDepth;
-  parser.currentLoop = &loop;
+  int loopStart = current->innermostLoopStart;
+  int scopeDepth = current->innermostLoopScopeDepth;
+  current->innermostLoopStart = currentChunk()->count;
+  current->innermostLoopScopeDepth = current->scopeDepth;
 
   statement();
 
@@ -2708,17 +2688,17 @@ static void doWhileStatement() {
   expression();
   consume(TOKEN_RIGHT_PAREN, "Expect ')' after condition.");
 
-  loop.exitAddress = emitJump(OP_JUMP_IF_FALSE);
+  int exitJump = emitJump(OP_JUMP_IF_FALSE);
   emitByte(OP_POP);
 
-  emitLoop();
+  emitLoop(current->innermostLoopStart);
 
-  patchJump(loop.exitAddress);
-  if (loop.breakJump != UNINITALISED_ADDRESS) {
-    patchJump(loop.breakJump);
-  }
-  parser.currentLoop = parser.currentLoop->enclosing;
+  patchJump(exitJump);
+  emitByte(OP_POP);
 
+  endLoop();
+  current->innermostLoopStart = loopStart;
+  current->innermostLoopScopeDepth = scopeDepth;
 }
 
 static void synchronize() {
@@ -2854,7 +2834,6 @@ ObjFunction* compile(const char* source) {
   parser.rootClass = syntheticToken("Object");
   parser.hadError = false;
   parser.panicMode = false;
-  parser.currentLoop = NULL;
 
   advance();
   advance();
